@@ -17,8 +17,8 @@ include_once($eqdkp_root_path . 'common.php');
 
 // Make our _GET and _POST vars into normal variables
 // so we can process a login request through get or post
-extract($_GET);
-extract($_POST);
+extract($_GET, EXTR_SKIP);
+extract($_POST, EXTR_SKIP);
 
 if ( (isset($login)) || (isset($logout)) )
 {

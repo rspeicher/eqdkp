@@ -15,15 +15,15 @@ define('EQDKP_INC', true);
 $eqdkp_root_path = './';
 include_once($eqdkp_root_path . 'common.php');
  
-$total_news = $db->query_first('SELECT count(*) FROM ' . NEWS_TABLE);
+$total_news = $db->query_first("SELECT count(*) FROM __news");
 $start = ( isset($_GET['start']) ) ? $_GET['start'] : 0;
 
 $previous_date = 0;
-$sql = 'SELECT n.news_id, n.news_date, n.news_headline, n.news_message, u.username
-        FROM ' . NEWS_TABLE . ' n, ' . USERS_TABLE . ' u
-        WHERE (n.user_id = u.user_id)
-        ORDER BY news_date DESC
-        LIMIT '.$start.','.$user->data['user_nlimit'];
+$sql = "SELECT n.news_id, n.news_date, n.news_headline, n.news_message, u.username
+        FROM __news AS n, __users AS u
+        WHERE (n.`user_id` = u.`user_id`)
+        ORDER BY `news_date` DESC
+        LIMIT {$start},{$user->data['user_nlimit']}";
 $result = $db->query($sql);
 
 if ( $db->num_rows($result) == 0 )

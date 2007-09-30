@@ -45,9 +45,9 @@ if ( isset($_POST['submit']) )
     if ( $_POST['username'] != $user->data['username'] )
     {
 		// They changed the username. See if it's already registered
-        $sql = 'SELECT user_id
-                FROM ' . USERS_TABLE . "
-                WHERE username='".$_POST['username']."'";
+        $sql = "SELECT user_id
+                FROM __users
+                WHERE `username` = '{$_POST['username']}'";
         if ( $db->num_rows($db->query($sql)) > 0 )
         {
             $fv->errors['username'] = $user->lang['fv_already_registered_username'];
@@ -66,10 +66,10 @@ if ( isset($_POST['submit']) )
     // their current password
     if ( ($change_username) || ($change_password) )
     {
-        $sql = 'SELECT user_id
-                FROM ' . USERS_TABLE . "
-                WHERE user_id='".$user->data['user_id']."'
-                AND user_password='".md5($_POST['user_password'])."'";
+        $sql = "SELECT user_id
+                FROM __users
+                WHERE `user_id` = '{$user->data['user_id']}'
+                AND `user_password` = '" . md5($_POST['user_password']) . "'";
         if ( $db->num_rows($db->query($sql)) == 0 )
         {
             $fv->errors['user_password'] = $user->lang['incorrect_password'];
@@ -124,7 +124,7 @@ switch ( $action )
         $query_ary['user_style'] = $_POST['user_style'];
         
         $query = $db->build_query('UPDATE', $query_ary);
-        $sql = 'UPDATE ' . USERS_TABLE . ' SET ' . $query . " WHERE user_id = '" . $user->data['user_id'] . "'";
+        $sql = "UPDATE __users SET {$query} WHERE `user_id` = '{$user->data['user_id']}'";
         
         if ( !($result = $db->query($sql)) )
         {
@@ -205,9 +205,9 @@ switch ( $action )
             }
         }
 
-        $sql = 'SELECT style_id, style_name
-                FROM ' . STYLES_TABLE . '
-                ORDER BY style_name';
+        $sql = "SELECT style_id, style_name
+                FROM __styles
+                ORDER BY `style_name`";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {

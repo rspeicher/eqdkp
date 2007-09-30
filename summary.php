@@ -71,9 +71,9 @@ elseif ( (isset($_GET['from'])) && (isset($_GET['to'])) )
     $date2_display = @mktime(0, 0, 0, $mo2, ($d2 - 1), $y2);
     
     // Make sure date1 is on or after the first raid entry
-    $sql = 'SELECT MIN(raid_date) 
-            FROM ' . RAIDS_TABLE . '
-            WHERE raid_date > 0';
+    $sql = "SELECT MIN(raid_date) 
+            FROM __raids
+            WHERE `raid_date` > 0";
     $min_date = $db->query_first($sql);
     $date1 = ( $date1 < $min_date ) ? $min_date : $date1;
     
@@ -81,20 +81,20 @@ elseif ( (isset($_GET['from'])) && (isset($_GET['to'])) )
     {
         // Get the current active members.  Used to find out the percentage of
         // active members present on each raid
-        $active_members = $db->query_first('SELECT count(member_id) FROM ' . MEMBERS_TABLE . " WHERE member_firstraid BETWEEN " . $date1 . ' AND ' . $date2);
+        $active_members = $db->query_first("SELECT count(member_id) FROM __members WHERE `member_firstraid` BETWEEN {$date1} AND {$date2}");
         
         // Build the raids
         $raids    = array();
         $drops    = array();
         $raid_ids = array();
         
-        $sql = 'SELECT r.raid_id, r.raid_name, r.raid_date, r.raid_note,
-                r.raid_value, count(ra.raid_id) AS attendee_count 
-                FROM ' . RAIDS_TABLE .' r, ' . RAID_ATTENDEES_TABLE . ' ra
-                WHERE (ra.raid_id = r.raid_id)
-                AND (r.raid_date BETWEEN '.$date1.' AND '.$date2.')
-                GROUP BY r.raid_id
-                ORDER BY r.raid_date DESC';
+        $sql = "SELECT r.raid_id, r.raid_name, r.raid_date, r.raid_note,
+                    r.raid_value, count(ra.raid_id) AS attendee_count 
+                FROM __raids AS r, __raid_attendees AS ra
+                WHERE (ra.`raid_id` = r.`raid_id`)
+                AND (r.`raid_date` BETWEEN {$date1} AND {$date2})
+                GROUP BY r.`raid_id`
+                ORDER BY r.`raid_date` DESC";
         if ( !($raids_result = $db->query($sql)) )
         {
             message_die('Could not obtain raid information', '', __FILE__, __LINE__, $sql);
@@ -120,10 +120,10 @@ elseif ( (isset($_GET['from'])) && (isset($_GET['to'])) )
         $db->free_result($raids_result);
         
         // Find the item drops for each raid
-        $sql = 'SELECT raid_id, count(item_id) AS count 
-                FROM ' . ITEMS_TABLE . ' 
-                WHERE raid_id IN (' . implode(', ', $raid_ids) . ')
-                GROUP BY raid_id';
+        $sql = "SELECT raid_id, count(item_id) AS count 
+                FROM __items
+                WHERE `raid_id` IN (" . implode(', ', $raid_ids) . ")
+                GROUP BY `raid_id`";
         $result = $db->query($sql);
         
         while ( $row = $db->fetch_record($result) )
@@ -154,19 +154,19 @@ elseif ( (isset($_GET['from'])) && (isset($_GET['to'])) )
         }
         
         // Build the raid array. Contains total raids, total earned
-        $sql = 'SELECT count(raid_id) AS total_raids, sum(raid_value) AS total_earned
-                FROM ' . RAIDS_TABLE . '
-                WHERE raid_date BETWEEN '.$date1.' AND '.$date2;
+        $sql = "SELECT count(raid_id) AS total_raids, sum(raid_value) AS total_earned
+                FROM __raids
+                WHERE `raid_date` BETWEEN {$date1} AND {$date2}";
         $raid_total_result = $db->query($sql);
         $raids = $db->fetch_record($raid_total_result);
         $raids['total_earned'] = ( isset($raids['total_earned']) ) ? $raids['total_earned'] : '0.00';
         $db->free_result($raid_total_result);
         
         // Build the drops array. Contains total drops, total spent
-        $sql = 'SELECT count(item_id) AS total_drops, sum(item_value) AS total_spent
-                FROM ' . ITEMS_TABLE . '
-                WHERE item_date BETWEEN '.$date1.' AND '.$date2 .'
-                AND item_value != 0.00';
+        $sql = "SELECT count(item_id) AS total_drops, sum(item_value) AS total_spent
+                FROM __items
+                WHERE `item_date` BETWEEN {$date1} AND {$date2}
+                AND `item_value` != 0.00";
         $drop_total_result = $db->query($sql);
         $drops = $db->fetch_record($drop_total_result);
         $drops['total_spent'] = ( isset($drops['total_spent']) ) ? $drops['total_spent'] : '0.00';
@@ -176,24 +176,24 @@ elseif ( (isset($_GET['from'])) && (isset($_GET['to'])) )
         // Classes array - if an element is false, that class has gotten no
         // loot and won't show up from the SQL query
         // Otherwise it contains an array with the SQL data
-	// New for 1.3 - grab class info from database
+	    // New for 1.3 - grab class info from database
 
        $eq_classes = array();
 
         // Find the total members existing before this date to get overall class percentage
-        $sql = 'SELECT count(member_id)
-                FROM ' . MEMBERS_TABLE . '
-                WHERE member_firstraid BETWEEN ' . $date1 . ' AND ' . $date2 . '
-                AND member_class_id > 0';
+        $sql = "SELECT count(member_id)
+                FROM __members
+                WHERE `member_firstraid` BETWEEN {$date1} AND {$date2}
+                AND `member_class_id` > 0";
         $total_members = $db->query_first($sql);
         
         // Find out how many members of each class exist
         $class_counts = array();
-        $sql = 'SELECT c.class_name AS member_class, count(m.member_id) AS class_count
-                FROM ' . MEMBERS_TABLE . ' m, ' . CLASS_TABLE . ' c
-                WHERE (m.member_firstraid BETWEEN ' . $date1 . ' AND ' . $date2 . ')
-		AND (c.class_id = m.member_class_id)
-                GROUP BY member_class';
+        $sql = "SELECT c.class_name AS member_class, count(m.member_id) AS class_count
+                FROM __members AS m, __classes AS c
+                WHERE (m.`member_firstraid` BETWEEN {$date1} AND {$date2})
+                AND (c.`class_id` = m.`member_class_id`)
+                GROUP BY `member_class`";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
@@ -203,14 +203,14 @@ elseif ( (isset($_GET['from'])) && (isset($_GET['to'])) )
 
         // Query finds all items purchased by each class between these dates
         // Will not find items that are unpriced, will not find members that don't have a class defined
-        $sql = 'SELECT c.class_name AS member_class, count(i.item_id) AS class_drops
-                FROM ' . ITEMS_TABLE . ' i, ' . MEMBERS_TABLE . ' m, ' . CLASS_TABLE . ' c
-                WHERE (m.member_name = i.item_buyer)
-                AND (i.item_value != 0.00)
-                AND (m.member_class_id > 0)
-		AND (c.class_id = m.member_class_id)
-                AND (i.item_date BETWEEN ' . $date1 . ' AND ' . $date2 . ')
-                GROUP BY m.member_class_id';
+        $sql = "SELECT c.class_name AS member_class, count(i.item_id) AS class_drops
+                FROM __items AS i, __members AS m, __classes AS c
+                WHERE (m.`member_name` = i.`item_buyer`)
+                AND (i.`item_value` != 0.00)
+                AND (m.`member_class_id` > 0)
+		        AND (c.`class_id` = m.`member_class_id`)
+                AND (i.`item_date` BETWEEN {$date1} AND {$date2})
+                GROUP BY m.`member_class_id`";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
@@ -236,10 +236,10 @@ elseif ( (isset($_GET['from'])) && (isset($_GET['to'])) )
             if ( !is_array($v) )
             {
                 // We still need to find out how many of the class existed
-                $sql = 'SELECT count(member_id) 
-                        FROM ' . MEMBERS_TABLE . "
-                        WHERE member_class='".$k."'
-                        AND member_firstraid BETWEEN " . $date1 . ' AND ' . $date2;
+                $sql = "SELECT count(member_id) 
+                        FROM __members
+                        WHERE `member_class` = '{$k}'
+                        AND `member_firstraid` BETWEEN {$date1} AND {$date2}";
                 $class_members = $db->query_first($sql);
                 $class_factor = 0;
                 

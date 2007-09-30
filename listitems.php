@@ -37,18 +37,18 @@ if ( (!isset($_GET[URI_PAGE])) || ($_GET[URI_PAGE] == 'values') )
     
     $page_title = sprintf($user->lang['title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['listitems_title'];   
     
-    $total_items = $db->num_rows($db->query('SELECT item_id FROM ' . ITEMS_TABLE . ' GROUP BY item_name'));    
+    $total_items = $db->num_rows($db->query("SELECT item_id FROM __items GROUP BY item_name"));
     $start = ( isset($_GET['start']) ) ? $_GET['start'] : 0;
     
     // We don't care about history; ignore making the items unique
     $s_history = false;
 
-    $sql = 'SELECT i.item_id, i.item_name, i.item_buyer, i.item_date, i.raid_id, min(i.item_value) AS item_value, r.raid_name
-            FROM ' . ITEMS_TABLE . ' i, ' . RAIDS_TABLE . ' r
-	    WHERE i.raid_id = r.raid_id
-	    GROUP BY item_name
-            ORDER BY '.$current_order['sql']. '
-            LIMIT '.$start.','.$user->data['user_ilimit'];
+    $sql = "SELECT i.item_id, i.item_name, i.item_buyer, i.item_date, i.raid_id, min(i.item_value) AS item_value, r.raid_name
+            FROM __items AS i, __raids AS r
+            WHERE i.`raid_id` = r.`raid_id`
+            GROUP BY `item_name`
+            ORDER BY {$current_order['sql']}
+            LIMIT {$start},{$user->data['user_ilimit']}";
     
     $listitems_footcount = sprintf($user->lang['listitems_footcount'], $total_items, $user->data['user_ilimit']);
     $pagination = generate_pagination('listitems.php'.$SID.'&amp;o='.$current_order['uri']['current'], 
@@ -75,16 +75,16 @@ elseif ( $_GET[URI_PAGE] == 'history' )
     
     $page_title = sprintf($user->lang['title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['listpurchased_title'];
     
-    $total_items = $db->query_first('SELECT count(*) FROM ' . ITEMS_TABLE);
+    $total_items = $db->query_first("SELECT count(*) FROM __items");
     $start = ( isset($_GET['start']) ) ? $_GET['start'] : 0;
     
     $s_history = true;
     
-    $sql = 'SELECT i.item_id, i.item_name, i.item_buyer, i.item_date, i.raid_id, i.item_value, r.raid_name
-            FROM ' . ITEMS_TABLE . ' i, ' . RAIDS_TABLE . ' r
-            WHERE r.raid_id=i.raid_id
-            ORDER BY '.$current_order['sql']. '
-            LIMIT '.$start.','.$user->data['user_ilimit'];
+    $sql = "SELECT i.item_id, i.item_name, i.item_buyer, i.item_date, i.raid_id, i.item_value, r.raid_name
+            FROM __items AS i, __raids AS r
+            WHERE r.`raid_id` = i.`raid_id`
+            ORDER BY {$current_order['sql']}
+            LIMIT {$start},{$user->data['user_ilimit']}";
             
     $listitems_footcount = sprintf($user->lang['listpurchased_footcount'], $total_items, $user->data['user_ilimit']);
     $pagination = generate_pagination('listitems.php'.$SID.'&amp;' . URI_PAGE . '=history&amp;o='.$current_order['uri']['current'], 

@@ -35,35 +35,30 @@ $sort_order = array(
 
 $current_order = switch_order($sort_order);
 
-$total_raids = $db->query_first('SELECT count(*) FROM ' . RAIDS_TABLE);
+$total_raids = $db->query_first("SELECT count(*) FROM __raids");
 $show_all = ( (!empty($_GET['show'])) && ($_GET['show'] == "all") ) ? true : false;
 
 // No idea if this massive query will work outside MySQL...if not, we'll have
 // to use a switch and get the values another way
-
-
-
-
-$sql = 'SELECT member_name, member_earned, member_spent, member_adjustment,
-        (member_earned-member_spent+member_adjustment) AS member_current,
-        member_firstraid, member_lastraid, member_raidcount,
-        ((member_spent/member_earned)*100) AS lost_to_spent,
-        ((member_adjustment-(member_adjustment*2))/member_earned)*100 AS lost_to_adjustment,
-        (member_earned / ((('.time().' - member_firstraid)+86400) / 86400) ) AS earned_per_day,
-        (('.time().' - member_firstraid) / 86400) AS zero_check,
-        member_spent   / ((('.time().' - member_firstraid)+86400) / 86400) AS spent_per_day,
-        member_earned/member_raidcount AS earned_per_raid,
-        member_spent/member_raidcount AS spent_per_raid,
-        r.rank_prefix, r.rank_suffix
-        FROM ' . MEMBERS_TABLE . ' m
-        LEFT JOIN ' . MEMBER_RANKS_TABLE . ' r
-        ON (m.member_rank_id = r.rank_id)';
+$time = time();
+$sql = "SELECT member_name, member_earned, member_spent, member_adjustment,
+            (member_earned-member_spent+member_adjustment) AS member_current,
+            member_firstraid, member_lastraid, member_raidcount,
+            ((member_spent/member_earned)*100) AS lost_to_spent,
+            ((member_adjustment-(member_adjustment*2))/member_earned)*100 AS lost_to_adjustment,
+            (member_earned / ((({$time} - member_firstraid)+86400) / 86400) ) AS earned_per_day,
+            (({$time} - member_firstraid) / 86400) AS zero_check,
+            member_spent   / ((({$time} - member_firstraid)+86400) / 86400) AS spent_per_day,
+            member_earned/member_raidcount AS earned_per_raid,
+            member_spent/member_raidcount AS spent_per_raid,
+            r.rank_prefix, r.rank_suffix
+        FROM __members AS m LEFT JOIN __member_ranks AS r ON m.`member_rank_id` = r.`rank_id`";
 
 if ( ($eqdkp->config['hide_inactive'] == 1) && (!$show_all) )
 {
-    $sql .= " WHERE member_status='1'";
+    $sql .= " WHERE `member_status` = '1'";
 }
-$sql .= ' ORDER BY '.$current_order['sql'];
+$sql .= " ORDER BY {$current_order['sql']}";
 
 if ( !($members_result = $db->query($sql)) )
 {
@@ -129,21 +124,21 @@ else
     $eq_classes = array();
 
 // Find the total members existing with a class
-$sql = 'SELECT count(member_id)
-        FROM ' . MEMBERS_TABLE ;
+$sql = "SELECT count(member_id)
+        FROM __members" ;
 $total_members = $db->query_first($sql);
 
 // Find the total priced items
-$sql = 'SELECT count(item_id)
-        FROM ' . ITEMS_TABLE . '
-        WHERE item_value != 0.00';
+$sql = "SELECT count(item_id)
+        FROM __items
+        WHERE `item_value` != 0.00";
 $total_drops = $db->query_first($sql);
 
 // Find out how many members of each class exist
 $class_counts = array();
-$sql = 'SELECT member_class_id, count(member_id) AS class_count
-        FROM ' . MEMBERS_TABLE . '
-        GROUP BY member_class_id';
+$sql = "SELECT member_class_id, count(member_id) AS class_count
+        FROM __members
+        GROUP BY `member_class_id`";
 $result = $db->query($sql);
 
 while ( $row = $db->fetch_record($result) )
@@ -155,12 +150,12 @@ $db->free_result($result);
 
 // Query finds all items purchased by each class
 // Will not find items that are unpriced
-$sql = 'SELECT c.class_name, c.class_id, count(i.item_id) AS class_drops
-        FROM ' . ITEMS_TABLE . ' i, ' . CLASS_TABLE . ' c, ' . MEMBERS_TABLE . " m
-        WHERE (m.member_name = i.item_buyer)
-        AND (i.item_value != 0.00)
-        AND (m.member_class_id = c.class_id)
-        GROUP BY c.class_name";
+$sql = "SELECT c.class_name, c.class_id, count(i.item_id) AS class_drops
+        FROM __items AS i, __classes AS c, __members AS m
+        WHERE (m.`member_name` = i.`item_buyer`)
+        AND (i.`item_value` != 0.00)
+        AND (m.`member_class_id` = c.`class_id`)
+        GROUP BY c.`class_name`";
 
 $result = $db->query($sql);
 
@@ -190,12 +185,12 @@ $db->free_result($result);
 // Query finds all items purchased by each armor type
 // Will not find items that are unpriced
 // Check out them longass var names! :-)
-$sql = 'SELECT c.class_armor_type, count(i.item_id) AS armor_type_drops
-        FROM ' . ITEMS_TABLE . ' i, ' . CLASS_TABLE . ' c, ' . MEMBERS_TABLE . " m
-        WHERE (m.member_name = i.item_buyer)
-        AND (i.item_value != 0.00)
-        AND (m.member_class_id = c.class_id)
-        GROUP BY c.class_armor_type";
+$sql = "SELECT c.class_armor_type, count(i.item_id) AS armor_type_drops
+        FROM __items AS i, __classes AS c, __members AS m
+        WHERE (m.`member_name` = i.`item_buyer`)
+        AND (i.`item_value` != 0.00)
+        AND (m.`member_class_id` = c.`class_id`)
+        GROUP BY c.`class_armor_type`";
 
 $result = $db->query($sql);
 
@@ -203,10 +198,11 @@ while ( $row = $db->fetch_record($result) )
 {
     $armor = $row['class_armor_type'];
 
-    $number_of_armor_type_members = $db->query_first('SELECT count(*) 
-				      FROM '. CLASS_TABLE .' c, ' . MEMBERS_TABLE . " m 
-				      WHERE c.class_armor_type = '".$armor."' 
-				      AND m.member_class_id = c.class_id");
+    $sql = "SELECT count(*)
+            FROM __classes AS c, __members AS m
+            WHERE c.`class_armor_type` = '{$armor}'
+            AND m.`member_class_id` = c.`class_id`";
+    $number_of_armor_type_members = $db->query_first($sql);
 
     $number_of_armor_type_drops = $row['armor_type_drops'];
     $pct_of_armor_type_to_all_members = ( $total_members > 0 ) ? round(($number_of_armor_type_members / $total_members) * 100) : 0;
@@ -234,16 +230,11 @@ while ( $row = $db->fetch_record($result) )
 }
 $db->free_result($result);
 
-
-
-
-
-
 // We still need to find out how many of the class exist
-$sql = 'SELECT c.class_name, count(m.member_id) as class_count
-        FROM ' . MEMBERS_TABLE . ' m, ' . CLASS_TABLE .' c
-	WHERE m.member_class_id = c.class_id
-        GROUP BY m.member_class_id';
+$sql = "SELECT c.class_name, count(m.member_id) as class_count
+        FROM __members AS m, __classes AS c
+	    WHERE m.`member_class_id` = c.`class_id`
+        GROUP BY m.`member_class_id`";
 $result = $db->query($sql);
 
 while ( $row = $db->fetch_record($result) )

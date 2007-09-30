@@ -67,9 +67,9 @@ class EQdkp_Plugin_Manager
         $this->debug = ( $debug ) ? true : false;
         
         // Populate arrays of registered/installed/uninstalled plugins
-        $sql = 'SELECT plugin_code, plugin_path, plugin_installed
-                FROM ' . PLUGINS_TABLE . '
-                ORDER BY plugin_name';
+        $sql = "SELECT plugin_code, plugin_path, plugin_installed
+                FROM __plugins
+                ORDER BY plugin_name";
         $result = $db->query($sql);
         
         while ( $row = $db->fetch_record($result) )
@@ -167,8 +167,8 @@ class EQdkp_Plugin_Manager
             
             // Directory doesn't exist, we'll never get this plugin inititalized
             // Remove its entry from the database
-            $sql = 'DELETE FROM ' . PLUGINS_TABLE . "
-                    WHERE plugin_code = '" . $plugin_code . "'";
+            $sql = "DELETE FROM __plugins
+                    WHERE `plugin_code` = '{$plugin_code}'";
             $db->query($sql);
         }
         else
@@ -183,8 +183,8 @@ class EQdkp_Plugin_Manager
                 //$this->error_append('Initialization', 'File "' . $plugin_class_file . '" does not exist.', true);
                 
                 // Plugin class file doesn't exist, remove its entry from the database
-                $sql = 'DELETE FROM ' . PLUGINS_TABLE . "
-                        WHERE plugin_code = '" . $plugin_code . "'";
+                $sql = "DELETE FROM __plugins
+                        WHERE `plugin_code` = '{$plugin_code}'";
                 $db->query($sql);
             }
             else
@@ -866,22 +866,22 @@ class EQdkp_Plugin
                 // Check if we need to add permissions
                 if ( count($permissions) > 0 )
                 {
-                    $sql = 'INSERT INTO ' . AUTH_OPTIONS_TABLE . '
+                    $sql = "INSERT INTO __auth_options
                             (auth_id, auth_value, auth_default)
-                            VALUES ';
+                            VALUES ";
                             
                     foreach ( $permissions as $auth_id => $permission )
                     {
-                        $sql .= "('" . $auth_id . "','" . $permission['auth_value'] . "','" . $permission['auth_default'] . "'), ";
+                        $sql .= "('{$auth_id}','{$permission['auth_value']}','{$permission['auth_default']}'), ";
                     }
                     $sql = preg_replace('/, $/', '', $sql);
                     $this->add_sql(SQL_INSTALL, $sql, 0);
                 }
                 
                 // Set the plugin as 'installed'
-                $sql = 'UPDATE ' . PLUGINS_TABLE . " 
-                        SET plugin_installed='1' 
-                        WHERE plugin_code='" . $this->get_data('code') . "'";
+                $sql = "UPDATE __plugins
+                        SET `plugin_installed` = '1' 
+                        WHERE `plugin_code` = '" . $this->get_data('code') . "'";
                 $this->add_sql(SQL_INSTALL, $sql, 1);
                 
                 ksort($this->install_sql);
@@ -907,20 +907,20 @@ class EQdkp_Plugin
                     $in_clause = preg_replace('/,$/', '', $in_clause);
                     
                     // Auth Options
-                    $sql = 'DELETE FROM ' . AUTH_OPTIONS_TABLE . '
-                            WHERE auth_id IN(' . $in_clause . ')';
+                    $sql = "DELETE FROM __auth_options
+                            WHERE `auth_id` IN ({$in_clause})";
                     $this->add_sql(SQL_UNINSTALL, $sql, 0);
                     
                     // Auth Users
-                    $sql = 'DELETE FROM ' . AUTH_USERS_TABLE . '
-                            WHERE auth_id IN(' . $in_clause . ')';
+                    $sql = "DELETE FROM __auth_users
+                            WHERE `auth_id` IN ({$in_clause})";
                     $this->add_sql(SQL_UNINSTALL, $sql, 1);
                 }
                 
                 // Set the plugin as 'uninstalled'
-                $sql = 'UPDATE ' . PLUGINS_TABLE . "
-                        SET plugin_installed='0'
-                        WHERE plugin_code='" . $this->get_data('code') . "'";
+                $sql = "UPDATE __plugins
+                        SET `plugin_installed` = '0'
+                        WHERE `plugin_code` = '" . $this->get_data('code') . "'";
                 $this->add_sql(SQL_UNINSTALL, $sql, 2);
                 
                 ksort($this->uninstall_sql);
@@ -1012,9 +1012,9 @@ class EQdkp_Plugin
     {
         global $db;
         
-        $sql = 'SELECT plugin_installed
-                FROM ' . PLUGINS_TABLE . "
-                WHERE plugin_code='" . $plugin_code . "'";
+        $sql = "SELECT plugin_installed
+                FROM __plugins
+                WHERE `plugin_code` = '{$plugin_code}'";
         $registered = $db->query_first($sql);
         unset($sql);
         
@@ -1034,7 +1034,7 @@ class EQdkp_Plugin
                 'plugin_version'   => $plugin_version)
             );
             
-            if ( !$db->query('INSERT INTO ' . PLUGINS_TABLE . $query) )
+            if ( !$db->query("INSERT INTO __plugins {$query}") )
             {
                 return false;
             }

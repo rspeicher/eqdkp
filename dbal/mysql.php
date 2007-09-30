@@ -133,10 +133,12 @@ class SQL_DB
     */
     function query($query)
     {
+        global $table_prefix;
+        
         // Remove pre-existing query resources
         unset($this->query_id);
         
-        //$query = preg_replace('/;.*$/', '', $query);
+        $query = preg_replace('#__([^\s]+)#', $table_prefix . '\1', $query);
         
         if ( $query != '' )
         {
@@ -393,8 +395,7 @@ class SQL_DB
     */
     function escape($string)
     {
-        $string = str_replace("'", "''",    $string);
-        $string = str_replace('\\', '\\\\', $string);
+        $string = mysql_real_escape_string($string);
         
         return $string;
     }

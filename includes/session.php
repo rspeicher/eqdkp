@@ -49,10 +49,10 @@ class Session
         
         if ( (!empty($this->sid)) || ((isset($_GET[URI_SESSION])) && ($this->sid == $_GET[URI_SESSION])) )
         {
-            $sql = 'SELECT u.*, s.*
-                    FROM ' . SESSIONS_TABLE . ' s, ' . USERS_TABLE . " u
-                    WHERE s.session_id = '" . $this->sid . "'
-                    AND u.user_id = s.session_user_id";
+            $sql = "SELECT u.*, s.*
+                    FROM __sessions AS s, __users AS u
+                    WHERE s.`session_id` = '{$this->sid}'
+                    AND u.`user_id` = s.`session_user_id`";
             $result = $db->query($sql);
             
             $this->data = $db->fetch_record($result);
@@ -70,10 +70,10 @@ class Session
                     // Only update session DB a minute or so after last update or if page changes
                     if ( ($current_time - $this->data['session_current'] > 60) || ($this->data['session_page'] != $this->current_page) )
                     {
-                        $sql = 'UPDATE ' . SESSIONS_TABLE . "
-                                SET session_current = '" . $current_time . "',
-                                    session_page = '" . $db->escape($this->current_page) . "'
-                                WHERE session_id = '" . $this->sid . "'";
+                        $sql = "UPDATE __sessions
+                                SET `session_current` = '{$current_time}',
+                                    `session_page` = '" . $db->escape($this->current_page) . "'
+                                WHERE `session_id` = '{$this->sid}'";
                         $db->query($sql);
                     }
                     
@@ -110,15 +110,12 @@ class Session
         }
         
         // Grab user data
-        $sql = 'SELECT u.*, s.session_current
-                FROM (' . USERS_TABLE . ' u
-                LEFT JOIN ' . SESSIONS_TABLE . " s
-                ON s.session_user_id = u.user_id)
-                WHERE u.user_id = '" . $user_id . "'
-                ORDER BY s.session_current DESC";
-        $result = $db->query($sql);
-        
-        $this->data = $db->fetch_record($result);
+        $sql = "SELECT u.*, s.session_current
+                FROM (__users AS u LEFT JOIN __sessions AS s ON `s.session_user_id` = `u.user_id`)
+                WHERE `u.user_id` = '{$user_id}'
+                ORDER BY `s.session_current` DESC
+                LIMIT 1";        
+        $this->data = $db->fetch_record($db->query($sql));
         $db->free_result($result);
         
         // Check auto login request to see if it's valid
@@ -139,7 +136,7 @@ class Session
             'session_current'    => $current_time,
             'session_page'       => $db->escape($this->current_page))
         );
-        $sql = 'UPDATE ' . SESSIONS_TABLE . ' SET ' . $query . " WHERE session_id='" . $this->sid . "'";
+        $sql = "UPDATE __sessions SET {$query} WHERE `session_id` = '" . $this->sid . "'";
         
         if ( ($this->sid == '') || (!$db->query($sql)) || (!$db->affected_rows()) )
         {
@@ -154,7 +151,7 @@ class Session
                 'session_ip'         => $this->ip_address,
                 'session_page'       => $db->escape($this->current_page))
             );
-            $db->query('INSERT INTO ' . SESSIONS_TABLE . $query);
+            $db->query("INSERT INTO __sessions {$query}");
         }
         
         $this->data['session_id'] = $this->sid;
@@ -180,14 +177,14 @@ class Session
         $SID = '?' . URI_SESSION . '=';
         
         // Delete existing session
-        $sql = 'UPDATE ' . USERS_TABLE . "
-                SET user_lastvisit='" . intval($this->data['session_current']) . "'
-                WHERE user_id='" . $this->data['user_id'] . "'";
+        $sql = "UPDATE __users
+                SET `user_lastvisit` = '" . intval($this->data['session_current']) . "'
+                WHERE `user_id` = '{$this->data['user_id']}'";
         $db->query($sql);
         
-        $sql = 'DELETE FROM ' . SESSIONS_TABLE . "
-                WHERE session_id='" . $this->sid . "'
-                AND session_user_id='" . $this->data['user_id'] . "'";
+        $sql = "DELETE FROM __sessions
+                WHERE `session_id` = '{$this->sid}'
+                AND `session_user_id` = '{$this->data['user_id']}'";
         $db->query($sql);
         
         $this->sid = '';
@@ -200,10 +197,10 @@ class Session
         global $db, $eqdkp;
         
         // Get expired sessions, only most recent for each user
-        $sql = 'SELECT session_user_id, session_page, MAX(session_current) AS recent_time
-                FROM ' . SESSIONS_TABLE . '
-                WHERE session_current < ' . ($current_time - $eqdkp->config['session_length']) . '
-                GROUP BY session_user_id, session_page';
+        $sql = "SELECT session_user_id, session_page, MAX(session_current) AS recent_time
+                FROM __sessions
+                WHERE `session_current` < " . ($current_time - $eqdkp->config['session_length']) . "
+                GROUP BY `session_user_id`, `session_page`";
         $result = $db->query($sql);
         
         $del_user_id  = '';
@@ -214,9 +211,10 @@ class Session
             {
                 if ( intval($row['session_user_id']) != ANONYMOUS )
                 {
-                    $sql = 'UPDATE ' . USERS_TABLE . "
-                            SET user_lastvisit='" . $row['recent_time'] . "', user_lastpage='" . $db->escape($row['session_page']) . "'
-                            WHERE user_id = '" . $row['session_user_id'] . "'";
+                    $sql = "UPDATE __users
+                            SET `user_lastvisit` = '{$row['recent_time']}', 
+                                `user_lastpage` = '" . $db->escape($row['session_page']) . "'
+                            WHERE `user_id` = '{$row['session_user_id']}'";
                     $db->query($sql);
                 }
                 
@@ -229,9 +227,9 @@ class Session
         if ( $del_user_id != '' )
         {
             // Delete expired sessions
-            $sql = 'DELETE FROM ' . SESSIONS_TABLE . "
-                    WHERE session_user_id IN ($del_user_id)
-                    AND session_current < " . ($current_time - $eqdkp->config['session_length']);
+            $sql = "DELETE FROM __sessions
+                    WHERE `session_user_id` IN ($del_user_id)
+                    AND `session_current` < " . ($current_time - $eqdkp->config['session_length']);
             $db->query($sql);
         }
         
@@ -239,9 +237,9 @@ class Session
         {
             // Less than 5 sessions, update gc timer
             // Otherwise we want cleanup called again to delete other sessions
-            $sql = 'UPDATE ' . CONFIG_TABLE . "
-                    SET config_value='".$current_time."'
-                    WHERE config_name='session_last_cleanup'";
+            $sql = "UPDATE __config
+                    SET `config_value` = '{$current_time}'
+                    WHERE `config_name` = 'session_last_cleanup'";
             $db->query($sql);
         }
     }
@@ -310,10 +308,10 @@ class User extends Session
         // Set up style
         $style = ( $style ) ? $style : ( ($this->data['user_id'] != ANONYMOUS) ? $this->data['user_style'] : $eqdkp->config['default_style']);
 
-        $sql = 'SELECT s.*, c.*
-                FROM ' . STYLES_TABLE . ' s, ' . STYLES_CONFIG_TABLE . ' c
-                WHERE s.style_id=c.style_id
-                AND s.style_id='.$style;
+        $sql = "SELECT s.*, c.*
+                FROM __styles AS s, __style_config AS c
+                WHERE s.`style_id` = c.`style_id`
+                AND s.`style_id` = '{$style}'";
         $result = $db->query($sql);
 
         if ( !($this->style = $db->fetch_record($result)) )
@@ -323,10 +321,10 @@ class User extends Session
             
             // NOTE: This was mostly only an issue during development before the
             // manage_styles panel was developed, but can remain here as a fail-safe
-            $sql = 'SELECT s.*, c.*
-                    FROM ' . STYLES_TABLE . ' s, ' . STYLES_CONFIG_TABLE . ' c
-                    WHERE s.style_id=c.style_id
-                    AND s.style_id='.$eqdkp->config['default_style'];
+            $sql = "SELECT s.*, c.*
+                    FROM __styles AS s, __style_config AS c
+                    WHERE s.`style_id` = c.`style_id`
+                    AND s.`style_id` = '{$eqdkp->config['default_style']}'";
             $result = $db->query($sql);
             $this->style = $db->fetch_record($result);
         }
@@ -350,15 +348,15 @@ class User extends Session
         if ( $this->data['user_id'] == ANONYMOUS )
         {
             // Get the default permissions if they're not logged in
-            $sql = 'SELECT auth_value, auth_default AS auth_setting
-                    FROM ' . AUTH_OPTIONS_TABLE;
+            $sql = "SELECT auth_value, auth_default AS auth_setting
+                    FROM __auth_options";
         }
         else
         {
-            $sql = 'SELECT o.auth_value, u.auth_setting
-                    FROM ' . AUTH_USERS_TABLE . ' u, ' . AUTH_OPTIONS_TABLE . " o
-                    WHERE (u.auth_id = o.auth_id)
-                    AND (u.user_id='".$this->data['user_id']."')";
+            $sql = "SELECT o.auth_value, u.auth_setting
+                    FROM __auth_users AS u, __auth_options AS o
+                    WHERE (u.`auth_id` = o.`auth_id`)
+                    AND (u.`user_id` = '{$this->data['user_id']}')";
         }
         if ( !($result = $db->query($sql)) )
         {
@@ -405,9 +403,10 @@ class User extends Session
             global $db;
             
             $auth = array();
-            $sql = 'SELECT au.auth_setting, ao.auth_value
-                    FROM ' . AUTH_USERS_TABLE . ' au, ' . AUTH_OPTIONS_TABLE . " ao
-                    WHERE (au.auth_id = ao.auth_id) AND (au.user_id='".$user_id."')";
+            $sql = "SELECT au.auth_setting, ao.auth_value
+                    FROM __auth_users AS au, __auth_options AS ao
+                    WHERE (au.`auth_id` = ao.`auth_id`)
+                    AND (au.`user_id` = '{$user_id}')";
             $result = $db->query($sql);
             while ( $row = $db->fetch_record($result) )
             {
@@ -471,9 +470,9 @@ class User extends Session
     {
         global $user, $db, $eqdkp;
 
-        $sql = 'SELECT user_id, username, user_password, user_email, user_active
-                FROM ' . USERS_TABLE . "
-                WHERE username='" . addslashes($username) . "'";
+        $sql = "SELECT user_id, username, user_password, user_email, user_active
+                FROM __users
+                WHERE `username` = '" . $db->escape($username) . "'";
         $result = $db->query($sql);
 
         if ( $row = $db->fetch_record($result) )

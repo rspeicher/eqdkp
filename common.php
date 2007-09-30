@@ -18,9 +18,11 @@ if ( !defined('EQDKP_INC') )
 
 setcookie('herefirst', 'yes');
 
-error_reporting (E_ALL ^ E_NOTICE);
+//error_reporting (E_ALL ^ E_NOTICE);
+error_reporting (E_ALL);
 
 // Disable magic quotes and add slashes to global arrays
+/*
 set_magic_quotes_runtime(0);
 if ( get_magic_quotes_gpc() == 0 )
 {
@@ -28,6 +30,7 @@ if ( get_magic_quotes_gpc() == 0 )
     $_POST = slash_global_data($_POST);
     $_COOKIE = slash_global_data($_COOKIE);
 }
+*/
 
 // Default the site-wide variables
 $gen_simple_header = false;
@@ -60,13 +63,15 @@ define('NO_CACHE', true);
 // Debug level [0 = Off / 1 = Render time, Query count / 2 = 1 + Show queries]
 // Fixed in 1.3 so it works from config.php and obeys URL parsing of ?debug=2
 
+/*
 if ( isset($debug) && $debug == 0 ) {
 
    $debug = ( isset($_GET['debug']) ) ? intval($_GET['debug']) : 0;
 
 }
+*/
 
-define('DEBUG', $debug);
+define('DEBUG', 2);
 
 // User Levels
 define('ANONYMOUS', -1);
@@ -90,6 +95,7 @@ define('URI_RAID',       'r');
 define('URI_SESSION',    's');
 
 // Database Table names
+/*
 define('ADJUSTMENTS_TABLE',    $table_prefix . 'adjustments');
 define('ADMINS_TABLE',         $table_prefix . 'admins');
 define('AUTH_OPTIONS_TABLE',   $table_prefix . 'auth_options');
@@ -113,7 +119,7 @@ define('USERS_TABLE',          $table_prefix . 'users');
 define('CLASS_TABLE',	       $table_prefix . 'classes');
 define('RACE_TABLE',	       $table_prefix . 'races');
 define('FACTION_TABLE',	       $table_prefix . 'factions');
-
+*/
 
 // Auth Options
 define('A_EVENT_ADD',    1);
@@ -196,6 +202,7 @@ if ( (defined('IN_ADMIN')) && (IN_ADMIN === true) )
 * @param $data Array of data or a single string
 * @return mixed Array or string of data
 */
+/*
 function slash_global_data($data)
 {
     if ( is_array($data) )
@@ -207,4 +214,5 @@ function slash_global_data($data)
     }
     return $data;
 }
+*/
 ?>

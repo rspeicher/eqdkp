@@ -53,15 +53,15 @@ elseif ( isset($_GET['compare']) )
     $thirty_days = mktime(0, 0, 0, date('m'), date('d')-30, date('Y'));
     $ninety_days = mktime(0, 0, 0, date('m'), date('d')-90, date('Y'));
     
-    $raid_count_30 = $db->query_first('SELECT count(*) FROM ' . RAIDS_TABLE . ' WHERE raid_date BETWEEN '.$thirty_days.' AND '.time());
-    $raid_count_90 = $db->query_first('SELECT count(*) FROM ' . RAIDS_TABLE . ' WHERE raid_date BETWEEN '.$ninety_days.' AND '.time());
+    $raid_count_30 = $db->query_first("SELECT count(*) FROM __raids WHERE `raid_date` BETWEEN {$thirty_days} AND " . time());
+    $raid_count_90 = $db->query_first("SELECT count(*) FROM __raids WHERE `raid_date` BETWEEN {$ninety_days} AND " . time());
     
     // Build an SQL query that includes each of the compare IDs
     $sql = "SELECT *, (member_earned-member_spent+member_adjustment) AS member_current, c.class_name AS member_class
-            FROM " . MEMBERS_TABLE . " m, " . CLASS_TABLE . " c
-            WHERE (m.member_class_id = c.class_id) 
-            AND (member_id IN (" . $compare . "))
-            ORDER BY " . $current_order['sql'];
+            FROM __members AS m, __classes AS c
+            WHERE (m.`member_class_id` = c.`class_id`)
+            AND (member_id IN ({$compare}))
+            ORDER BY {$current_order['sql']}";
     $result = $db->query($sql);
 
     // Output each row
@@ -70,18 +70,18 @@ elseif ( isset($_GET['compare']) )
         $individual_raid_count_30 = 0;
         $individual_raid_count_90 = 0;
         
-        $rc_sql = 'SELECT count(*)
-                   FROM ' . RAIDS_TABLE . ' r, ' . RAID_ATTENDEES_TABLE . " ra
-                   WHERE (ra.raid_id = r.raid_id)
-                   AND (ra.member_name='".$row['member_name']."')
-                   AND (r.raid_date BETWEEN ".$thirty_days.' AND '.time().')';
+        $rc_sql = "SELECT count(*)
+                   FROM __raids AS r, __raid_attendees AS ra
+                   WHERE (ra.`raid_id` = r.`raid_id`)
+                   AND (ra.`member_name` = '{$row['member_name']}')
+                   AND (r.raid_date BETWEEN {$thirty_days} AND " . time() . ')';
         $individual_raid_count_30 = $db->query_first($rc_sql);
         
-        $rc_sql = 'SELECT count(*)
-                   FROM ' . RAIDS_TABLE . ' r, ' . RAID_ATTENDEES_TABLE . " ra
-                   WHERE (ra.raid_id = r.raid_id)
-                   AND (ra.member_name='".$row['member_name']."')
-                   AND (r.raid_date BETWEEN ".$ninety_days.' AND '.time().')';
+        $rc_sql = "SELECT count(*)
+                   FROM __raids AS r, __raid_attendees AS ra
+                   WHERE (ra.`raid_id` = r.`raid_id`)
+                   AND (ra.`member_name` = '{$row['member_name']}')
+                   AND (r.`raid_date` BETWEEN {$ninety_days} AND " . time() . ')';
         $individual_raid_count_90 = $db->query_first($rc_sql);
         
         // Prevent division by 0
@@ -91,9 +91,9 @@ elseif ( isset($_GET['compare']) )
         // If the member's spent is greater than 0, see how long ago they looted an item
         if ( $row['member_spent'] > 0 )
         {
-            $ll_sql = 'SELECT max(item_date) AS last_loot
-                       FROM ' . ITEMS_TABLE . "
-                       WHERE item_buyer='".$row['member_name']."'";
+            $ll_sql = "SELECT max(item_date) AS last_loot
+                       FROM __items
+                       WHERE `item_buyer` = '{$row['member_name']}'";
             $last_loot = $db->query_first($ll_sql);
         }
         
@@ -155,7 +155,7 @@ else
 
 
     // Grab class_id
-
+    // TODO: Redo this garbage.
     if ( isset($_GET['filter']) ) {
 
 	$temp_filter = $_GET['filter'];
@@ -203,7 +203,7 @@ else
 
 	// Grab generic armor information
 
-	$sql = 'SELECT class_armor_type FROM ' . CLASS_TABLE .'';
+	$sql = "SELECT class_armor_type FROM __classes";
 	$sql .= ' GROUP BY class_armor_type';
 	$result = $db->query($sql);
 
@@ -228,8 +228,9 @@ else
 
 	// Moved the class/race/faction information to the database
 
-        $sql = 'SELECT class_name, class_id, class_min_level, class_max_level FROM ' . CLASS_TABLE .'';
-        $sql .= ' GROUP BY class_name';
+        $sql = "SELECT class_name, class_id, class_min_level, class_max_level 
+                FROM __classes
+                GROUP BY class_name";
         $result = $db->query($sql);
 
         while ( $row = $db->fetch_record($result) )
@@ -245,15 +246,13 @@ else
 	// end database move of race/class/faction
 
     // Build SQL query based on GET options
-    $sql = 'SELECT m.*, (m.member_earned-m.member_spent+m.member_adjustment) AS member_current, 
-		   member_status, r.rank_name, r.rank_hide, r.rank_prefix, r.rank_suffix, 
-                   c.class_name AS member_class, 
-                   c.class_armor_type AS armor_type,
-		   c.class_min_level AS min_level,
-		   c.class_max_level AS max_level
-            FROM ' . MEMBERS_TABLE . ' m, ' . MEMBER_RANKS_TABLE . ' r, ' . CLASS_TABLE . ' c
-	    WHERE c.class_id = m.member_class_id
-            AND (m.member_rank_id = r.rank_id)';
+    $sql = "SELECT m.*, (m.member_earned-m.member_spent+m.member_adjustment) AS member_current, 
+		        m.member_status, r.rank_name, r.rank_hide, r.rank_prefix, r.rank_suffix, 
+                c.class_name AS member_class, c.class_armor_type AS armor_type,
+                c.class_min_level AS min_level, c.class_max_level AS max_level
+            FROM __members AS m, __member_ranks AS r, __classes AS c
+            WHERE c.`class_id` = m.`member_class_id`
+            AND (m.`member_rank_id` = r.`rank_id`)";
     if ( !empty($_GET['rank']) and validateRank($_GET['rank']) )
     {
         $sql .= " AND r.rank_name='" . urldecode($_GET['rank']) . "'";
@@ -461,7 +460,7 @@ function validateRank($rank)
 	$retval = false;
 	
 	$sql = "SELECT rank_id, rank_name
-			FROM " . MEMBER_RANKS_TABLE;
+			FROM __member_ranks";
 	$result = $db->query($sql);
 	
 	while ( $row = $db->fetch_record($result) )

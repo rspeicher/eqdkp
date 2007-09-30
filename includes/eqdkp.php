@@ -40,6 +40,10 @@ class EQdkp
     var $timer_start = 0;                       // Page timer start         @var timer_start
     var $timer_end   = 0;                       // Page timer end           @var timer_end
     
+    // Input
+    var $_input  = array();
+    var $_idKeys = array(URI_ADJUSTMENT, URI_EVENT, URI_ITEM, URI_LOG, URI_NEWS, URI_PAGE, URI_RAID);
+
     function eqdkp($eqdkp_root_path = './')
     {
         // Start a script timer if we're debugging
@@ -65,7 +69,7 @@ class EQdkp
         }
 
         $sql = 'SELECT config_name, config_value
-                FROM ' . CONFIG_TABLE;
+                FROM __config';
 
         if ( !($result = $db->query($sql)) )
         {
@@ -97,9 +101,9 @@ class EQdkp
             }
             else
             {
-                $sql = 'UPDATE ' . CONFIG_TABLE . "
-                        SET config_value='".strip_tags(htmlspecialchars($config_value))."'
-                        WHERE config_name='".$config_name."'";
+                $sql = "UPDATE __config
+                        SET `config_value` = '" . strip_tags(htmlspecialchars($config_value)) . "'
+                        WHERE `config_name` = '{$config_name}'";
                 $db->query($sql);
                 
                 return true;
@@ -792,7 +796,7 @@ class EQdkp_Admin
             }
             
             $query = $db->build_query('INSERT', $values);
-            $sql = 'INSERT INTO ' . LOGS_TABLE . $query;
+            $sql = 'INSERT INTO __logs' . $query;
 
             $db->query($sql);
 

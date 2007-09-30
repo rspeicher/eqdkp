@@ -57,7 +57,7 @@ if( !defined('EQDKP_INSTALLED') )
 
 
 // Constants
-define('EQDKP_VERSION', '1.3.2');
+define('EQDKP_VERSION', '1.3.3');
 define('NO_CACHE', true);
 
 // Debug level [0 = Off / 1 = Render time, Query count / 2 = 1 + Show queries]

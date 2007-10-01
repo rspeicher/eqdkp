@@ -38,57 +38,6 @@ function hash_filename($filename)
 }
 
 /**
-* Validates SOAP users before the beginning of every transaction
-* returns Success or Failure based on entries in the
-* eqdkp_soap_auth table
-*
-* @param	string	$user	SOAP user trying to auth
-* @param	string	$ip_address	user client ip
-* @param	string	$password	user password
-* @return	string
-*/
-
-function soap_validate($user,$password)
-{
-   global $db, $eqdkp;
-
-   $user = addslashes($user);
-   $crypt_pass = md5($password);
-	
-   $sql = "SELECT a.auth_id, a.auth_setting, u.username, u.user_password AS password
-	   FROM " . AUTH_USERS_TABLE . " a, " . USERS_TABLE ." u
-	   WHERE ( a.auth_id = 34 OR a.auth_id = 35) 
-	   AND u.user_password = '$crypt_pass'
-	   AND u.username = '$user' 
-	   AND u.user_id = a.user_id
-	   ORDER BY auth_id";
-	
-   $result = $db->query($sql);
-
- $status = "ENOAUTH";
-
- while ( $row = $db->fetch_record($result) )
- {
-
-   //  If row, and if password and IP address match, let them in
-
-	if ( ($row['auth_id'] == '34') && ($row['auth_setting'] == 'Y') && ($row['password'] == $crypt_pass) ) {
-		$status = "R";
-	}
-	
-	if ( ($row['auth_id'] == '35') && ($row['auth_setting'] == 'Y') && ($row['password'] == $crypt_pass) ) {
-                $status = "W";
-        }
-
-
- }
-
-
- return($status);
-  
-}
-
-/**
 * Obviously, this function cleans any data passed
 * to it of special characters
 * 

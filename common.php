@@ -46,10 +46,6 @@ if( !is_file($eqdkp_root_path . 'config.php') )
 
 require_once($eqdkp_root_path . 'config.php');
 
-if ( !class_exists('soapclient') ) {
-	include_once($eqdkp_root_path . 'includes/nusoap.php');
-}
-
 if( !defined('EQDKP_INSTALLED') )
 {
 	header('Location: ' . $eqdkp_root_path . 'install.php');
@@ -105,7 +101,6 @@ define('EVENTS_TABLE',         $table_prefix . 'events');
 define('ITEMS_TABLE',          $table_prefix . 'items');
 define('LOGS_TABLE',           $table_prefix . 'logs');
 define('MEMBERS_TABLE',        $table_prefix . 'members');
-define('SOAP_TABLE',	       $table_prefix . 'soap_auth');
 define('MEMBER_RANKS_TABLE',   $table_prefix . 'member_ranks');
 define('MEMBER_USER_TABLE',    $table_prefix . 'member_user');
 define('NEWS_TABLE',           $table_prefix . 'news');
@@ -155,8 +150,6 @@ define('U_RAID_LIST',   30);
 define('U_RAID_VIEW',   31);
 define('A_PLUGINS_MAN', 32);
 define('A_STYLES_MAN',  33);
-define('A_SOAP_READ',   34);
-define('A_SOAP_WRITE',  35);
 define('A_BACKUP',      36);
 
 include_once($eqdkp_root_path . 'includes/functions.php');

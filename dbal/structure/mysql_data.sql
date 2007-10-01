@@ -67,8 +67,6 @@ INSERT INTO eqdkp_auth_options (auth_id, auth_value, auth_default) VALUES ('30',
 INSERT INTO eqdkp_auth_options (auth_id, auth_value, auth_default) VALUES ('31','u_raid_view','Y');
 INSERT INTO eqdkp_auth_options (auth_id, auth_value, auth_default) VALUES ('32','a_plugins_man','N');
 INSERT INTO eqdkp_auth_options (auth_id, auth_value, auth_default) VALUES ('33','a_styles_man','N');
-INSERT INTO eqdkp_auth_options (auth_id, auth_value, auth_default) VALUES ('34','a_soap_read','N');
-INSERT INTO eqdkp_auth_options (auth_id, auth_value, auth_default) VALUES ('35','a_soap_write','N');
 INSERT INTO eqdkp_auth_options (auth_id, auth_value, auth_default) VALUES ('36','a_backup','N');
 
 ### Style presets

@@ -53,8 +53,6 @@ Version 1.3.0 - August 1, 2005
 [ ] Next release will require PHP 5.x and MySql 5.x
 [+] Added German language SQL info for races/classes (thx Esmeroth)
 
-
-
 Version 1.2.0 - Oct 4, 2003
 ---------------------------
 [*] Fixed a bug in viewmember.php that might have resulted in a miscalculated percentage for attendance-by-event.

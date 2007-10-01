@@ -434,7 +434,7 @@ class EQdkp
                     {
                         $tpl->assign_block_vars('query_row', array(
                             'ROW_CLASS' => $this->switch_row_class(),
-                            'QUERY' => sql_highlight($query))
+                            'QUERY' => $this->sql_highlight($query))
                         );
                     }
                 }
@@ -462,6 +462,35 @@ class EQdkp
         $tpl->destroy();
          
         exit;
+    }
+    
+    /**
+    * Highlight certain keywords in a SQL query
+    * 
+    * @param $sql Query string
+    * @return string Highlighted string
+    */ 
+    function sql_highlight($sql)
+    {
+        global $table_prefix;
+
+        // Make table names bold
+        $sql = preg_replace('/' . $table_prefix .'(\S+?)([\s\.,]|$)/', '<b>' . $table_prefix . "\\1\\2</b>", $sql);
+
+        // Non-passive keywords
+        $red_keywords = array('/(INSERT INTO)/','/(UPDATE\s+)/','/(DELETE FROM\s+)/', '/(CREATE TABLE)/', '/(IF (NOT)? EXISTS)/', 
+                              '/(ALTER TABLE)/', '/(CHANGE)/');
+        $red_replace = array_fill(0, sizeof($red_keywords), '<span class="negative">\\1</span>');
+        $sql = preg_replace($red_keywords, $red_replace, $sql);
+
+        // Passive keywords
+        $green_keywords = array('/(SELECT)/','/(FROM)/','/(WHERE)/','/(LIMIT)/','/(ORDER BY)/','/(GROUP BY)/',
+                                '/(\s+AND\s+)/','/(\s+OR\s+)/','/(BETWEEN)/','/(DESC)/','/(LEFT JOIN)/');
+
+        $green_replace = array_fill(0, sizeof($green_keywords), '<span class="positive">\\1</span>');
+        $sql = preg_replace($green_keywords, $green_replace, $sql);
+
+        return $sql;
     }
 }
 

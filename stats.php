@@ -100,8 +100,8 @@ while ( $row = $db->fetch_record($members_result) )
         'LOST_TO_ADJUSTMENT' => sprintf("%.2f", $row['lost_to_adjustment']),
         'LOST_TO_SPENT' => sprintf("%.2f", $row['lost_to_spent']),
         'C_CURRENT' => color_item($row['member_current']),
-        'CURRENT' => $row['member_current'])
-    );
+        'CURRENT' => number_format($row['member_current'], 2),
+    ));
 }
 
 if ( ($eqdkp->config['hide_inactive'] == 1) && (!$show_all) )

@@ -509,7 +509,7 @@ class MM_Addmember extends EQdkp_Admin
             'MEMBER_EARNED'         => $this->member['member_earned'],
             'MEMBER_SPENT'          => $this->member['member_spent'],
             'MEMBER_ADJUSTMENT'     => $this->member['member_adjustment'],
-            'MEMBER_CURRENT'        => ( !empty($this->member['member_current']) ) ? $this->member['member_current'] : '0.00',
+            'MEMBER_CURRENT'        => ( !empty($this->member['member_current']) ) ? number_format($this->member['member_current'], 2) : '0.00',
             'MEMBER_LEVEL'          => $this->member['member_level'],
             'CORRECT_MEMBER_EARNED' => ( !empty($correct_earned) ) ? $correct_earned : '0.00',
             'CORRECT_MEMBER_SPENT'  => ( !empty($correct_spent) ) ? $correct_spent : '0.00',

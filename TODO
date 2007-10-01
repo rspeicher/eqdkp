@@ -12,11 +12,17 @@ Global de-stupifying from 1.3
 /admin/index.php
     - Refactor get_x_name into a single method.
     
+/admin/mm/mm_addmember.php
+    x Format the current value correctly.
+    
 /admin/mm/mm_listmembers.php
-    - Format the current value correctly.
+    x Format the current value correctly.
 
 /listmembers.php
-    - Format the current value correctly.
+    x Format the current value correctly.
+    
+/stats.php
+    x Format the current value correctly.
 
 /viewmember.php
-    - Format the current value correctly.
+    x Format the current value correctly.

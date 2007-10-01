@@ -79,6 +79,7 @@ class Backup extends EQdkp_Admin
       global $db, $eqdkp, $user, $tpl, $pm, $dbhost;
       global $SID;
 		
+		// TODO: Change these, unless this script needs to be deleted.
   		$tables = array(
   			ADJUSTMENTS_TABLE,
   			AUTH_OPTIONS_TABLE,

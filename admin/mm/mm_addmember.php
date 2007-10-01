@@ -59,7 +59,8 @@ class MM_Addmember extends EQdkp_Admin
             {
                 foreach ( $_POST['compare_ids'] as $id )
                 {
-                    $member_name = $db->query_first('SELECT member_name FROM ' . MEMBERS_TABLE . " WHERE member_id='" . $id . "'");
+                    // FIXME: Injection
+                    $member_name = $db->query_first("SELECT member_name FROM __members WHERE `member_id` = '{$id}'");
                     $member_names[] = $member_name;
                 }
 
@@ -103,12 +104,12 @@ class MM_Addmember extends EQdkp_Admin
         // ---------------------------------------------------------
         if ( !empty($this->url_id) )
         {
-            $sql = 'SELECT m.*, (m.member_earned - m.member_spent + m.member_adjustment) AS member_current, 
-			c.class_name AS member_class, r.race_name AS member_race
-                    	FROM ' . MEMBERS_TABLE . ' m, ' . CLASS_TABLE . ' c, ' . RACE_TABLE . " r  
-			WHERE r.race_id = m.member_race_id 
-			AND c.class_id = m.member_class_id 
-			AND member_name='" . $this->url_id . "'";
+            $sql = "SELECT m.*, (m.member_earned - m.member_spent + m.member_adjustment) AS member_current, 
+			            c.class_name AS member_class, r.race_name AS member_race
+                    FROM __members AS m, __classes AS c, __races AS r  
+        			WHERE r.`race_id` = m.`member_race_id` 
+        			AND c.`class_id` = m.`member_class_id`
+        			AND m.`member_name` = '{$this->url_id}'";
             $result = $db->query($sql);
             $row = $db->fetch_record($result);
             $db->free_result($result);
@@ -164,7 +165,7 @@ class MM_Addmember extends EQdkp_Admin
         $member_name = ucwords($member_name);
 
 	// Check for existing member name
-	$sql = "SELECT member_id FROM " . MEMBERS_TABLE ." WHERE member_name = '".$member_name."'";
+	$sql = "SELECT member_id FROM __members WHERE `member_name` = '{$member_name}'";
 	$member_id = $db->query_first($sql);
 
 
@@ -194,7 +195,7 @@ class MM_Addmember extends EQdkp_Admin
             'member_class_id'   => $_POST['member_class_id'],
             'member_rank_id'    => $_POST['member_rank_id'])
         );
-        $db->query('INSERT INTO ' . MEMBERS_TABLE . $query);
+        $db->query("INSERT INTO __members {$query}");
 
         //
         // Logging
@@ -240,6 +241,7 @@ class MM_Addmember extends EQdkp_Admin
         $old_member_name = $this->old_member['member_name'];
 
         // Make sure that each member's name is properly capitalized
+        // FIXME: Injection
         $member_name = strtolower(preg_replace('/[[:space:]]/i', ' ', $_POST['member_name']));
         $member_name = ucwords($member_name);
 
@@ -256,21 +258,19 @@ class MM_Addmember extends EQdkp_Admin
             'member_class_id'   => $_POST['member_class_id'],
             'member_rank_id'    => $_POST['member_rank_id'])
         );
-        $db->query('UPDATE ' . MEMBERS_TABLE . ' SET ' . $query . " WHERE member_name='" . $old_member_name . "'");
+        $db->query("UPDATE __members SET {$query} WHERE `member_name` = '{$old_member_name}'");
 
-	if ( !($member_name == $old_member_name) ) {
+    	if ( !($member_name == $old_member_name) )
+    	{
+    		$sql = "UPDATE __raid_attendees SET `member_name` = '{$member_name}' WHERE `member_name` = '{$old_member_name}'";
+    		$db->query_first($sql);
 	
-		$sql = "UPDATE " . RAID_ATTENDEES_TABLE . " SET member_name = '" . $member_name ."' WHERE member_name = '". $old_member_name . "'";
-		$db->query_first($sql);
-	
-		$sql = "UPDATE " . ITEMS_TABLE . " SET item_buyer = '" . $member_name ."' WHERE item_buyer = '". $old_member_name . "'";
-		$db->query_first($sql);
-	
-                $sql = "UPDATE " . ADJUSTMENT_TABLE . " SET member_name = '" . $member_name ."' WHERE member_name = '". $old_member_name . "'";
-                $db->query_first($sql);
-	
-	}
-	
+    		$sql = "UPDATE __items SET `item_buyer` = '{$member_name}' WHERE `item_buyer` = '{$old_member_name}'";
+    		$db->query_first($sql);
+
+            $sql = "UPDATE __adjustments SET `member_name` = '{$member_name}' WHERE `member_name` = '{$old_member_name}'";
+            $db->query_first($sql);
+    	}
 
         //
         // Logging
@@ -329,29 +329,25 @@ class MM_Addmember extends EQdkp_Admin
             //
             // Delete attendance
             //
-            $sql = 'DELETE FROM ' . RAID_ATTENDEES_TABLE . "
-                    WHERE member_name='" . $member_name . "'";
+            $sql = "DELETE FROM __raid_attendees WHERE `member_name` = '{$member_name}'";
             $db->query($sql);
 
             //
             // Delete items
             //
-            $sql = 'DELETE FROM ' . ITEMS_TABLE . "
-                    WHERE item_buyer='" . $member_name . "'";
+            $sql = "DELETE FROM __items WHERE `item_buyer` = '{$member_name}'";
             $db->query($sql);
 
             //
             // Delete adjustments
             //
-            $sql = 'DELETE FROM ' . ADJUSTMENTS_TABLE . "
-                    WHERE member_name='" . $member_name . "'";
+            $sql = "DELETE FROM __adjustments WHERE `member_name` = '{$member_name}'";
             $db->query($sql);
 
             //
             // Delete member
             //
-            $sql = 'DELETE FROM ' . MEMBERS_TABLE . "
-                    WHERE member_name='" . $member_name . "'";
+            $sql = "DELETE FROM __members WHERE `member_name` = '{$member_name}'";
             $db->query($sql);
 
             //
@@ -391,15 +387,15 @@ class MM_Addmember extends EQdkp_Admin
         global $db, $eqdkp, $user, $tpl, $pm;
         global $SID;
 
-        $sql = 'SELECT *
-                FROM ' . MEMBERS_TABLE . "
-                WHERE member_name='" . $member_name . "'";
+        $sql = "SELECT *
+                FROM __members
+                WHERE `member_name` = '{$member_name}'";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
             $this->old_member = array(
                 'member_name'       => addslashes($row['member_name']),
-		'member_id'	    => $row['member_id'],
+                'member_id'         => $row['member_id'],
                 'member_earned'     => $row['member_earned'],
                 'member_spent'      => $row['member_spent'],
                 'member_adjustment' => $row['member_adjustment'],
@@ -424,7 +420,7 @@ class MM_Addmember extends EQdkp_Admin
 
         $eq_classes = array();
 
-        $sql = 'SELECT class_id, class_name, class_min_level, class_max_level FROM ' . CLASS_TABLE .' GROUP BY class_id';
+        $sql = "SELECT class_id, class_name, class_min_level, class_max_level FROM __classes GROUP BY `class_id`";
         $result = $db->query($sql);
 
         while ( $row = $db->fetch_record($result) )
@@ -451,7 +447,7 @@ class MM_Addmember extends EQdkp_Admin
 
         $eq_races = array();
 
-        $sql = 'SELECT race_id, race_name FROM ' . RACE_TABLE .' GROUP BY race_name';
+        $sql = "SELECT race_id, race_name FROM __races GROUP BY `race_name`";
         $result = $db->query($sql);
 
         while ( $row = $db->fetch_record($result) )
@@ -472,22 +468,24 @@ class MM_Addmember extends EQdkp_Admin
         if ( !empty($this->member['member_name']) )
         {
             // Get their correct earned/spent
-            $correct_earned = $db->query_first('SELECT sum(r.raid_value) 
-						FROM ' . RAIDS_TABLE . ' r, ' . RAID_ATTENDEES_TABLE . " ra 
-						WHERE ra.raid_id = r.raid_id 
-						AND ra.member_name='" . addslashes($this->member['member_name']) . "'");
+            $sql = "SELECT sum(r.raid_value) 
+                    FROM __raids AS r, __raid_attendees AS ra 
+                    WHERE ra.`raid_id` = r.`raid_id` 
+                    AND ra.`member_name` = '" . addslashes($this->member['member_name']) . "'";
+            $correct_earned = $db->query_first($sql);
 
-            $correct_spent  = $db->query_first('SELECT sum(item_value) 
-						FROM ' . ITEMS_TABLE . " 
-						WHERE item_buyer='" . addslashes($this->member['member_name']) . "'");
+            $sql = "SELECT sum(item_value) 
+                    FROM __items
+                    WHERE `item_buyer` = '" . addslashes($this->member['member_name']) . "'";
+            $correct_spent  = $db->query_first($sql);
         }
 
         //
         // Build rank drop-down
         //
-        $sql = 'SELECT rank_id, rank_name
-                FROM ' . MEMBER_RANKS_TABLE . '
-                ORDER BY rank_id';
+        $sql = "SELECT rank_id, rank_name
+                FROM __member_ranks
+                ORDER BY rank_id";
         $result = $db->query($sql);
 
         while ( $row = $db->fetch_record($result) )

@@ -53,16 +53,15 @@ class MM_Ranks extends EQdkp_Admin
         
         foreach ( $_POST['ranks'] as $rank_id => $rank_name )
         {
-            $sql = 'DELETE FROM ' . MEMBER_RANKS_TABLE . "
-                    WHERE rank_id='" . $rank_id . "'";
+            $sql = "DELETE FROM __member_ranks WHERE `rank_id` = '{$rank_id}'";
             $db->query($sql);
             
             // If the rank's been removed, NULL the member_rank for users that have it
             if ( $rank_name == '' )
             {
-                $sql = 'UPDATE ' . MEMBERS_TABLE . "
-                        SET member_rank_id = NULL
-                        WHERE member_rank_id='" . $rank_id . "'";
+                $sql = "UPDATE __members
+                        SET `member_rank_id` = NULL
+                        WHERE `member_rank_id` = '{$rank_id}'";
                 $db->query($sql);
             }
             // Otherwise re-add the rank to the table
@@ -81,7 +80,7 @@ class MM_Ranks extends EQdkp_Admin
                     'rank_prefix' => $rank_prefix,
                     'rank_suffix' => $rank_suffix)
                 );
-                $db->query('INSERT INTO ' . MEMBER_RANKS_TABLE . $query);
+                $db->query("INSERT INTO __member_ranks {$query}");
             }
         }
         
@@ -100,10 +99,10 @@ class MM_Ranks extends EQdkp_Admin
         // Populate the fields
         //
         $max_id = 0;
-        $sql = 'SELECT rank_id, rank_name, rank_hide, rank_prefix, rank_suffix
-                FROM ' . MEMBER_RANKS_TABLE . '
-                WHERE rank_id > 0
-                ORDER BY rank_id';
+        $sql = "SELECT rank_id, rank_name, rank_hide, rank_prefix, rank_suffix
+                FROM __member_ranks
+                WHERE `rank_id` > 0
+                ORDER BY `rank_id`";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {

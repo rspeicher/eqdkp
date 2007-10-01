@@ -45,14 +45,13 @@ $previous_source = preg_replace('/( (asc|desc))?/i', '', $sort_order[$sort_index
 
 $show_all = ( (!empty($_GET['show'])) && ($_GET['show'] == 'all') ) ? true : false;
 
-$sql = 'SELECT m.*, (m.member_earned-m.member_spent+m.member_adjustment) AS member_current, 
-	c.class_name AS member_class, 
-	r.rank_name, r.rank_prefix, r.rank_suffix,
-        c.class_armor_type AS armor_type
-        FROM ' . MEMBERS_TABLE . ' m, ' . MEMBER_RANKS_TABLE . ' r, ' .CLASS_TABLE. ' c
-        WHERE (m.member_rank_id = r.rank_id)
-	AND (m.member_class_id = c.class_id)
-        ORDER BY ' . $current_order['sql'];
+$sql = "SELECT m.*, (m.member_earned-m.member_spent+m.member_adjustment) AS member_current, 
+            c.class_name AS member_class, r.rank_name, r.rank_prefix, r.rank_suffix,
+            c.class_armor_type AS armor_type
+        FROM __members AS m, __member_ranks AS r, __classes AS c
+        WHERE (m.`member_rank_id` = r.`rank_id`)
+        AND (m.`member_class_id` = c.`class_id`)
+        ORDER BY {$current_order['sql']}";
 if ( !($members_result = $db->query($sql)) )
 {
     message_die('Could not obtain member information', '', __FILE__, __LINE__, $sql);

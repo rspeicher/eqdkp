@@ -122,9 +122,9 @@ class EQdkp_Config extends EQdkp_Admin
 	// end 1.3 game selection change
 
         // Permissions
-        $sql = 'SELECT auth_id, auth_value
-                FROM ' . AUTH_OPTIONS_TABLE . '
-                ORDER BY auth_id';
+        $sql = "SELECT auth_id, auth_value
+                FROM __auth_options
+                ORDER BY `auth_id`";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
@@ -146,9 +146,9 @@ class EQdkp_Config extends EQdkp_Admin
             return false;
         }
         
-        $sql = 'UPDATE ' . AUTH_OPTIONS_TABLE . "
-                SET auth_default='" . strip_tags(htmlspecialchars($auth_default)) . "'
-                WHERE auth_value='" . $auth_value . "'";
+        $sql = "UPDATE __auth_options
+                SET `auth_default` = '" . strip_tags(htmlspecialchars($auth_default)) . "'
+                WHERE `auth_value` = '{$auth_value}'";
         if ( !($result = $db->query($sql)) )
         {
             return false;
@@ -171,9 +171,9 @@ class EQdkp_Config extends EQdkp_Admin
         //
         // Find default auth settings
         //
-        $sql = 'SELECT auth_id, auth_default
-                FROM ' . AUTH_OPTIONS_TABLE . '
-                ORDER BY auth_id';
+        $sql = "SELECT auth_id, auth_default
+                FROM __auth_options
+                ORDER BY `auth_id`";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
@@ -394,9 +394,9 @@ class EQdkp_Config extends EQdkp_Admin
         //
         // Build style drop-down
         //
-        $sql = 'SELECT style_id, style_name
-                FROM ' . STYLES_TABLE . '
-                ORDER BY style_name';
+        $sql = "SELECT style_id, style_name
+                FROM __styles
+                ORDER BY `style_name`";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {

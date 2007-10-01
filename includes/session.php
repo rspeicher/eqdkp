@@ -111,11 +111,12 @@ class Session
         
         // Grab user data
         $sql = "SELECT u.*, s.session_current
-                FROM (__users AS u LEFT JOIN __sessions AS s ON `s.session_user_id` = `u.user_id`)
-                WHERE `u.user_id` = '{$user_id}'
-                ORDER BY `s.session_current` DESC
-                LIMIT 1";        
-        $this->data = $db->fetch_record($db->query($sql));
+                FROM __users AS u LEFT JOIN __sessions AS s ON s.`session_user_id` = u.`user_id`
+                WHERE u.`user_id` = '{$user_id}'
+                ORDER BY s.`session_current` DESC
+                LIMIT 1";
+        $result = $db->query($sql);
+        $this->data = $db->fetch_record($result);
         $db->free_result($result);
         
         // Check auto login request to see if it's valid

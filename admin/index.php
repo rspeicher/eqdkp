@@ -233,7 +233,7 @@ if ( !defined('IN_ADMIN') )
 
         $event_id = intval($event_id);
 
-        $sql = 'SELECT event_name FROM ' . EVENTS_TABLE . " WHERE event_id='" . $event_id . "'";
+        $sql = "SELECT event_name FROM __events WHERE `event_id` = '{$event_id}'";
         $event_name = $db->query_first($sql);
 
         return ( !empty($event_name) ) ? $event_name : 'Unknown';
@@ -245,7 +245,7 @@ if ( !defined('IN_ADMIN') )
 
         $item_id = intval($item_id);
 
-        $sql = 'SELECT item_name FROM ' . ITEMS_TABLE . " WHERE item_id='" . $item_id . "'";
+        $sql = "SELECT item_name FROM __items WHERE `item_id` = '{$item_id}'";
         $item_name = $db->query_first($sql);
 
         return ( !empty($item_name) ) ? $item_name : 'Unknown';
@@ -257,7 +257,7 @@ if ( !defined('IN_ADMIN') )
 
         $news_id = intval($news_id);
 
-        $sql = 'SELECT news_headline FROM ' . NEWS_TABLE . " WHERE news_id='" . $news_id . "'";
+        $sql = "SELECT news_headline FROM __news WHERE `news_id` = '{$news_id}'";
         $news_name = $db->query_first($sql);
 
         return ( !empty($news_name) ) ? $news_name : 'Unknown';
@@ -269,7 +269,7 @@ if ( !defined('IN_ADMIN') )
 
         $raid_id = intval($raid_id);
 
-        $sql = 'SELECT raid_name FROM ' . RAIDS_TABLE . " WHERE raid_id='" . $raid_id . "'";
+        $sql = "SELECT raid_name FROM __raids WHERE `raid_id` = '{$raid_id}'";
         $raid_name = $db->query_first($sql);
 
         return ( !empty($raid_name) ) ? $raid_name : 'Unknown';
@@ -313,17 +313,17 @@ if ( !defined('IN_ADMIN') )
 
     $days = ((time() - $eqdkp->config['eqdkp_start']) / 86400);
 
-    $total_members_inactive = $db->query_first('SELECT count(*) FROM ' . MEMBERS_TABLE . " where member_status='0'");
-    $total_members_active = $db->query_first('SELECT count(*) FROM ' . MEMBERS_TABLE . " where member_status='1'");
+    $total_members_inactive = $db->query_first("SELECT count(*) FROM __members where `member_status` = '0'");
+    $total_members_active = $db->query_first("SELECT count(*) FROM __members where `member_status` = '1'");
     $total_members = $total_members_active . ' / ' . $total_members_inactive;
 
-    $total_raids = $db->query_first('SELECT count(*) FROM ' . RAIDS_TABLE);
+    $total_raids = $db->query_first("SELECT count(*) FROM __raids");
     $raids_per_day = sprintf("%.2f", ($total_raids / $days));
 
-    $total_items = $db->query_first('SELECT count(*) FROM ' . ITEMS_TABLE);
+    $total_items = $db->query_first("SELECT count(*) FROM __items");
     $items_per_day = sprintf("%.2f", ($total_items / $days));
 
-    $total_logs = $db->query_first('SELECT count(*) FROM ' . LOGS_TABLE);
+    $total_logs = $db->query_first("SELECT count(*) FROM __logs");
 
     if ( $raids_per_day > $total_raids )
     {
@@ -354,7 +354,7 @@ if ( !defined('IN_ADMIN') )
                 $dbsize = 0;
                 while ( $row = $db->fetch_record($result) )
                 {
-                    if ( $row['Type'] != 'MRG_MyISAM' )
+                    if ( isset($row['Type']) && $row['Type'] != 'MRG_MyISAM' )
                     {
                         if ( $table_prefix != '' )
                         {
@@ -393,12 +393,10 @@ if ( !defined('IN_ADMIN') )
     //
     // Who's Online
     //
-    $sql = 'SELECT s.*, u.username
-            FROM ( ' . SESSIONS_TABLE . ' s
-            LEFT JOIN ' . USERS_TABLE . ' u
-            ON u.user_id = s.session_user_id )
-            GROUP BY u.username, s.session_ip
-            ORDER BY u.username, s.session_current DESC';
+    $sql = "SELECT s.*, u.username
+            FROM __sessions AS s LEFT JOIN __users AS u ON u.`user_id` = s.`session_user_id`
+            GROUP BY u.`username`, s.`session_ip`
+            ORDER BY u.`username`, s.`session_current` DESC";
     $result = $db->query($sql);
     while ( $row = $db->fetch_record($result) )
     {
@@ -421,11 +419,11 @@ if ( !defined('IN_ADMIN') )
     {
         if ( $total_logs > 0 )
         {
-            $sql = 'SELECT l.*, u.username
-                    FROM ' . LOGS_TABLE . ' l, ' . USERS_TABLE . ' u
-                    WHERE u.user_id=l.admin_id
-                    ORDER BY l.log_date DESC
-                    LIMIT 10';
+            $sql = "SELECT l.*, u.username
+                    FROM __logs AS l, __users AS u
+                    WHERE u.`user_id` = l.`admin_id`
+                    ORDER BY l.`log_date` DESC
+                    LIMIT 10";
             $result = $db->query($sql);
             while ( $row = $db->fetch_record($result) )
             {

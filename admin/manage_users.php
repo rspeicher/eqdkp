@@ -38,7 +38,8 @@ class Manage_Users extends EQdkp_Admin
             {
                 foreach ( $_POST['user_id'] as $user_id )
                 {
-                    $username = $db->query_first('SELECT username FROM ' . USERS_TABLE . " WHERE user_id='" . $user_id . "'");
+                    // FIXME: Injection
+                    $username = $db->query_first("SELECT username FROM __users WHERE `user_id` = '{$user_id}'");
                     $usernames[] = $username;
                 }
 
@@ -94,11 +95,10 @@ class Manage_Users extends EQdkp_Admin
         if ( isset($_POST['submit']) )
         {
             // See if the user exists
-            $sql = 'SELECT au.*, u.*
-                    FROM ' . USERS_TABLE . ' u
-                    LEFT JOIN ' . AUTH_USERS_TABLE . " au
-                    ON (u.user_id = au.user_id)
-                    WHERE u.username='" . $_POST[URI_NAME] . "'";
+            // FIXME: Injection
+            $sql = "SELECT au.*, u.*
+                    FROM __users AS u LEFT JOIN __auth_users AS au ON u.`user_id` = au.`user_id`
+                    WHERE u.`username` = '{$_POST[URI_NAME]}'";
             $result = $db->query($sql);
             if ( !$this->user_data = $db->fetch_record($result) )
             {
@@ -111,9 +111,10 @@ class Manage_Users extends EQdkp_Admin
             if ( $_POST['username'] != $_POST[URI_NAME] )
             {
                 // They changed the username, see if it's already registered
-                $sql = 'SELECT user_id
-                        FROM ' . USERS_TABLE . "
-                        WHERE username='".$_POST['username']."'";
+                // FIXME: Injection
+                $sql = "SELECT user_id
+                        FROM __users
+                        WHERE `username` = '{$_POST['username']}'";
                 if ( $db->num_rows($db->query($sql)) > 0 )
                 {
                     $this->fv->errors['username'] = $user->lang['fv_already_registered_username'];
@@ -139,9 +140,9 @@ class Manage_Users extends EQdkp_Admin
             {
                 // Build array of member_id => member_name
                 $member_names = array();
-                $sql = 'SELECT member_id, member_name
-                        FROM ' . MEMBERS_TABLE . '
-                        ORDER BY member_name';
+                $sql = "SELECT member_id, member_name
+                        FROM __members
+                        ORDER BY member_name";
                 $result = $db->query($sql);
                 while ( $row = $db->fetch_record($result) )
                 {
@@ -149,10 +150,10 @@ class Manage_Users extends EQdkp_Admin
                 }
                 $db->free_result($result);
 
-                $sql = 'SELECT member_id
-                        FROM ' . MEMBER_USER_TABLE . '
-                        WHERE member_id IN (' . implode(', ', $_POST['member_id']) . ')
-                        AND user_id != ' . $this->user_data['user_id'];
+                $sql = "SELECT member_id
+                        FROM __member_user
+                        WHERE member_id IN (" . implode(',', $_POST['member_id']) . ")
+                        AND `user_id` != '{$this->user_data['user_id']}'";
                 $result = $db->query($sql);
 
                 $fv_member_id = '';
@@ -180,11 +181,10 @@ class Manage_Users extends EQdkp_Admin
         elseif ( isset($_GET[URI_NAME]) )
         {
             // See if the user exists
-            $sql = 'SELECT au.*, u.*
-                    FROM ' . USERS_TABLE . ' u
-                    LEFT JOIN ' . AUTH_USERS_TABLE . " au
-                    ON (u.user_id = au.user_id)
-                    WHERE u.username='" . $_GET[URI_NAME] . "'";
+            // FIXME: Injection
+            $sql = "SELECT au.*, u.*
+                    FROM __users AS u LEFT JOIN __auth_users AS au ON u.`user_id` = au.`user_id`
+                    WHERE u.`username` = '{$_GET[URI_NAME]}'";
             $result = $db->query($sql);
             if ( !$this->user_data = $db->fetch_record($result) )
             {
@@ -210,25 +210,28 @@ class Manage_Users extends EQdkp_Admin
         // Build the query
         //
         // User settings
-        $sql = 'UPDATE ' . USERS_TABLE . "
-                SET";
+        // FIXME: Injection city
+        $update = array(
+            'user_email'  => $_POST['user_email'],
+            'user_alimit' => $_POST['user_alimit'],
+            'user_elimit' => $_POST['user_elimit'],
+            'user_ilimit' => $_POST['user_ilimit'],
+            'user_nlimit' => $_POST['user_nlimit'],
+            'user_rlimit' => $_POST['user_rlimit'],
+            'user_lang'   => $_POST['user_lang'],
+            'user_style'  => $_POST['user_style'],
+            'user_active' => $_POST['user_active'],
+        );
         if ( $this->change_username )
         {
-            $sql .= " username='".$_POST['username']."', ";
+            $update['username'] = $_POST['username'];
         }
         if ( $this->change_password )
         {
-            $sql .= " user_password='".md5($_POST['new_user_password1'])."', ";
+            $update['user_password'] = md5($_POST['new_user_password1']);
         }
-        $sql .= " user_email='".$_POST['user_email']."', ";
-
-        $sql .= " user_alimit='".$_POST['user_alimit']."', user_elimit='".$_POST['user_elimit']."', user_ilimit='".$_POST['user_ilimit']."',
-                  user_nlimit='".$_POST['user_nlimit']."', user_rlimit='".$_POST['user_rlimit']."', ";
-
-        $sql .= " user_lang='".$_POST['user_lang']."', user_style='".$_POST['user_style']."',
-                  user_active='".$_POST['user_active']."'";
-
-        $sql .= " WHERE user_id='".$this->user_data['user_id']."'";
+        $query = $db->build_query('UPDATE', $update);
+        $sql = "UPDATE __users SET {$query} WHERE `user_id` = '{$this->user_data['user_id']}'";
 
         if ( !($result = $db->query($sql)) )
         {
@@ -236,9 +239,9 @@ class Manage_Users extends EQdkp_Admin
         }
 
         // Permissions
-        $sql = 'SELECT auth_id, auth_value
-                FROM ' . AUTH_OPTIONS_TABLE . '
-                ORDER BY auth_id';
+        $sql = "SELECT auth_id, auth_value
+                FROM __auth_options
+                ORDER BY `auth_id`";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
@@ -256,17 +259,16 @@ class Manage_Users extends EQdkp_Admin
         $db->free_result($result);
 
         // Users -> Members associations
-        $sql = 'DELETE FROM ' . MEMBER_USER_TABLE . '
-                WHERE user_id = ' . $this->user_data['user_id'];
+        $sql = "DELETE FROM __member_user
+                WHERE `user_id` = '{$this->user_data['user_id']}'";
         $db->query($sql);
 
         if ( (isset($_POST['member_id'])) && (is_array($_POST['member_id'])) )
         {
-            $sql = 'INSERT INTO ' . MEMBER_USER_TABLE . '
-                    (member_id, user_id)
-                    VALUES ';
+            $sql = "INSERT INTO __member_user(member_id, user_id) VALUES ";
 
             $query = array();
+            // FIXME: Injection
             foreach ( $_POST['member_id'] as $member_id )
             {
                 $query[] = '(' . $member_id . ', ' . $this->user_data['user_id'] . ')';
@@ -295,14 +297,14 @@ class Manage_Users extends EQdkp_Admin
             $user_ids = $_POST['user_id'];
 
             // Delete existing permissions for these users
-            $sql = 'DELETE FROM ' . AUTH_USERS_TABLE . '
-                    WHERE user_id IN (' . implode(', ', $user_ids) . ')';
+            $sql = "DELETE FROM __auth_users
+                    WHERE user_id IN (" . implode(', ', $user_ids) . ")";
             $db->query($sql);
 
             // Permissions
-            $sql = 'SELECT auth_id, auth_value
-                    FROM ' . AUTH_OPTIONS_TABLE . '
-                    ORDER BY auth_id';
+            $sql = "SELECT auth_id, auth_value
+                    FROM __auth_options
+                    ORDER BY auth_id";
             $result = $db->query($sql);
             while ( $row = $db->fetch_record($result) )
             {
@@ -313,11 +315,10 @@ class Manage_Users extends EQdkp_Admin
             foreach ( $user_ids as $user_id )
             {
                 $query = array();
-                $sql = 'INSERT INTO ' . AUTH_USERS_TABLE . '
-                        (user_id, auth_id, auth_setting)
-                        VALUES ';
+                $sql = "INSERT INTO __auth_users (user_id, auth_id, auth_setting) VALUES ";
                 foreach ( $permissions as $auth_id => $auth_value )
                 {
+                    // FIXME: Injection?
                     $query[] = "('" . $user_id . "', '" . $auth_id . "', " . (( isset($_POST[$auth_value]) ) ? "'Y'" : "'N'") . ')';
                 }
                 $db->query($sql . implode(', ', $query));
@@ -341,12 +342,13 @@ class Manage_Users extends EQdkp_Admin
 
         if ( isset($_POST['username']) )
         {
+            // FIXME: Injection?
             $usernames = explode(', ', $_POST['username']);
 
             // Find user IDs
             $user_ids = array();
-            $sql = 'SELECT user_id, username
-                    FROM ' . USERS_TABLE . "
+            $sql = "SELECT user_id, username
+                    FROM __users
                     WHERE username IN ('" . implode("', '", $usernames) . "')";
             $result = $db->query($sql);
             while ( $row = $db->fetch_record($result) )
@@ -356,18 +358,18 @@ class Manage_Users extends EQdkp_Admin
             $db->free_result($result);
 
             // Delete from auth_user
-            $sql = 'DELETE FROM ' . AUTH_USERS_TABLE . '
-                    WHERE user_id IN (' . implode(', ', $user_ids) . ')';
+            $sql = "DELETE FROM __auth_users
+                    WHERE user_id IN (" . implode(', ', $user_ids) . ")";
             $db->query($sql);
 
             // Delete from users
-            $sql = 'DELETE FROM ' . USERS_TABLE . '
-                    WHERE user_id IN (' . implode(', ', $user_ids) . ')';
+            $sql = "DELETE FROM __users
+                    WHERE user_id IN (" . implode(', ', $user_ids) . ")";
             $db->query($sql);
 
             // Delete from member users
-            $sql = 'DELETE FROM ' . MEMBER_USER_TABLE . '
-                    WHERE user_id IN (' . implode(', ', $user_ids) . ')';
+            $sql = "DELETE FROM __member_user
+                    WHERE user_id IN (" . implode(', ', $user_ids) . ")";
             $db->query($sql);
 
             // Success message
@@ -404,16 +406,15 @@ class Manage_Users extends EQdkp_Admin
 
         if ( $upd_ins == 'upd' )
         {
-            $sql = 'UPDATE ' . AUTH_USERS_TABLE . "
-                    SET auth_setting='".$auth_setting."'
-                    WHERE auth_id='".$auth_id."'
-                    AND user_id='".$user_id."'";
+            $sql = "UPDATE __auth_users
+                    SET `auth_setting` = '{$auth_setting}'
+                    WHERE `auth_id` = '{$auth_id}'
+                    AND `user_id` = '{$user_id}'";
         }
         else
         {
-            $sql = 'INSERT INTO ' . AUTH_USERS_TABLE . "
-                    (user_id, auth_id, auth_setting)
-                    VALUES ('".$user_id."','".$auth_id."','".$auth_setting."')";
+            $sql = "INSERT INTO __auth_users (user_id, auth_id, auth_setting)
+                    VALUES ('{$user_id}','{$auth_id}','{$auth_setting}')";
         }
 
         if ( !($result = $db->query($sql)) )
@@ -427,11 +428,11 @@ class Manage_Users extends EQdkp_Admin
     {
         global $db;
 
-        $sql = 'SELECT o.auth_value
-                FROM ' . AUTH_OPTIONS_TABLE . ' o, ' . AUTH_USERS_TABLE . " u
-                WHERE (u.auth_id = o.auth_id)
-                AND (u.user_id='".$user_id."')
-                AND u.auth_id='".$auth_id."'";
+        $sql = "SELECT o.auth_value
+                FROM __auth_options AS o, __auth_users AS u
+                WHERE (u.`auth_id` = o.`auth_id`)
+                AND (u.`user_id` = '{$user_id}')
+                AND u.`auth_id` = '{$auth_id}'";
         if ( $db->num_rows($db->query($sql)) > 0 )
         {
             return 'upd';
@@ -457,16 +458,14 @@ class Manage_Users extends EQdkp_Admin
 
         $current_order = switch_order($sort_order);
 
-        $total_users = $db->query_first('SELECT count(*) FROM ' . USERS_TABLE);
+        $total_users = $db->query_first("SELECT count(*) FROM __users");
         $start = ( isset($_GET['start']) ) ? $_GET['start'] : 0;
 
-        $sql = 'SELECT u.user_id, u.username, u.user_email, u.user_lastvisit, u.user_active, s.session_id
-                FROM (' . USERS_TABLE . ' u
-                LEFT JOIN ' . SESSIONS_TABLE . ' s
-                ON u.user_id = s.session_user_id)
-                GROUP BY u.username
-                ORDER BY ' . $current_order['sql'] . '
-                LIMIT ' . $start . ',100';
+        $sql = "SELECT u.user_id, u.username, u.user_email, u.user_lastvisit, u.user_active, s.session_id
+                FROM __users AS u LEFT JOIN __sessions AS s ON u.`user_id` = s.`session_user_id`
+                GROUP BY u.`username`
+                ORDER BY {$current_order['sql']}
+                LIMIT {$start},100";
         if ( !($result = $db->query($sql)) )
         {
             message_die('Could not obtain user information', '', __FILE__, __LINE__, $sql);
@@ -569,9 +568,9 @@ class Manage_Users extends EQdkp_Admin
 
         // Find out our auth defaults
         $auth_defaults = array();
-        $sql = 'SELECT auth_id, auth_value, auth_default
-                FROM ' . AUTH_OPTIONS_TABLE . '
-                ORDER BY auth_id';
+        $sql = "SELECT auth_id, auth_value, auth_default
+                FROM __auth_options
+                ORDER BY auth_id";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
@@ -738,12 +737,10 @@ class Manage_Users extends EQdkp_Admin
         unset($user_permissions);
 
         // Build member drop-down
-        $sql = 'SELECT m.member_id, m.member_name, mu.user_id
-                FROM ' . MEMBERS_TABLE . ' m
-                LEFT JOIN ' . MEMBER_USER_TABLE . ' mu
-                ON m.member_id = mu.member_id
+        $sql = "SELECT m.member_id, m.member_name, mu.user_id
+                FROM __members AS m LEFT JOIN __member_user AS mu ON m.`member_id` = mu.`member_id`
                 GROUP BY m.member_name
-                ORDER BY m.member_name';
+                ORDER BY m.member_name";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
@@ -838,9 +835,9 @@ class Manage_Users extends EQdkp_Admin
         //
         // Build the style drop-down
         //
-        $sql = 'SELECT style_id, style_name
-                FROM ' . STYLES_TABLE . '
-                ORDER BY style_name';
+        $sql = "SELECT style_id, style_name
+                FROM __styles
+                ORDER BY style_name";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {

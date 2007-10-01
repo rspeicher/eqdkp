@@ -27,9 +27,10 @@ if ( (isset($_GET[URI_EVENT])) && (intval($_GET[URI_EVENT] > 0)) )
      
     $current_order = switch_order($sort_order);
 
-    $sql = 'SELECT event_id, event_name, event_value, event_added_by, event_updated_by
-            FROM ' . EVENTS_TABLE . "
-            WHERE event_id='".$_GET[URI_EVENT]."'";
+    // FIXME: Injection
+    $sql = "SELECT event_id, event_name, event_value, event_added_by, event_updated_by
+            FROM __events
+            WHERE `event_id` = '{$_GET[URI_EVENT]}'";
             
     if ( !($event_result = $db->query($sql)) )
     {
@@ -56,10 +57,10 @@ if ( (isset($_GET[URI_EVENT])) && (intval($_GET[URI_EVENT] > 0)) )
     $unset_raid_zero = false; // Remove the '0' from $raid_ids if raids exist for this event
     
     // Find the raids for this event
-    $sql = 'SELECT raid_id, raid_date, raid_note, raid_value 
-            FROM ' . RAIDS_TABLE . "
-            WHERE raid_name='" . addslashes($event['event_name']) . "' 
-            ORDER BY " . $current_order['sql'];
+    $sql = "SELECT raid_id, raid_date, raid_note, raid_value 
+            FROM __raids
+            WHERE `raid_name` = '" . addslashes($event['event_name']) . "'
+            ORDER BY {$current_order['sql']}";
     $result = $db->query($sql);
     
     while ( $row = $db->fetch_record($result) )
@@ -84,10 +85,10 @@ if ( (isset($_GET[URI_EVENT])) && (intval($_GET[URI_EVENT] > 0)) )
     $db->free_result($result);
     
     // Find the item drops for each raid
-    $sql = 'SELECT raid_id, count(item_id) AS count 
-            FROM ' . ITEMS_TABLE . ' 
-            WHERE raid_id IN (' . implode(', ', $raid_ids) . ')
-            GROUP BY raid_id';
+    $sql = "SELECT raid_id, count(item_id) AS count 
+            FROM __items
+            WHERE raid_id IN (" . implode(',', $raid_ids) . ")
+            GROUP BY raid_id";
     $result = $db->query($sql);
     
     while ( $row = $db->fetch_record($result) )
@@ -97,10 +98,10 @@ if ( (isset($_GET[URI_EVENT])) && (intval($_GET[URI_EVENT] > 0)) )
     $db->free_result($result);
     
     // Find the attendees at each raid
-    $sql = 'SELECT raid_id, count(member_name) AS count 
-            FROM ' . RAID_ATTENDEES_TABLE . ' 
-            WHERE raid_id IN (' . implode(', ', $raid_ids) . ')
-            GROUP BY raid_id';
+    $sql = "SELECT raid_id, count(member_name) AS count 
+            FROM __raid_attendees
+            WHERE raid_id IN (" . implode(',', $raid_ids) . ")
+            GROUP BY raid_id";
     $result = $db->query($sql);
     
     while ( $row = $db->fetch_record($result) )
@@ -139,10 +140,10 @@ if ( (isset($_GET[URI_EVENT])) && (intval($_GET[URI_EVENT] > 0)) )
     //
     // Items
     //
-    $sql = 'SELECT item_date, raid_id, item_name, item_buyer, item_id, item_value
-            FROM ' . ITEMS_TABLE . '
-            WHERE raid_id IN (' . implode(', ', $raid_ids) . ')
-            ORDER BY item_date DESC';
+    $sql = "SELECT item_date, raid_id, item_name, item_buyer, item_id, item_value
+            FROM __items
+            WHERE raid_id IN (" . implode(',', $raid_ids) . ")
+            ORDER BY item_date DESC";
     $result = $db->query($sql);
     while ( $row = $db->fetch_record($result) )
     {

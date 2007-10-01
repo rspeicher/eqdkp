@@ -74,10 +74,9 @@ switch ( $action )
 {
     case 'view':
         // Get log info
-        $sql = 'SELECT l.*, u.username FROM (' . LOGS_TABLE . ' l
-                LEFT JOIN ' . USERS_TABLE . " u
-                ON u.user_id=l.admin_id )
-                WHERE log_id='".$log_id."'";
+        $sql = "SELECT l.*, u.username 
+                FROM __logs AS l LEFT JOIN __users AS u ON u.`user_id` = l.`admin_id`
+                WHERE log_id = '{$log_id}'";
         $result = $db->query($sql);
         $log = $db->fetch_record($result);
         $db->free_result($result);
@@ -124,10 +123,8 @@ switch ( $action )
 
         break;
     case 'list':
-        $sql = 'SELECT l.*, u.username FROM (' . LOGS_TABLE . ' l
-                LEFT JOIN ' . USERS_TABLE . ' u
-                ON u.user_id=l.admin_id )';
-
+        $sql = "SELECT l.*, u.username 
+                FROM __logs AS l LEFT JOIN __users AS u ON u.`user_id` = l.`admin_id`";
         $addon_sql = '';
         $search_term = '';
 
@@ -135,6 +132,7 @@ switch ( $action )
         // figure out what that is
         if ( $search )
         {
+            // FIXME: Injection? We check it against an array of valid values
             $search_term = urldecode($_GET['search']);
 
             // Check if it's an action
@@ -144,31 +142,29 @@ switch ( $action )
                 {
                     if ( $v == $search_term )
                     {
-                        $addon_sql = " WHERE l.log_type='".$k."'";
+                        $addon_sql = " WHERE l.`log_type` = '{$k}'";
                     }
                 }
             }
             // Check it's an IP
-            elseif ( preg_match("/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/", $search_term) )
+            elseif ( preg_match("/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/", $search_term) )
             {
-                $addon_sql = " WHERE l.log_ipaddress='".$search_term."'";
+                $addon_sql = " WHERE l.`log_ipaddress` = '{$search_term}'";
             }
             // Still going? It's a username
             else
             {
-                $addon_sql = " WHERE u.username='".$search_term."'";
+                $addon_sql = " WHERE u.`username` = '{$search_term}'";
             }
         }
 
-        $total_sql = 'SELECT count(*)
-                      FROM ( ' . LOGS_TABLE . ' l
-                      LEFT JOIN ' . USERS_TABLE . ' u
-                      ON u.user_id=l.admin_id )';
+        $total_sql = "SELECT count(*)
+                      FROM __logs AS l LEFT JOIN __users AS u ON u.`user_id` = l.`admin_id`";
         $total_logs = $db->query_first($total_sql . $addon_sql);
 
         $start = ( isset($_GET['start']) ) ? $_GET['start'] : 0;
 
-        $result = $db->query($sql . $addon_sql . ' ORDER BY ' . $current_order['sql'] . ' LIMIT '.$start.',100');
+        $result = $db->query($sql . $addon_sql . " ORDER BY {$current_order['sql']} LIMIT {$start},100");
         while ( $log = $db->fetch_record($result) )
         {
             $log['log_type'] = lang_replace($log['log_type']);

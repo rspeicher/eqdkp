@@ -64,7 +64,7 @@ class MySQL_Info extends EQdkp_Admin
             $dbsize = 0;
             while ( $row = $db->fetch_record($result) )
             {
-                if ( $row['Type'] != 'MRG_MyISAM' )
+                if ( !isset($row['Type']) || $row['Type'] != 'MRG_MyISAM' )
                 {
                     if ( $table_prefix != '' )
                     {

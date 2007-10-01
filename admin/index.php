@@ -354,7 +354,7 @@ if ( !defined('IN_ADMIN') )
                 $dbsize = 0;
                 while ( $row = $db->fetch_record($result) )
                 {
-                    if ( isset($row['Type']) && $row['Type'] != 'MRG_MyISAM' )
+                    if ( !isset($row['Type']) || $row['Type'] != 'MRG_MyISAM' )
                     {
                         if ( $table_prefix != '' )
                         {

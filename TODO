@@ -2,9 +2,12 @@ Global
     - Get rid of X_TABLE constants in favor of __x names.
     - Replace all $_GET, $_POST and $_SESSION accesses with an Input class that
       has input cleaning.
-    x Get rid of SOAP garbage.
-    - Undo the complete hackness of 1.3 implementation (find in project '1.3')
     - Replace shitty glyphs with the Silk versions.
+    
+Global de-stupifying from 1.3
+    - Get rid of file_hash calls, what the hell was this for?
+    x Get rid of SOAP garbage.
+    - Search for '1.3' across the project and probably undo most of it, or make it less stupid.
 
 /admin/index.php
     - Refactor get_x_name into a single method.

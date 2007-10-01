@@ -66,9 +66,9 @@ class Add_Event extends EQdkp_Admin
         // ---------------------------------------------------------
         if ( $this->url_id )
         {
-            $sql = 'SELECT event_name, event_value
-                    FROM ' . EVENTS_TABLE . "
-                    WHERE event_id = '" . $this->url_id . "'";
+            $sql = "SELECT event_name, event_value
+                    FROM __events
+                    WHERE `event_id` = '{$this->url_id}'";
             $result = $db->query($sql);
             if ( !$row = $db->fetch_record($result) )
             {
@@ -118,7 +118,7 @@ class Add_Event extends EQdkp_Admin
             'event_value'    => $_POST['event_value'],
             'event_added_by' => $this->admin_user)
         );
-        $db->query('INSERT INTO ' . EVENTS_TABLE . $query);
+        $db->query("INSERT INTO __events {$query}");
         $this_event_id = $db->insert_id();
 
         //
@@ -163,17 +163,19 @@ class Add_Event extends EQdkp_Admin
         //
         // Get the old data
         //
+        
         $this->get_old_data();
-	$clean_event_name = stripslashes($_POST['event_name']);
+        // FIXME: Injection
+	    $clean_event_name = stripslashes($_POST['event_name']);
         
         //
         // Update any raids with the old name
         //
         if ( $this->old_event['event_name'] != $clean_event_name )
         {
-            $sql = 'UPDATE ' . RAIDS_TABLE . "
-                    SET raid_name='" . $clean_event_name . "'
-                    WHERE raid_name='" . $this->old_event['event_name'] . "'";
+            $sql = "UPDATE __raids
+                    SET `raid_name` = '{$clean_event_name}'
+                    WHERE `raid_name` = '{$this->old_event['event_name']}'";
             $db->query($sql);
         }
         
@@ -184,7 +186,7 @@ class Add_Event extends EQdkp_Admin
             'event_name'  => $clean_event_name,
             'event_value' => $_POST['event_value'])
         );
-        $sql = 'UPDATE ' . EVENTS_TABLE . ' SET ' . $query . " WHERE event_id='" . $this->url_id . "'";
+        $sql = "UPDATE __events SET {$query} WHERE `event_id` = '{$this->url_id}'";
         $db->query($sql);
 
         //
@@ -235,8 +237,8 @@ class Add_Event extends EQdkp_Admin
         //
         // Delete the event
         //
-        $sql = 'DELETE FROM ' . EVENTS_TABLE . "
-                WHERE event_id = '" . $this->url_id . "'";
+        $sql = "DELETE FROM __events
+                WHERE `event_id` = '{$this->url_id}'";
         $db->query($sql);
         
         //
@@ -273,9 +275,9 @@ class Add_Event extends EQdkp_Admin
     {
         global $db;
         
-        $sql = 'SELECT event_name, event_value
-                FROM ' . EVENTS_TABLE . "
-                WHERE event_id='" . $this->url_id . "'";
+        $sql = "SELECT event_name, event_value
+                FROM __events
+                WHERE `event_id` = '{$this->url_id}'";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {

@@ -25,14 +25,14 @@ $sort_order = array(
  
 $current_order = switch_order($sort_order);
 
-$total_events = $db->query_first('SELECT count(*) FROM ' . EVENTS_TABLE);
+$total_events = $db->query_first("SELECT count(*) FROM __events");
 
 $start = ( isset($_GET['start']) ) ? $_GET['start'] : 0;
 
-$sql = 'SELECT event_id, event_name, event_value 
-        FROM ' . EVENTS_TABLE . '
-        ORDER BY '.$current_order['sql']. '
-        LIMIT '.$start.','.$user->data['user_elimit'];
+$sql = "SELECT event_id, event_name, event_value 
+        FROM __events
+        ORDER BY {$current_order['sql']}
+        LIMIT {$start},{$user->data['user_elimit']}";
         
 if ( !($events_result = $db->query($sql)) )
 {

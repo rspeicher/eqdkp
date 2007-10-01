@@ -90,32 +90,6 @@ define('URI_PAGE',       'p');
 define('URI_RAID',       'r');
 define('URI_SESSION',    's');
 
-// Database Table names
-/*
-define('ADJUSTMENTS_TABLE',    $table_prefix . 'adjustments');
-define('ADMINS_TABLE',         $table_prefix . 'admins');
-define('AUTH_OPTIONS_TABLE',   $table_prefix . 'auth_options');
-define('AUTH_USERS_TABLE',     $table_prefix . 'auth_users');
-define('CONFIG_TABLE',         $table_prefix . 'config');
-define('EVENTS_TABLE',         $table_prefix . 'events');
-define('ITEMS_TABLE',          $table_prefix . 'items');
-define('LOGS_TABLE',           $table_prefix . 'logs');
-define('MEMBERS_TABLE',        $table_prefix . 'members');
-define('MEMBER_RANKS_TABLE',   $table_prefix . 'member_ranks');
-define('MEMBER_USER_TABLE',    $table_prefix . 'member_user');
-define('NEWS_TABLE',           $table_prefix . 'news');
-define('PLUGINS_TABLE',        $table_prefix . 'plugins');
-define('RAID_ATTENDEES_TABLE', $table_prefix . 'raid_attendees');
-define('RAIDS_TABLE',          $table_prefix . 'raids');
-define('SESSIONS_TABLE',       $table_prefix . 'sessions');
-define('STYLES_CONFIG_TABLE',  $table_prefix . 'style_config');
-define('STYLES_TABLE',         $table_prefix . 'styles');
-define('USERS_TABLE',          $table_prefix . 'users');
-define('CLASS_TABLE',	       $table_prefix . 'classes');
-define('RACE_TABLE',	       $table_prefix . 'races');
-define('FACTION_TABLE',	       $table_prefix . 'factions');
-*/
-
 // Auth Options
 define('A_EVENT_ADD',    1);
 define('A_EVENT_UPD',    2);

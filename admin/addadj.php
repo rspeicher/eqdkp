@@ -61,9 +61,9 @@ class Add_GroupAdj extends EQdkp_Admin
         // -----------------------------------------------------
         if ( $this->url_id )
         {
-            $sql = 'SELECT adjustment_value, member_name
-                    FROM ' . ADJUSTMENTS_TABLE . "
-                    WHERE adjustment_id='".$this->url_id."'";
+            $sql = "SELECT adjustment_value, member_name
+                    FROM __adjustments
+                    WHERE `adjustment_id` = '{$this->url_id}'";
             $result = $db->query($sql);
             if ( !$row = $db->fetch_record($result) )
             {
@@ -107,8 +107,8 @@ class Add_GroupAdj extends EQdkp_Admin
         //
         // Change member's adjustment column
         //
-        $sql = 'UPDATE ' . MEMBERS_TABLE . '
-                SET member_adjustment = member_adjustment + ' . $db->escape($_POST['adjustment_value']);
+        $sql = "UPDATE __members
+                SET `member_adjustment` = `member_adjustment` + " . $db->escape($_POST['adjustment_value']);
         $db->query($sql);
         
         //
@@ -119,7 +119,7 @@ class Add_GroupAdj extends EQdkp_Admin
             'adjustment_date'     => $this->time,
             'adjustment_added_by' => $this->admin_user)
         );
-        $db->query('INSERT INTO ' . ADJUSTMENTS_TABLE . $query);
+        $db->query("INSERT INTO __adjustments {$query}");
         $this_adjustment_id = $db->insert_id();
         
         //
@@ -163,16 +163,16 @@ class Add_GroupAdj extends EQdkp_Admin
         // If their first raid was before/on the adjustment date, then they
         // would have received a group adjustment
         //
-        $sql = 'UPDATE ' . MEMBERS_TABLE . '
-                SET member_adjustment = member_adjustment - ' . $this->old_adjustment['adjustment_value'] . '
-                WHERE member_firstraid <= ' . $this->old_adjustment['adjustment_date'];
+        $sql = "UPDATE __members
+                SET `member_adjustment` = `member_adjustment` - {$this->old_adjustment['adjustment_value']}
+                WHERE `member_firstraid` <= {$this->old_adjustment['adjustment_date']}";
         $db->query($sql);
         
         //
         // Add the new adjustment
         //
-        $sql = 'UPDATE ' . MEMBERS_TABLE . '
-                SET member_adjustment = member_adjustment + ' . $db->escape($_POST['adjustment_value']);
+        $sql = "UPDATE __members
+                SET `member_adjustment` = `member_adjustment` + " . $db->escape($_POST['adjustment_value']);
         $db->query($sql);
         
         //
@@ -182,7 +182,7 @@ class Add_GroupAdj extends EQdkp_Admin
             'adjustment_value'      => $_POST['adjustment_value'],
             'adjustment_updated_by' => $this->admin_user)
         );
-        $sql = 'UPDATE ' . ADJUSTMENTS_TABLE . ' SET ' . $query . " WHERE adjustment_id='" . $this->url_id . "'";
+        $sql = "UPDATE __adjustments SET {$query} WHERE `adjustment_id` = '{$this->url_id}'";
         $db->query($sql);
         
         //
@@ -227,16 +227,16 @@ class Add_GroupAdj extends EQdkp_Admin
         // If their first raid was before/on the adjustment date, then they
         // would have received a group adjustment
         //
-        $sql = 'UPDATE ' . MEMBERS_TABLE . '
-                SET member_adjustment = member_adjustment - ' . $this->old_adjustment['adjustment_value'] . '
-                WHERE member_firstraid <= ' . $this->old_adjustment['adjustment_date'];
+        $sql = "UPDATE __members
+                SET `member_adjustment` = `member_adjustment` - {$this->old_adjustment['adjustment_value']}
+                WHERE `member_firstraid` <= {$this->old_adjustment['adjustment_date']}";
         $db->query($sql);
         
         //
         // Remove the adjustment from members
         //
-        $sql = 'DELETE FROM ' . ADJUSTMENTS_TABLE . "
-                WHERE adjustment_id = '" . $this->url_id . "'";
+        $sql = "DELETE FROM __adjustments
+                WHERE `adjustment_id` = '{$this->url_id}'";
         $db->query($sql);
         
         //
@@ -268,9 +268,9 @@ class Add_GroupAdj extends EQdkp_Admin
     {
         global $db;
         
-        $sql = 'SELECT adjustment_value, adjustment_date
-                FROM ' . ADJUSTMENTS_TABLE . "
-                WHERE adjustment_id='" . $this->url_id . "'";
+        $sql = "SELECT adjustment_value, adjustment_date
+                FROM __adjustments
+                WHERE `adjustment_id` = '{$this->url_id}'";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {

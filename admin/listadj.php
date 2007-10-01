@@ -37,16 +37,16 @@ if ( (!isset($_GET[URI_PAGE])) || ($_GET[URI_PAGE] == 'group') )
     
     $page_title = sprintf($user->lang['admin_title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['listadj_title'];
     
-    $total_adjustments = $db->query_first('SELECT count(*) FROM ' . ADJUSTMENTS_TABLE . ' WHERE member_name IS NULL');
+    $total_adjustments = $db->query_first("SELECT count(*) FROM __adjustments WHERE member_name IS NULL");
     $start = ( isset($_GET['start']) ) ? $_GET['start'] : 0;
     
     $s_group_adj = true;
     
-    $sql = 'SELECT adjustment_id, adjustment_value, adjustment_date, adjustment_added_by
-            FROM ' . ADJUSTMENTS_TABLE . '
+    $sql = "SELECT adjustment_id, adjustment_value, adjustment_date, adjustment_added_by
+            FROM __adjustments
             WHERE member_name IS NULL
-            ORDER BY '.$current_order['sql'].'
-            LIMIT '.$start.','.$user->data['user_alimit'];
+            ORDER BY {$current_order['sql']}
+            LIMIT {$start},{$user->data['user_alimit']}";
     
     $listadj_footcount = sprintf($user->lang['listadj_footcount'], $total_adjustments, $user->data['user_alimit']);
     $pagination = generate_pagination('listadj.php'.$SID.'&amp;o='.$current_order['uri']['current'],
@@ -64,16 +64,17 @@ elseif ( $_GET[URI_PAGE] == 'individual' )
     
     $page_title = sprintf($user->lang['admin_title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['listiadj_title'];
     
-    $total_adjustments = $db->query_first('SELECT count(*) FROM ' . ADJUSTMENTS_TABLE . ' WHERE member_name IS NOT NULL');
+    $total_adjustments = $db->query_first("SELECT count(*) FROM __adjustments WHERE member_name IS NOT NULL");
+    // FIXME: Injection
     $start = ( isset($_GET['start']) ) ? $_GET['start'] : 0;
     
     $s_group_adj = false;
     
-    $sql = 'SELECT adjustment_id, adjustment_value, member_name, adjustment_reason, adjustment_date, adjustment_added_by
-            FROM ' . ADJUSTMENTS_TABLE . '
+    $sql = "SELECT adjustment_id, adjustment_value, member_name, adjustment_reason, adjustment_date, adjustment_added_by
+            FROM __adjustments
             WHERE member_name IS NOT NULL
-            ORDER BY '.$current_order['sql'].'
-            LIMIT '.$start.','.$user->data['user_alimit'];
+            ORDER BY {$current_order['sql']}
+            LIMIT {$start},{$user->data['user_alimit']}";
     
     $listadj_footcount = sprintf($user->lang['listiadj_footcount'], $total_adjustments, $user->data['user_alimit']);
     $pagination = generate_pagination('listadj.php'.$SID.'&amp;' . URI_PAGE . '=individual&amp;o='.$current_order['uri']['current'],

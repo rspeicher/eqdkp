@@ -67,9 +67,9 @@ class Add_IndivAdj extends EQdkp_Admin
         // -----------------------------------------------------
         if ( $this->url_id )
         {
-            $sql = 'SELECT adjustment_value, adjustment_date, adjustment_reason, member_name, adjustment_group_key
-                    FROM ' . ADJUSTMENTS_TABLE . "
-                    WHERE adjustment_id='" . $this->url_id . "'";
+            $sql = "SELECT adjustment_value, adjustment_date, adjustment_reason, member_name, adjustment_group_key
+                    FROM __adjustments
+                    WHERE `adjustment_id` = '{$this->url_id}'";
             $result = $db->query($sql);
             if ( !$row = $db->fetch_record($result) )
             {
@@ -90,9 +90,9 @@ class Add_IndivAdj extends EQdkp_Admin
             );
             
             $members = array();
-            $sql = 'SELECT member_name
-                    FROM ' . ADJUSTMENTS_TABLE . "
-                    WHERE adjustment_group_key='".$row['adjustment_group_key']."'";
+            $sql = "SELECT member_name
+                    FROM __adjustments
+                    WHERE `adjustment_group_key` = '{$row['adjustment_group_key']}'";
             $result = $db->query($sql);
             while ( $row = $db->fetch_record($result) )
             {
@@ -273,11 +273,10 @@ class Add_IndivAdj extends EQdkp_Admin
         $adjustment_ids = array();
         $old_members    = array();
         
-        $sql = 'SELECT a2.*
-                FROM (' . ADJUSTMENTS_TABLE . ' a1
-                LEFT JOIN ' . ADJUSTMENTS_TABLE . " a2
-                ON a1.adjustment_group_key = a2.adjustment_group_key)
-                WHERE a1.adjustment_id='" . $this->url_id . "'";
+        $sql = "SELECT a2.*
+                FROM __adjustments AS a1 LEFT JOIN __adjustments AS a2 
+                ON a1.`adjustment_group_key` = a2.`adjustment_group_key`
+                WHERE a1.`adjustment_id` = '{$this->url_id}'";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
@@ -295,16 +294,16 @@ class Add_IndivAdj extends EQdkp_Admin
         //
         // Remove the adjustment value from adjustments table
         //
-        $sql = 'DELETE FROM ' . ADJUSTMENTS_TABLE . '
-                WHERE adjustment_id IN (' . implode(', ', $adjustment_ids) . ')';
+        $sql = "DELETE FROM __adjustments
+                WHERE `adjustment_id` IN (" . implode(',', $adjustment_ids) . ")";
         $db->query($sql);
         
         //
         // Remove the adjustment value from members
         //
-        $sql = 'UPDATE ' . MEMBERS_TABLE . '
-                SET member_adjustment = member_adjustment - ' . stripslashes($this->old_adjustment['adjustment_value']) . '
-                WHERE member_name IN (\'' . implode("', '", $this->old_adjustment['member_names']) . '\')';
+        $sql = "UPDATE __members
+                SET `member_adjustment` = `member_adjustment` - {$this->old_adjustment['adjustment_value']}
+                WHERE `member_name` IN ('" . implode("', '", $this->old_adjustment['member_names']) . "')";
         $db->query($sql);
     }
     
@@ -315,9 +314,9 @@ class Add_IndivAdj extends EQdkp_Admin
         //
         // Add the adjustment to the member
         //
-        $sql = 'UPDATE ' . MEMBERS_TABLE . '
-                SET member_adjustment = member_adjustment + ' . $db->escape($_POST['adjustment_value']) . "
-                WHERE member_name='" . $member_name . "'";
+        $sql = "UPDATE __members
+                SET `member_adjustment` = `member_adjustment` + " . $db->escape($_POST['adjustment_value']) . "
+                WHERE `member_name` = '{$member_name}'";
         $db->query($sql);
         unset($sql);
         
@@ -332,7 +331,7 @@ class Add_IndivAdj extends EQdkp_Admin
             'adjustment_group_key' => $group_key,
             'adjustment_added_by'  => $this->admin_user)
         );
-        $db->query('INSERT INTO ' . ADJUSTMENTS_TABLE . $query);
+        $db->query("INSERT INTO __adjustments {$query}");
     }
     
     // ---------------------------------------------------------
@@ -346,9 +345,9 @@ class Add_IndivAdj extends EQdkp_Admin
         //
         // Build member drop-down
         //
-        $sql = 'SELECT member_name
-                FROM ' . MEMBERS_TABLE . '
-                ORDER BY member_name';
+        $sql = "SELECT member_name
+                FROM __members
+                ORDER BY member_name";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {

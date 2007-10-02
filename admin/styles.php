@@ -115,10 +115,10 @@ class Manage_Styles extends EQdkp_Admin
         // ---------------------------------------------------------
         if ( $this->url_id )
         {
-            $sql = 'SELECT s.*, c.*
-                    FROM ' . STYLES_TABLE . ' s, ' . STYLES_CONFIG_TABLE . " c
-                    WHERE (s.style_id = c.style_id)
-                    AND s.style_id='" . $this->url_id . "'";
+            $sql = "SELECT s.*, c.*
+                    FROM __styles AS s, __style_config AS c
+                    WHERE (s.`style_id` = c.`style_id`)
+                    AND s.`style_id` = '{$this->url_id}'";
             $result = $db->query($sql);
             if ( !$row = $db->fetch_record($result) )
             {
@@ -216,7 +216,7 @@ class Manage_Styles extends EQdkp_Admin
             'input_border_color' => $input_border_color,
             'input_border_style' => $input_border_style)
         );
-        $db->query('INSERT INTO ' . STYLES_TABLE . $query);
+        $db->query("INSERT INTO __styles {$query}");
         $style_id = $db->insert_id();
         
         $query = $db->build_query('INSERT', array(
@@ -227,7 +227,7 @@ class Manage_Styles extends EQdkp_Admin
             'date_time'         => $date_time,
             'logo_path'         => $logo_path)
         );
-        $db->query('INSERT INTO ' . STYLES_CONFIG_TABLE . $query);
+        $db->query("INSERT INTO __style_config {$query}");
         
         message_die($user->lang['admin_add_style_success']);
     }
@@ -275,7 +275,7 @@ class Manage_Styles extends EQdkp_Admin
             'input_border_color' => $input_border_color,
             'input_border_style' => $input_border_style)
         );
-        $db->query('UPDATE ' . STYLES_TABLE . ' SET ' . $query . " WHERE style_id='" . $this->url_id . "'");
+        $db->query("UPDATE __styles SET {$query} WHERE `style_id` = '{$this->url_id}'");
         
         $query = $db->build_query('UPDATE', array(
             'attendees_columns' => $attendees_columns,
@@ -284,7 +284,7 @@ class Manage_Styles extends EQdkp_Admin
             'date_time'         => $date_time,
             'logo_path'         => $logo_path)
         );
-        $db->query('UPDATE ' . STYLES_CONFIG_TABLE . ' SET ' . $query . " WHERE style_id='" . $this->url_id . "'");
+        $db->query("UPDATE __style_config SET {$query} WHERE `style_id` = '{$this->url_id}'");
         
         message_die($user->lang['admin_update_style_success']);
     }
@@ -297,8 +297,8 @@ class Manage_Styles extends EQdkp_Admin
         global $db, $eqdkp, $user, $tpl, $pm;
         global $SID;
         
-        $db->query('DELETE FROM ' . STYLES_TABLE        . " WHERE style_id='" . $this->url_id . "'");
-        $db->query('DELETE FROM ' . STYLES_CONFIG_TABLE . " WHERE style_id='" . $this->url_id . "'");
+        $db->query("DELETE FROM __styles       WHERE `style_id` = '{$this->url_id}'");
+        $db->query("DELETE FROM __style_config WHERE `style_id` = '{$this->url_id}'");
         
         message_die($user->lang['admin_delete_style_success']);
     }
@@ -315,12 +315,10 @@ class Manage_Styles extends EQdkp_Admin
         global $db, $eqdkp, $user, $tpl, $pm;
         global $SID;
         
-        $sql = 'SELECT style_id, style_name, template_path, count(u.user_id) AS users
-                FROM (' . STYLES_TABLE . ' s
-                LEFT JOIN ' . USERS_TABLE . ' u
-                ON u.user_style = s.style_id)
-                GROUP BY s.style_id
-                ORDER BY s.style_name';
+        $sql = "SELECT style_id, style_name, template_path, count(u.user_id) AS users
+                FROM __styles AS s LEFT JOIN __users AS u ON u.`user_style` = s.`style_id`
+                GROUP BY s.`style_id`
+                ORDER BY s.`style_name`";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {

@@ -62,9 +62,9 @@ class Add_News extends EQdkp_Admin
         // ---------------------------------------------------------
         if ( $this->url_id )
         {
-            $sql = 'SELECT news_headline, news_message
-                    FROM ' . NEWS_TABLE . "
-                    WHERE news_id='" . $this->url_id . "'";
+            $sql = "SELECT news_headline, news_message
+                    FROM __news
+                    WHERE `news_id` = '{$this->url_id}'";
             $result = $db->query($sql);
             if ( !$row = $db->fetch_record($result) )
             {
@@ -103,13 +103,14 @@ class Add_News extends EQdkp_Admin
         //
         // Insert the news
         //
+        // FIXME: Injection
         $query = $db->build_query('INSERT', array(
             'news_headline' => stripslashes($_POST['news_headline']),
             'news_message'  => stripslashes($_POST['news_message']),
             'news_date'     => $this->time,
             'user_id'       => $user->data['user_id'])
         );
-        $db->query('INSERT INTO ' . NEWS_TABLE . $query);
+        $db->query("INSERT INTO __news {$query}");
         $this_news_id = $db->insert_id();
 
         //
@@ -152,6 +153,7 @@ class Add_News extends EQdkp_Admin
         //
         // Update the news table
         //
+        // FIXME: Injection
         if ( isset($_POST['update_date']) )
         {
             $query = $db->build_query('UPDATE', array(
@@ -167,7 +169,7 @@ class Add_News extends EQdkp_Admin
                 'news_message'  => stripslashes($_POST['news_message']))
             );
         }
-        $db->query('UPDATE ' . NEWS_TABLE . ' SET ' . $query . " WHERE news_id='" . $this->url_id . "'");
+        $db->query("UPDATE __news SET {$query} WHERE `news_id` = '{$this->url_id}'");
 
         //
         // Logging
@@ -211,8 +213,8 @@ class Add_News extends EQdkp_Admin
         //
         // Remove the news entry
         //
-        $sql = 'DELETE FROM ' . NEWS_TABLE . "
-                WHERE news_id='" . $this->url_id . "'";
+        $sql = "DELETE FROM __news
+                WHERE `news_id` = '{$this->url_id}'";
         $db->query($sql);
 
         //
@@ -245,9 +247,9 @@ class Add_News extends EQdkp_Admin
     {
         global $db;
 
-        $sql = 'SELECT news_headline, news_message
-                FROM ' . NEWS_TABLE . "
-                WHERE news_id='" . $this->url_id . "'";
+        $sql = "SELECT news_headline, news_message
+                FROM __news
+                WHERE `news_id` = '{$this->url_id}'";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {

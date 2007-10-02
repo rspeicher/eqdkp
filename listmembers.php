@@ -258,6 +258,7 @@ else
         $sql .= " AND r.rank_name='" . urldecode($_GET['rank']) . "'";
     }
 
+    // FIXME: Undefined variable
     if ( $query_by_class == '1' )
     {
         //$sql .= " AND m.member_class_id =  $id";
@@ -265,6 +266,7 @@ else
 
     }
 
+    // FIXME: Undefined variable
     if ( $query_by_armor == '1' )
     {
         $sql .= " AND c.class_armor_type =  '". ucwords(strtolower($temp_filter))."'";

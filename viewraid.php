@@ -19,10 +19,10 @@ $user->check_auth('u_raid_view');
 
 if ( (isset($_GET[URI_RAID])) && (intval($_GET[URI_RAID] > 0)) )
 {
-    $sql = 'SELECT raid_id, raid_name, raid_date, raid_note, raid_value, raid_added_by, raid_updated_by
-            FROM ' . RAIDS_TABLE . "
-            WHERE raid_id='".$_GET[URI_RAID]."'";
-
+    // FIXME: Injection
+    $sql = "SELECT raid_id, raid_name, raid_date, raid_note, raid_value, raid_added_by, raid_updated_by
+            FROM __raids
+            WHERE `raid_id` = '{$_GET[URI_RAID]}'";
     if ( !($raid_result = $db->query($sql)) )
     {
         message_die('Could not obtain raid information', '', __FILE__, __LINE__, $sql);
@@ -38,9 +38,9 @@ if ( (isset($_GET[URI_RAID])) && (intval($_GET[URI_RAID] > 0)) )
     //
     // Attendees
     //
-    $sql = 'SELECT member_name
-            FROM ' . RAID_ATTENDEES_TABLE . "
-            WHERE raid_id='".$raid['raid_id']."'
+    $sql = "SELECT member_name
+            FROM __raid_attendees
+            WHERE `raid_id` = '{$raid['raid_id']}'
             ORDER BY member_name";
     $result = $db->query($sql);
 
@@ -54,11 +54,9 @@ if ( (isset($_GET[URI_RAID])) && (intval($_GET[URI_RAID] > 0)) )
 
     // Get each attendee's rank
     $ranks = array();
-    $sql = 'SELECT m.member_name, r.rank_prefix, r.rank_suffix
-            FROM ( ' . MEMBERS_TABLE . ' m
-            LEFT JOIN ' . MEMBER_RANKS_TABLE . " r
-            ON m.member_rank_id = r.rank_id )
-            WHERE m.member_name IN ('" . implode("', '", $attendees) . '\')';
+    $sql = "SELECT m.member_name, r.rank_prefix, r.rank_suffix
+            FROM __members AS m LEFT JOIN __member_ranks AS r ON m.`member_rank_id` = r.`rank_id`
+            WHERE m.`member_name` IN ('" . implode("','", $attendees) . "')";
     $result = $db->query($sql);
     while ( $row = $db->fetch_record($result) )
     {
@@ -124,9 +122,9 @@ if ( (isset($_GET[URI_RAID])) && (intval($_GET[URI_RAID] > 0)) )
     //
     // Drops
     //
-    $sql = 'SELECT item_id, item_buyer, item_name, item_value
-            FROM ' . ITEMS_TABLE . "
-            WHERE raid_id='".$raid['raid_id']."'";
+    $sql = "SELECT item_id, item_buyer, item_name, item_value
+            FROM __items
+            WHERE `raid_id` = '{$raid['raid_id']}'";
     if ( !($items_result = $db->query($sql)) )
     {
         message_die('Could not obtain item information', '', __FILE__, __LINE__, $sql);
@@ -153,23 +151,25 @@ if ( (isset($_GET[URI_RAID])) && (intval($_GET[URI_RAID] > 0)) )
     $total_attendees = sizeof($attendees);
 
     // Get each attendee's class
-    $sql = 'SELECT m.member_name, c.class_name AS member_class
-            FROM ' . MEMBERS_TABLE . ' m, ' .CLASS_TABLE ." c
-	    WHERE m.member_class_id = c.class_id 
-            AND member_name IN ('" . implode("', '", $attendees) . '\')';
+    $sql = "SELECT m.member_name, c.class_name AS member_class
+            FROM __members AS m, __classes AS c
+            WHERE m.`member_class_id` = c.`class_id` 
+            AND `member_name` IN ('" . implode("','", $attendees) . "')";
     $result = $db->query($sql);
     while ( $row = $db->fetch_record($result) )
     {
         $member_name = $row['member_name'];
-	$member_class = $row['member_class'];
+        $member_class = $row['member_class'];
 
         if ( $member_name != '' )
         {
             $html_prefix = ( isset($ranks[$member_name]) ) ? $ranks[$member_name]['prefix'] : '';
             $html_suffix = ( isset($ranks[$member_name]) ) ? $ranks[$member_name]['suffix'] : '';
 
+            // TODO: $eq_classes? Huh?
+            // FIXME: Undefined indexes
             $eq_classes[ $row['member_class'] ] .= " " . $html_prefix . $member_name . $html_suffix .",";
-	    $class_count[ $row['member_class'] ]++;
+            $class_count[ $row['member_class'] ]++;
         }
     }
     $db->free_result($result);

@@ -27,14 +27,14 @@ $sort_order = array(
  
 $current_order = switch_order($sort_order);
 
-$total_raids = $db->query_first('SELECT count(*) FROM ' . RAIDS_TABLE);
+$total_raids = $db->query_first("SELECT count(*) FROM __raids");
 
 $start = ( isset($_GET['start']) ) ? $_GET['start'] : 0;
 
-$sql = 'SELECT raid_id, raid_name, raid_date, raid_note, raid_value 
-        FROM ' . RAIDS_TABLE . '
-        ORDER BY '.$current_order['sql']. '
-        LIMIT '.$start.','.$user->data['user_rlimit'];
+$sql = "SELECT raid_id, raid_name, raid_date, raid_note, raid_value 
+        FROM __raids
+        ORDER BY {$current_order['sql']}
+        LIMIT {$start},{$user->data['user_rlimit']}";
         
 if ( !($raids_result = $db->query($sql)) )
 {

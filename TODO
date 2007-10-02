@@ -9,6 +9,12 @@ Global de-stupifying from 1.3
     - Search for '1.3' across the project and probably undo most of it, or make it less stupid.
     - Game log parsers need their own folder, probably. 
       [Also need an abstract class I reckon... see Game Management below - Daz]
+    - Everquest2German.php and Everquest2-german.php. One of them needs to go. 
+      Then again, both of them might if we start adding the proper layers of abstraction to this.
+
+Installation
+	- Add checks to prevent people overriding their current installation data.
+    - Perhaps replace the installation stuff with the development branch's (needs a bit of polish tho).
     
 /login.php
     - re-write the whole thing. In particular it probably makes more sense to have an
@@ -17,6 +23,9 @@ Global de-stupifying from 1.3
         
 /admin/functions.php
     - Change create_bar to use CSS instead of tables.
+
+/admin/fix_negative.php
+    - ...what the shit? Remove this unless there's some real need for it. Which I doubt.
 
 
 Less important stuff:

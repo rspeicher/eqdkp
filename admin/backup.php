@@ -79,28 +79,29 @@ class Backup extends EQdkp_Admin
       global $db, $eqdkp, $user, $tpl, $pm, $dbhost;
       global $SID;
 		
-		// TODO: Change these, unless this script needs to be deleted.
   		$tables = array(
-  			ADJUSTMENTS_TABLE,
-  			AUTH_OPTIONS_TABLE,
-  			AUTH_USERS_TABLE,
-  			CONFIG_TABLE,
-  			EVENTS_TABLE,
-  			ITEMS_TABLE,
-  			LOGS_TABLE,
-  			MEMBERS_TABLE,
-  			MEMBER_RANKS_TABLE,
-  			MEMBER_USER_TABLE,
-  			NEWS_TABLE,
-  			PLUGINS_TABLE,
-  			RAIDS_TABLE,
-  			SESSIONS_TABLE,
-  			STYLES_CONFIG_TABLE,
-  			STYLES_TABLE,
-  			USERS_TABLE,
-  			CLASS_TABLE,
-  			RACE_TABLE,
-  			FACTION_TABLE
+  			'__adjustments',
+  			'__auth_options',
+  			'__auth_users',
+  			'__config',
+  			'__events',
+  			'__items',
+  			'__logs',
+  			'__members',
+  			'__member_ranks',
+  			'__member_user',
+  			'__news',
+  			'__plugins',
+  			'__raids',
+			'__raid_attendees',
+			'__sessions',
+  			'__styles_config',
+  			'__styles',
+  			'__users',
+			// Game-specific tables
+  			'__class',
+  			'__race',
+  			'__faction',
   		);
   		
   		$do_gzip = false;
@@ -132,16 +133,19 @@ class Backup extends EQdkp_Admin
   		
   		foreach ( $tables as $table )
   		{
+			$tablename = $this->_generate_table_name($table);
   			$table_sql_string = "";
   			$data_sql_string = "";
   			
   			if ( $_POST['create_table'] == 'Y' )
   			{
-  				echo "\n-- \n-- Table structure for table `".$table."`\n-- \n\n";
-  				echo $this->_create_table_sql_string($table) . "\n";
+  				echo "\n-- \n-- Table structure for table `".$tablename."`\n-- \n\n";
+  				echo $this->_create_table_sql_string($tablename) . "\n";
   			}
-  			echo "\n-- \n-- Dumping data for table `".$table."`\n-- \n\n";
-  			if ( $table != SESSIONS_TABLE ) echo $this->_create_data_sql_string($table) . "\n";
+  			echo "\n-- \n-- Dumping data for table `".$tablename."`\n-- \n\n";
+  			if ( $table != '__sessions' ) echo $this->_create_data_sql_string($tablename) . "\n";
+
+			unset($tablename, $table_sql_string, $data_sql_string);
   		}
   		
   		@header("Pragma: no-cache");
@@ -163,12 +167,14 @@ class Backup extends EQdkp_Admin
   	{
   		global $db;
   		// Start the SQL string for this table
+		// TODO: Revise the 'DROP TABLE' business. It's a little too risqué for the average Joe Blo.
   		// EQDKP_CHANGE: We always drop tables by default. You may not like this.
   		// This is what we need for our app, so don't expect this to work for everything.
   		$sql_string = "DROP TABLE IF EXISTS $tablename;\n";
   		$sql_string .= "CREATE TABLE $tablename";
   		
   		// Get the field info and output to a string in the correct MySQL syntax
+		$field_string = "";
   		$result = $db->query("DESCRIBE $tablename");
   		while ($field_info = $db->fetch_record($result))
   		{
@@ -181,10 +187,10 @@ class Backup extends EQdkp_Admin
   			$field_string = sprintf("%s,\n  `%s` %s%s%s%s", $field_string, $field_name, $field_type, $field_not_null, $field_auto_increment, $field_default);
   		}
   		// Get the index info and output to a string in the correct MySQL syntax
+		$index_string = "";
   		$result = $db->query("SHOW INDEX FROM $tablename");
   		while ($index_info = $db->fetch_record($result))
   		{
-  			
   			$index_name = $index_info[2];
   			$index_unique = $index_info[1];
   			$index_field_name = $index_info[4];
@@ -230,8 +236,9 @@ class Backup extends EQdkp_Admin
   	{
   		global $db;
   		
-  		// Initialise the field string
+  		// Initialise the field and sql strings
   		$field_string = "";
+		$sql_string = "";
   		
   		// Get field names from MySQL and output to a string in the correct MySQL syntax
   		$result = $db->query("SELECT * FROM $tablename");
@@ -282,6 +289,14 @@ class Backup extends EQdkp_Admin
   		
   		return $return;
   	} 
+	
+	function _generate_table_name($val)
+	{
+		global $table_prefix;
+		
+        $val = preg_replace('#__([^\s]+)#', $table_prefix . '\1', $val);
+		return $val;
+	}
 }
 
 $backup = new Backup;

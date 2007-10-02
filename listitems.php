@@ -23,12 +23,12 @@ $user->check_auth('u_item_list');
 
 if ( (!isset($_GET[URI_PAGE])) || ($_GET[URI_PAGE] == 'values') )
 {
-     $sort_order = array(
-	0 => array('item_date desc', 'item_date'),
-	1 => array('item_buyer', 'item_buyer desc'),
-	2 => array('item_name', 'item_name desc'),
-	3 => array('raid_name', 'raid_name desc'),
-	4 => array('item_value desc', 'item_value')
+    $sort_order = array(
+	    0 => array('item_name', 'item_name desc'),
+        1 => array('item_buyer', 'item_buyer desc'),
+        2 => array('item_date desc', 'item_date'),
+        3 => array('raid_name', 'raid_name desc'),
+        4 => array('item_value desc', 'item_value')
      );
 
     $current_order = switch_order($sort_order);

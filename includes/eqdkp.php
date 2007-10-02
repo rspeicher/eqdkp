@@ -791,18 +791,18 @@ class EQdkp_Admin
         
     function make_log_action($action = array())
     {
+        global $db;
+        
         $str_action = "\$log_action = array(";
         foreach ( $action as $k => $v )
         {
-            $str_action .= "'" . $k . "' => '" . addslashes($v) . "',";
+            $str_action .= "'" . $k . "' => '" . $db->escape($v) . "',";
         }
         $action = substr($str_action, 0, strlen($str_action)- 1) . ");";
         
         // Take the newlines and tabs (or spaces > 1) out of the action
-        $action = preg_replace("/[[:space:]]{2,}/", '', $action);
-        $action = str_replace("\t", '', $action);
-        $action = str_replace("\n", '', $action);
-        $action = preg_replace("#(\\\){1,}#", "\\", $action);
+        $action = preg_replace("/\s+/", ' ', $action);
+        // $action = preg_replace("#(\\\){1,}#", "\\", $action);
         
         return $action;
     }

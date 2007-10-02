@@ -4,6 +4,7 @@ Version 1.3.3 -
 [-] Removed SOAP interfaces. Maybe they'll be released as a plugin at a later date, but they have no place in the default package.
 [*] Fixed the member_current number formatting.
 [*] Fix a syntax error when a log entry contained a bunch of junk characters.
+[*] The Item Values page was sorting incorrectly by default; should be alphabetical by name.
 [+] Replaced icons with better-looking icons from Mark James' Silk package.
 [ ] Deleted duplicate game-specific files in the admin folder.
 [-] Removed admin/lua.php and admin/lua_config.php. Again, these belong in a plugin, not the default package.

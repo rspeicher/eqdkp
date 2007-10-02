@@ -6,3 +6,6 @@ Global
 Global de-stupifying from 1.3
     - Search for '1.3' across the project and probably undo most of it, or make it less stupid.
     - Game log parsers need their own folder, probably.
+    
+/admin/functions.php
+    - Change create_bar to use CSS instead of tables.

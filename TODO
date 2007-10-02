@@ -3,6 +3,7 @@ Global
     - Replace all $_GET, $_POST and $_SESSION accesses with an Input class that
       has input cleaning.
     - Replace shitty glyphs with the Silk versions.
+    - Add x_path() functions a la Rails to clean up some URL generation
     
 Global de-stupifying from 1.3
     - Get rid of file_hash calls, what the hell was this for?
@@ -13,6 +14,9 @@ Global de-stupifying from 1.3
 
 /admin/index.php
     - Refactor get_x_name into a single method.
+    
+/admin/lua.php, /admin/lua_config.php
+    - Find out what the hell these are for. They look like one giant security hole.
     
 /admin/mm/mm_addmember.php
     x Format the current value correctly.

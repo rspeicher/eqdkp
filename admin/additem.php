@@ -65,9 +65,9 @@ class Add_Item extends EQdkp_Admin
         // ---------------------------------------------------------
         if ( $this->url_id )
         {
-            $sql = 'SELECT item_name, item_buyer, raid_id, item_value, item_date, item_group_key
-                    FROM ' . ITEMS_TABLE . "
-                    WHERE item_id='" . $this->url_id . "'";
+            $sql = "SELECT item_name, item_buyer, raid_id, item_value, item_date, item_group_key
+                    FROM __items
+                    WHERE `item_id` = '{$this->url_id}'";
             $result = $db->query($sql);
             if ( !$row = $db->fetch_record($result) )
             {
@@ -84,9 +84,9 @@ class Add_Item extends EQdkp_Admin
             );
         
             $buyers = array();
-            $sql = 'SELECT item_buyer
-                    FROM ' . ITEMS_TABLE . "
-                    WHERE item_group_key='" . $row['item_group_key'] . "'";
+            $sql = "SELECT item_buyer
+                    FROM __items
+                    WHERE `item_group_key` = '{$row['item_group_key']}'";
             $result = $db->query($sql);
             while ( $row = $db->fetch_record($result) )
             {
@@ -139,7 +139,8 @@ class Add_Item extends EQdkp_Admin
         $this->item['item_name'] = ( !empty($_POST['item_name']) ) ? $_POST['item_name'] : $_POST['select_item_name'];
         
         // Find out the item's date based on the raid it's associated with
-        $this->time = $db->query_first('SELECT raid_date FROM ' . RAIDS_TABLE . " WHERE raid_id='" . $_POST['raid_id'] . "'");
+        // FIXME: Injection
+        $this->time = $db->query_first("SELECT raid_date FROM __raids WHERE `raid_id` = '{$_POST['raid_id']}'");
         
         //
         // Generate our group key
@@ -194,7 +195,8 @@ class Add_Item extends EQdkp_Admin
         $this->item['item_name'] = ( !empty($_POST['item_name']) ) ? $_POST['item_name'] : $_POST['select_item_name'];
         
         // Find out the item's date based on the raid it's associated with
-        $this->time = $db->query_first('SELECT raid_date FROM ' . RAIDS_TABLE . " WHERE raid_id='" . $_POST['raid_id'] . "'");
+        // FIXME: Injection
+        $this->time = $db->query_first("SELECT raid_date FROM __raids WHERE `raid_id` = '{$_POST['raid_id']}'");
         
         //
         // Generate our group key
@@ -287,11 +289,9 @@ class Add_Item extends EQdkp_Admin
         //
         // Build the item_ids, old_buyers and old_item arrays
         //
-        $sql = 'SELECT i2.*
-                FROM (' . ITEMS_TABLE . ' i1
-                LEFT JOIN ' . ITEMS_TABLE . " i2
-                ON i1.item_group_key = i2.item_group_key)
-                WHERE i1.item_id='" . $this->url_id . "'";
+        $sql = "SELECT i2.*
+                FROM __items AS i1 LEFT JOIN __items AS i2 ON i1.`item_group_key` = i2.`item_group_key`
+                WHERE i1.`item_id` = '{$this->url_id}'";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
@@ -310,16 +310,16 @@ class Add_Item extends EQdkp_Admin
         //
         // Remove the item purchase from the items table
         //
-        $sql = 'DELETE FROM ' . ITEMS_TABLE . '
-                WHERE item_id IN (' . implode(', ', $item_ids) . ')';
+        $sql = "DELETE FROM __items
+                WHERE `item_id` IN (" . implode(',', $item_ids) . ")";
         $db->query($sql);
         
         //
         // Remove the purchase value from members
         //
-        $sql = 'UPDATE ' . MEMBERS_TABLE . '
-                SET member_spent = member_spent - ' . stripslashes($this->old_item['item_value']) . '
-                WHERE member_name IN (\'' . implode("', '", $this->old_item['item_buyers']) . '\')';
+        $sql = "UPDATE __members
+                SET `member_spent` = `member_spent` - {$this->old_item['item_value']}
+                WHERE `member_name` IN ('" . implode("','", $this->old_item['item_buyers']) . "')";
         $db->query($sql);
     }
     
@@ -345,23 +345,25 @@ class Add_Item extends EQdkp_Admin
         //
         // Add charge to members
         //
-        $sql = 'UPDATE ' . MEMBERS_TABLE . '
-                SET member_spent = member_spent + ' . $_POST['item_value'] . '
-                WHERE member_name IN (\'' . implode("', '", $_POST['item_buyers']) . '\')';
+        // FIXME: Injection
+        $sql = "UPDATE __members
+                SET `member_spent` = `member_spent` + {$_POST['item_value']}
+                WHERE `member_name` IN ('" . implode("','", $_POST['item_buyers']) . "')";
         $db->query($sql);
         
         //
         // Add purchase(s) to items table
         //
         // Remove the field names from our built queries
+        // TODO: This is pretty hacky
         foreach ( $query as $key => $sql )
         {
             $query[$key] = preg_replace('#^.+\) VALUES (\(.+\))#', '\1', $sql);
         }
         
-        $sql = 'INSERT INTO ' . ITEMS_TABLE . '
+        $sql = "INSERT INTO __items 
                 (item_name, item_buyer, raid_id, item_value, item_date, item_group_key, item_added_by)
-                VALUES ' . implode(', ', $query);
+                VALUES " . implode(',', $query);
         $db->query($sql);
     }
     
@@ -378,9 +380,9 @@ class Add_Item extends EQdkp_Admin
         //
         $buyer_source = ( $this->url_id ) ? $this->item['item_buyers'] : (( isset($_POST['item_buyers']) ) ? $_POST['item_buyers'] : '');
         
-        $sql = 'SELECT member_name
-                FROM ' . MEMBERS_TABLE . '
-                ORDER BY member_name';
+        $sql = "SELECT member_name
+                FROM __members
+                ORDER BY member_name";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
@@ -408,13 +410,14 @@ class Add_Item extends EQdkp_Admin
         // Make two_weeks two weeks before the date the item was purchased
         $two_weeks = mktime(0, 0, 0, date('m', $this->time), date('d', $this->time)-14, date('y', $this->time));
 
-        $sql_where_clause = ( $show_all ) ? '' : ' WHERE (raid_date >= ' . $two_weeks . ')';
-        $sql = 'SELECT raid_id, raid_name, raid_date
-                FROM ' . RAIDS_TABLE .
-                $sql_where_clause . '
-                ORDER BY raid_date DESC';
+        $sql_where_clause = ( $show_all ) ? '' : " WHERE (raid_date >= {$two_weeks})";
+        $sql = "SELECT raid_id, raid_name, raid_date
+                FROM __raids
+                {$sql_where_clause}
+                ORDER BY raid_date DESC";
         $result = $db->query($sql);
         $raid_id = ( isset($_GET['raid_id']) ) ? $_GET['raid_id'] : '0'; // 'Add items from this raid' link
+        // FIXME: XSS
         while ( $row = $db->fetch_record($result) )
         {
             $tpl->assign_block_vars('raids_row', array(
@@ -428,31 +431,30 @@ class Add_Item extends EQdkp_Admin
         //
         // Build item drop-down
         //
-        $max_value = $db->query_first('SELECT max(item_value) FROM ' . ITEMS_TABLE);
+        $max_value = $db->query_first("SELECT max(item_value) FROM __items");
         $float = @explode('.', $max_value);
         $floatlen = @strlen($float[0]);
         $format = '%0' . $floatlen . '.2f';
         
         $previous_item = '';
-        $sql = 'SELECT item_value, item_name
-                FROM ' . ITEMS_TABLE . '
-                ORDER BY item_name, item_date DESC';
+        $sql = "SELECT item_value, item_name
+                FROM __items
+                ORDER BY `item_name`, `item_date` DESC";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
             $item_select_name = stripslashes(trim($row['item_name']));
             $item_name        = stripslashes(trim($this->item['item_name']));
-	    $item_value       = $row['item_value'];
+            $item_value       = $row['item_value'];
 
             if ( $previous_item != $item_select_name )
             {
                 $tpl->assign_block_vars('items_row', array(
                     'VALUE'    => $item_select_name,
                     'SELECTED' => ( ($item_select_name == $item_name) || ($item_select_name == $this->item['select_item_name']) ) ? ' selected="selected"' : '',
-                      // 'OPTION'   => '(' . sprintf($format, $row['item_value']) . ') - ' . $item_select_name)
-		     'OPTION'   => $item_select_name . ' - ( ' . sprintf($format, $row['item_value']) . ' )' )
-
-                );
+                    // 'OPTION'   => '(' . sprintf($format, $row['item_value']) . ') - ' . $item_select_name)
+                    'OPTION'   => $item_select_name . ' - ( ' . sprintf($format, $row['item_value']) . ' )'
+                ));
                 
                 $previous_item = $item_select_name;
             }
@@ -559,20 +561,20 @@ class Item_Search extends EQdkp_Admin
         $items_array = array();
         if ( !empty($_POST['query']) )
         {
-            $eqdkp_items      = array();
-            $eqdkp_item_stats = array();
+            $items_array = array();
             
             //
             // Get item names from our standard items table
             //
-            $sql = 'SELECT item_name
-                    FROM ' . ITEMS_TABLE . "
-                    WHERE item_name LIKE '%" . $_POST['query'] . "%'
-                    ORDER BY item_name";
+            // FIXME: Injection
+            $sql = "SELECT item_name
+                    FROM __items
+                    WHERE `item_name` LIKE '%{$_POST['query']}%'
+                    GROUP BY item_name";
             $result = $db->query($sql);
             while ( $row = $db->fetch_record($result) )
             {
-                $eqdkp_items[] = $row['item_name'];
+                $items_array[] = $row['item_name'];
             }
             $db->free_result($result);
             
@@ -580,36 +582,9 @@ class Item_Search extends EQdkp_Admin
             // Get item names from our stats table if the stats plugin is installed
             //
 
-            // #######################################
-            // Alteration sumbitted by Tam
-            // #######################################
-            if ( $pm->check(PLUGIN_INSTALLED, 'stats') )
-                  {
-                      $sql = 'SELECT name
-                              FROM ' . ITEM_STATS_TABLE . "
-                              WHERE name LIKE '%" . $_POST['query'] . "%'
-                              ORDER BY name";
-                      $result = $db->query($sql);
-                      while ( $row = $db->fetch_record($result) )
-                      {
-                          // Add the item if we don't have it already
-                          if ( !in_array($row['item_name'], $eqdkp_items) )
-                          {
-                              $eqdkp_item_stats[] = $row['name'];
-                          }
-                      }
-                      $db->free_result($result);
-                  }
-            //#######################################
-
             //
             // Build the drop-down
             //
-            $items_array = array_merge($eqdkp_items, $eqdkp_item_stats);
-            $items_array = array_unique($items_array);
-            sort($items_array);
-            reset($items_array);
-            
             foreach ( $items_array as $item_name )
             {
                 $tpl->assign_block_vars('items_row', array(
@@ -622,6 +597,7 @@ class Item_Search extends EQdkp_Admin
         $tpl->assign_vars(array(
             'S_STEP1' => false,
             
+            // FIXME: XSS
             'L_RESULTS' => sprintf($user->lang['results'], sizeof($items_array), stripslashes($_POST['query'])),
             'L_SELECT'  => $user->lang['select'])
         );

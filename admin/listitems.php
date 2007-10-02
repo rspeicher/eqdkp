@@ -28,14 +28,15 @@ $sort_order = array(
 
 $current_order = switch_order($sort_order);
 
-$total_items = $db->query_first('SELECT count(*) FROM ' . ITEMS_TABLE);
+$total_items = $db->query_first("SELECT count(*) FROM __items");
 $start = ( isset($_GET['start']) ) ? $_GET['start'] : 0;
 
-$sql = 'SELECT i.item_id, i.item_name, i.item_buyer, i.item_date, i.raid_id, i.item_value, r.raid_name
-        FROM ' . ITEMS_TABLE . ' i, ' . RAIDS_TABLE . ' r
-        WHERE r.raid_id=i.raid_id
-        ORDER BY '.$current_order['sql']. '
-        LIMIT '.$start.','.$user->data['user_ilimit'];
+// FIXME: Injection
+$sql = "SELECT i.item_id, i.item_name, i.item_buyer, i.item_date, i.raid_id, i.item_value, r.raid_name
+        FROM __items AS i, __raids AS r
+        WHERE r.`raid_id` = i.`raid_id`
+        ORDER BY {$current_order['sql']}
+        LIMIT {$start},{$user->data['user_ilimit']}";
 
 $listitems_footcount = sprintf($user->lang['listpurchased_footcount'], $total_items, $user->data['user_ilimit']);
 $pagination = generate_pagination('listitems.php'.$SID.'&amp;o='.$current_order['uri']['current'], $total_items, $user->data['user_ilimit'], $start);

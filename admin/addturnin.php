@@ -77,12 +77,14 @@ class Add_Turnin extends EQdkp_Admin
         global $db, $eqdkp, $user, $tpl, $pm;
         global $SID;
         
+        // FIXME: Oh god Injection
+        
         //
         // Get item information
         //
-        $sql = 'SELECT item_value, item_name
-                FROM ' . ITEMS_TABLE . "
-                WHERE item_id='" . $_POST['item_id'] . "'";
+        $sql = "SELECT item_value, item_name
+                FROM __items
+                WHERE `item_id` = '{$_POST['item_id']}'";
         $result = $db->query($sql);
         $row = $db->fetch_record($result);
         
@@ -91,25 +93,25 @@ class Add_Turnin extends EQdkp_Admin
         //
         // Remove price from the 'From' member
         //
-        $sql = 'UPDATE ' . MEMBERS_TABLE . '
-                SET member_spent = member_spent - ' . $item_value . "
-                WHERE member_name='" . $_POST['from'] . "'";
+        $sql = "UPDATE __members
+                SET `member_spent` = `member_spent` - {$item_value}
+                WHERE `member_name` = '{$_POST['from']}'";
         $db->query($sql);
         
         //
         // Add the price to the 'To' member
         //
-        $sql = 'UPDATE ' . MEMBERS_TABLE . '
-                SET member_spent = member_spent + ' . $item_value . "
-                WHERE member_name='" . $_POST['to'] . "'";
+        $sql = "UPDATE __members
+                SET `member_spent` = `member_spent` + {$item_value}
+                WHERE `member_name` = '{$_POST['to']}'";
         $db->query($sql);
         
         //
         // Change the buyer
         //
-        $sql = 'UPDATE ' . ITEMS_TABLE . "
-                SET item_buyer='" . $_POST['to'] . "'
-                WHERE item_id='" . $_POST['item_id'] . "'";
+        $sql = "UPDATE __items
+                SET `item_buyer` = '{$_POST['to']}'
+                WHERE `item_id` = '{$_POST['item_id']}'";
         $db->query($sql);
         
         //
@@ -139,13 +141,13 @@ class Add_Turnin extends EQdkp_Admin
         global $db, $eqdkp, $user, $tpl, $pm;
         global $SID;
         
-        $max_value = $db->query_first('SELECT max(item_value) FROM ' . ITEMS_TABLE . " WHERE item_buyer='" . $_POST['turnin_from'] . "'");
+        $max_value = $db->query_first("SELECT max(item_value) FROM __items WHERE `item_buyer` = '{$_POST['turnin_from']}'");
         $float = @explode('.', $max_value);
         $format = '%0'.@strlen($float[0]).'.2f';
         
-        $sql = 'SELECT item_id, item_name, item_value
-                FROM ' . ITEMS_TABLE . " 
-                WHERE item_buyer='" . $_POST['turnin_from'] . "'
+        $sql = "SELECT item_id, item_name, item_value
+                FROM __items
+                WHERE `item_buyer` = '{$_POST['turnin_from']}'
                 ORDER BY item_name";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
@@ -197,9 +199,9 @@ class Add_Turnin extends EQdkp_Admin
         global $db, $eqdkp, $user, $tpl, $pm;
         global $SID;
         
-        $sql = 'SELECT member_name
-                FROM ' . MEMBERS_TABLE . '
-                ORDER BY member_name';
+        $sql = "SELECT member_name
+                FROM __members
+                ORDER BY member_name";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {

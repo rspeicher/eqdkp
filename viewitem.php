@@ -28,48 +28,22 @@ if ( (isset($_GET[URI_ITEM])) && (intval($_GET[URI_ITEM] > 0)) )
     $current_order = switch_order($sort_order);
 
     // We want to view items by name and not id, so get the name
-    $item_name = $db->query_first('SELECT item_name FROM ' . ITEMS_TABLE . " WHERE item_id='".$_GET[URI_ITEM]."'");
+    // FIXME: Injection
+    $item_name = $db->query_first("SELECT item_name FROM __items WHERE `item_id` = '{$_GET[URI_ITEM]}'");
 
     if ( empty($item_name) )
     {
         message_die($user->lang['error_invalid_item_provided']);
     }
 
-    // Item stats
-    if ( $pm->check(PLUGIN_INSTALLED, 'stats') )
-    {
-        $show_stats = true;
+    $show_stats = false;
+    $u_view_stats = '';
 
-        //  $sql = 'SELECT item_id
-       // FROM ' . ITEM_STATS_TABLE . "
-       //     WHERE item_name='" . addslashes($item_name) . "'";
-       // $stat_id = $db->query_first($sql);
-
-        $sql = 'SELECT id
-                FROM ' . ITEM_STATS_TABLE . "
-                WHERE name='" . addslashes($item_name) . "'";
-        $stat_id = $db->query_first($sql);
-
-        if ( !$stat_id )
-        {
-            $show_stats = false;
-            $u_view_stats = '';
-        }
-        else
-        {
-            $u_view_stats = $eqdkp_root_path . 'plugins/' . $pm->get_data('stats', 'path') . '/itemshot.php' . $SID . '&amp;' . URI_ITEM . '=' . $stat_id . '&amp;iframe=true';
-        }
-    }
-    else
-    {
-        $show_stats = false;
-        $u_view_stats = '';
-    }
-
-    $sql = 'SELECT i.item_id, i.item_name, i.item_value, i.item_date, i.raid_id, i.item_buyer, r.raid_name
-            FROM ' . ITEMS_TABLE . ' i, ' . RAIDS_TABLE . " r
-            WHERE (r.raid_id = i.raid_id) AND (i.item_name='".addslashes($item_name)."')
-            ORDER BY ".$current_order['sql'];
+    $sql = "SELECT i.item_id, i.item_name, i.item_value, i.item_date, i.raid_id, i.item_buyer, r.raid_name
+            FROM __items AS i, __raids AS r
+            WHERE r.`raid_id` = i.`raid_id`
+            AND i.`item_name` = '" . $db->escape($item_name) . "'
+            ORDER BY {$current_order['sql']}";
     if ( !($items_result = $db->query($sql)) )
     {
         message_die('Could not obtain item information', '', __FILE__, __LINE__, $sql);

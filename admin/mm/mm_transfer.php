@@ -80,57 +80,59 @@ class MM_Transfer extends EQdkp_Admin
         // ie, They can select what (raid, item, adjustment) they want to transfer
         // and maybe even select specific raids/items/adjustments - not now though
         
+        // FIXME: Injection
         $member_from = $_POST['transfer_from'];
         $member_to   = $_POST['transfer_to'];
         
         // Transfer raids
         $raidcount_addon = 0; // So we know their new raidcount
-        $sql = 'SELECT raid_id, member_name
-                FROM ' . RAID_ATTENDEES_TABLE . "
-                WHERE member_name='".$member_from."'";
+        $sql = "SELECT raid_id, member_name
+                FROM __raid_attendees
+                WHERE `member_name` = '{$member_from}'";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
             // Check if the TO attended the same raid
-            $sql = 'SELECT member_name
-                    FROM ' . RAID_ATTENDEES_TABLE . "
-                    WHERE raid_id='".$row['raid_id']."'
-                    AND member_name='".$member_to."'";
+            $sql = "SELECT member_name
+                    FROM __raid_attendees
+                    WHERE `raid_id` = '{$row['raid_id']}'
+                    AND `member_name` = '{$member_to}'";
                     
             // If they didn't, replace the FROM with the TWO
             if ( $db->num_rows($db->query($sql)) == 0 )
             {
-                $sql = 'UPDATE ' . RAID_ATTENDEES_TABLE . "
-                        SET member_name='".$member_to."'
-                        WHERE raid_id='".$row['raid_id']."'
-                        AND member_name='".$member_from."'";
+                $sql = "UPDATE __raid_attendees
+                        SET `member_name` = '{$member_to}'
+                        WHERE `raid_id` = '{$row['raid_id']}'
+                        AND `member_name` = '{$member_from}'";
                 $db->query($sql);
                 $raidcount_addon++;
             }
         }
         
         // Find their new earned
-        $sql = 'SELECT sum(r.raid_value) 
-                FROM ' . RAIDS_TABLE . ' r, ' . RAID_ATTENDEES_TABLE . " ra 
-                WHERE (ra.raid_id = r.raid_id) AND (ra.member_name='".$member_to."')";
+        $sql = "SELECT sum(r.raid_value) 
+                FROM __raids_table AS r, __raid_attendees AS ra 
+                WHERE ra.`raid_id` = r.`raid_id`
+                AND ra.`member_name` = '{$member_to}')";
         $earned = $db->query_first($sql);
         
         // Transfer Items
-        $sql = 'UPDATE ' . ITEMS_TABLE . "
-                SET item_buyer='".$member_to."'
-                WHERE item_buyer='".$member_from."'";
+        $sql = "UPDATE __items
+                SET `item_buyer` = '{$member_to}'
+                WHERE `item_buyer` = '{$member_from}'";
         $db->query($sql);
         
         // Find their new spent
-        $sql = 'SELECT sum(item_value)
-                FROM ' . ITEMS_TABLE . "
-                WHERE item_buyer='".$member_to."'";
+        $sql = "SELECT sum(item_value)
+                FROM __items
+                WHERE `item_buyer` = '{$member_to}'";
         $spent = $db->query_first($sql);
         
         // Transfer adjustments
-        $sql = 'UPDATE ' . ADJUSTMENTS_TABLE . "
-                SET member_name='".$member_to."'
-                WHERE member_name='".$member_from."'";
+        $sql = "UPDATE __adjustments
+                SET `member_name` = '{$member_to}'
+                WHERE `member_name` = '{$member_from}'";
         $db->query($sql);
         
         // Find the new total adjustment
@@ -138,39 +140,37 @@ class MM_Transfer extends EQdkp_Admin
         // 1: Individual adjustments get lumped into the total no matter what
         // 2: Group adjustments are added if their first raid was (they were added) 
         // on or before the adjustment date
-        $sql = 'SELECT sum(adjustment_value)
-                FROM ' . ADJUSTMENTS_TABLE . "
-                WHERE member_name='".$member_to."'";
+        $sql = "SELECT sum(adjustment_value)
+                FROM __adjustments
+                WHERE `member_name` = '{$member_to}'";
         $total_iadj = $db->query_first($sql);
         
-        $sql = 'SELECT sum(a.adjustment_value)
-                FROM ( ' . ADJUSTMENTS_TABLE . ' a
-                LEFT JOIN ' . MEMBERS_TABLE . " m
-                ON m.member_firstraid <= a.adjustment_date )
-                WHERE m.member_name='".$member_to."'
-                AND a.member_name IS NULL";
+        $sql = "SELECT sum(a.adjustment_value)
+                FROM __adjustments AS a LEFT JOIN __members AS m ON m.`member_firstraid` <= a.`adjustment_date` )
+                WHERE m.`member_name` = '{$member_to}'
+                AND a.`member_name` IS NULL";
         $total_gadj = $db->query_first($sql);
         
         $adjustment = ($total_gadj + $total_iadj);
         $adjustment = ( !empty($adjustment) ) ? $adjustment : '0.00';
         
         // Update the member_to
-        $sql = 'UPDATE ' . MEMBERS_TABLE . "
-                SET member_earned='".$earned."',
-                    member_spent='".$spent."', 
-                    member_adjustment='".$adjustment."', 
-                    member_raidcount = member_raidcount+".$raidcount_addon."
-                WHERE member_name='".$member_to."'";
+        $sql = "UPDATE __members
+                SET `member_earned` = '{$earned}',
+                    `member_spent` = '{$spent}',
+                    `member_adjustment` = '{$adjustment}',
+                    `member_raidcount` = `member_raidcount` + {$raidcount_addon}
+                WHERE `member_name` = '{$member_to}'";
         $db->query($sql);
         
         // Delete the member_from
-        $sql = 'DELETE FROM ' . MEMBERS_TABLE . "
-                WHERE member_name='".$member_from."'";
+        $sql = "DELETE FROM __members
+                WHERE `member_name` = '{$member_from}'";
         $db->query($sql);
         
         // Delete any remaining raids that the FROM attended
-        $sql = 'DELETE FROM ' . RAID_ATTENDEES_TABLE . "
-                WHERE member_name='".$member_from."'";
+        $sql = "DELETE FROM __raid_attendees
+                WHERE `member_name` = '{$member_from}'";
         $db->query($sql);
         
         //
@@ -203,9 +203,9 @@ class MM_Transfer extends EQdkp_Admin
         //
         // Generate to/from drop-downs
         //
-        $sql = 'SELECT member_name
-                FROM ' . MEMBERS_TABLE . '
-                ORDER BY member_name';
+        $sql = "SELECT member_name
+                FROM __members
+                ORDER BY member_name";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {

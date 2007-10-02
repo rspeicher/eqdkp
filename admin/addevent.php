@@ -57,10 +57,6 @@ class Add_Event extends EQdkp_Admin
                 'process' => 'display_form',
                 'check'   => 'a_event_'))
         );
-
-        $cur_hash = hash_filename("addevent.php");
-        //print"HASH::$cur_hash::<br>";
-
         
         // Build the event array
         // ---------------------------------------------------------

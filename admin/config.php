@@ -164,9 +164,6 @@ class EQdkp_Config extends EQdkp_Admin
     {
         global $db, $eqdkp, $user, $tpl, $pm;
         global $SID, $auth_defaults;
-        
-	$cur_hash = hash_filename("config.php");
-	//print"HASH::$cur_hash::<br>";
 
         //
         // Find default auth settings

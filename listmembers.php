@@ -32,8 +32,6 @@ $sort_order = array(
 
 $current_order = switch_order($sort_order);
 
-$cur_hash = hash_filename("listmembers.php");
-
 //
 // Compare members
 //
@@ -370,7 +368,6 @@ $tpl->assign_vars(array(
     'O_LASTRAID'   => $current_order['uri'][5],
     
     'URI_ADDON'      => $uri_addon,
-    'PAGE_HASH'		=> $cur_hash,
     'U_LIST_MEMBERS' => 'listmembers.php' . $SID . '&amp;',
     
     'S_COMPARE' => $s_compare,

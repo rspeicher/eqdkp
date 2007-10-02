@@ -58,10 +58,6 @@ class Add_IndivAdj extends EQdkp_Admin
                 'process' => 'display_form',
                 'check'   => 'a_indivadj_'))
         );
-
-        $cur_hash = hash_filename("addiadj.php");
-        //print"HASH::$cur_hash::<br>";
-
         
         // Build the adjustment aray
         // -----------------------------------------------------

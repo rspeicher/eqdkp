@@ -17,27 +17,6 @@ if ( !defined('EQDKP_INC') )
 }
 
 /**
-* Compute the md5 hash of the filename passed
-*
-* @param	string	$filename	EQdkp file
-* @return	string	$hash		md5 hash of file
-*/
-
-function hash_filename($filename)
-{
-    global $eqdkp;
-
-    if ( isset($filename) && $filename != "" )
-    {
-
-	$hash = md5_file($filename);
-
-    }
-
-    return($hash);
-}
-
-/**
 * Checks if a POST field value exists;
 * If it does, we use that one, otherwise we use the optional database field value,
 * or return a null string if $db_row contains no data

@@ -31,9 +31,6 @@ if ( $db->num_rows($result) == 0 )
     message_die($user->lang['no_news']);
 }
 
-$cur_hash = hash_filename("viewnews.php");
-// print"HASH::$cur_hash::<br>";
-
 while ( $news = $db->fetch_record($result) )
 {
     // Show a new date row if it's not the same as the last

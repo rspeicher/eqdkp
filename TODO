@@ -24,10 +24,6 @@ Installation
 /admin/functions.php
     - Change create_bar to use CSS instead of tables.
 
-/admin/fix_negative.php
-    - ...what the shit? Remove this unless there's some real need for it. Which I doubt.
-
-
 Less important stuff:
 ----
 Game Management
@@ -40,7 +36,6 @@ Game Management
       using language files for the games.
     - Hook all the above in the installation process so that users can choose their default game
       from the get-go.
-
 
 /listmembers.php
     - Separate the compare members code from the default list members code (make a new file).

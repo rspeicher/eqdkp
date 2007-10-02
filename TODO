@@ -2,10 +2,46 @@ Global
     - Get rid of X_TABLE constants in favor of __x names.
     - Replace all $_GET, $_POST and $_SESSION accesses with an Input class that has input cleaning.
     - Add x_path() functions a la Rails to clean up some URL generation
+    - Agree on a universal method for constructing SQL queries (particularly when and where 
+      to use backticks) and adjust all sql queries to follow the same format.
     
 Global de-stupifying from 1.3
     - Search for '1.3' across the project and probably undo most of it, or make it less stupid.
-    - Game log parsers need their own folder, probably.
+    - Game log parsers need their own folder, probably. 
+      [Also need an abstract class I reckon... see Game Management below - Daz]
     
+/login.php
+    - re-write the whole thing. In particular it probably makes more sense to have an
+      action=(login|logout) variable than separate variables for both.
+      Update other parts of eqdkp that use login.php accordingly.
+        
 /admin/functions.php
     - Change create_bar to use CSS instead of tables.
+
+
+Less important stuff:
+----
+Game Management
+    - Create an eqdkp_game class to manage game-related aspects of eqdkp.
+      Basically, we need to come up with a decent class that can be extended with the individual
+      games' specific/unique information. 
+      Adding this level of abstraction means that the main class handle shit like updating
+      the database with races/classes/factions, as well as maybe the parsing mentioned above.
+    - Amalgamate all language implementations for a game into a single game script, and start
+      using language files for the games.
+    - Hook all the above in the installation process so that users can choose their default game
+      from the get-go.
+
+
+/listmembers.php
+    - Separate the compare members code from the default list members code (make a new file).
+
+/listitems.php
+    - Separate the unique item list code from the item history code (make a new file).
+
+/admin/index.php
+    - Move the stuff in the switch case for resolve_eqdkp_page into the appropriate files to
+      reduce coupling of admin pages, as well as reduce the number of files required to be
+      updated each time a new admin page or plugin page is created.
+      Unfortunately I think this is a rather involved process, and I'd say the tradeoff 
+      between benefit and required effort would be marginal.

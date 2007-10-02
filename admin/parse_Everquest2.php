@@ -189,10 +189,10 @@ New log file format for EQ2
         // Cache the member name / member rank info
         if ( @sizeof($member_ranks) == 0 )
         {
-            $sql = 'SELECT r.rank_name, m.member_name
-                    FROM ' . MEMBER_RANKS_TABLE . ' r, ' . MEMBERS_TABLE . ' m
-                    WHERE (r.rank_id = m.member_rank_id)
-                    ORDER BY m.member_name';
+            $sql = 'SELECT r.`rank_name`, m.`member_name`
+                    FROM __member_ranks AS r, __members AS m
+                    WHERE r.`rank_id` = m.`member_rank_id`
+                    ORDER BY m.`member_name`';
             $result = $db->query($sql);
             while ( $row = $db->fetch_record($result) )
             {
@@ -482,9 +482,9 @@ After using the above 4, we now test with the same members in different states o
         // Member tags to parse
         // Find out how many members have each rank
         $rank_counts = array();
-        $sql = 'SELECT member_rank_id, count(member_rank_id) as count
-                FROM ' . MEMBERS_TABLE . '
-                GROUP BY member_rank_id';
+        $sql = 'SELECT `member_rank_id`, count(`member_rank_id`) as `count`
+                FROM __members
+                GROUP BY `member_rank_id`';
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
@@ -493,9 +493,9 @@ After using the above 4, we now test with the same members in different states o
         $db->free_result($result);
         
         $ranks = array();
-        $sql = 'SELECT rank_id, rank_name, rank_prefix, rank_suffix
-                FROM ' . MEMBER_RANKS_TABLE . '
-                ORDER BY rank_name';
+        $sql = 'SELECT `rank_id`, `rank_name`, `rank_prefix`, `rank_suffix`
+                FROM __member_ranks
+                ORDER BY `rank_name`';
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {

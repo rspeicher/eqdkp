@@ -112,9 +112,9 @@ class MM_Transfer extends EQdkp_Admin
         
         // Find their new earned
         $sql = "SELECT sum(r.raid_value) 
-                FROM __raids_table AS r, __raid_attendees AS ra 
+                FROM __raids AS r, __raid_attendees AS ra 
                 WHERE ra.`raid_id` = r.`raid_id`
-                AND ra.`member_name` = '{$member_to}')";
+                AND ra.`member_name` = '{$member_to}'";
         $earned = $db->query_first($sql);
         
         // Transfer Items
@@ -146,7 +146,7 @@ class MM_Transfer extends EQdkp_Admin
         $total_iadj = $db->query_first($sql);
         
         $sql = "SELECT sum(a.adjustment_value)
-                FROM __adjustments AS a LEFT JOIN __members AS m ON m.`member_firstraid` <= a.`adjustment_date` )
+                FROM __adjustments AS a LEFT JOIN __members AS m ON m.`member_firstraid` <= a.`adjustment_date`
                 WHERE m.`member_name` = '{$member_to}'
                 AND a.`member_name` IS NULL";
         $total_gadj = $db->query_first($sql);

@@ -84,17 +84,18 @@ class Register extends EQdkp_Admin
         
         if ( isset($_POST['submit']) )
         {
-            $sql = 'SELECT user_id
-                    FROM ' . USERS_TABLE . "
-                    WHERE username='" . $_POST['username'] . "'";
+            // FIXME: Injection
+            $sql = "SELECT user_id
+                    FROM __users
+                    WHERE `username` = '{$_POST['username']}'";
             if ( $db->num_rows($db->query($sql)) > 0 )
             {
                 $this->fv->errors['username'] = $user->lang['fv_already_registered_username'];
             }
             
-            $sql = 'SELECT user_id
-                    FROM ' . USERS_TABLE . "
-                    WHERE user_email='" . $_POST['user_email'] . "'";
+            $sql = "SELECT user_id
+                    FROM __users
+                    WHERE `user_email` = '{$_POST['user_email']}'";
             if ( $db->num_rows($db->query($sql)) > 0 )
             {
                 $this->fv->errors['user_email'] = $user->lang['fv_already_registered_email'];
@@ -139,7 +140,7 @@ class Register extends EQdkp_Admin
             $key_len = ($key_len > 6) ? $key_len : 6;
 
             $user_key = substr($user_key, 0, $key_len);
-            $user_active = 0;
+            $user_active = '0';
 
             if ($user->data['user_id'] != ANONYMOUS)
             {
@@ -153,6 +154,7 @@ class Register extends EQdkp_Admin
         }
         
         // Insert them into the users table
+        // FIXME: Injection
         $query = $db->build_query('INSERT', array(
             'username'       => $_POST['username'],
             'user_password'  => md5($_POST['user_password1']),
@@ -168,7 +170,7 @@ class Register extends EQdkp_Admin
             'user_active'    => $user_active,
             'user_lastvisit' => $this->time)
         );
-        $sql = 'INSERT INTO ' . USERS_TABLE . $query;
+        $sql = "INSERT INTO __users {$query}";
 
         if ( !($db->query($sql)) )
         {
@@ -177,15 +179,14 @@ class Register extends EQdkp_Admin
         $user_id = $db->insert_id();
         
         // Insert their permissions into the table
-        $sql = 'SELECT auth_id, auth_default
-                FROM ' . AUTH_OPTIONS_TABLE . '
-                ORDER BY auth_id';
+        $sql = "SELECT auth_id, auth_default
+                FROM __auth_options
+                ORDER BY auth_id";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
-            $au_sql = 'INSERT INTO ' . AUTH_USERS_TABLE . "
-                       (user_id, auth_id, auth_setting)
-                       VALUES ('" . $user_id . "','" . $row['auth_id'] . "','" . $row['auth_default'] . "')";
+            $au_sql = "INSERT INTO __auth_users (user_id, auth_id, auth_setting)
+                       VALUES ('{$user_id}','{$row['auth_id']}','{$row['auth_default']}')";
             $db->query($au_sql);
         }
         
@@ -263,10 +264,10 @@ class Register extends EQdkp_Admin
         //
         // Look up record based on the username and e-mail
         //
-        $sql = 'SELECT user_id, username, user_email, user_active, user_lang
-                FROM ' . USERS_TABLE . "
-                WHERE user_email='" . $user_email . "'
-                AND username='" . $username . "'";
+        $sql = "SELECT user_id, username, user_email, user_active, user_lang
+                FROM __users
+                WHERE `user_email` = '{$user_email}'
+                AND `username` = '{$username}'";
         if ( $result = $db->query($sql) )
         {
             if ( $row = $db->fetch_record($result) )
@@ -287,9 +288,9 @@ class Register extends EQdkp_Admin
                 $user_key = substr($user_key, 0, $key_len);
                 $user_password = $this->random_string(false);
                 
-                $sql = 'UPDATE ' . USERS_TABLE . "
-                        SET user_newpassword='" . md5($user_password) . "', user_key='" . $user_key . "'
-                        WHERE user_id='" . $row['user_id'] . "'";
+                $sql = "UPDATE __users
+                        SET `user_newpassword` = '" . md5($user_password) . "', `user_key` = '{$user_key}'
+                        WHERE `user_id` = '{$row['user_id']}'";
                 if ( !$db->query($sql) )
                 {
                     message_die('Could not update password information', '', __FILE__, __LINE__, $sql);
@@ -342,9 +343,10 @@ class Register extends EQdkp_Admin
         global $db, $eqdkp, $user, $tpl, $pm;
         global $SID;
         
-        $sql = 'SELECT user_id, username, user_active, user_email, user_newpassword, user_lang, user_key
-                FROM ' . USERS_TABLE . "
-                WHERE user_key='" . $_GET['key'] . "'";
+        // FIXME: Injection
+        $sql = "SELECT user_id, username, user_active, user_email, user_newpassword, user_lang, user_key
+                FROM __users
+                WHERE `user_key` = '{$_GET['key']}'";
         if ( !($result = $db->query($sql)) )
         {
             message_die('Could not obtain user information', '', __FILE__, __LINE__, $sql);
@@ -358,12 +360,19 @@ class Register extends EQdkp_Admin
             }
             else
             {
+                $update = array(
+                    'user_active' => '1',
+                    'user_key'    => '',
+                );
                 // Update the password if we need to
-                $sql_password = ( !empty($row['user_newpassword']) ) ? ", user_password='" . $row['user_newpassword'] . "', user_newpassword=''" : '';
-                
-                $sql = 'UPDATE ' . USERS_TABLE . "
-                        SET user_active='1', user_key=''" . $sql_password . "
-                        WHERE user_id='" . $row['user_id'] . "'";
+                if ( !empty($row['user_newpassword']) )
+                {
+                    $update['user_password'] = $row['user_newpassword'];
+                    $update['user_newpassword'] = null;
+                }
+                $query = $db->build_query('UPDATE', $update);
+                $sql = "UPDATE __users SET {$query}
+                        WHERE `user_id` = '{$row['user_id']}'";
                 $db->query($sql);
                 
                 // E-mail the user if this was activated by the admin
@@ -503,9 +512,9 @@ class Register extends EQdkp_Admin
         //
         // Build style drop-down
         //
-        $sql = 'SELECT style_id, style_name
-                FROM ' . STYLES_TABLE . '
-                ORDER BY style_name';
+        $sql = "SELECT style_id, style_name
+                FROM __styles
+                ORDER BY style_name";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {

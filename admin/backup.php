@@ -95,18 +95,18 @@ class Backup extends EQdkp_Admin
   			'__raids',
 			'__raid_attendees',
 			'__sessions',
-  			'__styles_config',
   			'__styles',
+  			'__style_config',
   			'__users',
 			// Game-specific tables
-  			'__class',
-  			'__race',
-  			'__faction',
+  			'__classes',
+  			'__races',
+  			'__factions',
   		);
   		
   		$do_gzip = false;
   		
-  		if($phpver >= "4.0")
+  		if(phpversion() >= "4.0")
   		{
   			if( extension_loaded("zlib") && $_POST['gzip'] == 'Y')
   			{
@@ -116,7 +116,6 @@ class Backup extends EQdkp_Admin
   		
   		if( $do_gzip )
   		{
-  			die('gzip');
   			@ob_start();
   			@ob_implicit_flush(0);
   			header("Content-Type: text/x-delimtext; name=\"eqdkpbackup.sql.gz\"");
@@ -281,6 +280,7 @@ class Backup extends EQdkp_Admin
   	
     function _gzip_four_chars($val)
   	{
+		$return = '';
   		for ($i = 0; $i < 4; $i ++)
   		{
   			$return .= chr($val % 256);

@@ -1013,9 +1013,7 @@ class Form_Validate
         {
             if ( !empty($this->errors[$field]) )
             {
-                $error = '<br /><img src="'.$eqdkp_root_path . 'images/error.gif"
-                          align="middle" alt="Error" />&nbsp;<b>'.
-                          $this->errors[$field].'</b>';
+                $error = '<br /><img src="'.$eqdkp_root_path . 'images/error.png" align="middle" alt="Error" />&nbsp;<b>' . $this->errors[$field] . '</b>';
                 return $error;
             }
             else

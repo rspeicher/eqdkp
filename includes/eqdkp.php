@@ -800,9 +800,8 @@ class EQdkp_Admin
         }
         $action = substr($str_action, 0, strlen($str_action)- 1) . ");";
         
-        // Take the newlines and tabs (or spaces > 1) out of the action
+        // Remove excessive spacing
         $action = preg_replace("/\s+/", ' ', $action);
-        // $action = preg_replace("#(\\\){1,}#", "\\", $action);
         
         return $action;
     }
@@ -825,7 +824,7 @@ class EQdkp_Admin
             }
             
             $query = $db->build_query('INSERT', $values);
-            $sql = 'INSERT INTO __logs' . $query;
+            $sql = "INSERT INTO __logs {$query}";
 
             $db->query($sql);
 

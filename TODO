@@ -7,6 +7,3 @@ Global de-stupifying from 1.3
     - Get rid of file_hash calls, what the hell was this for?
     - Search for '1.3' across the project and probably undo most of it, or make it less stupid.
     - Game log parsers need their own folder, probably.
-
-/admin/index.php
-    - Refactor get_x_name into a single method.

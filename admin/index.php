@@ -61,7 +61,7 @@ if ( !defined('IN_ADMIN') )
                     $page = $user->lang['adding_item'];
                     if ( (!empty($matches[1])) && (preg_match('/^' . URI_ITEM . '=([0-9]{1,})/', $matches[1], $item_id)) )
                     {
-                        $item_name = get_item_name($item_id[1]);
+                        $item_name = get_object_name('item', $item_id[1]);
                         $page  = $user->lang['editing_item'] . ': ';
                         $page .= '<a href="additem.php' . $SID . '&amp;' . URI_ITEM . '=' . $item_id[1] . '">' . $item_name . '</a>';
                     }
@@ -71,7 +71,7 @@ if ( !defined('IN_ADMIN') )
                     $page = $user->lang['adding_news'];
                     if ( (!empty($matches[1])) && (preg_match('/^' . URI_NEWS . '=([0-9]{1,})/', $matches[1], $news_id)) )
                     {
-                        $news_name = get_news_name($news_id[1]);
+                        $news_name = get_object_name('news', $news_id[1]);
                         $page  = $user->lang['editing_item'] . ': ';
                         $page .= '<a href="addnews.php' . $SID . '&amp;' . URI_NEWS . '=' . $news_id[1] . '">' . $news_name . '</a>';
                     }
@@ -82,7 +82,7 @@ if ( !defined('IN_ADMIN') )
 
                     if ( (!empty($matches[1])) && (preg_match('/^' . URI_RAID . '=([0-9]{1,})/', $matches[1], $raid_id)) )
                     {
-                        $raid_name = get_raid_name($raid_id[1]);
+                        $raid_name = get_object_name('raid', $raid_id[1]);
                         $page  = $user->lang['editing_raid'] . ': ';
                         $page .= '<a href="addraid.php' . $SID . '&amp;' . URI_RAID . '=' . $raid_id[1] . '">' . $raid_name . '</a>';
                     }
@@ -97,7 +97,7 @@ if ( !defined('IN_ADMIN') )
                     break;
                 // ---------------------------------------------------------
                 case 'index':
-                   $page = $user->lang['viewing_admin_index'];
+                    $page = $user->lang['viewing_admin_index'];
                     break;
                 // ---------------------------------------------------------
                 case 'logs':
@@ -184,7 +184,7 @@ if ( !defined('IN_ADMIN') )
                     if ( !empty($matches[1]) )
                     {
                         preg_match('/^' . URI_EVENT . '=([0-9]{1,})/', $matches[1], $event_id);
-                        $event_name = get_event_name($event_id[1]);
+                        $event_name = get_object_name('event', $event_id[1]);
                         $page .= '<a href="../viewevent.php' . $SID . '&amp;' . URI_EVENT . '=' . $event_id[1] . '" target="_top">' . $event_name . '</a>';
                     }
                     break;
@@ -194,7 +194,7 @@ if ( !defined('IN_ADMIN') )
                     if ( !empty($matches[1]) )
                     {
                         preg_match('/^' . URI_ITEM . '=([0-9]{1,})/', $matches[1], $item_id);
-                        $item_name = get_item_name($item_id[1]);
+                        $item_name = get_object_name('item', $item_id[1]);
                         $page .= '<a href="../viewitem.php' . $SID . '&amp;' . URI_ITEM . '=' . $item_id[1] . '" target="_top">' . $item_name . '</a>';
                     }
                     break;
@@ -217,7 +217,7 @@ if ( !defined('IN_ADMIN') )
                     if ( !empty($matches[1]) )
                     {
                         preg_match('/^' . URI_RAID . '=([0-9]{1,})/', $matches[1], $raid_id);
-                        $raid_name = get_raid_name($raid_id[1]);
+                        $raid_name = get_object_name('raid', $raid_id[1]);
                         $page .= '<a href="../viewraid.php' . $SID . '&amp;' . URI_RAID . '=' . $raid_id[1] . '" target="_top">' . $raid_name . '</a>';
                     }
                     break;
@@ -226,53 +226,20 @@ if ( !defined('IN_ADMIN') )
 
         return $page;
     }
-
-    function get_event_name($event_id)
+    
+    function get_object_name($type, $id)
     {
         global $db;
-
-        $event_id = intval($event_id);
-
-        $sql = "SELECT event_name FROM __events WHERE `event_id` = '{$event_id}'";
-        $event_name = $db->query_first($sql);
-
-        return ( !empty($event_name) ) ? $event_name : 'Unknown';
-    }
-
-    function get_item_name($item_id)
-    {
-        global $db;
-
-        $item_id = intval($item_id);
-
-        $sql = "SELECT item_name FROM __items WHERE `item_id` = '{$item_id}'";
-        $item_name = $db->query_first($sql);
-
-        return ( !empty($item_name) ) ? $item_name : 'Unknown';
-    }
-
-    function get_news_name($news_id)
-    {
-        global $db;
-
-        $news_id = intval($news_id);
-
-        $sql = "SELECT news_headline FROM __news WHERE `news_id` = '{$news_id}'";
-        $news_name = $db->query_first($sql);
-
-        return ( !empty($news_name) ) ? $news_name : 'Unknown';
-    }
-
-    function get_raid_name($raid_id)
-    {
-        global $db;
-
-        $raid_id = intval($raid_id);
-
-        $sql = "SELECT raid_name FROM __raids WHERE `raid_id` = '{$raid_id}'";
-        $raid_name = $db->query_first($sql);
-
-        return ( !empty($raid_name) ) ? $raid_name : 'Unknown';
+        
+        $id = intval($id);
+        
+        $table_name = ( $type != 'news' ) ? "__{$type}s" : "__news";
+        $field_name = ( $type != 'news' ) ? "{$type}_name" : "news_headline";
+        
+        $sql = "SELECT {$field_name} FROM {$table_name} WHERE `{$type}_id` = '{$id}'";
+        $name = $db->query_first($sql);
+        
+        return ( !empty($name) ) ? $name : 'Unknown';
     }
 
     function get_eqdkp_version()

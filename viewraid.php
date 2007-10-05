@@ -57,7 +57,7 @@ if ( $in->int(URI_RAID) )
     $db->free_result($result);
     $total_attendees = sizeof($attendees);
 
-    if ( @sizeof($attendees) > 0 )
+    if ( sizeof($attendees) > 0 )
     {
         $rows = ceil(sizeof($attendees) / $user->style['attendees_columns']);
 

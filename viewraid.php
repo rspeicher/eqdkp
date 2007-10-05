@@ -17,12 +17,11 @@ include_once($eqdkp_root_path . 'common.php');
 
 $user->check_auth('u_raid_view');
 
-if ( (isset($_GET[URI_RAID])) && (intval($_GET[URI_RAID] > 0)) )
+if ( $in->int(URI_RAID) )
 {
-    // FIXME: Injection
     $sql = "SELECT raid_id, raid_name, raid_date, raid_note, raid_value, raid_added_by, raid_updated_by
             FROM __raids
-            WHERE `raid_id` = '{$_GET[URI_RAID]}'";
+            WHERE (`raid_id` = '" . $in->int(URI_RAID) . "')";
     if ( !($raid_result = $db->query($sql)) )
     {
         message_die('Could not obtain raid information', '', __FILE__, __LINE__, $sql);
@@ -36,44 +35,30 @@ if ( (isset($_GET[URI_RAID])) && (intval($_GET[URI_RAID] > 0)) )
     $db->free_result($raid_result);
 
     //
-    // Attendees
+    // Attendee and Class distribution
     //
-    $sql = "SELECT member_name
-            FROM __raid_attendees
-            WHERE `raid_id` = '{$raid['raid_id']}'
+    $attendees = array();
+    $classes   = array();
+    
+    $sql = "SELECT ra.member_name, CONCAT(r.rank_prefix, m.member_name, r.rank_suffix) AS member_sname,
+                c.class_name AS member_class
+            FROM __raid_attendees AS ra, __members AS m
+                LEFT JOIN __member_ranks AS r ON r.rank_id = m.member_rank_id
+                LEFT JOIN __classes AS c ON c.class_id = m.member_class_id
+            WHERE (m.member_name = ra.member_name)
+            AND (`raid_id` = '{$raid['raid_id']}')
             ORDER BY member_name";
     $result = $db->query($sql);
-
-   // add a faliure check here
-
     while ( $arow = $db->fetch_record($result) )
     {
-        $attendees[] = addslashes($arow['member_name']);
+        $attendees[] = array('name' => $arow['member_name'], 'styled' => $arow['member_sname']);
+        $classes[ $arow['member_class'] ][] = $arow['member_sname'];
     }
     $db->free_result($result);
-
-    // Get each attendee's rank
-    $ranks = array();
-    $sql = "SELECT m.member_name, r.rank_prefix, r.rank_suffix
-            FROM __members AS m LEFT JOIN __member_ranks AS r ON m.`member_rank_id` = r.`rank_id`
-            WHERE m.`member_name` IN ('" . implode("','", $attendees) . "')";
-    $result = $db->query($sql);
-    while ( $row = $db->fetch_record($result) )
-    {
-        $ranks[ $row['member_name'] ] = array(
-            'prefix' => (( !empty($row['rank_prefix']) ) ? $row['rank_prefix'] : ''),
-            'suffix' => (( !empty($row['rank_suffix']) ) ? $row['rank_suffix'] : '')
-        );
-    }
-    $db->free_result($result);
+    $total_attendees = sizeof($attendees);
 
     if ( @sizeof($attendees) > 0 )
     {
-        // First get rid of duplicates and resort them just in case,
-        // so we're sure they're displayed correctly
-        $attendees = array_unique($attendees);
-        sort($attendees);
-        reset($attendees);
         $rows = ceil(sizeof($attendees) / $user->style['attendees_columns']);
 
         // First loop: iterate through the rows
@@ -90,13 +75,10 @@ if ( (isset($_GET[URI_RAID])) && (intval($_GET[URI_RAID] > 0)) )
                 $offset = ($i + ($rows * $j));
                 $attendee = ( isset($attendees[$offset]) ) ? $attendees[$offset] : '';
 
-                $html_prefix = ( isset($ranks[$attendee]) ) ? $ranks[$attendee]['prefix'] : '';
-                $html_suffix = ( isset($ranks[$attendee]) ) ? $ranks[$attendee]['suffix'] : '';
-
-                if ( $attendee != '' )
+                if ( is_array($attendee) )
                 {
                     $block_vars += array(
-                        'COLUMN'.$j.'_NAME' => '<a href="viewmember.php' . $SID . '&amp;' . URI_NAME . '=' . $attendee . '">' . $html_prefix . $attendee . $html_suffix . '</a>'
+                        'COLUMN'.$j.'_NAME' => '<a href="viewmember.php' . $SID . '&amp;' . URI_NAME . '=' . $attendee['name'] . '">' . $attendee['styled'] . '</a>'
                     );
                 }
                 else
@@ -124,7 +106,7 @@ if ( (isset($_GET[URI_RAID])) && (intval($_GET[URI_RAID] > 0)) )
     //
     $sql = "SELECT item_id, item_buyer, item_name, item_value
             FROM __items
-            WHERE `raid_id` = '{$raid['raid_id']}'";
+            WHERE (`raid_id` = '{$raid['raid_id']}')";
     if ( !($items_result = $db->query($sql)) )
     {
         message_die('Could not obtain item information', '', __FILE__, __LINE__, $sql);
@@ -144,54 +126,19 @@ if ( (isset($_GET[URI_RAID])) && (intval($_GET[URI_RAID] > 0)) )
     //
     // Class distribution
     //
-    // If an element is false, that class didn't attend this raid
-    // New for 1.3 - grab class information from the database
-
-    $eq_classes = array();
-    $total_attendees = sizeof($attendees);
-
-    // Get each attendee's class
-    $sql = "SELECT m.member_name, c.class_name AS member_class
-            FROM __members AS m, __classes AS c
-            WHERE m.`member_class_id` = c.`class_id` 
-            AND `member_name` IN ('" . implode("','", $attendees) . "')";
-    $result = $db->query($sql);
-    while ( $row = $db->fetch_record($result) )
+    foreach ( $classes as $class => $members )
     {
-        $member_name = $row['member_name'];
-        $member_class = $row['member_class'];
-
-        if ( $member_name != '' )
-        {
-            $html_prefix = ( isset($ranks[$member_name]) ) ? $ranks[$member_name]['prefix'] : '';
-            $html_suffix = ( isset($ranks[$member_name]) ) ? $ranks[$member_name]['suffix'] : '';
-
-            // TODO: $eq_classes? Huh?
-            // FIXME: Undefined indexes
-            $eq_classes[ $row['member_class'] ] .= " " . $html_prefix . $member_name . $html_suffix .",";
-            $class_count[ $row['member_class'] ]++;
-        }
-    }
-    $db->free_result($result);
-    unset($ranks);
-    
-
-    // Now find out how many of each class there are
-    foreach ( $eq_classes as $class => $members )
-    {
-	$percentage =  ( $total_attendees > 0 ) ? round(($class_count[$class] / $total_attendees) * 100) : 0;
+        // TODO: We're potentially calling count() multiple times on the same class type, but it shouldn't be much overhead
+        $class_count = count($classes[$class]);
+        $percentage =  ( $total_attendees > 0 ) ? round(($class_count / $total_attendees) * 100) : 0;
 
         $tpl->assign_block_vars('class_row', array(
             'CLASS'     => $class,
-            'BAR'       => create_bar(($class_count[ $class ] * 10), $class_count[ $class ] . ' (' . $percentage . '%)'),
-            'ATTENDEES' => $members)
-        );
+            'BAR'       => create_bar(($class_count * 10), $class_count . ' (' . $percentage . '%)'),
+            'ATTENDEES' => $members // FIXME: Extra trailing comma. God.
+        ));
     }
     unset($eq_classes);
-
-
-
-
 
     $tpl->assign_vars(array(
         'L_MEMBERS_PRESENT_AT' => sprintf($user->lang['members_present_at'], stripslashes($raid['raid_name']),

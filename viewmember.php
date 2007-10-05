@@ -17,7 +17,7 @@ include_once($eqdkp_root_path . 'common.php');
 
 $user->check_auth('u_member_view');
 
-if ( (isset($_GET[URI_NAME])) && (strval($_GET[URI_NAME] != '')) )
+if ( $in->string(URI_NAME) != '' )
 {
     $sort_order = array(
         0 => array('raid_name', 'raid_name desc'),
@@ -26,12 +26,11 @@ if ( (isset($_GET[URI_NAME])) && (strval($_GET[URI_NAME] != '')) )
 
     $current_order = switch_order($sort_order);
 
-    // FIXME: Injection
     $sql = "SELECT member_id, member_name, member_earned, member_spent, member_adjustment, 
                 (member_earned-member_spent+member_adjustment) AS member_current,
                 member_firstraid, member_lastraid
             FROM __members
-            WHERE `member_name` = '{$_GET[URI_NAME]}'";
+            WHERE (`member_name` = '" . $in->string(URI_NAME, true) . "')";
 
     if ( !($member_result = $db->query($sql)) )
     {
@@ -55,12 +54,11 @@ if ( (isset($_GET[URI_NAME])) && (strval($_GET[URI_NAME] != '')) )
     //
     // Raid Attendance
     //
-    // FIXME: Injection
-    $rstart = ( isset($_GET['rstart']) ) ? $_GET['rstart'] : 0;
+    $rstart = $in->int('rstart');
 
     // Find $current_earned based on the page.  This prevents us having to pass the
     // current earned as a GET variable which could result in user error
-    if ( (!isset($_GET['rstart'])) || ($_GET['rstart'] == '0') )
+    if ( $rstart == 0 )
     {
         $current_earned = $member['member_earned'];
     }
@@ -69,9 +67,9 @@ if ( (isset($_GET[URI_NAME])) && (strval($_GET[URI_NAME] != '')) )
         $current_earned = $member['member_earned'];
         $sql = "SELECT raid_value
                 FROM __raids AS r, __raid_attendees AS ra
-                WHERE (ra.`raid_id` = r.`raid_id`)
+                WHERE (ra.raid_id = r.raid_id)
                 AND (ra.`member_name` = '{$member['member_name']}')
-                ORDER BY r.`raid_date` DESC
+                ORDER BY r.raid_date DESC
                 LIMIT {$rstart}";
         if ( !($earned_result = $db->query($sql)) )
         {
@@ -86,7 +84,7 @@ if ( (isset($_GET[URI_NAME])) && (strval($_GET[URI_NAME] != '')) )
 
     $sql = "SELECT r.raid_id, r.raid_name, r.raid_date, r.raid_note, r.raid_value
             FROM __raids AS r, __raid_attendees AS ra
-            WHERE (ra.`raid_id` = r.`raid_id`)
+            WHERE (ra.raid_id = r.raid_id)
             AND (ra.`member_name` = '{$member['member_name']}')
             ORDER BY r.raid_date DESC
             LIMIT {$rstart},{$user->data['user_rlimit']}";
@@ -110,17 +108,16 @@ if ( (isset($_GET[URI_NAME])) && (strval($_GET[URI_NAME] != '')) )
     $db->free_result($raids_result);
     $sql = "SELECT count(*)
             FROM __raids AS r, __raid_attendees AS ra
-            WHERE (ra.`raid_id` = r.`raid_id`)
-            AND (ra.`member_name` = '" . addslashes($member['member_name']) . "')";
+            WHERE (ra.raid_id = r.raid_id)
+            AND (ra.`member_name` = '{$member['member_name']}')";
     $total_attended_raids = $db->query_first($sql);
 
     //
     // Item Purchase History
     //
-    // FIXME: Injection
-    $istart = ( isset($_GET['istart']) ) ? $_GET['istart'] : 0;
+    $istart = $in->int('istart');
 
-    if ( (!isset($_GET['istart'])) || ($_GET['istart'] == '0') )
+    if ( $istart == 0 )
     {
         $current_spent = $member['member_spent'];
     }
@@ -144,7 +141,7 @@ if ( (isset($_GET[URI_NAME])) && (strval($_GET[URI_NAME] != '')) )
     }
 
     $sql = "SELECT i.item_id, i.item_name, i.item_value, i.item_date, i.raid_id, r.raid_name
-            FROM __items AS i LEFT JOIN __raids AS r ON r.`raid_id` = i.`raid_id`
+            FROM __items AS i LEFT JOIN __raids AS r ON r.raid_id = i.raid_id
             WHERE (i.`item_buyer` = '{$member['member_name']}')
             ORDER BY i.item_date DESC
             LIMIT {$istart},{$user->data['user_ilimit']}";
@@ -168,14 +165,14 @@ if ( (isset($_GET[URI_NAME])) && (strval($_GET[URI_NAME] != '')) )
     }
     $db->free_result($items_result);
 
-    $total_purchased_items = $db->query_first("SELECT count(*) FROM __items WHERE `item_buyer` = '{$member['member_name']}' ORDER BY item_date DESC");
+    $total_purchased_items = $db->query_first("SELECT count(*) FROM __items WHERE (`item_buyer` = '{$member['member_name']}') ORDER BY item_date DESC");
 
     //
     // Individual Adjustment History
     //
     $sql = "SELECT adjustment_value, adjustment_date, adjustment_reason
             FROM __adjustments
-            WHERE `member_name` = '{$member['member_name']}'
+            WHERE (`member_name` = '{$member['member_name']}')
             ORDER BY adjustment_date DESC";
     if ( !($adjustments_result = $db->query($sql)) )
     {
@@ -197,11 +194,11 @@ if ( (isset($_GET[URI_NAME])) && (strval($_GET[URI_NAME] != '')) )
     //
     $raid_counts = array();
 
-    // Find the count for each for for this member
+    // Find the count for each event for this member
     $sql = "SELECT e.event_id, r.raid_name, count(ra.raid_id) AS raid_count
             FROM __events AS e, __raid_attendees AS ra, __raids AS r
-            WHERE (e.`event_name` = r.`raid_name`)
-            AND (r.`raid_id` = ra.`raid_id`)
+            WHERE (e.event_name = r.raid_name)
+            AND (r.raid_id = ra.raid_id)
             AND (ra.`member_name` = '{$member['member_name']}')
             AND (r.`raid_date` >= {$member['member_firstraid']})
             GROUP BY ra.member_name, r.raid_name";
@@ -218,7 +215,7 @@ if ( (isset($_GET[URI_NAME])) && (strval($_GET[URI_NAME] != '')) )
     // Find the count for reach raid
     $sql = "SELECT raid_name, count(raid_id) AS raid_count
             FROM __raids
-            WHERE `raid_date` >= {$member['member_firstraid']}
+            WHERE (`raid_date` >= {$member['member_firstraid']})
             GROUP BY raid_name";
     $result = $db->query($sql);
     while ( $row = $db->fetch_record($result) )
@@ -336,14 +333,11 @@ else
     message_die($user->lang['error_invalid_name_provided']);
 }
 
-// ---------------------------------------------------------
-// Page-specific functions
-// ---------------------------------------------------------
 function raid_count($start_date, $end_date, $member_name)
 {
     global $db;
 
-    $raid_count = $db->query_first("SELECT count(*) FROM __raids WHERE `raid_date` BETWEEN {$start_date} AND {$end_date}");
+    $raid_count = $db->query_first("SELECT count(*) FROM __raids WHERE (raid_date BETWEEN {$start_date} AND {$end_date})");
 
     $sql = "SELECT count(*)
             FROM __raids AS r, __raid_attendees AS ra
@@ -353,12 +347,7 @@ function raid_count($start_date, $end_date, $member_name)
     $individual_raid_count = $db->query_first($sql);
 
     $percent_of_raids = ( $raid_count > 0 ) ? round(($individual_raid_count / $raid_count) * 100) : 0;
-
-    $raid_count_stats = array(
-        'percent'     => $percent_of_raids,
-        'total_count' => $raid_count,
-        'indiv_count' => $individual_raid_count);
-
-    return $raid_count_stats['percent']; // Only thing needed ATM
+    
+    return $percent_of_raids;
 }
 ?>

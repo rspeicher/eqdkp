@@ -1,3 +1,5 @@
+1.3.3 (1.4 after all these changes?)
+------------------------------------
 Global
     - Get rid of X_TABLE constants in favor of __x names.
     - Replace all $_GET, $_POST and $_SESSION accesses with an Input class that has input cleaning.
@@ -54,3 +56,13 @@ Game Management
       updated each time a new admin page or plugin page is created.
       Unfortunately I think this is a rather involved process, and I'd say the tradeoff 
       between benefit and required effort would be marginal.
+      
+1.4/1.5 and beyond
+------------------
+- Probably go to an ActiveRecord design. The script for adding raids shouldn't have
+  to know whether or not to update a member's active/inactive status, for example. It
+  would just call Member::updateStatus() or something and the model would decide.
+- Change administrative functions to APIs. Then addraid.php would only deal with user input,
+  and make API calls to update a raid, add attendees to it, etc.
+- Update to PHP5 along with the above two changes?
+- Update our templating engine. Smarty? Sugar-PHP if we go PHP5?

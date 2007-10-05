@@ -26,12 +26,10 @@ class Manage_Game extends EQdkp_Admin
         parent::eqdkp_admin();
 
         $queries = array(
-            "DELETE FROM __classes;",
-            
             "UPDATE __members SET member_level = 50 WHERE member_level > 50;",
-
             "ALTER TABLE __members MODIFY member_level tinyint(2) NOT NULL default '50';",
 
+            "TRUNCATE TABLE __classes;",
             "INSERT INTO __classes (class_id, class_name, class_armor_type, class_min_level, class_max_level) VALUES (0, 'Unknown', 'Unknown',0,50);",
             "INSERT INTO __classes (class_id, class_name, class_armor_type, class_min_level, class_max_level) VALUES (1, 'Bard', 'Leather',0,50);",
             "INSERT INTO __classes (class_id, class_name, class_armor_type, class_min_level, class_max_level) VALUES (2, 'Berserker', 'Leather',0,50);",
@@ -51,13 +49,13 @@ class Manage_Game extends EQdkp_Admin
             "INSERT INTO __classes (class_id, class_name, class_armor_type, class_min_level, class_max_level) VALUES (16, 'Sorcerer', 'Cloth',0,50);",
             "INSERT INTO __classes (class_id, class_name, class_armor_type, class_min_level, class_max_level) VALUES (17, 'Warrior', 'Plate',0,50);",
 
-            "DELETE FROM __factions;",
+            "TRUNCATE TABLE __factions;",
             "INSERT INTO __factions (faction_id, faction_name) VALUES (0, 'Unknown');",
             "INSERT INTO __factions (faction_id, faction_name) VALUES (1, 'Good');",
             "INSERT INTO __factions (faction_id, faction_name) VALUES (2, 'Evil');",
             "INSERT INTO __factions (faction_id, faction_name) VALUES (3, 'Neutral');",
 
-            "DELETE FROM __races;",
+            "TRUNCATE TABLE __races;",
             "INSERT INTO __races (race_id, race_name) VALUES (0, 'Unknown');",
             "INSERT INTO __races (race_id, race_name) VALUES (1, 'Barbarian');",
             "INSERT INTO __races (race_id, race_name) VALUES (2, 'Dark Elf');",
@@ -97,4 +95,3 @@ class Manage_Game extends EQdkp_Admin
 
 $manage = new Manage_Game;
 $manage->do_it();
-?>

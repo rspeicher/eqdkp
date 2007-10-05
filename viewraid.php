@@ -40,8 +40,8 @@ if ( $in->int(URI_RAID) )
     $attendees = array();
     $classes   = array();
     
-    $sql = "SELECT ra.member_name, CONCAT(r.rank_prefix, m.member_name, r.rank_suffix) AS member_sname,
-                c.class_name AS member_class
+    $sql = "SELECT ra.member_name, c.class_name AS member_class,
+                CONCAT(r.rank_prefix, m.member_name, r.rank_suffix) AS member_sname
             FROM __raid_attendees AS ra, __members AS m
                 LEFT JOIN __member_ranks AS r ON r.rank_id = m.member_rank_id
                 LEFT JOIN __classes AS c ON c.class_id = m.member_class_id

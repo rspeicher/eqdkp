@@ -1,4 +1,9 @@
 <?php
+if ( !defined('EQDKP_INC') )
+{
+     die('Do not access this file directly.');
+}
+
 class Game_Manager
 {
     var $armor_types = array();

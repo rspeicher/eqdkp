@@ -35,7 +35,7 @@ $current_order = switch_order($sort_order);
 //
 // Compare members
 //
-if ( isset($_POST['submit']) && ($_POST['submit'] == $user->lang['compare_members']) && isset($_POST['compare_ids']) )
+if ( $in->string('submit') == $user->lang['compare_members'] && isset($_POST['compare_ids']) )
 {
     redirect('listmembers.php?compare=' . implode(',', $_POST['compare_ids']));
 }
@@ -51,13 +51,13 @@ elseif ( isset($_GET['compare']) )
     $thirty_days = mktime(0, 0, 0, date('m'), date('d')-30, date('Y'));
     $ninety_days = mktime(0, 0, 0, date('m'), date('d')-90, date('Y'));
     
-    $raid_count_30 = $db->query_first("SELECT count(*) FROM __raids WHERE `raid_date` BETWEEN {$thirty_days} AND " . time());
-    $raid_count_90 = $db->query_first("SELECT count(*) FROM __raids WHERE `raid_date` BETWEEN {$ninety_days} AND " . time());
+    $raid_count_30 = $db->query_first("SELECT count(*) FROM __raids WHERE raid_date BETWEEN {$thirty_days} AND " . time());
+    $raid_count_90 = $db->query_first("SELECT count(*) FROM __raids WHERE raid_date BETWEEN {$ninety_days} AND " . time());
     
     // Build an SQL query that includes each of the compare IDs
     $sql = "SELECT *, (member_earned-member_spent+member_adjustment) AS member_current, c.class_name AS member_class
             FROM __members AS m, __classes AS c
-            WHERE (m.`member_class_id` = c.`class_id`)
+            WHERE (m.member_class_id = c.class_id)
             AND (member_id IN ({$compare}))
             ORDER BY {$current_order['sql']}";
     $result = $db->query($sql);
@@ -70,16 +70,16 @@ elseif ( isset($_GET['compare']) )
         
         $rc_sql = "SELECT count(*)
                    FROM __raids AS r, __raid_attendees AS ra
-                   WHERE (ra.`raid_id` = r.`raid_id`)
+                   WHERE (ra.raid_id = r.raid_id)
                    AND (ra.`member_name` = '{$row['member_name']}')
                    AND (r.raid_date BETWEEN {$thirty_days} AND " . time() . ')';
         $individual_raid_count_30 = $db->query_first($rc_sql);
         
         $rc_sql = "SELECT count(*)
                    FROM __raids AS r, __raid_attendees AS ra
-                   WHERE (ra.`raid_id` = r.`raid_id`)
+                   WHERE (ra.raid_id = r.raid_id)
                    AND (ra.`member_name` = '{$row['member_name']}')
-                   AND (r.`raid_date` BETWEEN {$ninety_days} AND " . time() . ')';
+                   AND (r.raid_date BETWEEN {$ninety_days} AND " . time() . ')';
         $individual_raid_count_90 = $db->query_first($rc_sql);
         
         // Prevent division by 0
@@ -114,7 +114,7 @@ elseif ( isset($_GET['compare']) )
             'C_LASTRAID'      => 'neutral',
             'C_RAIDS_30_DAYS' => color_item($percent_of_raids_30, true),
             'C_RAIDS_90_DAYS' => color_item($percent_of_raids_90, true),
-            'U_VIEW_MEMBER'   => 'viewmember.php'.$SID . '&amp;' . URI_NAME . '='.$row['member_name'])
+            'U_VIEW_MEMBER'   => 'viewmember.php' . $SID . '&amp;' . URI_NAME . '=' . $row['member_name'])
         );
         unset($last_loot);
     }
@@ -131,7 +131,6 @@ elseif ( isset($_GET['compare']) )
 //
 else
 {
-
     $s_compare = false;
     
     $member_count = 0;
@@ -142,137 +141,78 @@ else
     $sort_index = explode('.', $current_order['uri']['current']);
     $previous_source = preg_replace('/( (asc|desc))?/i', '', $sort_order[$sort_index[0]][$sort_index[1]]);
     
-    $show_all = ( (!empty($_GET['show'])) && ($_GET['show'] == 'all') ) ? true : false;
+    $show_all = ( $in->string('show') == 'all' ) ? true : false;
     
-    //
-    // Filtering
-    //
-
-    $filter = ( isset($_GET['filter']) ) ? urldecode($_GET['filter']) : 'none';
-    $filter = ( preg_match('#\-{1,}#', $filter) ) ? 'none' : $filter;
-
-
-    // Grab class_id
-    // TODO: Redo this garbage.
-    if ( isset($_GET['filter']) ) {
-
-	$temp_filter = $_GET['filter'];
-
-       // Just because filter is set doesn't mean its valid - clear it if its set to none
-	
-       if ( preg_match('/ARMOR_/', $temp_filter) ) {
-
-	$temp_filter = preg_replace('/ARMOR_/', '', $temp_filter);	
-
-	$query_by_armor = 1;
-        $query_by_class = 0;
-
-        $id = $temp_filter;
- 
-
-	} elseif ( $temp_filter == "none" ) {
-	
-            $temp_filter = "";
-	    $query_by_armor = 0;
-            $query_by_class = 0;
-
-       } else {
-	    
-            $query_by_class = 1;
-            $query_by_armor = 0;
-            $id = $temp_filter;
-       }
-
-}
-
-    $tpl->assign_block_vars('filter_row', array(
-        'VALUE'    => strtolower("None"),
-        'SELECTED' => ( $filter == strtolower("None") ) ? ' selected="selected"' : '',
-        'OPTION'   => str_replace('_', ' ', "None"))
+    // ---------------------------
+    // Build filter drop-down
+    // ---------------------------
+    $filter = $in->string('filter');
+    require_once($eqdkp_root_path . 'games/game_manager.php');
+    $gm = new Game_Manager();
+    
+    $filter_options = array(
+        // FIXME: Localize this string
+        array('VALUE' => '', 'SELECTED' => '', 'OPTION' => 'None'),
+        array('VALUE' => '', 'SELECTED' => '', 'OPTION' => '---------')
     );
+    
+    foreach ( $gm->getArmorTypes() as $type )
+    {
+        $filter_options[] = array(
+            'VALUE'    => "armor_" . $type,
+            'SELECTED' => ( $filter == "armor_{$type}" ) ? ' selected="selected"' : '',
+            'OPTION'   => str_replace('_', ' ', $type)
+        );
+    }
+    
+    $filter_options[] = array('VALUE' => '', 'SELECTED' => '', 'OPTION' => '---------');
+    
+    foreach ( $gm->getClasses() as $class )
+    {
+        $filter_options[] = array(
+            'VALUE'    => $class['class_name'],
+            'SELECTED' => ( $filter == $class['class_name'] ) ? ' selected="selected"' : '',
+            'OPTION'   => $class['class_name']
+        );
+    }
+    
+    foreach ( $filter_options as $option )
+    {
+        $tpl->assign_block_vars('filter_row', $option);
+    }
+    
+    // ---------------------------
+    // Filter
+    // ---------------------------
+    $filter_by = '';
+    if ( preg_match('/^armor_.+/', $filter) )
+    {
+        $input = $in->string('filter', true);
+        $filter_by = " AND `class_armor_type` = '" . str_replace('armor_', '', $input) . "'";
+    }
+    elseif ( empty($filter) )
+    {
+        $filter_by = '';
+    }
+    else
+    {
+        $input = $in->string('filter', true);
+        $filter_by = " AND `class_name` = '{$input}'";
+    }
 
-	// Add in the cute ---- line, filter on None if some idiot selects it
-
-    $tpl->assign_block_vars('filter_row', array(
-        'VALUE'    => strtolower("None"),
-        'SELECTED' => ( $filter == strtolower("NULL") ) ? ' selected="selected"' : '',
-        'OPTION'   => str_replace('_', ' ', "--------"))
-    );
-
-	// Grab generic armor information
-
-	$sql = "SELECT class_armor_type FROM __classes";
-	$sql .= ' GROUP BY class_armor_type';
-	$result = $db->query($sql);
-
-        while ( $row = $db->fetch_record($result) )
-        {
-
-          $tpl->assign_block_vars('filter_row', array(
-              'VALUE'    => "ARMOR_" . strtolower($row['class_armor_type']),
-              'SELECTED' => ( $filter == strtolower($row['class_armor_type']) ) ? ' selected="selected"' : '',
-              'OPTION'   => str_replace('_', ' ', $row['class_armor_type']))
-          );
-
-        }
-
-	// Add in the cute ---- line, filter on None if some idiot selects it
-
-    $tpl->assign_block_vars('filter_row', array(
-        'VALUE'    => strtolower("None"),
-        'SELECTED' => ( $filter == strtolower("NULL") ) ? ' selected="selected"' : '',
-        'OPTION'   => str_replace('_', ' ', "--------"))
-    );
-
-	// Moved the class/race/faction information to the database
-
-        $sql = "SELECT class_name, class_id, class_min_level, class_max_level 
-                FROM __classes
-                GROUP BY class_name";
-        $result = $db->query($sql);
-
-        while ( $row = $db->fetch_record($result) )
-        {
-            $tpl->assign_block_vars('filter_row', array(
-                'VALUE' => $row['class_name'],
-                'SELECTED' => ( $filter == strtolower($row['class_name']) ) ? ' selected="selected"' : '',
-                'OPTION'   => ( !empty($row['class_name']) ) ? stripslashes($row['class_name']) : '(None)' )
-                );
-        }
-        $db->free_result($result);
-
-	// end database move of race/class/faction
-
-    // Build SQL query based on GET options
     $sql = "SELECT m.*, (m.member_earned-m.member_spent+m.member_adjustment) AS member_current, 
 		        m.member_status, r.rank_name, r.rank_hide, r.rank_prefix, r.rank_suffix, 
                 c.class_name AS member_class, c.class_armor_type AS armor_type,
                 c.class_min_level AS min_level, c.class_max_level AS max_level
             FROM __members AS m, __member_ranks AS r, __classes AS c
-            WHERE c.`class_id` = m.`member_class_id`
-            AND (m.`member_rank_id` = r.`rank_id`)";
+            WHERE (c.class_id = m.member_class_id)
+            AND (m.member_rank_id = r.rank_id)
+            {$filter_by}";
     if ( !empty($_GET['rank']) and validateRank($_GET['rank']) )
     {
-        $sql .= " AND r.rank_name='" . urldecode($_GET['rank']) . "'";
+        $sql .= " AND (r.`rank_name` = '" . $in->string('rank', true) . "')";
     }
-
-    // FIXME: Undefined variable
-    if ( $query_by_class == '1' )
-    {
-        //$sql .= " AND m.member_class_id =  $id";
-        $sql .= " AND c.class_name =  '$id'";
-
-    }
-
-    // FIXME: Undefined variable
-    if ( $query_by_armor == '1' )
-    {
-        $sql .= " AND c.class_armor_type =  '". ucwords(strtolower($temp_filter))."'";
-    }
-
-    $sql .= ' ORDER BY '.$current_order['sql'];
-    
-
+    $sql .= " ORDER BY {$current_order['sql']}";
     
     if ( !($members_result = $db->query($sql)) )
     {
@@ -286,7 +226,7 @@ else
         $u_rank_search .= ( ($eqdkp->config['hide_inactive'] == 1) && (!$show_all) ) ? '&amp;show=' : '&amp;show=all';
         $u_rank_search .= ( $filter != 'none' ) ? '&amp;filter=' . $filter : '';
         
-        if ( member_display($row) )
+        if ( member_display($row, $show_all, $filter) )
         {
             $member_count++;
 
@@ -299,7 +239,7 @@ else
                 'RANK'          => ( !empty($row['rank_name']) ) ? (( $row['rank_hide'] == '1' ) ? '<i>' . '<a href="'.$u_rank_search.'">' . stripslashes($row['rank_name']) . '</a>' . '</i>'  : '<a href="'.$u_rank_search.'">' . stripslashes($row['rank_name']) . '</a>') : '&nbsp;',
                 'LEVEL'         => ( $row['member_level'] > 0 ) ? $row['member_level'] : '&nbsp;',
                 'CLASS'         => ( !empty($row['member_class']) ) ? $row['member_class'] : '&nbsp;',
-	        'ARMOR'		=> ( !empty($row['armor_type']) ) ? $row['armor_type'] : '&nbsp;',
+	            'ARMOR'		=> ( !empty($row['armor_type']) ) ? $row['armor_type'] : '&nbsp;',
                 'EARNED'        => $row['member_earned'],
                 'SPENT'         => $row['member_spent'],
                 'ADJUSTMENT'    => $row['member_adjustment'],
@@ -382,10 +322,9 @@ $eqdkp->set_vars(array(
     'display'       => true)
 );
 
-function member_display(&$row)
+function member_display(&$row, $show_all = false, $filter = null)
 {
     global $eqdkp;
-    global $query_by_armor, $query_by_class, $filter, $filters, $show_all, $id;
     
     // Replace space with underscore (for array indices)
     // Damn you Shadow Knights!
@@ -395,59 +334,41 @@ function member_display(&$row)
     $member_display = null;
     
     // We're filtering based on class
-
-    if ( $filter != 'none'  ) {
-
-       if ( $query_by_class == 1  )
-       {
-
-	   // Check for valid level ranges
-	   //if ( $row['member_level'] > $row['min_level'] && $row['member_level'] <= $row['max_level'] ) {
-	
-              $member_display = ( ($row['member_class'] == $id ) ) ? true : false;
-
-	  // }
-
-       } elseif ( $query_by_armor == 1 ) {
-
-	   $rows = strtolower($row['armor_type']);
-
-	   // Check for valid level ranges
-	   if ( $row['member_level'] > $row['min_level'] && $row['member_level'] <= $row['max_level'] ) {
-
-             $member_display = ( $rows == $id  ) ? true : false;
-
-	   }
-          
-       } 
-      } else {
-           // Are we showing all?
-           if ( $show_all )
-           {
-               $member_display = true;
-           }
-           else
-           {
-               // Are we hiding inactive members?
-               if ( $eqdkp->config['hide_inactive'] == '0' )
-               {
-                   //Are we hiding their rank?
-                   $member_display = ( $row['rank_hide'] == '0' ) ? true : false;
-               }
-               else
-               {
-                   // Are they active?
-                   if ( $row['member_status'] == '0' )
-                   {
-                       $member_display = false;
-                   }
-                   else
-                   {
-                       $member_display = ( $row['rank_hide'] == '0' ) ? true : false;
-                   } // Member inactive
-               } // Not showing inactive members
-           } // Not showing all
-       } // Not filtering by class
+    if ( !empty($filter) )
+    {
+        // $filter changes the SQL query, hence anything calling this function
+        // has already been filtered for us.
+        $member_display = true;
+    }
+    else
+    {
+        // Are we showing all?
+        if ( $show_all )
+        {
+            $member_display = true;
+        }
+        else
+        {
+            // Are we hiding inactive members?
+            if ( $eqdkp->config['hide_inactive'] == '0' )
+            {
+                //Are we hiding their rank?
+                $member_display = ( $row['rank_hide'] == '0' ) ? true : false;
+            }
+            else
+            {
+                // Are they active?
+                if ( $row['member_status'] == '0' )
+                {
+                    $member_display = false;
+                }
+                else
+                {
+                    $member_display = ( $row['rank_hide'] == '0' ) ? true : false;
+                }
+            }
+        }
+    }
     
     return $member_display;
 }

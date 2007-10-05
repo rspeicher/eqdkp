@@ -126,19 +126,21 @@ define('A_PLUGINS_MAN', 32);
 define('A_STYLES_MAN',  33);
 define('A_BACKUP',      36);
 
-include_once($eqdkp_root_path . 'includes/functions.php');
-include_once($eqdkp_root_path . 'includes/dbal.php');
-include_once($eqdkp_root_path . 'includes/eqdkp.php');
-include_once($eqdkp_root_path . 'includes/session.php');
-include_once($eqdkp_root_path . 'includes/class_template.php');
-include_once($eqdkp_root_path . 'includes/eqdkp_plugins.php');
+require_once($eqdkp_root_path . 'includes/functions.php');
+require_once($eqdkp_root_path . 'includes/dbal.php');
+require_once($eqdkp_root_path . 'includes/eqdkp.php');
+require_once($eqdkp_root_path . 'includes/session.php');
+require_once($eqdkp_root_path . 'includes/class_template.php');
+require_once($eqdkp_root_path . 'includes/eqdkp_plugins.php');
+require_once($eqdkp_root_path . 'includes/input.php');
 
 $tpl   = new Template;
 $eqdkp = new EQdkp($eqdkp_root_path);
 $user  = new User;
+$in    = new Input();
 
 // Style can come from $_GET['style']
-$style = ( isset($_GET['style']) ) ? intval($_GET['style']) : false;
+$style = $in->int('style');
 
 // Start up the user/session management
 $user->start();

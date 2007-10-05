@@ -390,14 +390,37 @@ class SQL_DB
     /**
     * Remove quote escape
     * 
-    * @param $string
+    * @param $string    The string to escape, or the implode() delimiter if $array is set
+    * @param $array     An array to pass to implode(), escaping its values
     * @return string
     */
-    function escape($string)
+    function escape($string, $array = null)
     {
-        $string = mysql_real_escape_string($string);
+        if ( is_array($array) )
+        {
+            $string = $this->_implode($string, $array);
+        }
+        else
+        {
+            $string = mysql_real_escape_string($string);
+        }
         
         return $string;
+    }
+    
+    function _implode($delim, $array)
+    {
+        if ( !is_array($array) || count($array) == 0 )
+        {
+            return '';
+        }
+        
+        foreach ( $array as $k => $v )
+        {
+            $array[$k] = $this->escape($v);
+        }
+        
+        return implode($delim, $array);
     }
     
     /**

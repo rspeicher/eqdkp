@@ -19,7 +19,7 @@ class Manage_Game extends EQdkp_Admin
     function do_it()
     {
         global $db, $eqdkp, $user;
-        global $SID, $dbname, $table_prefix;
+        global $SID, $dbname;
 
         parent::eqdkp_admin();
 

@@ -1,6 +1,17 @@
 <?php
+if ( !defined('EQDKP_INC') )
+{
+     die('Do not access this file directly.');
+}
+
 class Input
 {
+    /**
+     * Stores input variables after any cleaning's been done to them, to
+     * prevent overhead of multiple $in->string('var') calls, for example.
+     */
+    var $_cache = array();
+    
     function input()
     {
     }
@@ -28,27 +39,62 @@ class Input
     
     function float($key)
     {
-        return floatval($this->_get($key));
+        if ( isset($this->_cache[$key]) )
+        {
+            $retval = $this->_cache[$key];
+        }
+        else
+        {
+            $retval = floatval($this->_get($key));
+        }
+        
+        return $retval;
     }
     
     function int($key)
     {
-        return intval($this->_get($key));
+        if ( isset($this->_cache[$key]) )
+        {
+            $retval = $this->_cache[$key];
+        }
+        else
+        {
+            $retval = intval($this->_get($key));
+        }
+        
+        return $retval;
     }
     
     function md5($key)
     {
-        $retval = $this->_get($key);
+        if ( isset($this->_cache[$key]) )
+        {
+            $retval = $this->_cache[$key];
+        }
+        else
+        {
+            $retval = substr(preg_replace('/[^0-9A-Za-z]/', '', $this->_get($key)), 0, 32);
+        }
         
-        return substr(preg_replace('/[^0-9A-Za-z]/', '', $retval), 0, 32);
+        return $retval;
     }
     
     function string($key, $escape = false)
     {
-        $retval = strval($this->_get($key, ''));
-        $retval = urldecode($retval);
-        $retval = preg_replace('/\s+/', ' ', $retval);
+        if ( isset($this->_cache[$key]) )
+        {
+            $retval = $this->_cache[$key];
+        }
+        else
+        {
+            $retval = strval($this->_get($key, ''));
+            $retval = urldecode($retval);
+            $retval = preg_replace('/\s+/', ' ', $retval);
+            
+            $this->_cache[$key] = $retval;
+        }
         
+        // $escape might change from call to call depending on our context, so don't cache that value
         return ( $escape ) ? SQL_DB::escape($retval) : $retval;
     }
 }

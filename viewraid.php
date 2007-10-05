@@ -138,7 +138,7 @@ if ( $in->int(URI_RAID) )
             'ATTENDEES' => $members // FIXME: Extra trailing comma. God.
         ));
     }
-    unset($eq_classes);
+    unset($classes);
 
     $tpl->assign_vars(array(
         'L_MEMBERS_PRESENT_AT' => sprintf($user->lang['members_present_at'], stripslashes($raid['raid_name']),

@@ -9,8 +9,11 @@ Global
     
     - Backticks should be used ONLY when you're comparing a field value to a user input value in a WHERE clause, or
       if you're allowing user-input field or table names (rare):
-        SELECT * FROM __table WHERE `user_id` = $id;
+        SELECT * FROM __table WHERE `user_id` = '$id';
         SELECT * FROM __table ORDER BY `$order`;
+    - Put single quotes around *all* values, including integers:
+    - Group all WHERE clauses in parenthesis:
+        SELECT * FROM __table WHERE (`user_id` = '$id') AND (`user_name` = '$name');
     
 Global de-stupifying from 1.3
     - Search for '1.3' across the project and probably undo most of it, or make it less stupid.

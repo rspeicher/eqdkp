@@ -35,6 +35,7 @@ $current_order = switch_order($sort_order);
 //
 // Compare members
 //
+// FIXME: if-else causes two different pages to be rendered. Split into separate files.
 if ( $in->string('submit') == $user->lang['compare_members'] && isset($_POST['compare_ids']) )
 {
     redirect('listmembers.php?compare=' . implode(',', $_POST['compare_ids']));
@@ -181,6 +182,7 @@ else
         $tpl->assign_block_vars('filter_row', $option);
     }
     
+	// NOTE: Filtering by class or by armor may not be mutually exclusive actions. consider revising.
     // ---------------------------
     // Filter
     // ---------------------------
@@ -259,6 +261,7 @@ else
         }
     }
     
+	// FIXME: Direct use of $_GET variable.
     $uri_addon  = ''; // Added to the end of the sort links
     $uri_addon .= '&amp;filter=' . urlencode($filter);
     $uri_addon .= ( isset($_GET['show']) ) ? '&amp;show=' . htmlspecialchars(strip_tags($_GET['show']), ENT_QUOTES) : '';
@@ -313,6 +316,7 @@ $tpl->assign_vars(array(
     'S_COMPARE' => $s_compare,
     'S_NOTMM'   => true,
     
+	// FIXME: Mismatched use of variables $_GET['compare'] and $compare
     'LISTMEMBERS_FOOTCOUNT' => ( isset($_GET['compare']) ) ? sprintf($footcount_text, sizeof(explode(',', $compare))) : $footcount_text)
 );
 
@@ -400,11 +404,11 @@ function validateCompareInput($input)
     // Remove codes from the list, like "%20"
     $retval = urldecode($input);
     
-    // Remove anything that's not a comma or alpha-numeric
-    $retval = preg_replace('#[^A-Za-z0-9\,]#', '', $retval);
+    // Remove anything that's not a comma or numeric
+    $retval = preg_replace('#[^0-9\,]#', '', $retval);
     
     // Remove any extra commas as a result of removing bogus entries above
-    $retval = str_replace(',,', ',', $retval);
+    $retval = preg_replace('#\,{2,}#', ',', $retval);
     
     // Remove a trailing blank entry
     $retval = preg_replace('#,$#', '', $retval);

@@ -17,6 +17,7 @@ include_once($eqdkp_root_path . 'common.php');
 
 $user->check_auth('u_item_view');
 
+// FIXME: Direct use of $_GET variable
 if ( (isset($_GET[URI_ITEM])) && (intval($_GET[URI_ITEM] > 0)) )
 {
     $sort_order = array(
@@ -74,6 +75,7 @@ if ( (isset($_GET[URI_ITEM])) && (intval($_GET[URI_ITEM] > 0)) )
         'O_BUYER' => $current_order['uri'][1],
         'O_VALUE' => $current_order['uri'][2],
 
+		// FIXME: Direct use of $_GET variable
         'U_VIEW_ITEM' => 'viewitem.php'.$SID.'&amp;' . URI_ITEM . '='.$_GET[URI_ITEM].'&amp;',
         'U_VIEW_STATS' => $u_view_stats,
 

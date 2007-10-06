@@ -16,6 +16,7 @@ if ( !defined('EQDKP_INC') )
      die('Do not access this file directly.');
 }
 
+// FIXME: Insecure misuse of global variables => SQL Injection.
 /**
 * Checks if a POST field value exists;
 * If it does, we use that one, otherwise we use the optional database field value,
@@ -200,6 +201,7 @@ function color_item($item, $percentage = false)
 */
 function switch_order($sort_order)
 {
+	// FIXME: Direct use of $_GET variable => SQL Injection.
     $uri_order = ( isset($_GET[URI_ORDER]) ) ? $_GET[URI_ORDER] : '0.0';
     $uri_order = explode('.', $uri_order);
     $element1 = ( isset($uri_order[0]) ) ? $uri_order[0] : 0;

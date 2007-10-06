@@ -36,11 +36,13 @@ $sort_order = array(
 $current_order = switch_order($sort_order);
 
 $total_raids = $db->query_first("SELECT count(*) FROM __raids");
+// FIXME: Direct use of $_GET variable
 $show_all = ( (!empty($_GET['show'])) && ($_GET['show'] == "all") ) ? true : false;
 
 // No idea if this massive query will work outside MySQL...if not, we'll have
 // to use a switch and get the values another way
 $time = time();
+// FIXME: Massive query. Consider revising. (Also, member_current bug still exists perhaps?)
 $sql = "SELECT member_name, member_earned, member_spent, member_adjustment,
             (member_earned-member_spent+member_adjustment) AS member_current,
             member_firstraid, member_lastraid, member_raidcount,
@@ -262,7 +264,7 @@ while ( $row = $db->fetch_record($result) )
     {
         $v = $eq_classes[$class];
     }
-
+	// FIXME: Direct use of $_GET variable
     $row_class = ( (!empty($_GET['class'])) && ($_GET['class'] == $k) ) ? 'rowhead' : $eqdkp->switch_row_class();
 
     $loot_factor = ( $v['class_pct'] > 0 ) ? round((($v['drop_pct'] / $v['class_pct']) - 1) * 100) : '0';
@@ -317,6 +319,7 @@ $tpl->assign_vars(array(
 
     'U_STATS' => 'stats.php'.$SID.'&amp;',
 
+	// FIXME: Direct use of $_GET variable
     'SHOW' => ( isset($_GET['show']) ) ? htmlspecialchars(strip_tags($_GET['show']), ENT_QUOTES) : '',
 
     'STATS_FOOTCOUNT' => $footcount_text)

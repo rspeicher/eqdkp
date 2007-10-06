@@ -28,6 +28,7 @@ class Register extends EQdkp_Admin
         //
         // If they're trying access this page while logged in, redirect to settings.php
         //
+		// FIXME: Direct use of $_GET variable.
         if ( ($user->data['user_id'] != ANONYMOUS) && (!isset($_GET['key'])) )
         {
             header('Location: settings.php' . $SID);
@@ -92,7 +93,7 @@ class Register extends EQdkp_Admin
             {
                 $this->fv->errors['username'] = $user->lang['fv_already_registered_username'];
             }
-            
+            // FIXME: SQL Injection
             $sql = "SELECT user_id
                     FROM __users
                     WHERE `user_email` = '{$_POST['user_email']}'";
@@ -190,6 +191,7 @@ class Register extends EQdkp_Admin
             $db->query($au_sql);
         }
         
+		// FIXME: Direct use of $_POST variable
         if ($eqdkp->config['account_activation'] == USER_ACTIVATION_SELF)
         {
             $success_message = sprintf($user->lang['register_activation_self'], stripslashes($_POST['user_email']));
@@ -214,6 +216,7 @@ class Register extends EQdkp_Admin
         
         $headers = "From: " . $eqdkp->config['admin_email'] . "\nReturn-Path: " . $eqdkp->config['admin_email'] . "\r\n";
         
+		// FIXME: Direct use of $_POST variable
         $email->set_template($email_template, stripslashes($_POST['user_lang']));
         $email->address(stripslashes($_POST['user_email']));
         $email->subject(); // Grabbed from the template itself
@@ -257,7 +260,8 @@ class Register extends EQdkp_Admin
     {
         global $db, $eqdkp, $user, $tpl, $pm;
         global $SID;
-        
+
+        // FIXME: Direct use of $_POST variable + Potential SQL Injection.
         $username   = ( !empty($_POST['username']) )   ? trim(strip_tags($_POST['username'])) : '';
         $user_email = ( !empty($_POST['user_email']) ) ? trim(strip_tags($_POST['user_email'])) : '';
         
@@ -494,6 +498,7 @@ class Register extends EQdkp_Admin
         //
         // Build language drop-down
         //
+		// FIXME: Building language drop-down. Consider revising method (also, perhaps move to functions.php?).
         if ( $dir = @opendir($eqdkp->root_path . 'language/') )
         {
             while ( $file = @readdir($dir) )
@@ -512,6 +517,7 @@ class Register extends EQdkp_Admin
         //
         // Build style drop-down
         //
+		// FIXME: Building style drop-down. Consider revising method (also, perhaps move to functions.php?).
         $sql = "SELECT style_id, style_name
                 FROM __styles
                 ORDER BY style_name";

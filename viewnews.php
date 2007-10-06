@@ -16,6 +16,7 @@ $eqdkp_root_path = './';
 include_once($eqdkp_root_path . 'common.php');
 
 $total_news = $db->query_first("SELECT count(*) FROM __news");
+// FIXME: Direct use of $_GET variable. SQL Injection.
 $start = ( isset($_GET['start']) ) ? $_GET['start'] : 0;
 
 $previous_date = 0;

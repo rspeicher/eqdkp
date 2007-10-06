@@ -17,6 +17,7 @@ include_once($eqdkp_root_path . 'common.php');
 
 $user->check_auth('u_event_view');
 
+// FIXME: Direct use of $_GET variable
 if ( (isset($_GET[URI_EVENT])) && (intval($_GET[URI_EVENT] > 0)) )
 {
     $sort_order = array(
@@ -181,6 +182,7 @@ if ( (isset($_GET[URI_EVENT])) && (intval($_GET[URI_EVENT] > 0)) )
         'O_NOTE'  => $current_order['uri'][1],
         'O_VALUE' => $current_order['uri'][2],
         
+		// FIXME: Direct use of $_GET variable
         'U_VIEW_EVENT' => 'viewevent.php'.$SID.'&amp;' . URI_EVENT . '='.$_GET[URI_EVENT].'&amp;',
         
         'EVENT_ADDED_BY'      => ( !empty($event['event_added_by']) ) ? $event['event_added_by'] : 'N/A',

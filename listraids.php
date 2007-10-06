@@ -28,6 +28,7 @@ $current_order = switch_order($sort_order);
 
 $total_raids = $db->query_first("SELECT count(*) FROM __raids");
 
+// FIXME: SQL Injection
 $start = ( isset($_GET['start']) ) ? $_GET['start'] : 0;
 
 $sql = "SELECT raid_id, raid_name, raid_date, raid_note, raid_value 

@@ -26,6 +26,8 @@ include_once($eqdkp_root_path . 'common.php');
        die;
     }
 
+// FIXME: Massively insecure. Script could be triggered by anyone at any time, 
+// executing alterations to the database which may potentially corrupt guild data.
 class Upgrade
 {
     var $db = null;

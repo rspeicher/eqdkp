@@ -149,6 +149,7 @@ class Backup extends EQdkp_Admin
   		
   		@header("Pragma: no-cache");
   		
+		// FIXME: Gzip not functioning correctly. Consider revising.
   		if( $do_gzip )
   		{
   			$size     = ob_get_length();

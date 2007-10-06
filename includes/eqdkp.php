@@ -592,6 +592,7 @@ class EQdkp_Admin
         if ( @sizeof($_POST) > 0 )
         {
             // Sanitize our POST vars
+			// FIXME: Shoddy use of $_POST variable
             $_POST = sanitize_tags($_POST);
             
             // Confirm is an automatic button option if confirm_delete is called
@@ -1027,6 +1028,7 @@ class Form_Validate
         }
     }
 
+	// FIXME: Insecure misuse of global variables => SQL Injection.
     /**
     * Returns the value of a variable in _POST or _GET
     *

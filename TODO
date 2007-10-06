@@ -3,6 +3,9 @@
 Global
     - Get rid of X_TABLE constants in favor of __x names.
     - Replace all $_GET, $_POST and $_SESSION accesses with an Input class that has input cleaning.
+        - Every occurence of 
+          $start = ( isset($_GET['start']) ) ? $_GET['start'] : 0;
+          is an SQL Injection vulerability.
     - Add x_path() functions a la Rails to clean up some URL generation
     - Use header('HTTP/1.0 404 Not Found'); instead of die('Do not access this file directly.');
     - Remove the closing '?>' from all PHP-only files. It's not required and can create problems.
@@ -30,9 +33,28 @@ Installation
     - re-write the whole thing. In particular it probably makes more sense to have an
       action=(login|logout) variable than separate variables for both.
       Update other parts of eqdkp that use login.php accordingly.
-        
+      
+/admin/addturnin.php
+    - Consider re-naming. It isn't so much turning something in as it is transferring something (an item)
+      from one person to another. Also, no records for "turn-ins" are kept, so it's hardly 'adding' a turn-in.
+    
 Less important stuff:
-----
+---------------------
+Global
+    - Create a time management scheme for EQDKP. 
+      We need to include:
+        - Default timestamp
+        - Default timezone
+        - User-specific timestamp and timezone
+        - functions to generate input fields for times and dates based on the above
+      We need to apply this in order to:
+        - Make date and time input and display consistent (storage is already in unix format, so all good)
+        - Make date and time display accurate depending on timezone and timestamp preferences
+        - Be able to run independent of the timezone of the server EQDKP is running on!
+          (I notice this one a lot, because an Australian guild using an American server means that
+           the time between a raid entry and the DKP attendance and last raid etc. being updated happens 
+           according to server time. That's a massive time difference of 14-18 hours.)
+
 Game Management
     - Create an eqdkp_game class to manage game-related aspects of eqdkp.
       Basically, we need to come up with a decent class that can be extended with the individual

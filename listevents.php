@@ -26,6 +26,7 @@ $current_order = switch_order($sort_order);
 
 $total_events = $db->query_first("SELECT count(*) FROM __events");
 
+// FIXME: SQL Injection
 $start = ( isset($_GET['start']) ) ? $_GET['start'] : 0;
 
 $sql = "SELECT event_id, event_name, event_value

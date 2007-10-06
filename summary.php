@@ -20,6 +20,7 @@ $user->check_auth('u_raid_list');
 //
 // Build the from/to GET vars to pass back to the script
 //
+// FIXME: Direct use of $_POST variable. Also, perhaps an incorrect check.
 if ( (isset($_POST['submit'])) && ($_POST['submit'] == $user->lang['create_news_summary']) )
 {
     $fv = new Form_Validate();
@@ -41,6 +42,7 @@ if ( (isset($_POST['submit'])) && ($_POST['submit'] == $user->lang['create_news_
     {
         // Make the dates into mm-dd-yy and add them to the URI,
         // then redirect back to the script
+		// FIXME: Direct use of $_POST variable.
         $date1 = $_POST['mo1'] . '-' . $_POST['d1'] . '-' . $_POST['y1'];
         $date2 = $_POST['mo2'] . '-' . $_POST['d2'] . '-' . $_POST['y2'];
         header('Location: summary.php'.$SID.'&from='.$date1.'&to='.$date2);
@@ -49,6 +51,7 @@ if ( (isset($_POST['submit'])) && ($_POST['submit'] == $user->lang['create_news_
 //
 // Display summary
 //
+// FIXME: Direct use of $_GET variable.
 elseif ( (isset($_GET['from'])) && (isset($_GET['to'])) )
 {
     $s_step1 = false;

@@ -256,8 +256,8 @@ if ( $in->string(URI_NAME) != '' )
         $tpl->assign_block_vars('event_row', array(
             'EVENT'        => stripslashes($event),
             'U_VIEW_EVENT' => 'viewevent.php' . $SID . '&' . URI_EVENT . '=' . $event_ids[$event],
-            'BAR'          => create_bar($data['percent'] . '%', $data['count'] . ' (' . $data['percent'] . '%)'))
-        );
+            'BAR'          => create_bar($data['percent'], $data['count'] . ' (' . $data['percent'] . '%)')
+        ));
     }
     unset($raid_counts, $event_ids);
 

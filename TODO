@@ -31,9 +31,6 @@ Installation
       action=(login|logout) variable than separate variables for both.
       Update other parts of eqdkp that use login.php accordingly.
         
-/admin/functions.php
-    - Change create_bar to use CSS instead of tables.
-
 Less important stuff:
 ----
 Game Management

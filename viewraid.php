@@ -126,6 +126,7 @@ if ( $in->int(URI_RAID) )
     //
     // Class distribution
     //
+    ksort($classes);
     foreach ( $classes as $class => $members )
     {
         // TODO: We're potentially calling count() multiple times on the same class type, but it shouldn't be much overhead
@@ -133,9 +134,10 @@ if ( $in->int(URI_RAID) )
         $percentage =  ( $total_attendees > 0 ) ? round(($class_count / $total_attendees) * 100) : 0;
 
         $tpl->assign_block_vars('class_row', array(
+            'ROW_CLASS' => $eqdkp->switch_row_class(),
             'CLASS'     => $class,
-            'BAR'       => create_bar(($class_count * 10), $class_count . ' (' . $percentage . '%)'),
-            'ATTENDEES' => $members // FIXME: Extra trailing comma. God.
+            'BAR'       => create_bar($percentage, $class_count . ' (' . $percentage . '%)'),
+            'ATTENDEES' => implode(', ', $members) // FIXME: Extra trailing comma. God.
         ));
     }
     unset($classes);

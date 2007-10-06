@@ -14,7 +14,7 @@
 define('EQDKP_INC', true);
 $eqdkp_root_path = './';
 include_once($eqdkp_root_path . 'common.php');
- 
+
 $total_news = $db->query_first("SELECT count(*) FROM __news");
 $start = ( isset($_GET['start']) ) ? $_GET['start'] : 0;
 
@@ -57,7 +57,6 @@ while ( $news = $db->fetch_record($result) )
     );
 }
 $db->free_result($result);
-
 
 $tpl->assign_vars(array(
     'NEWS_PAGINATION' => generate_pagination('viewnews.php' . $SID, $total_news, $user->data['user_nlimit'], $start))

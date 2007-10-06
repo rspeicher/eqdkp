@@ -63,22 +63,10 @@ input.mainoption { font-family: {T_FONTFACE2}; font-size: {T_FONTSIZE1}px; font-
 input.liteoption { font-family: {T_FONTFACE2}; font-size: {T_FONTSIZE1}px; font-weight: normal; color: #{T_HEADER_LINK}; background-color: #{T_TH_COLOR1}; border-top: {T_INPUT_BORDER_WIDTH}px;
                    border-right: {T_INPUT_BORDER_WIDTH}px; border-bottom: {T_INPUT_BORDER_WIDTH}px; border-left: {T_INPUT_BORDER_WIDTH}px; border-color: #{T_HEADER_LINK}; border-style: {T_INPUT_BORDER_STYLE}; }
 
-.graph {
-	position: relative; /* IE is dumb */
-	width: 200px;
-	border: 1px solid #B1D632;
-	padding: 2px;
-}
-.graph .bar {
-	display: block;
-	position: relative;
-	background: #B1D632;
-	text-align: center;
-	color: #333;
-	height: 2em;
-	line-height: 2em;
-}
-.graph .bar span { position: absolute; left: 1em; }
+div.graph { position: relative; width: 98%; border: 1px solid #{T_HEADER_LINK}; padding: 2px; margin: 2px 0; }
+div.graph .bar { display: block; position: relative; background: #{T_TH_COLOR1}; text-align: center; color: #{T_HEADER_LINK}; height: 1.3em; line-height: 1.3em; }
+div.graph .bar span { position: absolute; left: 1em; }
+
 				   
 {EXTRA_CSS}
 </style>

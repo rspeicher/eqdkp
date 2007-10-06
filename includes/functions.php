@@ -464,15 +464,12 @@ function htmlspecialchars_remove($data)
 /**
 * Create a bar graph
 * 
-* @param $width
-* @param $show_number Show number in middle of bar?
-* @param $class Background class for bar
+* @param $width     int     Width of the bar
+* @param $show_text string  Text to show
 * @return string Bar HTML
 */
-function create_bar($width, $show_text = '', $class = 'row2')
+function create_bar($width, $show_text = '')
 {
-    $bar = '';
-    
     if ( strstr($width, '%') )
     {
         $width = intval(str_replace('%', '', $width));
@@ -482,19 +479,8 @@ function create_bar($width, $show_text = '', $class = 'row2')
         }
     }
     
-    if ( $width > 0 )
-    {
-        $bar = '<table width="' . $width . '" border="0" cellpadding="0" cellspacing="0">';
-        $bar .= '<tr><td width="100%" align="center" class="' . $class . '" nowrap="nowrap">';
+    $show_text = ( $show_text == '' ) ? $width . '%' : $show_text;
     
-        if ( $show_text != '' )
-        {
-            $bar .= '<span class="small">' . $show_text . '</span>';
-        }
-    
-        $bar .= '</td></tr></table>';
-    }
-    
-    return $bar;
+    return "<div class=\"graph\"><strong class=\"bar\" style=\"width: {$width}%;\">{$show_text}</strong></div>\n";
 }
 ?>

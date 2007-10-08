@@ -16,8 +16,6 @@ if ( !defined('EQDKP_INC') )
     die('Do not access this file directly.');
 }
 
-setcookie('herefirst', 'yes');
-
 //error_reporting (E_ALL ^ E_NOTICE);
 error_reporting (E_ALL);
 

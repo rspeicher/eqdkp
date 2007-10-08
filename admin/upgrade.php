@@ -12,19 +12,30 @@
  ******************************/
 
 define('EQDKP_INC', true);
-$eqdkp_root_path = './';
+define('IN_ADMIN', true);
+$eqdkp_root_path = './../';
 include_once($eqdkp_root_path . 'common.php');
 
-    // I require MySQL version 4.0.4 minimum.
-    $version = mysql_get_server_info();
+$user->check_auth('a_');
 
-    if ( ! ($version >= "4.0") ){
+// I require MySQL version 4.0.4 minimum.
+// TODO: ^ You do? for what?
+$version = mysql_get_server_info();
 
-       printf("MySQL server version is not sufficient for EQdkp. ");
-       printf("EQdkp requires MySQL version > 4.0 - you are running \n");
-       printf("version %s .\n", $version);
-       die;
-    }
+if ( ! ($version >= "4.0") )
+{
+   printf("MySQL server version is not sufficient for EQdkp. ");
+   printf("EQdkp requires MySQL version > 4.0 - you are running \n");
+   printf("version %s .\n", $version);
+   die;
+}
+
+// As of 1.3.3, we're checking against an eqdkp_version config value to
+// determine what we need to upgrade. So if that doesn't exist, set it here
+if ( !isset($eqdkp->config['eqdkp_version']) )
+{
+    $eqdkp->config_set('eqdkp_version', EQDKP_VERSION);
+}
 
 // FIXME: Massively insecure. Script could be triggered by anyone at any time, 
 // executing alterations to the database which may potentially corrupt guild data.
@@ -32,7 +43,6 @@ class Upgrade
 {
     var $db = null;
     var $versions = array('1.0.0','1.1.0','1.2.0B1','1.2.0B2','1.2.0RC1','1.2.0RC2','1.2.0','1.3.0','1.3.1');
-
 
     function upgrade()
     {
@@ -335,8 +345,7 @@ class Upgrade
 
         foreach ( $this->versions as $version )
         {
-            // This will never happen if common.php's been upgraded already; I'm a re-re!
-            $selected = ( $version == EQDKP_VERSION ) ? ' selected="selected"' : '';
+            $selected = ( $version == $eqdkp->config['eqdkp_version'] ) ? ' selected="selected"' : '';
 
             $tpl->assign_block_vars('version_row', array(
                 'VALUE'    => str_replace('.', '', $version),

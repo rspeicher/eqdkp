@@ -10,6 +10,8 @@ Version 1.3.3 -
 [-] Removed admin/lua.php and admin/lua_config.php. Again, these belong in a plugin, not the default package.
 [+] Improved the bar graphs to use CSS instead of tables.
 [*] Fixed a problem parsing member IDs when comparing members.
+[ ] For security purposes, EQdkp's version number won't be shown when outside of the administration panel.
+[ ] As a preventative measure, upgrade.php has been moved to the admin folder and now checks for any administrative permissions before running.
 
 Version 1.3.2 - March 9, 2007
 -----------------------------

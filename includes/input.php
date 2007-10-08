@@ -50,6 +50,29 @@ class Input
         }
     }
     
+    /**
+     * Special method to get an input array and walk over it, calling the appropriate
+     * filter on each entry.
+     */
+    function getArray($key, $type, $max_depth = 10)
+    {
+        $retval = array();
+        
+        if ( isset($this->_cache[$key]) )
+        {
+            $retval = $this->_cache[$key];
+        }
+        else
+        {
+            $input  = $this->_get($key, $retval);
+            $retval = $this->_recurseClean($input, $type, $max_depth);
+            
+            $this->_cache[$key] = $retval;
+        }
+        
+        return $retval;
+    }
+    
     // ----------------------------------------------------
     // Data type methods
     // ----------------------------------------------------
@@ -84,7 +107,9 @@ class Input
         }
         else
         {
-            $retval = floatval($this->_get($key, $default));
+            $retval = $this->_cleanFloat($this->_get($key, $default));
+            
+            $this->_cache[$key] = $retval;
         }
         
         return $retval;
@@ -98,7 +123,9 @@ class Input
         }
         else
         {
-            $retval = intval($this->_get($key, $default));
+            $retval = $this->_cleanInt($this->_get($key, $default));
+            
+            $this->_cache[$key] = $retval;
         }
         
         return $retval;
@@ -120,7 +147,9 @@ class Input
         }
         else
         {
-            $retval = substr(preg_replace('/[^0-9A-Za-z]/', '', $this->string($key, $default)), 0, 40);
+            $retval = $this->_cleanHash($this->string($key, $default));
+            
+            $this->_cache[$key] = $retval;
         }
         
         return $retval;
@@ -134,14 +163,84 @@ class Input
         }
         else
         {
-            $retval = strval($this->_get($key, $default));
-            $retval = urldecode($retval);
-            //$retval = preg_replace('/\s+/', ' ', $retval); // NOTE: This breaks addnews re-displaying the form, for example
-            $retval = ( get_magic_quotes_gpc() ) ? stripslashes($retval) : $retval;
+            $retval = $this->_cleanString($this->_get($key, $default));
             
             $this->_cache[$key] = $retval;
         }
         
         return $retval;
+    }
+    
+    // ----------------------------------------------------
+    // Data cleaning methods
+    // ----------------------------------------------------
+    
+    function _cleanFloat($value)
+    {
+        $value = floatval($value);
+        
+        return $value;
+    }
+    
+    function _cleanInt($value)
+    {
+        $value = intval($value);
+        
+        return $value;
+    }
+    
+    function _cleanHash($value)
+    {
+        $value = substr(preg_replace('/[^0-9A-Za-z]/', '', $this->_string($value)), 0, 40);
+        
+        return $value;
+    }
+    
+    function _cleanString($value)
+    {
+        $value = strval($value);
+        $value = urldecode($value);
+        $value = ( get_magic_quotes_gpc() ) ? stripslashes($value) : $value;
+        
+        return $value;
+    }
+    
+    /**
+     * Recursively clean an array, stopping if the number of iterations is higher
+     * than $max_depth. This prevents a malicious user from submitting an array
+     * with an unusually high number of dimensions, potentially overloading
+     * the server.
+     * 
+     * @param   $array      Array to clean
+     * @param   $type       The type of data in each element
+     * @param   $max_depth  The maximum number of iterations to run
+     * @param   $cur_depth  The current number of iterations run
+     */
+    function _recurseClean($array, $type, $max_depth, $cur_depth = 0)
+    {
+        if ( !is_array($array) )
+        {
+            return $array;
+        }
+        
+        if ( $cur_depth >= $max_depth )
+        {
+            return $array;
+        }
+        
+        $cleaner = '_clean' . ucwords(strtolower($type));
+        foreach ( $array as $k => $v )
+        {
+            if ( is_array($v) )
+            {
+                $array[$k] = $this->_recurseClean($v, $type, $max_depth, $cur_depth++);
+            }
+            else
+            {
+                $array[$k] = $this->$cleaner($v);
+            }
+        }
+        
+        return $array;
     }
 }

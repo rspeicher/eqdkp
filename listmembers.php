@@ -36,9 +36,9 @@ $current_order = switch_order($sort_order);
 // Compare members
 //
 // TODO: if-else causes two different pages to be rendered. Split into separate files.
-if ( $in->get('submit') == $user->lang['compare_members'] && isset($_POST['compare_ids']) )
+if ( $in->get('submit') == $user->lang['compare_members'] && $in->get('compare_ids', false) )
 {
-    redirect('listmembers.php?compare=' . implode(',', $_POST['compare_ids']));
+    redirect('listmembers.php?compare=' . implode(',', $in->getArray('compare_ids', 'int')));
 }
 elseif ( $in->get('compare', false) )
 {

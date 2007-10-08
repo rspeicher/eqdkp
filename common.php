@@ -19,17 +19,6 @@ if ( !defined('EQDKP_INC') )
 //error_reporting (E_ALL ^ E_NOTICE);
 error_reporting (E_ALL);
 
-// Disable magic quotes and add slashes to global arrays
-/*
-set_magic_quotes_runtime(0);
-if ( get_magic_quotes_gpc() == 0 )
-{
-    $_GET = slash_global_data($_GET);
-    $_POST = slash_global_data($_POST);
-    $_COOKIE = slash_global_data($_COOKIE);
-}
-*/
-
 // Default the site-wide variables
 $gen_simple_header = false;
 if ( !isset($eqdkp_root_path) )
@@ -148,24 +137,4 @@ if ( (defined('IN_ADMIN')) && (IN_ADMIN === true) )
         }
     }
 }
-
-/**
-* Applies addslashes() to the provided data
-*
-* @param $data Array of data or a single string
-* @return mixed Array or string of data
-*/
-/*
-function slash_global_data($data)
-{
-    if ( is_array($data) )
-    {
-        foreach ( $data as $k => $v )
-        {
-            $data[$k] = ( is_array($v) ) ? slash_global_data($v) : addslashes($v);
-        }
-    }
-    return $data;
-}
-*/
 ?>

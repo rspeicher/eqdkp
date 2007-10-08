@@ -31,6 +31,10 @@ Installation
       the EQDKP_VERSION constant, and if the two differ, inform the user that they
       should run upgrade.php. upgrade.php then needs to write this value when it's
       done running.
+    - Change from functions into an abstracted class, one file per version. These
+      files are auto-discovered by upgrade.php and the appropriate file is included
+      and run based on the user's setting. Remember that every file AFTER the one
+      chosen has to be included and run as well, in sequence.
     
 Less important stuff:
 ---------------------

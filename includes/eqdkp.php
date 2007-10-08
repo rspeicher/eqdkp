@@ -503,7 +503,6 @@ class EQdkp_Admin
     // General vars
     var $buttons      = array();          // Submit buttons and their associated actions      @var buttons
     var $params       = array();          // GET parameters and their associated actions      @var params
-    var $last_process = '';               // Last-called process                              @var last_process
     var $err_process  = 'display_form';   // Process to call when errors occur                @var err_process
     var $url_id       = 0;                // ID from _GET                                     @var url_id
     var $fv           = NULL;             // Form Validation object (not reference)           @var fv
@@ -604,7 +603,6 @@ class EQdkp_Admin
                     {
                         $user->check_auth($this->buttons['delete']['check']);
                     }
-                    $this->last_process = 'process_confirm';
                     $this->process_confirm();
                 }
             }
@@ -612,7 +610,6 @@ class EQdkp_Admin
             elseif ( isset($_POST['cancel']) )
             {
                 $processed = true;
-                $this->last_process = 'process_cancel';
                 $this->process_cancel();
             }
             // Confirm/Delete weren't pressed, we're dealing with custom processes now
@@ -630,7 +627,6 @@ class EQdkp_Admin
                         {
                             $user->check_auth($button['check']);
                         }
-                        $this->last_process = $button['process'];
                         $this->$button['process']();
                     }
                 }                
@@ -651,7 +647,6 @@ class EQdkp_Admin
                         {
                             $user->check_auth($param['check']);
                         }
-                        $this->last_process = $param['process'];
                         $this->$param['process']();
                     }
                 }
@@ -663,7 +658,6 @@ class EQdkp_Admin
                     {
                         $user->check_auth($param['check']);
                     }
-                    $this->last_process = $param['process'];
                     $this->$param['process']();
                 }
             }
@@ -679,7 +673,6 @@ class EQdkp_Admin
                     $user->check_auth($this->buttons['form']['check']);
                 }
                 $process = $this->buttons['form']['process'];
-                $this->last_process = $process;
                 $this->$process();
             }
             else
@@ -700,7 +693,6 @@ class EQdkp_Admin
             if ( $errors_exist )
             {
                 $process = $this->err_process;
-                $this->last_process = $process;
                 $this->$process();
             }
         }

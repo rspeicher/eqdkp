@@ -37,14 +37,14 @@ if ( !isset($eqdkp_root_path) )
     $eqdkp_root_path = './';
 }
 
-if( !is_file($eqdkp_root_path . 'config.php') )
+if ( !is_file($eqdkp_root_path . 'config.php') )
 {
     die('Error: could not locate configuration file.');
 }
 
 require_once($eqdkp_root_path . 'config.php');
 
-if( !defined('EQDKP_INSTALLED') )
+if ( !defined('EQDKP_INSTALLED') )
 {
     header('Location: ' . $eqdkp_root_path . 'install.php');
 }
@@ -53,17 +53,6 @@ if( !defined('EQDKP_INSTALLED') )
 // Constants
 define('EQDKP_VERSION', '1.3.3');
 define('NO_CACHE', true);
-
-// Debug level [0 = Off / 1 = Render time, Query count / 2 = 1 + Show queries]
-// Fixed in 1.3 so it works from config.php and obeys URL parsing of ?debug=2
-
-/*
-if ( isset($debug) && $debug == 0 ) {
-
-   $debug = ( isset($_GET['debug']) ) ? intval($_GET['debug']) : 0;
-
-}
-*/
 
 define('DEBUG', 2);
 

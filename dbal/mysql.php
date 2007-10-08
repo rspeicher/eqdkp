@@ -225,7 +225,7 @@ class SQL_DB
                 }
                 else
                 {
-                    $values[] = ( is_bool($value) ) ? intval($value) : $value;
+                    $values[] = "'" . (( is_bool($value) ) ? intval($value) : $value) . "'";
                 }
             }
             
@@ -245,7 +245,7 @@ class SQL_DB
                 }
                 else
                 {
-                    $values[] = ( is_bool($value) ) ? "$field = " . intval($value) : "$field = $value";
+                    $values[] = ( is_bool($value) ) ? "$field = '" . intval($value) . "'" : "{$field} = '{$value}'";
                 }
             }
             

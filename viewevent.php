@@ -17,8 +17,7 @@ include_once($eqdkp_root_path . 'common.php');
 
 $user->check_auth('u_event_view');
 
-// FIXME: Direct use of $_GET variable
-if ( (isset($_GET[URI_EVENT])) && (intval($_GET[URI_EVENT] > 0)) )
+if ( $in->get(URI_EVENT, 0) )
 {
     $sort_order = array(
         0 => array('raid_date desc', 'raid_date'),
@@ -28,10 +27,9 @@ if ( (isset($_GET[URI_EVENT])) && (intval($_GET[URI_EVENT] > 0)) )
      
     $current_order = switch_order($sort_order);
 
-    // FIXME: Injection
     $sql = "SELECT event_id, event_name, event_value, event_added_by, event_updated_by
             FROM __events
-            WHERE `event_id` = '{$_GET[URI_EVENT]}'";
+            WHERE (`event_id` = '" . $in->get(URI_EVENT, 0) . "')";
             
     if ( !($event_result = $db->query($sql)) )
     {
@@ -60,7 +58,7 @@ if ( (isset($_GET[URI_EVENT])) && (intval($_GET[URI_EVENT] > 0)) )
     // Find the raids for this event
     $sql = "SELECT raid_id, raid_date, raid_note, raid_value 
             FROM __raids
-            WHERE `raid_name` = '" . addslashes($event['event_name']) . "'
+            WHERE (`raid_name` = '" . addslashes($event['event_name']) . "')
             ORDER BY {$current_order['sql']}";
     $result = $db->query($sql);
     
@@ -182,8 +180,7 @@ if ( (isset($_GET[URI_EVENT])) && (intval($_GET[URI_EVENT] > 0)) )
         'O_NOTE'  => $current_order['uri'][1],
         'O_VALUE' => $current_order['uri'][2],
         
-		// FIXME: Direct use of $_GET variable
-        'U_VIEW_EVENT' => 'viewevent.php'.$SID.'&amp;' . URI_EVENT . '='.$_GET[URI_EVENT].'&amp;',
+        'U_VIEW_EVENT' => 'viewevent.php' . $SID . '&amp;' . URI_EVENT . '=' . $in->get(URI_EVENT, 0) . '&amp;',
         
         'EVENT_ADDED_BY'      => ( !empty($event['event_added_by']) ) ? $event['event_added_by'] : 'N/A',
         'EVENT_UPDATED_BY'    => ( !empty($event['event_updated_by']) ) ? $event['event_updated_by'] : 'N/A',

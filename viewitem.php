@@ -17,8 +17,7 @@ include_once($eqdkp_root_path . 'common.php');
 
 $user->check_auth('u_item_view');
 
-// FIXME: Direct use of $_GET variable
-if ( (isset($_GET[URI_ITEM])) && (intval($_GET[URI_ITEM] > 0)) )
+if ( $in->get(URI_ITEM, 0) )
 {
     $sort_order = array(
         0 => array('i.item_date desc', 'i.item_date'),
@@ -29,8 +28,7 @@ if ( (isset($_GET[URI_ITEM])) && (intval($_GET[URI_ITEM] > 0)) )
     $current_order = switch_order($sort_order);
 
     // We want to view items by name and not id, so get the name
-    // FIXME: Injection
-    $item_name = $db->query_first("SELECT item_name FROM __items WHERE `item_id` = '{$_GET[URI_ITEM]}'");
+    $item_name = $db->query_first("SELECT item_name FROM __items WHERE (`item_id` = '" . $in->get(URI_ITEM, 0) . "')");
 
     if ( empty($item_name) )
     {
@@ -75,8 +73,7 @@ if ( (isset($_GET[URI_ITEM])) && (intval($_GET[URI_ITEM] > 0)) )
         'O_BUYER' => $current_order['uri'][1],
         'O_VALUE' => $current_order['uri'][2],
 
-		// FIXME: Direct use of $_GET variable
-        'U_VIEW_ITEM' => 'viewitem.php'.$SID.'&amp;' . URI_ITEM . '='.$_GET[URI_ITEM].'&amp;',
+        'U_VIEW_ITEM' => 'viewitem.php'.$SID.'&amp;' . URI_ITEM . '=' . $in->get(URI_ITEM, 0) . '&amp;',
         'U_VIEW_STATS' => $u_view_stats,
 
         'VIEWITEM_FOOTCOUNT' => sprintf($user->lang['viewitem_footcount'], $db->num_rows($items_result)))

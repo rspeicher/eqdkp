@@ -16,8 +16,7 @@ $eqdkp_root_path = './';
 include_once($eqdkp_root_path . 'common.php');
 
 $total_news = $db->query_first("SELECT count(*) FROM __news");
-// FIXME: Direct use of $_GET variable. SQL Injection.
-$start = ( isset($_GET['start']) ) ? $_GET['start'] : 0;
+$start = $in->get('start', 0);
 
 $previous_date = 0;
 $sql = "SELECT n.news_id, n.news_date, n.news_headline, n.news_message, u.username
@@ -51,10 +50,10 @@ while ( $news = $db->fetch_record($result) )
     
     $tpl->assign_block_vars('date_row.news_row', array(
         'ROW_CLASS' => $eqdkp->switch_row_class(),
-        'HEADLINE' => stripslashes($news['news_headline']),
-        'AUTHOR' => $news['username'],
-        'TIME' => date("h:ia T", $news['news_date']),
-        'MESSAGE' => $message)
+        'HEADLINE'  => stripslashes($news['news_headline']),
+        'AUTHOR'    => $news['username'],
+        'TIME'      => date("h:ia T", $news['news_date']),
+        'MESSAGE'   => $message)
     );
 }
 $db->free_result($result);

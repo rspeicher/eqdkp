@@ -20,8 +20,8 @@ $user->check_auth('u_raid_list');
 //
 // Build the from/to GET vars to pass back to the script
 //
-// FIXME: Direct use of $_POST variable. Also, perhaps an incorrect check.
-if ( (isset($_POST['submit'])) && ($_POST['submit'] == $user->lang['create_news_summary']) )
+// FIXME: Perhaps an incorrect check. (?)
+if ( $in->get('submit') == $user->lang['create_news_summary'] )
 {
     $fv = new Form_Validate();
     $fv->is_number(array(
@@ -40,51 +40,36 @@ if ( (isset($_POST['submit'])) && ($_POST['submit'] == $user->lang['create_news_
     }
     else
     {
-        // Make the dates into mm-dd-yy and add them to the URI,
+        // Make the dates into yyyy-mm-dd and add them to the URI,
         // then redirect back to the script
-		// FIXME: Direct use of $_POST variable.
-        $date1 = $_POST['mo1'] . '-' . $_POST['d1'] . '-' . $_POST['y1'];
-        $date2 = $_POST['mo2'] . '-' . $_POST['d2'] . '-' . $_POST['y2'];
-        header('Location: summary.php'.$SID.'&from='.$date1.'&to='.$date2);
+        $from = $in->get('y1', 0) . '-' . $in->get('mo1', 0) . '-' . $in->get('d1', 0);
+        $to   = $in->get('y2', 0) . '-' . $in->get('mo2', 0) . '-' . $in->get('d2', 0);
+        header("Location: summary.php{$SID}&from={$from}&to={$to}");
     }
 }
 //
 // Display summary
 //
-// FIXME: Direct use of $_GET variable.
-elseif ( (isset($_GET['from'])) && (isset($_GET['to'])) )
+elseif ( preg_match('/^\d{2,4}-\d{1,2}-\d{1,2}$/', $in->get('from')) 
+    &&   preg_match('/^\d{2,4}-\d{1,2}-\d{1,2}$/', $in->get('to')) )
 {
     $s_step1 = false;
     
-    $date1 = @explode('-', $_GET['from']);
-    $mo1 = $date1[0];
-    $d1  = $date1[1];
-    $y1  = $date1[2];
-    
-    $date2 = @explode('-', $_GET['to']);
-    $mo2 = $date2[0];
-    $d2  = $date2[1] + 1; // Includes raids/items ON that day
-    $y2  = $date2[2];
-    
-    // Make sure both make a valid timestamp    
-    $date1 = @mktime(0, 0, 0, $mo1, $d1, $y1);
-    $date2 = @mktime(0, 0, 0, $mo2, $d2, $y2);
-    
-    $date1_display = @mktime(0, 0, 0, $mo1, $d1, $y1);
-    $date2_display = @mktime(0, 0, 0, $mo2, ($d2 - 1), $y2);
+    $from = strtotime($in->get('from'));
+    $to   = strtotime($in->get('to')) + 86400; // Includes raids/items ON that day
     
     // Make sure date1 is on or after the first raid entry
     $sql = "SELECT MIN(raid_date) 
             FROM __raids
-            WHERE `raid_date` > 0";
+            WHERE (raid_date > 0)";
     $min_date = $db->query_first($sql);
-    $date1 = ( $date1 < $min_date ) ? $min_date : $date1;
+    $from = ( $from < $min_date ) ? $min_date : $from;
     
-    if ( ($date1 > 0) && ($date2 > 0) )
+    if ( $from > 0 && $to > 0 )
     {
         // Get the current active members.  Used to find out the percentage of
         // active members present on each raid
-        $active_members = $db->query_first("SELECT count(member_id) FROM __members WHERE `member_firstraid` BETWEEN {$date1} AND {$date2}");
+        $active_members = $db->query_first("SELECT count(member_id) FROM __members WHERE (`member_firstraid` BETWEEN {$from} AND {$to})");
         
         // Build the raids
         $raids    = array();
@@ -94,10 +79,10 @@ elseif ( (isset($_GET['from'])) && (isset($_GET['to'])) )
         $sql = "SELECT r.raid_id, r.raid_name, r.raid_date, r.raid_note,
                     r.raid_value, count(ra.raid_id) AS attendee_count 
                 FROM __raids AS r, __raid_attendees AS ra
-                WHERE (ra.`raid_id` = r.`raid_id`)
-                AND (r.`raid_date` BETWEEN {$date1} AND {$date2})
-                GROUP BY r.`raid_id`
-                ORDER BY r.`raid_date` DESC";
+                WHERE (ra.raid_id = r.raid_id)
+                AND (r.`raid_date` BETWEEN {$from} AND {$to})
+                GROUP BY r.raid_id
+                ORDER BY r.raid_date DESC";
         if ( !($raids_result = $db->query($sql)) )
         {
             message_die('Could not obtain raid information', '', __FILE__, __LINE__, $sql);
@@ -105,17 +90,17 @@ elseif ( (isset($_GET['from'])) && (isset($_GET['to'])) )
         
         if ( !$db->num_rows($raids_result) )
         {
-            message_die('No raids occurred between ' . date('n/j/y', $date1_display) . ' and ' . date('n/j/y', $date2_display));
+            message_die('No raids occurred between ' . date('n/j/Y', $from) . ' and ' . date('n/j/Y', $to - 86400));
         }
         
         while ( $row = $db->fetch_record($raids_result) )
         {
             $raids[ $row['raid_id'] ] = array(
-                'raid_id' => $row['raid_id'],
-                'raid_name' => $row['raid_name'],
-                'raid_date' => $row['raid_date'],
-                'raid_note' => $row['raid_note'],
-                'raid_value' => $row['raid_value'],
+                'raid_id'        => $row['raid_id'],
+                'raid_name'      => $row['raid_name'],
+                'raid_date'      => $row['raid_date'],
+                'raid_note'      => $row['raid_note'],
+                'raid_value'     => $row['raid_value'],
                 'attendee_count' => $row['attendee_count']);
                 
             $raid_ids[] = $row['raid_id'];
@@ -125,8 +110,8 @@ elseif ( (isset($_GET['from'])) && (isset($_GET['to'])) )
         // Find the item drops for each raid
         $sql = "SELECT raid_id, count(item_id) AS count 
                 FROM __items
-                WHERE `raid_id` IN (" . implode(', ', $raid_ids) . ")
-                GROUP BY `raid_id`";
+                WHERE (`raid_id` IN (" . implode(',', $raid_ids) . "))
+                GROUP BY raid_id";
         $result = $db->query($sql);
         
         while ( $row = $db->fetch_record($result) )
@@ -143,15 +128,15 @@ elseif ( (isset($_GET['from'])) && (isset($_GET['to'])) )
             $attendees_percent = ( $active_members > 0 ) ? round(($attendees / $active_members) * 100) : '0';
             
             $tpl->assign_block_vars('raids_row', array(
-                'ROW_CLASS' => $eqdkp->switch_row_class(),
-                'DATE' => ( !empty($row['raid_date']) ) ? date($user->style['date_notime_short'], $row['raid_date']) : '&nbsp;',
-                'U_VIEW_RAID' => 'viewraid.php'.$SID.'&amp;' . URI_RAID . '='.$row['raid_id'],
-                'NAME' => stripslashes($row['raid_name']),
-                'NOTE' => stripslashes($row['raid_note']),
-                'ATTENDEES' => $attendees,
-                'ATTENDEES_PCT' => sprintf("%d%%", $attendees_percent),
-                'ITEMS' => $raid_drops,
-                'VALUE' => sprintf("%.2f", $row['raid_value']),
+                'ROW_CLASS'       => $eqdkp->switch_row_class(),
+                'DATE'            => ( !empty($row['raid_date']) ) ? date($user->style['date_notime_short'], $row['raid_date']) : '&nbsp;',
+                'U_VIEW_RAID'     => 'viewraid.php'.$SID.'&amp;' . URI_RAID . '='.$row['raid_id'],
+                'NAME'            => stripslashes($row['raid_name']),
+                'NOTE'            => stripslashes($row['raid_note']),
+                'ATTENDEES'       => $attendees,
+                'ATTENDEES_PCT'   => sprintf("%d%%", $attendees_percent),
+                'ITEMS'           => $raid_drops,
+                'VALUE'           => sprintf("%.2f", $row['raid_value']),
                 'C_ATTENDEES_PCT' => color_item($attendees_percent, true))
             );
         }
@@ -159,7 +144,7 @@ elseif ( (isset($_GET['from'])) && (isset($_GET['to'])) )
         // Build the raid array. Contains total raids, total earned
         $sql = "SELECT count(raid_id) AS total_raids, sum(raid_value) AS total_earned
                 FROM __raids
-                WHERE `raid_date` BETWEEN {$date1} AND {$date2}";
+                WHERE (`raid_date` BETWEEN {$from} AND {$to})";
         $raid_total_result = $db->query($sql);
         $raids = $db->fetch_record($raid_total_result);
         $raids['total_earned'] = ( isset($raids['total_earned']) ) ? $raids['total_earned'] : '0.00';
@@ -168,8 +153,8 @@ elseif ( (isset($_GET['from'])) && (isset($_GET['to'])) )
         // Build the drops array. Contains total drops, total spent
         $sql = "SELECT count(item_id) AS total_drops, sum(item_value) AS total_spent
                 FROM __items
-                WHERE `item_date` BETWEEN {$date1} AND {$date2}
-                AND `item_value` != 0.00";
+                WHERE (`item_date` BETWEEN {$from} AND {$to})
+                AND (item_value != 0.00)";
         $drop_total_result = $db->query($sql);
         $drops = $db->fetch_record($drop_total_result);
         $drops['total_spent'] = ( isset($drops['total_spent']) ) ? $drops['total_spent'] : '0.00';
@@ -179,24 +164,25 @@ elseif ( (isset($_GET['from'])) && (isset($_GET['to'])) )
         // Classes array - if an element is false, that class has gotten no
         // loot and won't show up from the SQL query
         // Otherwise it contains an array with the SQL data
-	    // New for 1.3 - grab class info from database
-
+        // New for 1.3 - grab class info from database
+        
+        // TODO: It's from 1.3, so it needs to be fixed (of course!)
        $eq_classes = array();
 
         // Find the total members existing before this date to get overall class percentage
         $sql = "SELECT count(member_id)
                 FROM __members
-                WHERE `member_firstraid` BETWEEN {$date1} AND {$date2}
-                AND `member_class_id` > 0";
+                WHERE (`member_firstraid` BETWEEN {$from} AND {$to})
+                AND (member_class_id > 0)";
         $total_members = $db->query_first($sql);
         
         // Find out how many members of each class exist
         $class_counts = array();
         $sql = "SELECT c.class_name AS member_class, count(m.member_id) AS class_count
                 FROM __members AS m, __classes AS c
-                WHERE (m.`member_firstraid` BETWEEN {$date1} AND {$date2})
-                AND (c.`class_id` = m.`member_class_id`)
-                GROUP BY `member_class`";
+                WHERE (m.member_firstraid BETWEEN {$from} AND {$to})
+                AND (c.class_id = m.member_class_id)
+                GROUP BY member_class";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
@@ -208,12 +194,12 @@ elseif ( (isset($_GET['from'])) && (isset($_GET['to'])) )
         // Will not find items that are unpriced, will not find members that don't have a class defined
         $sql = "SELECT c.class_name AS member_class, count(i.item_id) AS class_drops
                 FROM __items AS i, __members AS m, __classes AS c
-                WHERE (m.`member_name` = i.`item_buyer`)
-                AND (i.`item_value` != 0.00)
-                AND (m.`member_class_id` > 0)
-		        AND (c.`class_id` = m.`member_class_id`)
-                AND (i.`item_date` BETWEEN {$date1} AND {$date2})
-                GROUP BY m.`member_class_id`";
+                WHERE (m.member_name = i.item_buyer)
+                AND (i.item_value != 0.00)
+                AND (m.member_class_id > 0)
+                AND (c.class_id = m.member_class_id)
+                AND (i.`item_date` BETWEEN {$from} AND {$to})
+                GROUP BY m.member_class_id";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
@@ -224,11 +210,12 @@ elseif ( (isset($_GET['from'])) && (isset($_GET['to'])) )
             $class_members = ( isset($class_counts[$class]) ) ? $class_counts[$class] : 0;
             
                 $eq_classes[$class] = array(
-                    'drops' => $class_drops,
-                    'drop_pct' => $class_drop_pct,
+                    'drops'       => $class_drops,
+                    'drop_pct'    => $class_drop_pct,
                     'class_count' => $class_members,
-                    'class_pct' => ( $total_members > 0 ) ? round(($class_members / $total_members) * 100) : 0,
-                    'factor' => 0);
+                    'class_pct'   => ( $total_members > 0 ) ? round(($class_members / $total_members) * 100) : 0,
+                    'factor'      => 0
+                );
         }
         $db->free_result($result);
         
@@ -241,46 +228,46 @@ elseif ( (isset($_GET['from'])) && (isset($_GET['to'])) )
                 // We still need to find out how many of the class existed
                 $sql = "SELECT count(member_id) 
                         FROM __members
-                        WHERE `member_class` = '{$k}'
-                        AND `member_firstraid` BETWEEN {$date1} AND {$date2}";
+                        WHERE (`member_class` = '{$k}')
+                        AND (`member_firstraid` BETWEEN {$from} AND {$to})";
                 $class_members = $db->query_first($sql);
                 $class_factor = 0;
                 
                 $v = array(
-                    'drops' => 0,
-                    'drop_pct' => 0,
+                    'drops'       => 0,
+                    'drop_pct'    => 0,
                     'class_count' => $class_members,
-                    'class_pct' => ( $total_members > 0 ) ? round(($class_members / $total_members) * 100) : 0,
-                    'factor' => $class_factor);
+                    'class_pct'   => ( $total_members > 0 ) ? round(($class_members / $total_members) * 100) : 0,
+                    'factor'      => $class_factor
+                );
             }
             
             $loot_factor = ( $v['class_pct'] > 0 ) ? round((($v['drop_pct'] / $v['class_pct']) - 1) * 100) : '0';
             
             $tpl->assign_block_vars('class_row', array(
-                'ROW_CLASS' => $eqdkp->switch_row_class(),
+                'ROW_CLASS'      => $eqdkp->switch_row_class(),
                 'U_LIST_MEMBERS' => 'listmembers.php' . $SID . '&amp;filter=' . $k,
-                'CLASS' => $k,
-                'LOOT_COUNT' => $v['drops'],
-                'LOOT_PCT' => sprintf("%d%%", $v['drop_pct']),
-                'CLASS_COUNT' => $v['class_count'],
-                'CLASS_PCT' => sprintf("%d%%", $v['class_pct']),
-                'LOOT_FACTOR' => sprintf("%d%%", $loot_factor),
-                'C_LOOT_FACTOR' => color_item($loot_factor))
-            );
+                'CLASS'          => $k,
+                'LOOT_COUNT'     => $v['drops'],
+                'LOOT_PCT'       => sprintf("%d%%", $v['drop_pct']),
+                'CLASS_COUNT'    => $v['class_count'],
+                'CLASS_PCT'      => sprintf("%d%%", $v['class_pct']),
+                'LOOT_FACTOR'    => sprintf("%d%%", $loot_factor),
+                'C_LOOT_FACTOR'  => color_item($loot_factor)
+            ));
         }
 
         $tpl->assign_vars(array(
-            'L_SUMMARY_DATES' => sprintf($user->lang['summary_dates'], date('n/j/y', $date1_display), date('n/j/y', $date2_display)),
-            'TOTAL_RAIDS' => $raids['total_raids'],
-            'TOTAL_ITEMS' => $drops['total_drops'],
-            'TOTAL_EARNED' => $raids['total_earned'],
-            'TOTAL_SPENT' => $drops['total_spent'],
-            
-            'L_CLASS_SUMMARY' => sprintf($user->lang['class_summary'], date('n/j/y', $date1_display), date('n/j/y', $date2_display)),
-            'L_LOOTS' => $user->lang['loots'],
-            'L_MEMBERS' => $user->lang['members'],
-            'L_LOOT_FACTOR' => $user->lang['loot_factor'])
-        );
+            'L_SUMMARY_DATES' => sprintf($user->lang['summary_dates'], date('n/j/Y', $from), date('n/j/Y', $to - 86400)),
+            'TOTAL_RAIDS'     => $raids['total_raids'],
+            'TOTAL_ITEMS'     => $drops['total_drops'],
+            'TOTAL_EARNED'    => $raids['total_earned'],
+            'TOTAL_SPENT'     => $drops['total_spent'],
+            'L_CLASS_SUMMARY' => sprintf($user->lang['class_summary'], date('n/j/Y', $from), date('n/j/Y', $to - 86400)),
+            'L_LOOTS'         => $user->lang['loots'],
+            'L_MEMBERS'       => $user->lang['members'],
+            'L_LOOT_FACTOR'   => $user->lang['loot_factor']
+        ));
     }
     else
     {
@@ -295,29 +282,29 @@ else
 $tpl->assign_vars(array(
     'S_STEP1' => $s_step1,
 
-    'L_ENTER_DATES' => $user->lang['enter_dates'],
-    'L_STARTING_DATE' => $user->lang['starting_date'],
-    'L_ENDING_DATE' => $user->lang['ending_date'],
+    'L_ENTER_DATES'         => $user->lang['enter_dates'],
+    'L_STARTING_DATE'       => $user->lang['starting_date'],
+    'L_ENDING_DATE'         => $user->lang['ending_date'],
     'L_CREATE_NEWS_SUMMARY' => $user->lang['create_news_summary'],
-    'L_TOTAL_RAIDS' => $user->lang['total_raids'],
-    'L_TOTAL_ITEMS' => $user->lang['total_items'],
-    'L_TOTAL_EARNED' => $user->lang['total_earned'],
-    'L_TOTAL_SPENT' => $user->lang['total_spent'],
-    'L_DATE' => $user->lang['date'],
-    'L_EVENT' => $user->lang['event'],
-    'L_NOTE' => $user->lang['note'],
-    'L_ATTENDEES' => $user->lang['attendees'],
-    'L_ITEMS' => $user->lang['items'],
-    'L_VALUE' => $user->lang['value'],
+    'L_TOTAL_RAIDS'         => $user->lang['total_raids'],
+    'L_TOTAL_ITEMS'         => $user->lang['total_items'],
+    'L_TOTAL_EARNED'        => $user->lang['total_earned'],
+    'L_TOTAL_SPENT'         => $user->lang['total_spent'],
+    'L_DATE'                => $user->lang['date'],
+    'L_EVENT'               => $user->lang['event'],
+    'L_NOTE'                => $user->lang['note'],
+    'L_ATTENDEES'           => $user->lang['attendees'],
+    'L_ITEMS'               => $user->lang['items'],
+    'L_VALUE'               => $user->lang['value'],
     
     'MO2' => date('m'),
-    'D2' => date('d'),
-    'Y2' => date('y'))
-);
+    'D2'  => date('d'),
+    'Y2'  => date('Y')
+));
 
 $eqdkp->set_vars(array(
     'page_title'    => sprintf($user->lang['title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['summary_title'],
     'template_file' => 'summary.html',
-    'display'       => true)
-);
+    'display'       => true
+));
 ?>

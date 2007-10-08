@@ -17,11 +17,11 @@ include_once($eqdkp_root_path . 'common.php');
 
 $user->check_auth('u_raid_view');
 
-if ( $in->int(URI_RAID) )
+if ( $in->get(URI_RAID, 0) )
 {
     $sql = "SELECT raid_id, raid_name, raid_date, raid_note, raid_value, raid_added_by, raid_updated_by
             FROM __raids
-            WHERE (`raid_id` = '" . $in->int(URI_RAID) . "')";
+            WHERE (`raid_id` = '" . $in->get(URI_RAID, 0) . "')";
     if ( !($raid_result = $db->query($sql)) )
     {
         message_die('Could not obtain raid information', '', __FILE__, __LINE__, $sql);
@@ -137,7 +137,7 @@ if ( $in->int(URI_RAID) )
             'ROW_CLASS' => $eqdkp->switch_row_class(),
             'CLASS'     => $class,
             'BAR'       => create_bar($percentage, $class_count . ' (' . $percentage . '%)'),
-            'ATTENDEES' => implode(', ', $members) // FIXME: Extra trailing comma. God.
+            'ATTENDEES' => implode(', ', $members)
         ));
     }
     unset($classes);

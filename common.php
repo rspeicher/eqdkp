@@ -138,7 +138,7 @@ $user  = new User;
 $in    = new Input();
 
 // Style can come from $_GET['style']
-$style = $in->int('style');
+$style = $in->get('style', 1);
 
 // Start up the user/session management
 $user->start();

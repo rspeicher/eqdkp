@@ -17,7 +17,7 @@ include_once($eqdkp_root_path . 'common.php');
 
 $user->check_auth('u_member_view');
 
-if ( $in->string(URI_NAME) != '' )
+if ( $in->get(URI_NAME) != '' )
 {
     $sort_order = array(
         0 => array('raid_name', 'raid_name desc'),
@@ -30,7 +30,7 @@ if ( $in->string(URI_NAME) != '' )
                 (member_earned-member_spent+member_adjustment) AS member_current,
                 member_firstraid, member_lastraid
             FROM __members
-            WHERE (`member_name` = '" . $in->string(URI_NAME, true) . "')";
+            WHERE (`member_name` = '" . $db->escape($in->get(URI_NAME)) . "')";
 
     if ( !($member_result = $db->query($sql)) )
     {
@@ -54,7 +54,7 @@ if ( $in->string(URI_NAME) != '' )
     //
     // Raid Attendance
     //
-    $rstart = $in->int('rstart');
+    $rstart = $in->get('rstart', 0);
 
     // Find $current_earned based on the page.  This prevents us having to pass the
     // current earned as a GET variable which could result in user error
@@ -115,7 +115,7 @@ if ( $in->string(URI_NAME) != '' )
     //
     // Item Purchase History
     //
-    $istart = $in->int('istart');
+    $istart = $in->get('istart', 0);
 
     if ( $istart == 0 )
     {

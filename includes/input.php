@@ -12,10 +12,6 @@ class Input
      */
     var $_cache = array();
     
-    function input()
-    {
-    }
-    
     function _get($key, $default = null)
     {
         $retval = $default;
@@ -37,7 +33,36 @@ class Input
     // Accessor methods
     // ----------------------------------------------------
     
-    function float($key)
+    /**
+     * A shortcut method to request an input variable. Calls the appropriate
+     * type-specifc method based on the variable type of $default
+     * 
+     * Note that our most-used, and default type, is a string.
+     */
+    function get($key, $default = '')
+    {
+        $type = gettype($default);
+        
+        if ( method_exists($this, $type) )
+        {
+            return $this->$type($key, $default);
+        }
+        else
+        {
+            trigger_error("Input accessor method for variables of type <b>{$type}</b> doesn't exist.", E_USER_NOTICE);
+            return $this->_get($key, $default);
+        }
+    }
+    
+    /**
+     * Alias to float, see http://us2.php.net/manual/en/function.gettype.php
+     */
+    function double($key, $default = 0.00)
+    {
+        return $this->float($key, $default);
+    }
+    
+    function float($key, $default = 0.00)
     {
         if ( isset($this->_cache[$key]) )
         {
@@ -45,13 +70,13 @@ class Input
         }
         else
         {
-            $retval = floatval($this->_get($key));
+            $retval = floatval($this->_get($key, $default));
         }
         
         return $retval;
     }
     
-    function int($key)
+    function int($key, $default = 0)
     {
         if ( isset($this->_cache[$key]) )
         {
@@ -59,13 +84,21 @@ class Input
         }
         else
         {
-            $retval = intval($this->_get($key));
+            $retval = intval($this->_get($key, $default));
         }
         
         return $retval;
     }
     
-    function md5($key)
+    /**
+     * Alias to int
+     */
+    function integer($key, $default = 0)
+    {
+        return $this->int($key, $default);
+    }
+    
+    function hash($key, $default = '')
     {
         if ( isset($this->_cache[$key]) )
         {
@@ -73,13 +106,13 @@ class Input
         }
         else
         {
-            $retval = substr(preg_replace('/[^0-9A-Za-z]/', '', $this->_get($key)), 0, 32);
+            $retval = substr(preg_replace('/[^0-9A-Za-z]/', '', $this->_get($key, $default)), 0, 40);
         }
         
         return $retval;
     }
     
-    function string($key, $escape = false)
+    function string($key, $default = '')
     {
         if ( isset($this->_cache[$key]) )
         {
@@ -87,14 +120,14 @@ class Input
         }
         else
         {
-            $retval = strval($this->_get($key, ''));
+            $retval = strval($this->_get($key, $default));
             $retval = urldecode($retval);
             $retval = preg_replace('/\s+/', ' ', $retval);
+            $retval = ( get_magic_quotes_gpc() ) ? stripslashes($retval) : $retval;
             
             $this->_cache[$key] = $retval;
         }
         
-        // $escape might change from call to call depending on our context, so don't cache that value
-        return ( $escape ) ? SQL_DB::escape($retval) : $retval;
+        return $retval;
     }
 }

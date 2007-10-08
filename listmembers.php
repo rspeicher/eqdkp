@@ -36,7 +36,7 @@ $current_order = switch_order($sort_order);
 // Compare members
 //
 // FIXME: if-else causes two different pages to be rendered. Split into separate files.
-if ( $in->string('submit') == $user->lang['compare_members'] && isset($_POST['compare_ids']) )
+if ( $in->get('submit') == $user->lang['compare_members'] && isset($_POST['compare_ids']) )
 {
     redirect('listmembers.php?compare=' . implode(',', $_POST['compare_ids']));
 }
@@ -44,7 +44,7 @@ elseif ( isset($_GET['compare']) )
 {
     $s_compare = true;
     $uri_addon = '';
-    
+
     $compare = validateCompareInput($_GET['compare']);
     
     // Find 30 days ago, then find how many raids occurred in those 30 days
@@ -142,12 +142,12 @@ else
     $sort_index = explode('.', $current_order['uri']['current']);
     $previous_source = preg_replace('/( (asc|desc))?/i', '', $sort_order[$sort_index[0]][$sort_index[1]]);
     
-    $show_all = ( $in->string('show') == 'all' ) ? true : false;
+    $show_all = ( $in->get('show') == 'all' ) ? true : false;
     
     // ---------------------------
     // Build filter drop-down
     // ---------------------------
-    $filter = $in->string('filter');
+    $filter = $in->get('filter');
     require_once($eqdkp_root_path . 'games/game_manager.php');
     $gm = new Game_Manager();
     
@@ -189,8 +189,8 @@ else
     $filter_by = '';
     if ( preg_match('/^armor_.+/', $filter) )
     {
-        $input = $in->string('filter', true);
-        $filter_by = " AND `class_armor_type` = '" . str_replace('armor_', '', $input) . "'";
+        $input = $db->escape(str_replace('armor_', '', $in->get('filter')));
+        $filter_by = " AND `class_armor_type` = '{$input}'";
     }
     elseif ( empty($filter) )
     {
@@ -198,7 +198,7 @@ else
     }
     else
     {
-        $input = $in->string('filter', true);
+        $input = $db->escape($in->get('filter'));
         $filter_by = " AND `class_name` = '{$input}'";
     }
 
@@ -212,7 +212,7 @@ else
             {$filter_by}";
     if ( !empty($_GET['rank']) and validateRank($_GET['rank']) )
     {
-        $sql .= " AND (r.`rank_name` = '" . $in->string('rank', true) . "')";
+        $sql .= " AND (r.`rank_name` = '" . $db->escape($in->get('rank')) . "')";
     }
     $sql .= " ORDER BY {$current_order['sql']}";
     

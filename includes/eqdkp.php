@@ -88,7 +88,7 @@ class EQdkp
     
     function config_set($config_name, $config_value='')
     {
-        global $db;
+        global $db, $in;
 
         if ( is_object($db) )
         {
@@ -101,9 +101,8 @@ class EQdkp
             }
             else
             {
-                $sql = "UPDATE __config
-                        SET `config_value` = '" . strip_tags(htmlspecialchars($config_value)) . "'
-                        WHERE `config_name` = '{$config_name}'";
+                $sql = "REPLACE INTO __config (config_name, config_value)
+                        VALUES ('{$config_name}','" . $in->sanitize($config_value) . "')";
                 $db->query($sql);
                 
                 return true;
@@ -792,12 +791,12 @@ class EQdkp_Admin
         
     function make_log_action($action = array())
     {
-        global $db;
+        global $db, $in;
         
         $str_action = "\$log_action = array(";
         foreach ( $action as $k => $v )
         {
-            $str_action .= "'" . $k . "' => '" . $db->escape($v) . "',";
+            $str_action .= "'" . $k . "' => '" . $db->escape($in->sanitize($v)) . "',";
         }
         $action = substr($str_action, 0, strlen($str_action)- 1) . ");";
         

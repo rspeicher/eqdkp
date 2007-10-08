@@ -19,9 +19,12 @@ if ( !defined('EQDKP_INC') )
 /**
  * Translate qoute characters to their HTML entities, and strip HTML tags.
  */
-function sanitize($input)
+function sanitize($input, $ent = true, $tags = true)
 {
-    return htmlspecialchars(strip_tags($input), ENT_QUOTES);
+    $input = ( $tags ) ? strip_tags($input) : $input;
+    $input = ( $ent )  ? htmlspecialchars($input, ENT_QUOTES) : $input;
+    
+    return $input;
 }
 
 function unsanitize($input)

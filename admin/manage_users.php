@@ -445,7 +445,7 @@ class Manage_Users extends EQdkp_Admin
     // ---------------------------------------------------------
     function display_list()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $SID;
 
         $sort_order = array(

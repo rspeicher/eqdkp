@@ -22,7 +22,7 @@ class Register extends EQdkp_Admin
     
     function register()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $SID;
         
         //
@@ -80,22 +80,20 @@ class Register extends EQdkp_Admin
     
     function error_check()
     {
-        global $db, $user;
+        global $db, $user, $in;
         
-        if ( isset($_POST['submit']) )
+        if ( $in->get('submit', false) )
         {
-            // FIXME: Injection
             $sql = "SELECT user_id
                     FROM __users
-                    WHERE `username` = '{$_POST['username']}'";
+                    WHERE (`username` = '" . $db->escape($in->get('username')) . "')";
             if ( $db->num_rows($db->query($sql)) > 0 )
             {
                 $this->fv->errors['username'] = $user->lang['fv_already_registered_username'];
             }
-            // FIXME: SQL Injection
             $sql = "SELECT user_id
                     FROM __users
-                    WHERE `user_email` = '{$_POST['user_email']}'";
+                    WHERE (`user_email` = '" . $db->escape($in->get('user_email')) . "')";
             if ( $db->num_rows($db->query($sql)) > 0 )
             {
                 $this->fv->errors['user_email'] = $user->lang['fv_already_registered_email'];
@@ -129,7 +127,7 @@ class Register extends EQdkp_Admin
     // ---------------------------------------------------------
     function process_submit()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $SID;
         
         // If the config requires account activation, generate a random key for validation
@@ -154,18 +152,17 @@ class Register extends EQdkp_Admin
         }
         
         // Insert them into the users table
-        // FIXME: Injection
         $query = $db->build_query('INSERT', array(
-            'username'       => $_POST['username'],
-            'user_password'  => md5($_POST['user_password1']),
-            'user_email'     => $_POST['user_email'],
-            'user_alimit'    => $_POST['user_alimit'],
-            'user_elimit'    => $_POST['user_elimit'],
-            'user_ilimit'    => $_POST['user_ilimit'],
-            'user_nlimit'    => $_POST['user_nlimit'],
-            'user_rlimit'    => $_POST['user_rlimit'],
-            'user_style'     => $_POST['user_style'],
-            'user_lang'      => $_POST['user_lang'],
+            'username'       => sanitize($in->get('username')),
+            'user_password'  => md5($in->get('user_password1')),
+            'user_email'     => sanitize($in->get('user_email')),
+            'user_alimit'    => $in->get('user_alimit', 0),
+            'user_elimit'    => $in->get('user_elimit', 0),
+            'user_ilimit'    => $in->get('user_ilimit', 0),
+            'user_nlimit'    => $in->get('user_nlimit', 0),
+            'user_rlimit'    => $in->get('user_rlimit', 0),
+            'user_style'     => $in->get('user_style', 0),
+            'user_lang'      => sanitize($in->get('user_lang')),
             'user_key'       => $user_key,
             'user_active'    => $user_active,
             'user_lastvisit' => $this->time)
@@ -190,20 +187,19 @@ class Register extends EQdkp_Admin
             $db->query($au_sql);
         }
         
-        // FIXME: Direct use of $_POST variable
         if ($eqdkp->config['account_activation'] == USER_ACTIVATION_SELF)
         {
-            $success_message = sprintf($user->lang['register_activation_self'], stripslashes($_POST['user_email']));
+            $success_message = sprintf($user->lang['register_activation_self'], $in->get('user_email'));
             $email_template = 'register_activation_self';
         }
         elseif ($eqdkp->config['account_activation'] == USER_ACTIVATION_ADMIN)
         {
-            $success_message = sprintf($user->lang['register_activation_admin'], stripslashes($_POST['user_email']));
+            $success_message = sprintf($user->lang['register_activation_admin'], $in->get('user_email'));
             $email_template = 'register_activation_admin';
         }
         else
         {
-            $success_message = sprintf($user->lang['register_activation_none'], '<a href="login.php'.$SID.'">', '</a>', stripslashes($_POST['user_email']));
+            $success_message = sprintf($user->lang['register_activation_none'], '<a href="login.php'.$SID.'">', '</a>', $in->get('user_email'));
             $email_template = 'register_activation_none';
         }
         
@@ -215,17 +211,16 @@ class Register extends EQdkp_Admin
         
         $headers = "From: " . $eqdkp->config['admin_email'] . "\nReturn-Path: " . $eqdkp->config['admin_email'] . "\r\n";
         
-        // FIXME: Direct use of $_POST variable
-        $email->set_template($email_template, stripslashes($_POST['user_lang']));
-        $email->address(stripslashes($_POST['user_email']));
+        $email->set_template($email_template, $in->get('user_lang'));
+        $email->address($in->get('user_email'));
         $email->subject(); // Grabbed from the template itself
         $email->extra_headers($headers);
         
         $email->assign_vars(array(
             'GUILDTAG'   => $eqdkp->config['guildtag'],
             'DKP_NAME'   => $eqdkp->config['dkp_name'],
-            'USERNAME'   => stripslashes($_POST['username']),
-            'PASSWORD'   => stripslashes($_POST['user_password1']),
+            'USERNAME'   => $in->get('username'),
+            'PASSWORD'   => $in->get('user_password1'),
             'U_ACTIVATE' => $this->server_url . '?mode=activate&key=' . $user_key)
         );
         $email->send();
@@ -242,7 +237,7 @@ class Register extends EQdkp_Admin
             $email->assign_vars(array(
                 'GUILDTAG'   => $eqdkp->config['guildtag'],
                 'DKP_NAME'   => $eqdkp->config['dkp_name'],
-                'USERNAME'   => stripslashes($_POST['username']),
+                'USERNAME'   => $in->get('username'),
                 'U_ACTIVATE' => $this->server_url . '?mode=activate&key=' . $user_key)
             );
             $email->send();
@@ -257,20 +252,19 @@ class Register extends EQdkp_Admin
     // ---------------------------------------------------------
     function process_lostpassword()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $SID;
 
-        // FIXME: Direct use of $_POST variable + Potential SQL Injection.
-        $username   = ( !empty($_POST['username']) )   ? trim(strip_tags($_POST['username'])) : '';
-        $user_email = ( !empty($_POST['user_email']) ) ? trim(strip_tags($_POST['user_email'])) : '';
+        $username   = $in->get('username', '');
+        $user_email = $in->get('user_email', '');
         
         //
         // Look up record based on the username and e-mail
         //
         $sql = "SELECT user_id, username, user_email, user_active, user_lang
                 FROM __users
-                WHERE `user_email` = '{$user_email}'
-                AND `username` = '{$username}'";
+                WHERE (`user_email` = '" . $db->escape($user_email) . "')
+                AND (`username` = '" . $db->escape($username) . "')";
         if ( $result = $db->query($sql) )
         {
             if ( $row = $db->fetch_record($result) )
@@ -343,7 +337,7 @@ class Register extends EQdkp_Admin
     // ---------------------------------------------------------
     function process_activate()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $SID;
         
         $sql = "SELECT user_id, username, user_active, user_email, user_newpassword, user_lang, user_key
@@ -446,7 +440,7 @@ class Register extends EQdkp_Admin
     // ---------------------------------------------------------
     function display_form()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $SID;
         
         $tpl->assign_vars(array(

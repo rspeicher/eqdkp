@@ -459,7 +459,7 @@ class Manage_Users extends EQdkp_Admin
         $current_order = switch_order($sort_order);
 
         $total_users = $db->query_first("SELECT count(*) FROM __users");
-        $start = ( isset($_GET['start']) ) ? $_GET['start'] : 0;
+        $start = $in->get('start', 0);
 
         $sql = "SELECT u.user_id, u.username, u.user_email, u.user_lastvisit, u.user_active, s.session_id
                 FROM __users AS u LEFT JOIN __sessions AS s ON u.`user_id` = s.`session_user_id`

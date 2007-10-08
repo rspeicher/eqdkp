@@ -27,7 +27,7 @@ $sort_order = array(
 $current_order = switch_order($sort_order);
 
 $total_news = $db->query_first("SELECT count(*) FROM __news");
-$start = ( isset($_GET['start']) ) ? $_GET['start'] : 0;
+$start = $in->get('start', 0);
 
 $sql = "SELECT n.news_id, n.news_date, n.news_headline, n.news_message, u.username
         FROM __news AS n, __users AS u

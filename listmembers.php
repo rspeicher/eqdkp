@@ -337,39 +337,29 @@ function member_display(&$row, $show_all = false, $filter = null)
     
     $member_display = null;
     
-    // We're filtering based on class
-    if ( !empty($filter) )
+    // Are we showing all?
+    if ( $show_all )
     {
-        // $filter changes the SQL query, hence anything calling this function
-        // has already been filtered for us.
         $member_display = true;
     }
     else
     {
-        // Are we showing all?
-        if ( $show_all )
+        // Are we hiding inactive members?
+        if ( $eqdkp->config['hide_inactive'] == '0' )
         {
-            $member_display = true;
+            //Are we hiding their rank?
+            $member_display = ( $row['rank_hide'] == '0' ) ? true : false;
         }
         else
         {
-            // Are we hiding inactive members?
-            if ( $eqdkp->config['hide_inactive'] == '0' )
+            // Are they active?
+            if ( $row['member_status'] == '0' )
             {
-                //Are we hiding their rank?
-                $member_display = ( $row['rank_hide'] == '0' ) ? true : false;
+                $member_display = false;
             }
             else
             {
-                // Are they active?
-                if ( $row['member_status'] == '0' )
-                {
-                    $member_display = false;
-                }
-                else
-                {
-                    $member_display = ( $row['rank_hide'] == '0' ) ? true : false;
-                }
+                $member_display = ( $row['rank_hide'] == '0' ) ? true : false;
             }
         }
     }

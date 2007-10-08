@@ -36,13 +36,12 @@ $sort_order = array(
 $current_order = switch_order($sort_order);
 
 $total_raids = $db->query_first("SELECT count(*) FROM __raids");
-// FIXME: Direct use of $_GET variable
-$show_all = ( (!empty($_GET['show'])) && ($_GET['show'] == "all") ) ? true : false;
+$show_all = ( $in->get('show') == 'all' ) ? true : false;
 
 // No idea if this massive query will work outside MySQL...if not, we'll have
 // to use a switch and get the values another way
 $time = time();
-// FIXME: Massive query. Consider revising. (Also, member_current bug still exists perhaps?)
+// TODO: Revise massive query?
 $sql = "SELECT member_name, member_earned, member_spent, member_adjustment,
             (member_earned-member_spent+member_adjustment) AS member_current,
             member_firstraid, member_lastraid, member_raidcount,
@@ -54,7 +53,7 @@ $sql = "SELECT member_name, member_earned, member_spent, member_adjustment,
             member_earned/member_raidcount AS earned_per_raid,
             member_spent/member_raidcount AS spent_per_raid,
             r.rank_prefix, r.rank_suffix
-        FROM __members AS m LEFT JOIN __member_ranks AS r ON m.`member_rank_id` = r.`rank_id`";
+        FROM __members AS m LEFT JOIN __member_ranks AS r ON m.member_rank_id = r.rank_id";
 
 if ( ($eqdkp->config['hide_inactive'] == 1) && (!$show_all) )
 {
@@ -85,24 +84,24 @@ while ( $row = $db->fetch_record($members_result) )
     $attended_percent = ( $total_raids > 0 ) ? round(($row['member_raidcount'] / $total_raids) * 100) : 0;
 
     $tpl->assign_block_vars('stats_row', array(
-        'ROW_CLASS' => $eqdkp->switch_row_class(),
-        'U_VIEW_MEMBER' => 'viewmember.php'.$SID.'&amp;' . URI_NAME . '='.$row['member_name'],
-        'NAME' => $row['rank_prefix'] . $row['member_name'] . $row['rank_suffix'],
-        'FIRST_RAID' => ( !empty($row['member_firstraid']) ) ? date($user->style['date_notime_short'], $row['member_firstraid']) : '&nbsp;',
-        'LAST_RAID' => ( !empty($row['member_lastraid']) ) ? date($user->style['date_notime_short'], $row['member_lastraid']) : '&nbsp;',
-        'ATTENDED_COUNT' => $row['member_raidcount'],
+        'ROW_CLASS'          => $eqdkp->switch_row_class(),
+        'U_VIEW_MEMBER'      => 'viewmember.php'.$SID.'&amp;' . URI_NAME . '='.$row['member_name'],
+        'NAME'               => $row['rank_prefix'] . $row['member_name'] . $row['rank_suffix'],
+        'FIRST_RAID'         => ( !empty($row['member_firstraid']) ) ? date($user->style['date_notime_short'], $row['member_firstraid']) : '&nbsp;',
+        'LAST_RAID'          => ( !empty($row['member_lastraid']) ) ? date($user->style['date_notime_short'], $row['member_lastraid']) : '&nbsp;',
+        'ATTENDED_COUNT'     => $row['member_raidcount'],
         'C_ATTENDED_PERCENT' => color_item($attended_percent, true),
-        'ATTENDED_PERCENT' => $attended_percent,
-        'EARNED_TOTAL' => $row['member_earned'],
-        'EARNED_PER_DAY' => sprintf("%.2f", $row['earned_per_day']),
-        'EARNED_PER_RAID' => sprintf("%.2f", $row['earned_per_raid']),
-        'SPENT_TOTAL' => $row['member_spent'],
-        'SPENT_PER_DAY' => sprintf("%.2f", $row['spent_per_day']),
-        'SPENT_PER_RAID' => sprintf("%.2f", $row['spent_per_raid']),
+        'ATTENDED_PERCENT'   => $attended_percent,
+        'EARNED_TOTAL'       => $row['member_earned'],
+        'EARNED_PER_DAY'     => sprintf("%.2f", $row['earned_per_day']),
+        'EARNED_PER_RAID'    => sprintf("%.2f", $row['earned_per_raid']),
+        'SPENT_TOTAL'        => $row['member_spent'],
+        'SPENT_PER_DAY'      => sprintf("%.2f", $row['spent_per_day']),
+        'SPENT_PER_RAID'     => sprintf("%.2f", $row['spent_per_raid']),
         'LOST_TO_ADJUSTMENT' => sprintf("%.2f", $row['lost_to_adjustment']),
-        'LOST_TO_SPENT' => sprintf("%.2f", $row['lost_to_spent']),
-        'C_CURRENT' => color_item($row['member_current']),
-        'CURRENT' => number_format($row['member_current'], 2),
+        'LOST_TO_SPENT'      => sprintf("%.2f", $row['lost_to_spent']),
+        'C_CURRENT'          => color_item($row['member_current']),
+        'CURRENT'            => number_format($row['member_current'], 2),
     ));
 }
 
@@ -253,74 +252,71 @@ while ( $row = $db->fetch_record($result) )
     if ( !is_array($eq_classes[$class]) )
     {
         $v = array(
-            'drops' => 0,
-            'drop_pct' => 0,
+            'drops'       => 0,
+            'drop_pct'    => 0,
             'class_count' => $class_count,
-            'class_pct' => ( $total_members > 0 ) ? round(($class_count / $total_members) * 100) : 0,
-            'factor' => 0
+            'class_pct'   => ( $total_members > 0 ) ? round(($class_count / $total_members) * 100) : 0,
+            'factor'      => 0
         );
     }
     else
     {
         $v = $eq_classes[$class];
     }
-    // FIXME: Direct use of $_GET variable
-    $row_class = ( (!empty($_GET['class'])) && ($_GET['class'] == $k) ) ? 'rowhead' : $eqdkp->switch_row_class();
+    $row_class = ( $in->get('class') == $class ) ? 'rowhead' : $eqdkp->switch_row_class();
 
     $loot_factor = ( $v['class_pct'] > 0 ) ? round((($v['drop_pct'] / $v['class_pct']) - 1) * 100) : '0';
 
     $tpl->assign_block_vars('class_row', array(
-        'ROW_CLASS' => $row_class,
-        'LINK_CLASS' => ( $row_class == 'rowhead' ) ? 'header' : '',
+        'ROW_CLASS'      => $row_class,
+        'LINK_CLASS'     => ( $row_class == 'rowhead' ) ? 'header' : '',
         'U_LIST_MEMBERS' => 'listmembers.php' . $SID . '&amp;filter=' . $class,
-        'CLASS' => $class,
-        'LOOT_COUNT' => $v['drops'],
-        'LOOT_PCT' => sprintf("%d%%", $v['drop_pct']),
-        'CLASS_COUNT' => $v['class_count'],
-        'CLASS_PCT' => sprintf("%d%%", $v['class_pct']),
-        'LOOT_FACTOR' => sprintf("%d%%", $loot_factor),
-        'C_LOOT_FACTOR' => color_item($loot_factor))
+        'CLASS'          => $class,
+        'LOOT_COUNT'     => $v['drops'],
+        'LOOT_PCT'       => sprintf("%d%%", $v['drop_pct']),
+        'CLASS_COUNT'    => $v['class_count'],
+        'CLASS_PCT'      => sprintf("%d%%", $v['class_pct']),
+        'LOOT_FACTOR'    => sprintf("%d%%", $loot_factor),
+        'C_LOOT_FACTOR'  => color_item($loot_factor))
     );
 }
 
 $tpl->assign_vars(array(
-    'L_NAME' => $user->lang['name'],
-    'L_RAIDS' => $user->lang['raids'],
-    'L_EARNED' => $user->lang['earned'],
-    'L_SPENT' => $user->lang['spent'],
+    'L_NAME'               => $user->lang['name'],
+    'L_RAIDS'              => $user->lang['raids'],
+    'L_EARNED'             => $user->lang['earned'],
+    'L_SPENT'              => $user->lang['spent'],
     'L_PCT_EARNED_LOST_TO' => $user->lang['pct_earned_lost_to'],
-    'L_CURRENT' => $user->lang['current'],
-    'L_FIRST' => $user->lang['first'],
-    'L_LAST' => $user->lang['last'],
-    'L_ATTENDED' => $user->lang['attended'],
-    'L_TOTAL' => $user->lang['total'],
-    'L_PER_DAY' => $user->lang['per_day'],
-    'L_PER_RAID' => $user->lang['per_raid'],
-    'L_ADJUSTMENT' => $user->lang['adjustment'],
+    'L_CURRENT'            => $user->lang['current'],
+    'L_FIRST'              => $user->lang['first'],
+    'L_LAST'               => $user->lang['last'],
+    'L_ATTENDED'           => $user->lang['attended'],
+    'L_TOTAL'              => $user->lang['total'],
+    'L_PER_DAY'            => $user->lang['per_day'],
+    'L_PER_RAID'           => $user->lang['per_raid'],
+    'L_ADJUSTMENT'         => $user->lang['adjustment'],
+    'L_CLASS'              => $user->lang['class'],
+    'L_LOOTS'              => $user->lang['loots'],
+    'L_MEMBERS'            => $user->lang['members'],
+    'L_LOOT_FACTOR'        => $user->lang['loot_factor'],
 
-    'L_CLASS' => $user->lang['class'],
-    'L_LOOTS' => $user->lang['loots'],
-    'L_MEMBERS' => $user->lang['members'],
-    'L_LOOT_FACTOR' => $user->lang['loot_factor'],
-
-    'O_NAME' => $current_order['uri'][0],
-    'O_FIRSTRAID' => $current_order['uri'][1],
-    'O_LASTRAID' => $current_order['uri'][2],
-    'O_RAIDCOUNT' => $current_order['uri'][3],
-    'O_EARNED' => $current_order['uri'][4],
-    'O_EARNED_PER_DAY' => $current_order['uri'][5],
-    'O_EARNED_PER_RAID' => $current_order['uri'][6],
-    'O_SPENT' => $current_order['uri'][7],
-    'O_SPENT_PER_DAY' => $current_order['uri'][8],
-    'O_SPENT_PER_RAID' => $current_order['uri'][9],
+    'O_NAME'               => $current_order['uri'][0],
+    'O_FIRSTRAID'          => $current_order['uri'][1],
+    'O_LASTRAID'           => $current_order['uri'][2],
+    'O_RAIDCOUNT'          => $current_order['uri'][3],
+    'O_EARNED'             => $current_order['uri'][4],
+    'O_EARNED_PER_DAY'     => $current_order['uri'][5],
+    'O_EARNED_PER_RAID'    => $current_order['uri'][6],
+    'O_SPENT'              => $current_order['uri'][7],
+    'O_SPENT_PER_DAY'      => $current_order['uri'][8],
+    'O_SPENT_PER_RAID'     => $current_order['uri'][9],
     'O_LOST_TO_ADJUSTMENT' => $current_order['uri'][10],
-    'O_LOST_TO_SPENT' => $current_order['uri'][11],
-    'O_CURRENT' => $current_order['uri'][12],
+    'O_LOST_TO_SPENT'      => $current_order['uri'][11],
+    'O_CURRENT'            => $current_order['uri'][12],
 
-    'U_STATS' => 'stats.php'.$SID.'&amp;',
+    'U_STATS' => "stats.php{$SID}&amp;",
 
-    // FIXME: Direct use of $_GET variable
-    'SHOW' => ( isset($_GET['show']) ) ? htmlspecialchars(strip_tags($_GET['show']), ENT_QUOTES) : '',
+    'SHOW' => ( $show_all ) ? 'all' : '',
 
     'STATS_FOOTCOUNT' => $footcount_text)
 );

@@ -16,6 +16,14 @@ if ( !defined('EQDKP_INC') )
      die('Do not access this file directly.');
 }
 
+/**
+ * Translate qoute characters to their HTML entities, and stirp HTML tags.
+ */
+function sanitize($input)
+{
+    return htmlspecialchars(strip_tags($input), ENT_QUOTES);
+}
+
 // FIXME: Insecure misuse of global variables => SQL Injection.
 /**
 * Checks if a POST field value exists;
@@ -29,6 +37,8 @@ if ( !defined('EQDKP_INC') )
 */
 function post_or_db($post_field, $db_row = array(), $db_field = '')
 {
+    global $in;
+    
     if ( @sizeof($db_row) > 0 )
     {
         if ( $db_field == '' )
@@ -43,7 +53,8 @@ function post_or_db($post_field, $db_row = array(), $db_field = '')
         $db_value = '';
     }
 
-    return ( (isset($_POST[$post_field])) || (!empty($_POST[$post_field])) ) ? $_POST[$post_field] : $db_value;
+    // NOTE: post_or_db doesn't supply a default value to Input::get, and may be less secure than other uses
+    return ( $in->get($post_field, '') != '' ) ? $in->get($post_field) : $db_value;
 }
 
 /**
@@ -440,6 +451,7 @@ function undo_sanitize_tags($data)
 * @param $data
 * @return array
 */
+// TODO: Remove this once we remove the few calls to it.
 function htmlspecialchars_array($data)
 {
     if ( is_array($data) )
@@ -453,6 +465,7 @@ function htmlspecialchars_array($data)
     return $data;
 }
 
+// TODO: Remove this once we remove the few calls to it.
 function htmlspecialchars_remove($data)
 {
     $find    = array('#&amp;#', '#&quot;#', '#&\#039;#', '#&lt;#', '#&gt;#');

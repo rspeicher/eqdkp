@@ -28,7 +28,7 @@ class Input
         
         return $retval;
     }
-    
+
     // ----------------------------------------------------
     // Accessor methods
     // ----------------------------------------------------
@@ -122,7 +122,7 @@ class Input
         {
             $retval = strval($this->_get($key, $default));
             $retval = urldecode($retval);
-            $retval = preg_replace('/\s+/', ' ', $retval);
+            //$retval = preg_replace('/\s+/', ' ', $retval); // FIXME: This breaks addnews re-displaying the form, for example
             $retval = ( get_magic_quotes_gpc() ) ? stripslashes($retval) : $retval;
             
             $this->_cache[$key] = $retval;

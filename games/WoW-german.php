@@ -27,7 +27,7 @@ class Manage_Game extends EQdkp_Admin
             "UPDATE __members SET member_level = 70 WHERE member_level > 70;",
             "ALTER TABLE __members MODIFY member_level tinyint(2) NOT NULL default '60';",
             
-            // FIXME: English has 14 classes and German has 12? Whatever.
+            // NOTE: English has 14 classes and German has 12? Whatever.
             "TRUNCATE TABLE __classes;",
             "INSERT INTO __classes (class_id, class_name, class_armor_type, class_min_level, class_max_level) VALUES (0, 'Unknown', 'Platte',0,60);",
             "INSERT INTO __classes (class_id, class_name, class_armor_type, class_min_level, class_max_level) VALUES (1, 'Krieger', 'Platte',0,60);",
@@ -47,7 +47,7 @@ class Manage_Game extends EQdkp_Admin
             "INSERT INTO __factions (faction_id, faction_name) VALUES (1, 'Allianz');",
             "INSERT INTO __factions (faction_id, faction_name) VALUES (2, 'Horde');",
             
-            // FIXME: Again, there are more races in English than German.
+            // NOTE: Again, there are more races in English than German.
             "TRUNCATE TABLE __races;",
             "INSERT INTO __races (race_id, race_name) VALUES (0, 'Unknown');",
             "INSERT INTO __races (race_id, race_name) VALUES (1, 'Gnom');",

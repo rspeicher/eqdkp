@@ -97,19 +97,18 @@ class Add_News extends EQdkp_Admin
     // ---------------------------------------------------------
     function process_add()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $SID;
 
         //
         // Insert the news
         //
-        // FIXME: Injection
         $query = $db->build_query('INSERT', array(
-            'news_headline' => stripslashes($_POST['news_headline']),
-            'news_message'  => stripslashes($_POST['news_message']),
+            'news_headline' => sanitize($in->get('news_headline')),
+            'news_message'  => sanitize($in->get('news_message')),
             'news_date'     => $this->time,
-            'user_id'       => $user->data['user_id'])
-        );
+            'user_id'       => $user->data['user_id']
+        ));
         $db->query("INSERT INTO __news {$query}");
         $this_news_id = $db->insert_id();
 
@@ -119,8 +118,8 @@ class Add_News extends EQdkp_Admin
         $log_action = array(
             'header'           => '{L_ACTION_NEWS_ADDED}',
             'id'               => $this_news_id,
-            '{L_HEADLINE}'     => $_POST['news_headline'],
-            '{L_MESSAGE_BODY}' => nl2br($_POST['news_message']),
+            '{L_HEADLINE}'     => $in->get('news_headline'),
+            '{L_MESSAGE_BODY}' => nl2br($in->get('news_message')),
             '{L_ADDED_BY}'     => $this->admin_user);
         $this->log_insert(array(
             'log_type'   => $log_action['header'],
@@ -142,7 +141,7 @@ class Add_News extends EQdkp_Admin
     // ---------------------------------------------------------
     function process_update()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $SID;
 
         //
@@ -153,23 +152,22 @@ class Add_News extends EQdkp_Admin
         //
         // Update the news table
         //
-        // FIXME: Injection
-        if ( isset($_POST['update_date']) )
+        if ( $in->get('update_date', 0) == 1 )
         {
             $query = $db->build_query('UPDATE', array(
-                'news_headline' => stripslashes($_POST['news_headline']),
-                'news_message'  => stripslashes($_POST['news_message']),
-                'news_date'     => $this->time)
-            );
+                'news_headline' => sanitize($in->get('news_headline')),
+                'news_message'  => sanitize($in->get('news_message')),
+                'news_date'     => $this->time
+            ));
         }
         else
         {
             $query = $db->build_query('UPDATE', array(
-                'news_headline' => stripslashes($_POST['news_headline']),
-                'news_message'  => stripslashes($_POST['news_message']))
-            );
+                'news_headline' => sanitize($in->get('news_headline')),
+                'news_message'  => sanitize($in->get('news_message'))
+            ));
         }
-        $db->query("UPDATE __news SET {$query} WHERE `news_id` = '{$this->url_id}'");
+        $db->query("UPDATE __news SET {$query} WHERE (`news_id` = '{$this->url_id}')");
 
         //
         // Logging
@@ -179,9 +177,10 @@ class Add_News extends EQdkp_Admin
             'id'                  => $this->url_id,
             '{L_HEADLINE_BEFORE}' => $this->old_news['news_headline'],
             '{L_MESSAGE_BEFORE}'  => nl2br($this->old_news['news_message']),
-            '{L_HEADLINE_AFTER}'  => $this->find_difference($this->old_news['news_headline'], $_POST['news_headline']),
-            '{L_MESSAGE_AFTER}'   => nl2br($_POST['news_message']),
-            '{L_UPDATED_BY}'      => $this->admin_user);
+            '{L_HEADLINE_AFTER}'  => $this->find_difference($this->old_news['news_headline'], $in->get('news_headline')),
+            '{L_MESSAGE_AFTER}'   => nl2br($in->get('news_message')),
+            '{L_UPDATED_BY}'      => $this->admin_user
+        );
         $this->log_insert(array(
             'log_type'   => $log_action['header'],
             'log_action' => $log_action)

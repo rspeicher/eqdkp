@@ -50,11 +50,11 @@ while ( $news = $db->fetch_record($result) )
     
     $tpl->assign_block_vars('date_row.news_row', array(
         'ROW_CLASS' => $eqdkp->switch_row_class(),
-        'HEADLINE'  => stripslashes($news['news_headline']),
+        'HEADLINE'  => $news['news_headline'],
         'AUTHOR'    => $news['username'],
         'TIME'      => date("h:ia T", $news['news_date']),
-        'MESSAGE'   => $message)
-    );
+        'MESSAGE'   => $message
+    ));
 }
 $db->free_result($result);
 

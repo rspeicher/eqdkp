@@ -242,6 +242,8 @@ if ( !defined('IN_ADMIN') )
         return ( !empty($name) ) ? $name : 'Unknown';
     }
 
+    // TODO: Apparently 1.3 disabled a call to this function, for unknown reasons.
+    // Update this page so the user has an option to hide the notice after they've seen it once.
     function get_eqdkp_version()
     {
         // Try and get the latest EQdkp version from EQdkp.com

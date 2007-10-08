@@ -137,12 +137,9 @@ $eqdkp = new EQdkp($eqdkp_root_path);
 $user  = new User;
 $in    = new Input();
 
-// Style can come from $_GET['style']
-$style = $in->get('style', 1);
-
 // Start up the user/session management
 $user->start();
-$user->setup(false, $style);
+$user->setup($in->get('style', $eqdkp->config['default_style']));
 
 // Set the locale
 $cur_locale = $eqdkp->config['default_locale'];

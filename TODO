@@ -17,6 +17,12 @@ Installation
     - Add checks to prevent people overriding their current installation data.
     - Perhaps replace the installation stuff with the development branch's (needs a bit of polish tho).
     
+Languages
+    - Re-write the language files in a new format for ease of writing and readability.
+    - Remove the excess crap from the language files if there is any
+    - Add language file calls to scripts which need it (ie: install.php, and any other files which
+      may have hard-coded, language-specific text and messages)
+    
 /login.php
     - re-write the whole thing. In particular it probably makes more sense to have an
       action=(login|logout) variable than separate variables for both.

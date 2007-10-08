@@ -44,7 +44,7 @@ class Parse_Log extends EQdkp_Admin
     {
 
 
-	/* New EQ format for /who
+    /* New EQ format for /who
 
 [Fri Apr 29 20:45:08 2005] Logging to 'eqlog.txt' is now *ON*.
 [Fri Apr 29 20:45:09 2005] Players on EverQuest:
@@ -74,7 +74,7 @@ class Parse_Log extends EQdkp_Admin
         global $db, $eqdkp, $user, $tpl, $pm;
         global $SID;
 
-	$usable_date = "/([a-zA-Z]{3}) ([a-zA-Z]{3}) ([0-9]{2}) ([0-9]{2})\:([0-9]{2})\:([0-9]{2}) ([0-9]{4})/";
+    $usable_date = "/([a-zA-Z]{3}) ([a-zA-Z]{3}) ([0-9]{2}) ([0-9]{2})\:([0-9]{2})\:([0-9]{2}) ([0-9]{4})/";
         
         $channel_members  = '';
         $line             = '';
@@ -137,39 +137,39 @@ class Parse_Log extends EQdkp_Admin
                 }
             }
 
-	if (isset ($log_file[$i]) ) {
-		$line_to_read = str_replace("\t", ' ', $log_file[$i]);
-	}
+    if (isset ($log_file[$i]) ) {
+        $line_to_read = str_replace("\t", ' ', $log_file[$i]);
+    }
 
-	if (preg_match("/^[0-9]{1,2} (.+) ([0-9]{1,2}) ([a-z A-Z]+)/", $line_to_read, $raid_line))
-	  {
-	   $memberName  = $raid_line[1];
-	   $memberLevel = $raid_line[2];
-	   $memberClass = $raid_line[3];
+    if (preg_match("/^[0-9]{1,2} (.+) ([0-9]{1,2}) ([a-z A-Z]+)/", $line_to_read, $raid_line))
+      {
+       $memberName  = $raid_line[1];
+       $memberLevel = $raid_line[2];
+       $memberClass = $raid_line[3];
            $line = preg_replace("/ Group Leader/", '', $memberClass);
            $line = preg_replace("/ Raid Leader/", '', $line);
-	   $memberClass = $line;
+       $memberClass = $line;
 
-	   if ( $memberClass == 'Shadow' ) {
-		$memberClass = 'Shadow Knight';
-	   }
+       if ( $memberClass == 'Shadow' ) {
+        $memberClass = 'Shadow Knight';
+       }
 
-	   if ( !($this->original_class($memberClass) == "")) {
-		$memberClass = $this->original_class($memberClass);
-	  }
+       if ( !($this->original_class($memberClass) == "")) {
+        $memberClass = $this->original_class($memberClass);
+      }
            
-	   $_SESSION[$memberName] = array(
-	    'name'  => $memberName,
-	    'race'  => 'Unknown',
-	    'level' => $memberLevel,
-	    'class' => $memberClass,
-	   );
+       $_SESSION[$memberName] = array(
+        'name'  => $memberName,
+        'race'  => 'Unknown',
+        'level' => $memberLevel,
+        'class' => $memberClass,
+       );
 
-	   // add member's name to the array
-	   $member_names[] = $memberName;
+       // add member's name to the array
+       $member_names[] = $memberName;
 
 
- 	 }
+      }
 
 
       } // for ... log_file
@@ -279,7 +279,7 @@ class Parse_Log extends EQdkp_Admin
         $role_check = true;
         $rank_check = true;
 
-	/* New EQ /who format
+    /* New EQ /who format
 [Fri Apr 29 20:45:08 2005] Logging to 'eqlog.txt' is now *ON*.
 [Fri Apr 29 20:45:09 2005] Players on EverQuest:
 [Fri Apr 29 20:45:09 2005] ---------------------------
@@ -300,7 +300,7 @@ class Parse_Log extends EQdkp_Admin
 [Fri Apr 29 20:45:09 2005] [63 Phantasmist (Enchanter)] Merlinycus (Erudite) <Aurora Spirits>
 [Fri Apr 29 20:45:09 2005] [66 Forest Stalker (Ranger)] Xlifex (Wood Elf) <Storm Rider Rebellion>
 [Fri Apr 29 20:45:09 2005] [ANONYMOUS] Misser  <Storm Rider Rebellion>
-	*/
+    */
         
         // Date
         $pattern  = "/\[[a-zA-Z]{3} [a-zA-Z]{3} [0-9]{2} [0-9]{2}\:[0-9]{2}\:[0-9]{2} [0-9]{4}\]";
@@ -338,32 +338,32 @@ class Parse_Log extends EQdkp_Admin
             // 3 = Level
             // 4 = Class
             // 5 = (Archtype)
-	    // 6 = Name
+        // 6 = Name
             // 7 = (Race)
 
-	    $log_parsed[5] = str_replace('_', ' ', $log_parsed[5]);
+        $log_parsed[5] = str_replace('_', ' ', $log_parsed[5]);
             $name  = trim($log_parsed[6]);
             $level = trim($log_parsed[3]);
             $class = trim($log_parsed[4]);
             $race  = ( isset($log_parsed[7]) ) ? trim(str_replace(')', '', str_replace('(', '', $log_parsed[7]))) : '';
             $archtype  = ( isset($log_parsed[5]) ) ? trim(str_replace(')', '', str_replace('(', '', $log_parsed[5]))) : '';
 
-	    if ( $archtype == 'Shadow' ) {
-	 	 $archtype = 'Shadow Knight';
-	    }
-	
-	    if ( isset($log_parsed[2]) && ($log_parsed[2] == 'ANONYMOUS')) {
+        if ( $archtype == 'Shadow' ) {
+          $archtype = 'Shadow Knight';
+        }
+    
+        if ( isset($log_parsed[2]) && ($log_parsed[2] == 'ANONYMOUS')) {
 
-		$class = "Unknown";
-		$archtype = "Unknown";
-		$race = "Unknown";
-		$level = '1';
-	        
-		$log_parsed[2] = 'Unknown' ;
+        $class = "Unknown";
+        $archtype = "Unknown";
+        $race = "Unknown";
+        $level = '1';
+            
+        $log_parsed[2] = 'Unknown' ;
 
-	    }
-		
-	 
+        }
+        
+     
             if ( !isset($_POST['findrole']) )
             {
                 if ( (isset($log_parsed[2])) && ($log_parsed[2] == 'ANONYMOUS') )

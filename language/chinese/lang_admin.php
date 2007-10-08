@@ -284,7 +284,7 @@ $lang['show_item_stats'] = '显示物品状态';
 $lang['show_item_stats_note'] = '试图从网上获取物品状态, 可能影响到某些页面的速度';
 $lang['default_permissions'] = '默认权限';
 $lang['default_permissions_note'] = '这些权限是如下用户使用1 没有登录用户 2 新注册用户.  选项以<b>粗体</b>显示的是管理员权限
-																		 建议不要把这些选项设成默认值, <i>斜体字</i>是给专门插件使用.  你可以在未来改变相应的个人权限来管理用户.';
+                                                                         建议不要把这些选项设成默认值, <i>斜体字</i>是给专门插件使用.  你可以在未来改变相应的个人权限来管理用户.';
 $lang['plugins'] = '插件';
 $lang['cookie_settings'] = 'Cookie 设置';
 $lang['cookie_domain'] = 'Cookie 域名';

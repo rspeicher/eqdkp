@@ -15,13 +15,13 @@ class Game_Manager
         
         if ( count($this->armor_types) == 0 )
         {
-        	$sql = "SELECT class_armor_type FROM __classes
-        	        GROUP BY class_armor_type";
-        	$result = $db->query($sql);
-        	while ( $row = $db->fetch_record($result) )
-        	{
-        	    $this->armor_types[] = stripslashes($row['class_armor_type']);
-    	    }
+            $sql = "SELECT class_armor_type FROM __classes
+                    GROUP BY class_armor_type";
+            $result = $db->query($sql);
+            while ( $row = $db->fetch_record($result) )
+            {
+                $this->armor_types[] = stripslashes($row['class_armor_type']);
+            }
             $db->free_result($result);
         }
         

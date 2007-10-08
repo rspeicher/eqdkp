@@ -224,19 +224,19 @@ $DBALS    = array(
 //$STEP = ( isset($_POST['install_step']) ) ? $_POST['install_step'] : '1';
 
 $LOCALES = array(
-	'English' => array(
-		'label'	=> 'English',
-		'type'	=> 'en_US'
-		),
-	'German'  => array(
-		'label' => 'German',
-		'type'	=> 'de_DE'
-		),
-	'French'  => array(
-		'label'	=> 'French',
-		'type'	=> 'fr_FR'
-		)
-	);
+    'English' => array(
+        'label'    => 'English',
+        'type'    => 'en_US'
+        ),
+    'German'  => array(
+        'label' => 'German',
+        'type'    => 'de_DE'
+        ),
+    'French'  => array(
+        'label'    => 'French',
+        'type'    => 'fr_FR'
+        )
+    );
 
 // ---------------------------------------------------------
 // Figure out what we're doing...
@@ -423,8 +423,8 @@ function process_step2()
                 $tpl->assign_block_vars('language_row', array(
                     'VALUE'    => $file,
                     'OPTION'   => ucfirst(strtolower($file)),
-					'SELECTED' => ( $DEFAULTS['default_lang'] == ucfirst(strtolower($file)) ? 'selected="selected"' : '')
-					)
+                    'SELECTED' => ( $DEFAULTS['default_lang'] == ucfirst(strtolower($file)) ? 'selected="selected"' : '')
+                    )
                 );
             }
         }
@@ -446,8 +446,8 @@ function process_step2()
         $tpl->assign_block_vars('locale_row', array(
             'VALUE'    => $locale_desc['type'],
             'OPTION'   => $locale_type,
-			'SELECTED' => $DEFAULTS['default_lang'] == $locale_type ? 'selected="selected"' : '',
-			)
+            'SELECTED' => $DEFAULTS['default_lang'] == $locale_type ? 'selected="selected"' : '',
+            )
         );
     }
     //
@@ -545,7 +545,7 @@ function process_step3()
     } 
     else 
     {
-           		$tpl->message_die('Failed to get version information for database <b>' . $dbname . '</b> as <b>' . $dbuser . '@' . $dbhost . '</b>
+                   $tpl->message_die('Failed to get version information for database <b>' . $dbname . '</b> as <b>' . $dbuser . '@' . $dbhost . '</b>
                            <br /><br /><a href="install.php">Restart Installation</a>');
     }
 
@@ -558,18 +558,18 @@ function process_step3()
 
     $sql_count = count($sql);
     $i = 0;
-	
+    
     while ( $i < $sql_count ) 
     {
 
-	if (isset($sql[$i]) && $sql[$i] != "") {
+    if (isset($sql[$i]) && $sql[$i] != "") {
 
-		if ( !($db->query($sql[$i]) )) {
-           		$tpl->message_die('Failed to connect to database <b>' . $dbname . '</b> as <b>' . $dbuser . '@' . $dbhost . '</b>
+        if ( !($db->query($sql[$i]) )) {
+                   $tpl->message_die('Failed to connect to database <b>' . $dbname . '</b> as <b>' . $dbuser . '@' . $dbhost . '</b>
                            <br /><br /><a href="install.php">Restart Installation</a>');
 
-		}
-	}
+        }
+    }
 
         $i++;
 
@@ -589,14 +589,14 @@ function process_step3()
     while ( $i < $sql_count ) 
     {
 
-	if (isset($sql[$i]) && $sql[$i] != "") {
+    if (isset($sql[$i]) && $sql[$i] != "") {
 
-		if ( !($db->query($sql[$i]) )) {
-           		$tpl->message_die('Failed to connect to database <b>' . $dbname . '</b> as <b>' . $dbuser . '@' . $dbhost . '</b>
+        if ( !($db->query($sql[$i]) )) {
+                   $tpl->message_die('Failed to connect to database <b>' . $dbname . '</b> as <b>' . $dbuser . '@' . $dbhost . '</b>
                            <br /><br /><a href="install.php">Restart Installation</a>');
 
-		}
-	}
+        }
+    }
 
         $i++;
 

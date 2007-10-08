@@ -105,31 +105,31 @@ class Parse_Log extends EQdkp_Admin
                 }
             }
 
-	if (isset ($log_file[$i]) ) {
-		$line_to_read = str_replace("\t", ' ', $log_file[$i]);
-	}
-	if (preg_match("/^[0-9]{1,2} (.+) ([0-9]{1,2}) ([a-z A-Z]+)/", $line_to_read, $raid_line))
-	  {
-	   // Current log tool doesn't get race information - so set it to Unknown.
-	   $memberRace = "Unknown";
-	   $memberName  = $raid_line[1];
-	   $memberLevel = $raid_line[2];
+    if (isset ($log_file[$i]) ) {
+        $line_to_read = str_replace("\t", ' ', $log_file[$i]);
+    }
+    if (preg_match("/^[0-9]{1,2} (.+) ([0-9]{1,2}) ([a-z A-Z]+)/", $line_to_read, $raid_line))
+      {
+       // Current log tool doesn't get race information - so set it to Unknown.
+       $memberRace = "Unknown";
+       $memberName  = $raid_line[1];
+       $memberLevel = $raid_line[2];
            $memberClass  = ( isset($raid_line[3]) ) ? trim(preg_replace('/Officer/', '', preg_replace('/Raid Leader/', '', $raid_line[3]))) : '';
 
-		//print"NAME $raid_line[1]  ";
-		//print"LEVEL $raid_line[2]  ";
-		//print"CLASS $raid_line[3]<br>";
+        //print"NAME $raid_line[1]  ";
+        //print"LEVEL $raid_line[2]  ";
+        //print"CLASS $raid_line[3]<br>";
            
-	   $_SESSION[$memberName] = array(
-	    'name'  => $memberName,
-	    'level' => $memberLevel,
-	    'race' => $memberRace,
-	    'class' => $memberClass,
-	   );
+       $_SESSION[$memberName] = array(
+        'name'  => $memberName,
+        'level' => $memberLevel,
+        'race' => $memberRace,
+        'class' => $memberClass,
+       );
 
-	   // add member's name to the array
-	   $member_names[] = $memberName;
- 	 }
+       // add member's name to the array
+       $member_names[] = $memberName;
+      }
 
 
       } // for ... log_file
@@ -275,7 +275,7 @@ class Parse_Log extends EQdkp_Admin
             // 3 = Level
             // 4 = Class
             // 5 = (Archtype)
-	    // 6 = Name
+        // 6 = Name
             // 7 = (Race)
 
             $name  = trim($log_parsed[6]);
@@ -284,13 +284,13 @@ class Parse_Log extends EQdkp_Admin
             $race  = ( isset($log_parsed[7]) ) ? trim(str_replace(')', '', str_replace('(', '', $log_parsed[7]))) : '';
             $archtype  = ( isset($log_parsed[5]) ) ? trim(str_replace(')', '', str_replace('(', '', $log_parsed[5]))) : '';
 
-            /* Oops - left inthe debug code :-)	 */
-	    //print "Ful String: $log_parsed[0]\n<br>";
-	    //print "Level: $level\n<br>";
-	    //print "Class: $class\n<br>";
-	    //print "Archtype: $archtype\n<br>";
-	    //print "Name: $name\n<br>";
-	    //print "Race: $race\n<br>";
+            /* Oops - left inthe debug code :-)     */
+        //print "Ful String: $log_parsed[0]\n<br>";
+        //print "Level: $level\n<br>";
+        //print "Class: $class\n<br>";
+        //print "Archtype: $archtype\n<br>";
+        //print "Name: $name\n<br>";
+        //print "Race: $race\n<br>";
             
             
             if ( !isset($_POST['findrole']) )

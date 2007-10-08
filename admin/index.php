@@ -595,7 +595,7 @@ else
     );
 
     // Now get plugin hooks for the menu
-	$admin_menu = (is_array($pm->get_menus('admin_menu'))) ? array_merge($admin_menu, $pm->get_menus('admin_menu')) : $admin_menu;
+    $admin_menu = (is_array($pm->get_menus('admin_menu'))) ? array_merge($admin_menu, $pm->get_menus('admin_menu')) : $admin_menu;
 
     // Sort the array by the keys to make it alphabetical by header (essentially)
     // Note: I considered using the header as the key itself, but this could

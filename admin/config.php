@@ -108,18 +108,18 @@ class EQdkp_Config extends EQdkp_Admin
             'start_page'         => $_POST['start_page'])
         );
 
-	// New for 1.3 - game selection
-	if (( $_POST['default_game'] != $current_game )) 
-	{
+    // New for 1.3 - game selection
+    if (( $_POST['default_game'] != $current_game )) 
+    {
 
         include($eqdkp->root_path . 'games/' . $_POST['default_game'] . '.php');
 
         $game_extension = new Manage_Game;
         $game_extension->process();
 
-	}
-	
-	// end 1.3 game selection change
+    }
+    
+    // end 1.3 game selection change
 
         // Permissions
         $sql = "SELECT auth_id, auth_value
@@ -245,10 +245,10 @@ class EQdkp_Config extends EQdkp_Admin
             $user->lang['logs'] => array(
                 array('CBNAME' => 'a_logs_view', 'CBCHECKED' => A_LOGS_VIEW, 'TEXT' => '<b>' . $user->lang['view'] . '</b>')
             ),
-						// Backup Database
-						$user->lang['backup'] => array(
-						    array('CBNAME' => 'a_backup', 'CBCHECKED' => A_BACKUP, 'TEXT' => '<b>' . $user->lang['backup_database'] . '</b>')
-						)
+                        // Backup Database
+                        $user->lang['backup'] => array(
+                            array('CBNAME' => 'a_backup', 'CBCHECKED' => A_BACKUP, 'TEXT' => '<b>' . $user->lang['backup_database'] . '</b>')
+                        )
         );
         
         // Add plugin checkboxes to our array
@@ -408,20 +408,20 @@ class EQdkp_Config extends EQdkp_Admin
 
         //
         // Build game option drop-down
-	// New for 1.3
-	// Total hack job - I moved the class, race, and faction 
-	// info to the db, but I'm hardcoding what games I support 
-	// for the "button push" - what a tard I am :-)
-	// To add a new game option, just copy the 4 lines below,
-	// add them to the botton, increase the value of VALUE by 1,
-	// and be sure to set OPTION to the EXACT SAME THING you put
-	// in the == check in the SELECTED line and there must be
-	// no spaces in the name, since the value below gets changed
-	// to name.php and ran when you change it: for example,
-	// if you change to WoW, this program will redirect you to
-	// WoW.php and use that file to populate the database.
-	// 
-	// Cheesy, but extensible and effective.
+    // New for 1.3
+    // Total hack job - I moved the class, race, and faction 
+    // info to the db, but I'm hardcoding what games I support 
+    // for the "button push" - what a tard I am :-)
+    // To add a new game option, just copy the 4 lines below,
+    // add them to the botton, increase the value of VALUE by 1,
+    // and be sure to set OPTION to the EXACT SAME THING you put
+    // in the == check in the SELECTED line and there must be
+    // no spaces in the name, since the value below gets changed
+    // to name.php and ran when you change it: for example,
+    // if you change to WoW, this program will redirect you to
+    // WoW.php and use that file to populate the database.
+    // 
+    // Cheesy, but extensible and effective.
         //
 
        $tpl->assign_block_vars('game_row', array(
@@ -449,29 +449,29 @@ class EQdkp_Config extends EQdkp_Admin
             'SELECTED' => ( $eqdkp->config['default_game'] == "Vanguard-SoH" ) ? ' selected="selected"' : '',
             'OPTION' => "Vanguard-SoH") );
 
-	// Default locale drop-down
-	// new for 1.3
-	// Dont forget to change the install script -- maybe query the system for all supported
-	// locales? that would break the "pretty" name of the locale (english, french, etc)
-	// but would provide greater support
+    // Default locale drop-down
+    // new for 1.3
+    // Dont forget to change the install script -- maybe query the system for all supported
+    // locales? that would break the "pretty" name of the locale (english, french, etc)
+    // but would provide greater support
 
-       	 $tpl->assign_block_vars('locale_row', array(
-       	         'VALUE' => 'en_US',
-            	 'SELECTED' => ( $eqdkp->config['default_locale'] == "en_US" ) ? ' selected="selected"' : '',
-       	         'OPTION'  => 'English'
-       	 ));
+            $tpl->assign_block_vars('locale_row', array(
+                    'VALUE' => 'en_US',
+                 'SELECTED' => ( $eqdkp->config['default_locale'] == "en_US" ) ? ' selected="selected"' : '',
+                    'OPTION'  => 'English'
+            ));
 
-       	 $tpl->assign_block_vars('locale_row', array(
-       	         'VALUE' => 'de_DE',
-            	 'SELECTED' => ( $eqdkp->config['default_locale'] == "de_DE" ) ? ' selected="selected"' : '',
-       	         'OPTION'  => 'German'
-       	 ));
+            $tpl->assign_block_vars('locale_row', array(
+                    'VALUE' => 'de_DE',
+                 'SELECTED' => ( $eqdkp->config['default_locale'] == "de_DE" ) ? ' selected="selected"' : '',
+                    'OPTION'  => 'German'
+            ));
 
-     	 $tpl->assign_block_vars('locale_row', array(
-       	         'VALUE' => 'fr_FR',
-            	 'SELECTED' => ( $eqdkp->config['default_locale'] == "fr_FR" ) ? ' selected="selected"' : '',
-       	         'OPTION'  => 'French'
-       	 ));
+          $tpl->assign_block_vars('locale_row', array(
+                    'VALUE' => 'fr_FR',
+                 'SELECTED' => ( $eqdkp->config['default_locale'] == "fr_FR" ) ? ' selected="selected"' : '',
+                    'OPTION'  => 'French'
+            ));
 
         
         //

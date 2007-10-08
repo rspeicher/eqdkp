@@ -144,9 +144,9 @@ class Parse_Log extends EQdkp_Admin
         
         //$log_line = stripslashes($log_line);
 
-	// First off, we don't care about afk or lfg, so remove them
-	$log_line = str_replace(' (AFK)', '', $log_line);
-	$log_line = str_replace(' (LFG)', '', $log_line);
+    // First off, we don't care about afk or lfg, so remove them
+    $log_line = str_replace(' (AFK)', '', $log_line);
+    $log_line = str_replace(' (LFG)', '', $log_line);
 
         // Build a clean array of guildtags we might be looking for
         $parsetags = explode("\n", $eqdkp->config['parsetags']);
@@ -222,74 +222,74 @@ German log file looks like this :
         $pattern3 .= " \((.*)\)";
 
         // Guild Tag
-	$pattern .= " \<(.*)\>";
-	$pattern2 .= " \<(.*)\>";
+    $pattern .= " \<(.*)\>";
+    $pattern2 .= " \<(.*)\>";
 
         // Zone:
         $pattern  .= "ZONE: (.*)";
         $pattern1 .= "ZONE: (.*)";
 
-	// End pattern regexp
+    // End pattern regexp
         $pattern .= '/';
         $pattern1 .= '/';
         $pattern2 .= '/';
         $pattern3 .= '/';
 
 
-	// unset a line match type identifier
-	unset($type_line);
+    // unset a line match type identifier
+    unset($type_line);
 
-	// match things the hard way..one type of line at a time
-	// crappy way to do it, but VERY easy to read and alter
+    // match things the hard way..one type of line at a time
+    // crappy way to do it, but VERY easy to read and alter
 
-	// Normal	
+    // Normal    
         if ( preg_match($pattern, $log_line, $log_parsed) ) { 
-		$name = trim($log_parsed[4]);
-		$race = trim($log_parsed[5]);
-		$class = trim($log_parsed[3]);
-		$level = trim($log_parsed[2]);
-		$guildtag = trim($log_parsed[6]);
-		$zone = trim($log_parsed[7]);
-	    $type_line = 1;
-	}
+        $name = trim($log_parsed[4]);
+        $race = trim($log_parsed[5]);
+        $class = trim($log_parsed[3]);
+        $level = trim($log_parsed[2]);
+        $guildtag = trim($log_parsed[6]);
+        $zone = trim($log_parsed[7]);
+        $type_line = 1;
+    }
 
-	// Unguilded
+    // Unguilded
         if ( preg_match($pattern1, $log_line, $log_parsed) ) { 
-		$name = trim($log_parsed[4]);
-		$race = trim($log_parsed[5]);
-		$class = trim($log_parsed[3]);
-		$level = trim($log_parsed[2]);
-		$guildtag = "";
-		$zone = trim($log_parsed[6]);
-	   if (!isset($type_line) ){ $type_line = 2;}
-	}
+        $name = trim($log_parsed[4]);
+        $race = trim($log_parsed[5]);
+        $class = trim($log_parsed[3]);
+        $level = trim($log_parsed[2]);
+        $guildtag = "";
+        $zone = trim($log_parsed[6]);
+       if (!isset($type_line) ){ $type_line = 2;}
+    }
 
-	// Roleplaying
+    // Roleplaying
         if ( preg_match($pattern2, $log_line, $log_parsed) ) { 
-		$name = trim($log_parsed[2]);
-		$race = trim($log_parsed[3]);
-		$class = "Unknown";
-		$level = "50";
-		$guildtag = trim($log_parsed[4]);
-		$zone = "";
-	   if (!isset($type_line) ){ $type_line = 3;}
-	}
+        $name = trim($log_parsed[2]);
+        $race = trim($log_parsed[3]);
+        $class = "Unknown";
+        $level = "50";
+        $guildtag = trim($log_parsed[4]);
+        $zone = "";
+       if (!isset($type_line) ){ $type_line = 3;}
+    }
 
-	// Anon
+    // Anon
         if ( preg_match($pattern3, $log_line, $log_parsed) ) { 
-		$name = trim($log_parsed[2]);
-		$race = trim($log_parsed[3]);
-		$class = "Unknown";
-		$level = "50";
-		$guildtag = "";
-		$zone = "";
-	   if (!isset($type_line) ){ $type_line = 4;}
-	}
+        $name = trim($log_parsed[2]);
+        $race = trim($log_parsed[3]);
+        $class = "Unknown";
+        $level = "50";
+        $guildtag = "";
+        $zone = "";
+       if (!isset($type_line) ){ $type_line = 4;}
+    }
 
 
-	// Jeezus this is a pain in the ass, ain't it?
+    // Jeezus this is a pain in the ass, ain't it?
 
-	/* Sample EQ2 log file format :: the three patterns to match are (one more time)
+    /* Sample EQ2 log file format :: the three patterns to match are (one more time)
 
 (1121902422)[Wed Jul 20 19:33:42 2005] [43 Guardian] Goosage (Barbarian) <The Knights of Dawn Fire> Zone: The Feerrott
 (1121902422)[Wed Jul 20 19:33:42 2005] [47 Paladin] Maskie (Barbarian) Zone: The Feerrott
@@ -303,27 +303,27 @@ After using the above 4, we now test with the same members in different states o
 (1121907805)[Wed Jul 20 21:03:25 2005] [47 Cleric] Mildew (Gnome) <The Knights of Dawn Fire> Zone: The Feerrott
 (1121907951)[Wed Jul 20 21:05:51 2005] [49 Monk] Greywind (Human) Zone: The Feerrott
 
-	*/
+    */
 
 
-	if ($type_line == 1) {
-	print"Name: $name , Race: $race , Class: $class , Guild: $guildtag , Level: $level , Zone: $zone<br>";
-	} 
+    if ($type_line == 1) {
+    print"Name: $name , Race: $race , Class: $class , Guild: $guildtag , Level: $level , Zone: $zone<br>";
+    } 
 
-	if ($type_line == 2) {
-	print"Name: $name , Race: $race , Class: $class , Level: $level , Zone: $zone<br>";
-	} 
+    if ($type_line == 2) {
+    print"Name: $name , Race: $race , Class: $class , Level: $level , Zone: $zone<br>";
+    } 
 
-	if ($type_line == 3) {
-	print"Name: $name , Race: $race , Class_Guess: $class , Level_Guess: $level , Guild: $guildtag<br>";
-	} 
+    if ($type_line == 3) {
+    print"Name: $name , Race: $race , Class_Guess: $class , Level_Guess: $level , Guild: $guildtag<br>";
+    } 
 
-	if ($type_line == 4) {
-	print"Name: $name , Race: $race , Class_Guess: $class , Level_Guess: $level<br>";
-	} 
+    if ($type_line == 4) {
+    print"Name: $name , Race: $race , Class_Guess: $class , Level_Guess: $level<br>";
+    } 
 
 
-	    // Looking for roleplaying folks? Is this valid for EQ2?
+        // Looking for roleplaying folks? Is this valid for EQ2?
             if ( !isset($_POST['findrole']) )
             {
                 if ( (isset($class)) && ($class == 'Unknown') )
@@ -350,7 +350,7 @@ After using the above 4, we now test with the same members in different states o
             if ( ($name_check) && ($role_check) && ($rank_check) )
             {
                 $_SESSION[$name] = array(
-		    'tag'   => $guildtag,
+            'tag'   => $guildtag,
                     'name'  => $name,
                     'level' => $level,
                     'class' => $class,

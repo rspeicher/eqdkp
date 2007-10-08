@@ -25,7 +25,7 @@ $user->check_auth('u_item_list');
 if ( (!isset($_GET[URI_PAGE])) || ($_GET[URI_PAGE] == 'values') )
 {
     $sort_order = array(
-	    0 => array('item_name', 'item_name desc'),
+        0 => array('item_name', 'item_name desc'),
         1 => array('item_buyer', 'item_buyer desc'),
         2 => array('item_date desc', 'item_date'),
         3 => array('raid_name', 'raid_name desc'),
@@ -39,7 +39,7 @@ if ( (!isset($_GET[URI_PAGE])) || ($_GET[URI_PAGE] == 'values') )
     $page_title = sprintf($user->lang['title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['listitems_title'];   
     
     $total_items = $db->num_rows($db->query("SELECT item_id FROM __items GROUP BY item_name"));
-	// FIXME: SQL Injection
+    // FIXME: SQL Injection
     $start = ( isset($_GET['start']) ) ? $_GET['start'] : 0;
     
     // We don't care about history; ignore making the items unique
@@ -78,7 +78,7 @@ elseif ( $_GET[URI_PAGE] == 'history' )
     $page_title = sprintf($user->lang['title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['listpurchased_title'];
     
     $total_items = $db->query_first("SELECT count(*) FROM __items");
-	// FIXME: SQL Injection
+    // FIXME: SQL Injection
     $start = ( isset($_GET['start']) ) ? $_GET['start'] : 0;
     
     $s_history = true;

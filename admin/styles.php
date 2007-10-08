@@ -181,7 +181,7 @@ class Manage_Styles extends EQdkp_Admin
         global $db, $eqdkp, $user, $tpl, $pm;
         global $SID;
         
-		// FIXME: Insecure misuse of global variables => SQL Injection.
+        // FIXME: Insecure misuse of global variables => SQL Injection.
         extract($_POST);
         $query = $db->build_query('INSERT', array(
             'style_name'         => $style_name,
@@ -241,7 +241,7 @@ class Manage_Styles extends EQdkp_Admin
         global $db, $eqdkp, $user, $tpl, $pm;
         global $SID;
         
-		// FIXME: Insecure misuse of global variables => SQL Injection.
+        // FIXME: Insecure misuse of global variables => SQL Injection.
         extract($_POST);
         $query = $db->build_query('UPDATE', array(
             'style_name'         => $style_name,

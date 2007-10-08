@@ -557,10 +557,10 @@ class Manage_Users extends EQdkp_Admin
             $user->lang['logs'] => array(
                 array('CBNAME' => 'a_logs_view', 'CBCHECKED' => A_LOGS_VIEW, 'TEXT' => '<b>' . $user->lang['view'] . '</b>')
             ),
-						// Backup Database
-						$user->lang['backup'] => array(
-						    array('CBNAME' => 'a_backup', 'CBCHECKED' => A_BACKUP, 'TEXT' => '<b>' . $user->lang['backup_database'] . '</b>')
-						)
+                        // Backup Database
+                        $user->lang['backup'] => array(
+                            array('CBNAME' => 'a_backup', 'CBCHECKED' => A_BACKUP, 'TEXT' => '<b>' . $user->lang['backup_database'] . '</b>')
+                        )
         );
 
         // Add plugin checkboxes to our array
@@ -710,10 +710,10 @@ class Manage_Users extends EQdkp_Admin
             $user->lang['logs'] => array(
                 array('CBNAME' => 'a_logs_view', 'CBCHECKED' => A_LOGS_VIEW, 'TEXT' => '<b>' . $user->lang['view'] . '</b>')
             ),
-						// Backup Database
-						$user->lang['backup'] => array(
-						    array('CBNAME' => 'a_backup', 'CBCHECKED' => A_BACKUP, 'TEXT' => '<b>' . $user->lang['backup_database'] . '</b>')
-						)
+                        // Backup Database
+                        $user->lang['backup'] => array(
+                            array('CBNAME' => 'a_backup', 'CBCHECKED' => A_BACKUP, 'TEXT' => '<b>' . $user->lang['backup_database'] . '</b>')
+                        )
         );
 
         // Add plugin checkboxes to our array

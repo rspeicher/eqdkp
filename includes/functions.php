@@ -201,7 +201,7 @@ function color_item($item, $percentage = false)
 */
 function switch_order($sort_order)
 {
-	// FIXME: Direct use of $_GET variable => SQL Injection.
+    // FIXME: Direct use of $_GET variable => SQL Injection.
     $uri_order = ( isset($_GET[URI_ORDER]) ) ? $_GET[URI_ORDER] : '0.0';
     $uri_order = explode('.', $uri_order);
     $element1 = ( isset($uri_order[0]) ) ? $uri_order[0] : 0;

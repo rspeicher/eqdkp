@@ -28,7 +28,7 @@ class Register extends EQdkp_Admin
         //
         // If they're trying access this page while logged in, redirect to settings.php
         //
-		// FIXME: Direct use of $_GET variable.
+        // FIXME: Direct use of $_GET variable.
         if ( ($user->data['user_id'] != ANONYMOUS) && (!isset($_GET['key'])) )
         {
             header('Location: settings.php' . $SID);
@@ -191,7 +191,7 @@ class Register extends EQdkp_Admin
             $db->query($au_sql);
         }
         
-		// FIXME: Direct use of $_POST variable
+        // FIXME: Direct use of $_POST variable
         if ($eqdkp->config['account_activation'] == USER_ACTIVATION_SELF)
         {
             $success_message = sprintf($user->lang['register_activation_self'], stripslashes($_POST['user_email']));
@@ -216,7 +216,7 @@ class Register extends EQdkp_Admin
         
         $headers = "From: " . $eqdkp->config['admin_email'] . "\nReturn-Path: " . $eqdkp->config['admin_email'] . "\r\n";
         
-		// FIXME: Direct use of $_POST variable
+        // FIXME: Direct use of $_POST variable
         $email->set_template($email_template, stripslashes($_POST['user_lang']));
         $email->address(stripslashes($_POST['user_email']));
         $email->subject(); // Grabbed from the template itself
@@ -426,21 +426,21 @@ class Register extends EQdkp_Admin
     // ---------------------------------------------------------
     function random_string($hash = false)
     {
-    	$chars = array('a','A','b','B','c','C','d','D','e','E','f','F','g','G','h','H','i','I','j','J',  
+        $chars = array('a','A','b','B','c','C','d','D','e','E','f','F','g','G','h','H','i','I','j','J',  
                        'k','K','l','L','m','M','n','N','o','O','p','P','q','Q','r','R','s','S','t','T',
                        'u','U','v','V','w','W','x','X','y','Y','z','Z','1','2','3','4','5','6','7','8',
                        '9','0');
     
-    	$max_chars = count($chars) - 1;
-    	srand( (double) microtime()*1000000);
+        $max_chars = count($chars) - 1;
+        srand( (double) microtime()*1000000);
     
-    	$rand_str = '';
-    	for($i = 0; $i < 8; $i++)
-    	{
-    		$rand_str = ( $i == 0 ) ? $chars[rand(0, $max_chars)] : $rand_str . $chars[rand(0, $max_chars)];
-    	}
+        $rand_str = '';
+        for($i = 0; $i < 8; $i++)
+        {
+            $rand_str = ( $i == 0 ) ? $chars[rand(0, $max_chars)] : $rand_str . $chars[rand(0, $max_chars)];
+        }
     
-    	return ( $hash ) ? md5($rand_str) : $rand_str;
+        return ( $hash ) ? md5($rand_str) : $rand_str;
     }
     
     // ---------------------------------------------------------
@@ -498,7 +498,7 @@ class Register extends EQdkp_Admin
         //
         // Build language drop-down
         //
-		// FIXME: Building language drop-down. Consider revising method (also, perhaps move to functions.php?).
+        // FIXME: Building language drop-down. Consider revising method (also, perhaps move to functions.php?).
         if ( $dir = @opendir($eqdkp->root_path . 'language/') )
         {
             while ( $file = @readdir($dir) )
@@ -517,7 +517,7 @@ class Register extends EQdkp_Admin
         //
         // Build style drop-down
         //
-		// FIXME: Building style drop-down. Consider revising method (also, perhaps move to functions.php?).
+        // FIXME: Building style drop-down. Consider revising method (also, perhaps move to functions.php?).
         $sql = "SELECT style_id, style_name
                 FROM __styles
                 ORDER BY style_name";

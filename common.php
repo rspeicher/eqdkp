@@ -39,14 +39,14 @@ if ( !isset($eqdkp_root_path) )
 
 if( !is_file($eqdkp_root_path . 'config.php') )
 {
-	die('Error: could not locate configuration file.');
+    die('Error: could not locate configuration file.');
 }
 
 require_once($eqdkp_root_path . 'config.php');
 
 if( !defined('EQDKP_INSTALLED') )
 {
-	header('Location: ' . $eqdkp_root_path . 'install.php');
+    header('Location: ' . $eqdkp_root_path . 'install.php');
 }
 
 

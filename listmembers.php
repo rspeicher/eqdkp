@@ -182,7 +182,7 @@ else
         $tpl->assign_block_vars('filter_row', $option);
     }
     
-	// NOTE: Filtering by class or by armor may not be mutually exclusive actions. consider revising.
+    // NOTE: Filtering by class or by armor may not be mutually exclusive actions. consider revising.
     // ---------------------------
     // Filter
     // ---------------------------
@@ -203,7 +203,7 @@ else
     }
 
     $sql = "SELECT m.*, (m.member_earned-m.member_spent+m.member_adjustment) AS member_current, 
-		        m.member_status, r.rank_name, r.rank_hide, r.rank_prefix, r.rank_suffix, 
+                m.member_status, r.rank_name, r.rank_hide, r.rank_prefix, r.rank_suffix, 
                 c.class_name AS member_class, c.class_armor_type AS armor_type,
                 c.class_min_level AS min_level, c.class_max_level AS max_level
             FROM __members AS m, __member_ranks AS r, __classes AS c
@@ -241,7 +241,7 @@ else
                 'RANK'          => ( !empty($row['rank_name']) ) ? (( $row['rank_hide'] == '1' ) ? '<i>' . '<a href="'.$u_rank_search.'">' . stripslashes($row['rank_name']) . '</a>' . '</i>'  : '<a href="'.$u_rank_search.'">' . stripslashes($row['rank_name']) . '</a>') : '&nbsp;',
                 'LEVEL'         => ( $row['member_level'] > 0 ) ? $row['member_level'] : '&nbsp;',
                 'CLASS'         => ( !empty($row['member_class']) ) ? $row['member_class'] : '&nbsp;',
-	            'ARMOR'		=> ( !empty($row['armor_type']) ) ? $row['armor_type'] : '&nbsp;',
+                'ARMOR'        => ( !empty($row['armor_type']) ) ? $row['armor_type'] : '&nbsp;',
                 'EARNED'        => $row['member_earned'],
                 'SPENT'         => $row['member_spent'],
                 'ADJUSTMENT'    => $row['member_adjustment'],
@@ -261,7 +261,7 @@ else
         }
     }
     
-	// FIXME: Direct use of $_GET variable.
+    // FIXME: Direct use of $_GET variable.
     $uri_addon  = ''; // Added to the end of the sort links
     $uri_addon .= '&amp;filter=' . urlencode($filter);
     $uri_addon .= ( isset($_GET['show']) ) ? '&amp;show=' . htmlspecialchars(strip_tags($_GET['show']), ENT_QUOTES) : '';
@@ -316,7 +316,7 @@ $tpl->assign_vars(array(
     'S_COMPARE' => $s_compare,
     'S_NOTMM'   => true,
     
-	// FIXME: Mismatched use of variables $_GET['compare'] and $compare
+    // FIXME: Mismatched use of variables $_GET['compare'] and $compare
     'LISTMEMBERS_FOOTCOUNT' => ( isset($_GET['compare']) ) ? sprintf($footcount_text, sizeof(explode(',', $compare))) : $footcount_text)
 );
 
@@ -380,23 +380,23 @@ function member_display(&$row, $show_all = false, $filter = null)
 // Assure $_GET['rank'] is one of our ranks
 function validateRank($rank)
 {
-	global $db;
-	$retval = false;
-	
-	$sql = "SELECT rank_id, rank_name
-			FROM __member_ranks";
-	$result = $db->query($sql);
-	
-	while ( $row = $db->fetch_record($result) )
-	{
-		if ( $row['rank_id'] == $rank || $row['rank_name'] == $rank )
-		{
-			$retval = true;
-		}
-	}
-	$db->free_result($result);
-	
-	return $retval;
+    global $db;
+    $retval = false;
+    
+    $sql = "SELECT rank_id, rank_name
+            FROM __member_ranks";
+    $result = $db->query($sql);
+    
+    while ( $row = $db->fetch_record($result) )
+    {
+        if ( $row['rank_id'] == $rank || $row['rank_name'] == $rank )
+        {
+            $retval = true;
+        }
+    }
+    $db->free_result($result);
+    
+    return $retval;
 }
 
 function validateCompareInput($input)

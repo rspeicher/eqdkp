@@ -46,8 +46,8 @@ if ( isset($_POST['submit']) )
     $change_username = false;
     if ( $_POST['username'] != $user->data['username'] )
     {
-		// They changed the username. See if it's already registered
-		// FIXME: SQL Injection
+        // They changed the username. See if it's already registered
+        // FIXME: SQL Injection
         $sql = "SELECT user_id
                 FROM __users
                 WHERE `username` = '{$_POST['username']}'";
@@ -69,7 +69,7 @@ if ( isset($_POST['submit']) )
     // their current password
     if ( ($change_username) || ($change_password) )
     {
-		// FIXME: Direct use of $_POST variable
+        // FIXME: Direct use of $_POST variable
         $sql = "SELECT user_id
                 FROM __users
                 WHERE `user_id` = '{$user->data['user_id']}'
@@ -107,7 +107,7 @@ switch ( $action )
     //
     case 'update':
         // Errors have been checked at this point, build the query
-		// FIXME: Direct use of $_POST variable
+        // FIXME: Direct use of $_POST variable
         // User settings
         $query_ary = array();
         if ( $change_username )
@@ -195,7 +195,7 @@ switch ( $action )
             'FV_USER_RLIMIT' => $fv->generate_error('user_rlimit'))
         );
 
-		// FIXME: Building language drop-down. Consider revising method (also, perhaps move to functions.php?).
+        // FIXME: Building language drop-down. Consider revising method (also, perhaps move to functions.php?).
         if ( $dir = @opendir($eqdkp_root_path . 'language/') )
         {
             while ( $file = @readdir($dir) )
@@ -211,7 +211,7 @@ switch ( $action )
             }
         }
 
-		// FIXME: Building style drop-down. Consider revising method (also, perhaps move to functions.php?).
+        // FIXME: Building style drop-down. Consider revising method (also, perhaps move to functions.php?).
         $sql = "SELECT style_id, style_name
                 FROM __styles
                 ORDER BY `style_name`";

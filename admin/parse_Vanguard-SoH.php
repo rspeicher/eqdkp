@@ -108,7 +108,7 @@ class Parse_Log extends EQdkp_Admin
         {
             $line = '';
 
-			//Each member parse starts here
+            //Each member parse starts here
                 $member_name = $this->line_parse($log_file[$i]);
 
                 // Make sure that each member's name is properly capitalized
@@ -119,7 +119,7 @@ class Parse_Log extends EQdkp_Admin
                 {
                     $member_names[] = $member_name;
                 }
-			//End member parse
+            //End member parse
             
         } // for ... log_file
         
@@ -189,9 +189,9 @@ class Parse_Log extends EQdkp_Admin
         
         //$log_line = stripslashes($log_line);
 
-		// First off, we don't care about afk or lfg, so remove them
-		$log_line = str_replace(' (AFK)', '', $log_line);
-		$log_line = str_replace(' (LFG)', '', $log_line);
+        // First off, we don't care about afk or lfg, so remove them
+        $log_line = str_replace(' (AFK)', '', $log_line);
+        $log_line = str_replace(' (LFG)', '', $log_line);
 
         // Build a clean array of guildtags we might be looking for
         $parsetags = explode("\n", $eqdkp->config['parsetags']);
@@ -235,7 +235,7 @@ class Parse_Log extends EQdkp_Admin
 
 */
 
-		// Date / Time
+        // Date / Time
         $pattern   = "/^(?:\[[0-9]{1,2}\:[0-9]{2}\:[0-9]{2}\])";
 
         // Name
@@ -245,64 +245,64 @@ class Parse_Log extends EQdkp_Admin
         $pattern  .= "\s*?Level ([0-9]{1,2}) ([^-\(]+)";
 
         // Guild Tag
-		$pattern .= "\s*?(?:\((.*?)\))?";
+        $pattern .= "\s*?(?:\((.*?)\))?";
 
         // Zone:
         $pattern  .= "\s*?- (.*)";
 
-		// End pattern regexp
+        // End pattern regexp
         $pattern .= '/';
 
 
-		// unset a line match type identifier
-		unset($type_line);
-	
-		// match things the hard way..one type of line at a time
-		// crappy way to do it, but VERY easy to read and alter
-	
-		// Normal	
-		if ( preg_match($pattern, $log_line, $log_parsed) ) 
-		{ 
-			$name = trim($log_parsed[1]);
-			$level = trim($log_parsed[2]);
-			$class = trim($log_parsed[3]);
-			$guildtag = ( isset($log_parsed[5]) ? trim($log_parsed[4]) : '' );
-			$zone = ( isset($log_parsed[5]) ? trim($log_parsed[5]) : trim($log_parsed[4]) );
-			$type_line = 1;
-		}
-	
+        // unset a line match type identifier
+        unset($type_line);
+    
+        // match things the hard way..one type of line at a time
+        // crappy way to do it, but VERY easy to read and alter
+    
+        // Normal    
+        if ( preg_match($pattern, $log_line, $log_parsed) ) 
+        { 
+            $name = trim($log_parsed[1]);
+            $level = trim($log_parsed[2]);
+            $class = trim($log_parsed[3]);
+            $guildtag = ( isset($log_parsed[5]) ? trim($log_parsed[4]) : '' );
+            $zone = ( isset($log_parsed[5]) ? trim($log_parsed[5]) : trim($log_parsed[4]) );
+            $type_line = 1;
+        }
+    
 
-		if ($type_line == 1) {
-			print"Name: $name , Level: $level , Class: $class , Guild: $guildtag , Zone: $zone<br>";
-		} 
+        if ($type_line == 1) {
+            print"Name: $name , Level: $level , Class: $class , Guild: $guildtag , Zone: $zone<br>";
+        } 
 
 
-		if ( (isset($name)) && ($name != '') )
-		{
-			$name_check = true;
-		}
-		
-		// Check if we're including this member's rank
-		if ( isset($member_ranks[$name]) )
-		{
-			// If POST[r_<rank_name>] isn't set, we're ignoring this member
-			if ( !isset($_POST[ $member_ranks[$name] ]) )
-			{
-				$rank_check = false;
-			}
-		}
-		
-		if ( ($name_check) && ($role_check) && ($rank_check) )
-		{
-			$_SESSION[$name] = array(
-				'tag'   => $guildtag,
-				'name'  => $name,
-				'level' => $level,
-				'class' => $class,
-				'race'  => $race);
-				
-			return $name;
-		}
+        if ( (isset($name)) && ($name != '') )
+        {
+            $name_check = true;
+        }
+        
+        // Check if we're including this member's rank
+        if ( isset($member_ranks[$name]) )
+        {
+            // If POST[r_<rank_name>] isn't set, we're ignoring this member
+            if ( !isset($_POST[ $member_ranks[$name] ]) )
+            {
+                $rank_check = false;
+            }
+        }
+        
+        if ( ($name_check) && ($role_check) && ($rank_check) )
+        {
+            $_SESSION[$name] = array(
+                'tag'   => $guildtag,
+                'name'  => $name,
+                'level' => $level,
+                'class' => $class,
+                'race'  => $race);
+                
+            return $name;
+        }
         return false;
     }
     
@@ -360,7 +360,7 @@ class Parse_Log extends EQdkp_Admin
         
         $log_columns = ( preg_match("/Mozilla\/4\.[1-9]{1}.+/", $_SERVER['HTTP_USER_AGENT']) ) ? '50' : '90';
 
-		$options = array();
+        $options = array();
 
         // Guildtags to parse
         if ( !empty($eqdkp->config['parsetags']) )

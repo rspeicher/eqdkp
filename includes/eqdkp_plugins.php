@@ -250,13 +250,13 @@ class EQdkp_Plugin_Manager
             while ( $d_plugin_code = @readdir($dir) )
             {
                 $cwd = $eqdkp_root_path . 'plugins/' . $d_plugin_code;
-                if ( 	(!is_file($cwd)) && 
-		 	(!is_link($cwd)) && 
-			($d_plugin_code != '.') && 
-			($d_plugin_code != '..') && 
-			($d_plugin_code != 'CVS') && 
-			($d_plugin_code != '.svn') &&
-			(substr($d_plugin_code, 0, 1) != '_') )
+                if (     (!is_file($cwd)) && 
+             (!is_link($cwd)) && 
+            ($d_plugin_code != '.') && 
+            ($d_plugin_code != '..') && 
+            ($d_plugin_code != 'CVS') && 
+            ($d_plugin_code != '.svn') &&
+            (substr($d_plugin_code, 0, 1) != '_') )
                 {
                     // If $d_plugin_code is in our array of registered codes,
                     // continue with the next iteration of the while loop
@@ -307,9 +307,9 @@ class EQdkp_Plugin_Manager
                 unset($plugin_object, $d_plugin_code, $cwd);
             } // readdir
         } // opendir
-	else {
-	print "fopen didn't work.<br>";
-	}
+    else {
+    print "fopen didn't work.<br>";
+    }
 
         unset($dir);
         

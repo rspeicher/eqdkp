@@ -26,7 +26,7 @@ Global de-stupifying from 1.3
       Then again, both of them might if we start adding the proper layers of abstraction to this.
 
 Installation
-	- Add checks to prevent people overriding their current installation data.
+    - Add checks to prevent people overriding their current installation data.
     - Perhaps replace the installation stuff with the development branch's (needs a bit of polish tho).
     
 /login.php

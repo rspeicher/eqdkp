@@ -63,7 +63,7 @@ function addMember( newMember )
         if ( seenIt[thisOne] ) 
         {
             arrMembers[i] = null;
-    	}
+        }
         seenIt[thisOne] = true;
     }
     
@@ -105,7 +105,7 @@ function addMember( newMember )
       <table width="100%" border="0" cellpadding="3" cellspacing="0" class="borderless">
         <tr>
           <td colspan="3">{L_SEARCH_MEMBERS}: <input type="text" name="memberSearch" size="35" maxlength="255" value="" class="input" onkeyup="fnSearch(this.name, 'member_name')" /></td>
-		</tr>
+        </tr>
         <tr>
           <td>
           <select size="30" name="member_name" class="input" onchange="addMember(this.value);">

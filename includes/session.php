@@ -282,7 +282,7 @@ class User extends Session
     * @param $lang_set Language to set
     * @param $style Style ID to set
     */
-	// FIXME: $lang_set doesn't seem to be used anywhere
+    // FIXME: $lang_set doesn't seem to be used anywhere
     function setup($lang_set = false, $style = false)
     {
         global $db, $eqdkp, $eqdkp_root_path, $tpl;
@@ -432,7 +432,7 @@ class User extends Session
         }
         
         // If auth_value ends with a '_' it's checking for any permissions of that type
-		// FIXME: Easy change to a preg_match here
+        // FIXME: Easy change to a preg_match here
         $exact = ( strrpos($auth_value, '_') == (strlen($auth_value) - 1) ) ? false : true;
         
         foreach ( $auth as $value => $setting )

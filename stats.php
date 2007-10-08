@@ -165,7 +165,7 @@ while ( $row = $db->fetch_record($result) )
 {
     $class = $row['class_name'];
     $class_id = $row['class_id'];
-	
+    
     $class_drops = $row['class_drops'];
     $class_drop_pct = ( $total_drops > 0 ) ? round(($class_drops / $total_drops) * 100) : 0;
 
@@ -235,7 +235,7 @@ $db->free_result($result);
 // We still need to find out how many of the class exist
 $sql = "SELECT c.class_name, count(m.member_id) as class_count
         FROM __members AS m, __classes AS c
-	    WHERE m.`member_class_id` = c.`class_id`
+        WHERE m.`member_class_id` = c.`class_id`
         GROUP BY m.`member_class_id`";
 $result = $db->query($sql);
 
@@ -264,7 +264,7 @@ while ( $row = $db->fetch_record($result) )
     {
         $v = $eq_classes[$class];
     }
-	// FIXME: Direct use of $_GET variable
+    // FIXME: Direct use of $_GET variable
     $row_class = ( (!empty($_GET['class'])) && ($_GET['class'] == $k) ) ? 'rowhead' : $eqdkp->switch_row_class();
 
     $loot_factor = ( $v['class_pct'] > 0 ) ? round((($v['drop_pct'] / $v['class_pct']) - 1) * 100) : '0';
@@ -319,7 +319,7 @@ $tpl->assign_vars(array(
 
     'U_STATS' => 'stats.php'.$SID.'&amp;',
 
-	// FIXME: Direct use of $_GET variable
+    // FIXME: Direct use of $_GET variable
     'SHOW' => ( isset($_GET['show']) ) ? htmlspecialchars(strip_tags($_GET['show']), ENT_QUOTES) : '',
 
     'STATS_FOOTCOUNT' => $footcount_text)

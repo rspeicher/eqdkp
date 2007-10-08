@@ -103,11 +103,11 @@ class Add_Event extends EQdkp_Admin
         
         //
         // Insert event
-	// New for 1.3 - stripslashes out of event names.
+    // New for 1.3 - stripslashes out of event names.
         //
 
-	$clean_event_name = str_replace("'","", $_POST['event_name']);
-	$clean_event_name = str_replace("`","", $clean_event_name);
+    $clean_event_name = str_replace("'","", $_POST['event_name']);
+    $clean_event_name = str_replace("`","", $clean_event_name);
 
         $query = $db->build_query('INSERT', array(
             'event_name'     => ($clean_event_name),
@@ -162,7 +162,7 @@ class Add_Event extends EQdkp_Admin
         
         $this->get_old_data();
         // FIXME: Injection
-	    $clean_event_name = stripslashes($_POST['event_name']);
+        $clean_event_name = stripslashes($_POST['event_name']);
         
         //
         // Update any raids with the old name

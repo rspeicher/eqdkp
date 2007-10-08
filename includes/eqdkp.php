@@ -375,7 +375,7 @@ class EQdkp
             $main_menu2[] = array('link' => 'login.php' . $SID, 'text' => $user->lang['login']);
         }
         
-		$main_menu2 = (is_array($pm->get_menus('main_menu2'))) ? array_merge($main_menu2, $pm->get_menus('main_menu2')) : $main_menu2;
+        $main_menu2 = (is_array($pm->get_menus('main_menu2'))) ? array_merge($main_menu2, $pm->get_menus('main_menu2')) : $main_menu2;
         
         $menus = array(
             'menu1' => $main_menu1,
@@ -592,7 +592,7 @@ class EQdkp_Admin
         if ( @sizeof($_POST) > 0 )
         {
             // Sanitize our POST vars
-			// FIXME: Shoddy use of $_POST variable
+            // FIXME: Shoddy use of $_POST variable
             $_POST = sanitize_tags($_POST);
             
             // Confirm is an automatic button option if confirm_delete is called
@@ -1028,7 +1028,7 @@ class Form_Validate
         }
     }
 
-	// FIXME: Insecure misuse of global variables => SQL Injection.
+    // FIXME: Insecure misuse of global variables => SQL Injection.
     /**
     * Returns the value of a variable in _POST or _GET
     *

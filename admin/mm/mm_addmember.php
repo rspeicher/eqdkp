@@ -105,11 +105,11 @@ class MM_Addmember extends EQdkp_Admin
         if ( !empty($this->url_id) )
         {
             $sql = "SELECT m.*, (m.member_earned - m.member_spent + m.member_adjustment) AS member_current, 
-			            c.class_name AS member_class, r.race_name AS member_race
+                        c.class_name AS member_class, r.race_name AS member_race
                     FROM __members AS m, __classes AS c, __races AS r  
-        			WHERE r.`race_id` = m.`member_race_id` 
-        			AND c.`class_id` = m.`member_class_id`
-        			AND m.`member_name` = '{$this->url_id}'";
+                    WHERE r.`race_id` = m.`member_race_id` 
+                    AND c.`class_id` = m.`member_class_id`
+                    AND m.`member_name` = '{$this->url_id}'";
             $result = $db->query($sql);
             $row = $db->fetch_record($result);
             $db->free_result($result);
@@ -164,13 +164,13 @@ class MM_Addmember extends EQdkp_Admin
         $member_name = strtolower(preg_replace('/[[:space:]]/i', ' ', $_POST['member_name']));
         $member_name = ucwords($member_name);
 
-	// Check for existing member name
-	$sql = "SELECT member_id FROM __members WHERE `member_name` = '{$member_name}'";
-	$member_id = $db->query_first($sql);
+    // Check for existing member name
+    $sql = "SELECT member_id FROM __members WHERE `member_name` = '{$member_name}'";
+    $member_id = $db->query_first($sql);
 
 
-	// Error out if member name exists
-	if ( isset($member_id) && $member_id > 0 ) {
+    // Error out if member name exists
+    if ( isset($member_id) && $member_id > 0 ) {
 
           $failure_message = "Failed to add $member_name; member exists as ID $member_id";
           $link_list = array(
@@ -180,7 +180,7 @@ class MM_Addmember extends EQdkp_Admin
           message_die($failure_message, $link_list);
 
         }
-	
+    
 
         $query = $db->build_query('INSERT', array(
             'member_name'       => $member_name,
@@ -260,17 +260,17 @@ class MM_Addmember extends EQdkp_Admin
         );
         $db->query("UPDATE __members SET {$query} WHERE `member_name` = '{$old_member_name}'");
 
-    	if ( !($member_name == $old_member_name) )
-    	{
-    		$sql = "UPDATE __raid_attendees SET `member_name` = '{$member_name}' WHERE `member_name` = '{$old_member_name}'";
-    		$db->query_first($sql);
-	
-    		$sql = "UPDATE __items SET `item_buyer` = '{$member_name}' WHERE `item_buyer` = '{$old_member_name}'";
-    		$db->query_first($sql);
+        if ( !($member_name == $old_member_name) )
+        {
+            $sql = "UPDATE __raid_attendees SET `member_name` = '{$member_name}' WHERE `member_name` = '{$old_member_name}'";
+            $db->query_first($sql);
+    
+            $sql = "UPDATE __items SET `item_buyer` = '{$member_name}' WHERE `item_buyer` = '{$old_member_name}'";
+            $db->query_first($sql);
 
             $sql = "UPDATE __adjustments SET `member_name` = '{$member_name}' WHERE `member_name` = '{$old_member_name}'";
             $db->query_first($sql);
-    	}
+        }
 
         //
         // Logging
@@ -426,17 +426,17 @@ class MM_Addmember extends EQdkp_Admin
         while ( $row = $db->fetch_record($result) )
         {
 
-	   if ( $row['class_min_level'] == '0' ) {
+       if ( $row['class_min_level'] == '0' ) {
              $option = ( !empty($row['class_name']) ) ? stripslashes($row['class_name'])." Level (".$row['class_min_level']." - ".$row['class_max_level'].")" : '(None)';
            } else {
              $option = ( !empty($row['class_name']) ) ? stripslashes($row['class_name'])." Level ".$row['class_min_level']."+" : '(None)';
-	   }
+       }
 
             $tpl->assign_block_vars('class_row', array(
                 'VALUE' => $row['class_id'],
                 'SELECTED' => ( $this->member['member_class_id'] == $row['class_id'] ) ? ' selected="selected"' : '',
-		'OPTION'   => $option )
-		);
+        'OPTION'   => $option )
+        );
 
             $eq_classes[] = $row[0];
         }
@@ -456,14 +456,14 @@ class MM_Addmember extends EQdkp_Admin
                 'VALUE' => $row['race_id'],
                 'SELECTED' => ( $this->member['member_race_id'] == $row['race_id'] ) ? ' selected="selected"' : '',
                 'OPTION'   => ( !empty($row['race_name']) ) ? stripslashes($row['race_name']) : '(None)')
-		);
+        );
 
             $eq_races[] = $row[0];
         }
 
         $db->free_result($result);
 
-	// end 1.3 changes
+    // end 1.3 changes
 
         if ( !empty($this->member['member_name']) )
         {

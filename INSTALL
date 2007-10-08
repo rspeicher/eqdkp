@@ -172,15 +172,15 @@ Most of the fields have descriptions where appropriate, but some need to be rein
         
 
     Default Game:
-	If you are running something other than EverQuest for your game, you'll need to change it
-	now.  Select WoW, Everquest2, or any of the other games available.
+    If you are running something other than EverQuest for your game, you'll need to change it
+    now.  Select WoW, Everquest2, or any of the other games available.
 
     Backup Database:
-	This will take you to an add-on that will let you back-up your eqdkp database without having to 
-	use phpMyAdmin - very useful if you don't have access to the box after the admin leaves the 
-	guild, no?  Can also be used to restore a database - so be very careful as there are no
-	special permissions needed for this functionality - admin access allows access to backup (this
-	is intentional)
+    This will take you to an add-on that will let you back-up your eqdkp database without having to 
+    use phpMyAdmin - very useful if you don't have access to the box after the admin leaves the 
+    guild, no?  Can also be used to restore a database - so be very careful as there are no
+    special permissions needed for this functionality - admin access allows access to backup (this
+    is intentional)
 
 Have Fun!
 

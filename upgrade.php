@@ -188,20 +188,20 @@ class Upgrade
         global $db, $eqdkp, $user, $tpl, $pm;
         global $SID, $table_prefix;
 
-	$sql = 'SELECT config_value FROM ' . $table_prefix .'config WHERE config_name = "default_game"';
-	$result = $db->query_first($sql);
-	
-	if ( $result == "WoW" ) {
-	
-		$sql = 'UPDATE ' . $table_prefix .'classes 
-			SET class_armor_type = "Mail" 
-			WHERE (class_armor_type = "Chain" 
-			    OR class_armor_type = "chain")';
-		$db->query($sql);
-	}
+    $sql = 'SELECT config_value FROM ' . $table_prefix .'config WHERE config_name = "default_game"';
+    $result = $db->query_first($sql);
+    
+    if ( $result == "WoW" ) {
+    
+        $sql = 'UPDATE ' . $table_prefix .'classes 
+            SET class_armor_type = "Mail" 
+            WHERE (class_armor_type = "Chain" 
+                OR class_armor_type = "chain")';
+        $db->query($sql);
+    }
 
-	$sql = 'CREATE UNIQUE INDEX member_idx ON ' . $table_prefix .'members (member_name)';
-	$result = $db->query_first($sql);
+    $sql = 'CREATE UNIQUE INDEX member_idx ON ' . $table_prefix .'members (member_name)';
+    $result = $db->query_first($sql);
 
         $this->finalize($index);
     }
@@ -224,14 +224,14 @@ class Upgrade
 
         $queries = array(
 
-	"DROP TABLE IF EXISTS " . $table_prefix ."classes",
-	"DROP TABLE IF EXISTS " . $table_prefix ."races",
-	"DROP TABLE IF EXISTS " . $table_prefix ."factions",
-	"CREATE TABLE " . $table_prefix ."classes ( c_index smallint(3) unsigned NOT NULL auto_increment, class_id smallint(3) unsigned NOT NULL, class_name varchar(50) NOT NULL, class_armor_type varchar(50) NOT NULL, class_hide enum('0','1') NOT NULL DEFAULT '0', class_min_level smallint(3) unsigned NOT NULL default '0', class_max_level smallint(3) unsigned NOT NULL DEFAULT '999', PRIMARY KEY (c_index));",
+    "DROP TABLE IF EXISTS " . $table_prefix ."classes",
+    "DROP TABLE IF EXISTS " . $table_prefix ."races",
+    "DROP TABLE IF EXISTS " . $table_prefix ."factions",
+    "CREATE TABLE " . $table_prefix ."classes ( c_index smallint(3) unsigned NOT NULL auto_increment, class_id smallint(3) unsigned NOT NULL, class_name varchar(50) NOT NULL, class_armor_type varchar(50) NOT NULL, class_hide enum('0','1') NOT NULL DEFAULT '0', class_min_level smallint(3) unsigned NOT NULL default '0', class_max_level smallint(3) unsigned NOT NULL DEFAULT '999', PRIMARY KEY (c_index));",
 
-	"CREATE TABLE " . $table_prefix ."races ( race_id smallint(3) unsigned NOT NULL UNIQUE, race_name varchar(50) NOT NULL, race_faction_id smallint(3) NOT NULL, race_hide enum('0','1') NOT NULL DEFAULT '0', PRIMARY KEY (race_id));",
+    "CREATE TABLE " . $table_prefix ."races ( race_id smallint(3) unsigned NOT NULL UNIQUE, race_name varchar(50) NOT NULL, race_faction_id smallint(3) NOT NULL, race_hide enum('0','1') NOT NULL DEFAULT '0', PRIMARY KEY (race_id));",
 
-	"CREATE TABLE " . $table_prefix ."factions ( faction_id smallint(3) unsigned NOT NULL UNIQUE, faction_name varchar(50) NOT NULL, faction_hide enum('0','1') NOT NULL DEFAULT '0', PRIMARY KEY (faction_id));",
+    "CREATE TABLE " . $table_prefix ."factions ( faction_id smallint(3) unsigned NOT NULL UNIQUE, faction_name varchar(50) NOT NULL, faction_hide enum('0','1') NOT NULL DEFAULT '0', PRIMARY KEY (faction_id));",
 
         "ALTER TABLE " . $table_prefix . "member_ranks MODIFY rank_id smallint(6) NOT NULL default '0';",
 
@@ -240,56 +240,56 @@ class Upgrade
         "ALTER TABLE " . $table_prefix . "members ADD member_class_id smallint(3) NOT NULL default '0';",
         "ALTER TABLE " . $table_prefix . "members ADD member_race_id smallint(3) NOT NULL default '0';",
 
-	"ALTER TABLE " . $table_prefix . "items MODIFY item_value float (6,2);",
+    "ALTER TABLE " . $table_prefix . "items MODIFY item_value float (6,2);",
 
-	"INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (0, 'Unknown', 'Plate');",
-	"INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (1, 'Warrior', 'Plate');",
-	"INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (2, 'Rogue', 'Chain');",
-	"INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (3, 'Monk', 'Leather');",
-	"INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (4, 'Ranger', 'Chain');",
-	"INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (5, 'Paladin', 'Plate');",
-	"INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (6, 'Shadow Knight', 'Plate');",
-	"INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (7, 'Bard', 'Plate');",
-	"INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (8, 'Beastlord', 'Leather');",
-	"INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (9, 'Cleric', 'Plate');",
-	"INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (10, 'Druid', 'Leather');",
-	"INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (11, 'Shaman', 'Chain');",
-	"INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (12, 'Enchanter', 'Silk');",
-	"INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (13, 'Wizard', 'Silk');",
-	"INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (14, 'Necromancer', 'Silk');",
-	"INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (15, 'Magician', 'Silk');",
-	"INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (16, 'Berserker', 'Leather');",
+    "INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (0, 'Unknown', 'Plate');",
+    "INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (1, 'Warrior', 'Plate');",
+    "INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (2, 'Rogue', 'Chain');",
+    "INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (3, 'Monk', 'Leather');",
+    "INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (4, 'Ranger', 'Chain');",
+    "INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (5, 'Paladin', 'Plate');",
+    "INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (6, 'Shadow Knight', 'Plate');",
+    "INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (7, 'Bard', 'Plate');",
+    "INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (8, 'Beastlord', 'Leather');",
+    "INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (9, 'Cleric', 'Plate');",
+    "INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (10, 'Druid', 'Leather');",
+    "INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (11, 'Shaman', 'Chain');",
+    "INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (12, 'Enchanter', 'Silk');",
+    "INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (13, 'Wizard', 'Silk');",
+    "INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (14, 'Necromancer', 'Silk');",
+    "INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (15, 'Magician', 'Silk');",
+    "INSERT IGNORE INTO ". $table_prefix ."classes (class_id, class_name, class_armor_type) VALUES (16, 'Berserker', 'Leather');",
 
-	"INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (0, 'Unknown');",
-	"INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (1, 'Gnome');",
-	"INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (2, 'Human');",
-	"INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (3, 'Barbarian');",
-	"INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (4, 'Dwarf');",
-	"INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (5, 'High Elf');",
-	"INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (6, 'Dark Elf');",
-	"INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (7, 'Wood Elf');",
-	"INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (8, 'Half Elf');",
-	"INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (9, 'Vah Shir');",
-	"INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (10, 'Troll');",
-	"INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (11, 'Ogre');",
-	"INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (12, 'Frog');",
-	"INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (13, 'Iksar');",
-	"INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (14, 'Erudite');",
-	"INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (15, 'Halfling');",
+    "INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (0, 'Unknown');",
+    "INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (1, 'Gnome');",
+    "INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (2, 'Human');",
+    "INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (3, 'Barbarian');",
+    "INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (4, 'Dwarf');",
+    "INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (5, 'High Elf');",
+    "INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (6, 'Dark Elf');",
+    "INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (7, 'Wood Elf');",
+    "INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (8, 'Half Elf');",
+    "INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (9, 'Vah Shir');",
+    "INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (10, 'Troll');",
+    "INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (11, 'Ogre');",
+    "INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (12, 'Frog');",
+    "INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (13, 'Iksar');",
+    "INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (14, 'Erudite');",
+    "INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (15, 'Halfling');",
 
-	"INSERT IGNORE INTO ". $table_prefix ."factions (faction_id, faction_name) VALUES (1, 'Good');",
-	"INSERT IGNORE INTO ". $table_prefix ."factions (faction_id, faction_name) VALUES (2, 'Evil');",
+    "INSERT IGNORE INTO ". $table_prefix ."factions (faction_id, faction_name) VALUES (1, 'Good');",
+    "INSERT IGNORE INTO ". $table_prefix ."factions (faction_id, faction_name) VALUES (2, 'Evil');",
 
-	"INSERT INTO ". $table_prefix ."config (config_name, config_value) VALUES ('default_game', 'Everquest');",
-	"INSERT INTO ". $table_prefix ."config (config_name, config_value) VALUES ('default_locale', 'en_US');",
+    "INSERT INTO ". $table_prefix ."config (config_name, config_value) VALUES ('default_game', 'Everquest');",
+    "INSERT INTO ". $table_prefix ."config (config_name, config_value) VALUES ('default_locale', 'en_US');",
 
-	"UPDATE ". $table_prefix ."members m, ". $table_prefix ."classes c SET m.member_class_id = c.class_id WHERE m.member_class = c.class_name;",
-	"UPDATE ". $table_prefix ."members m, ". $table_prefix ."races r SET m.member_race_id = r.race_id WHERE m.member_race = r.race_name;",
+    "UPDATE ". $table_prefix ."members m, ". $table_prefix ."classes c SET m.member_class_id = c.class_id WHERE m.member_class = c.class_name;",
+    "UPDATE ". $table_prefix ."members m, ". $table_prefix ."races r SET m.member_race_id = r.race_id WHERE m.member_race = r.race_name;",
 
         "ALTER TABLE " . $table_prefix . "members DROP member_class;",
         "ALTER TABLE " . $table_prefix . "members DROP member_race;",
 
-		# queries for upgrade go here
+        # queries for upgrade go here
         );
 
         foreach ( $queries as $sql )
@@ -303,29 +303,29 @@ class Upgrade
     
     function upgrade_131($index)
     {
-    	global $db, $eqdkp, $user, $tpl, $pm;
-    	global $SID, $table_prefix;
-			
-			$sql = 'SELECT config_value FROM ' . $table_prefix .'config WHERE config_name = "default_game"';
-			$result = $db->query_first($sql);
-			
-			$sql = '';
-			
-			if ( $result == "WoW" )
-			{
-				$sql[] = "INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (9, 'Draenei');";
-				$sql[] = "INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (10, 'Blood Elf');";
-				$sql[] = "UPDATE ". $table_prefix ."classes SET class_max_level = 70 WHERE class_max_level = 60;";
-			}
-			$sql[] = "UPDATE ". $table_prefix ."auth_options SET auth_value = 'a_backup' WHERE auth_id = '36';";
-			if ( is_array($sql) ) 
-			{
-				foreach ( $sql as $query )
-				{
-					$db->query($query);
-				}
-			}
-    	$this->finalize($index);
+        global $db, $eqdkp, $user, $tpl, $pm;
+        global $SID, $table_prefix;
+            
+            $sql = 'SELECT config_value FROM ' . $table_prefix .'config WHERE config_name = "default_game"';
+            $result = $db->query_first($sql);
+            
+            $sql = '';
+            
+            if ( $result == "WoW" )
+            {
+                $sql[] = "INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (9, 'Draenei');";
+                $sql[] = "INSERT IGNORE INTO ". $table_prefix ."races (race_id, race_name) VALUES (10, 'Blood Elf');";
+                $sql[] = "UPDATE ". $table_prefix ."classes SET class_max_level = 70 WHERE class_max_level = 60;";
+            }
+            $sql[] = "UPDATE ". $table_prefix ."auth_options SET auth_value = 'a_backup' WHERE auth_id = '36';";
+            if ( is_array($sql) ) 
+            {
+                foreach ( $sql as $query )
+                {
+                    $db->query($query);
+                }
+            }
+        $this->finalize($index);
     }
 
     function display_form()

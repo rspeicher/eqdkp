@@ -20,7 +20,6 @@ $user->check_auth('u_raid_list');
 //
 // Build the from/to GET vars to pass back to the script
 //
-// FIXME: Perhaps an incorrect check. (?)
 if ( $in->get('submit') == $user->lang['create_news_summary'] )
 {
     $fv = new Form_Validate();

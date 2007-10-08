@@ -38,13 +38,13 @@ if ( (!isset($_GET[URI_PAGE])) || ($_GET[URI_PAGE] == 'group') )
     $page_title = sprintf($user->lang['admin_title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['listadj_title'];
     
     $total_adjustments = $db->query_first("SELECT count(*) FROM __adjustments WHERE member_name IS NULL");
-    $start = ( isset($_GET['start']) ) ? $_GET['start'] : 0;
+    $start = $in->get('start', 0);
     
     $s_group_adj = true;
     
     $sql = "SELECT adjustment_id, adjustment_value, adjustment_date, adjustment_added_by
             FROM __adjustments
-            WHERE member_name IS NULL
+            WHERE (member_name IS NULL)
             ORDER BY {$current_order['sql']}
             LIMIT {$start},{$user->data['user_alimit']}";
     
@@ -65,14 +65,13 @@ elseif ( $_GET[URI_PAGE] == 'individual' )
     $page_title = sprintf($user->lang['admin_title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['listiadj_title'];
     
     $total_adjustments = $db->query_first("SELECT count(*) FROM __adjustments WHERE member_name IS NOT NULL");
-    // FIXME: Injection
-    $start = ( isset($_GET['start']) ) ? $_GET['start'] : 0;
+    $start = $in->get('start', 0);
     
     $s_group_adj = false;
     
     $sql = "SELECT adjustment_id, adjustment_value, member_name, adjustment_reason, adjustment_date, adjustment_added_by
             FROM __adjustments
-            WHERE member_name IS NOT NULL
+            WHERE (member_name IS NOT NULL)
             ORDER BY {$current_order['sql']}
             LIMIT {$start},{$user->data['user_alimit']}";
     
@@ -89,43 +88,43 @@ if ( !($adj_result = $db->query($sql)) )
 while ( $adj = $db->fetch_record($adj_result) )
 {
     $tpl->assign_block_vars('adjustments_row', array(
-        'ROW_CLASS' => $eqdkp->switch_row_class(),
+        'ROW_CLASS'        => $eqdkp->switch_row_class(),
         'U_ADD_ADJUSTMENT' => (( $s_group_adj ) ? 'addadj.php' : 'addiadj.php') . $SID.'&amp;' . URI_ADJUSTMENT . '='.$adj['adjustment_id'],
-        'DATE' => date($user->style['date_notime_short'], $adj['adjustment_date']),
-        'U_VIEW_MEMBER' => ( isset($adj['member_name']) ) ? $eqdkp_root_path.'viewmember.php'.$SID.'&amp;' . URI_NAME . '='.$adj['member_name'] : '',
-        'MEMBER' => ( isset($adj['member_name']) ) ? $adj['member_name'] : '',
-        'REASON' => ( isset($adj['adjustment_reason']) ) ? stripslashes($adj['adjustment_reason'])  : '',
-        'ADJUSTMENT' => $adj['adjustment_value'],
-        'C_ADJUSTMENT' => color_item($adj['adjustment_value']),
-        'ADDED_BY' => ( isset($adj['adjustment_added_by']) ) ? $adj['adjustment_added_by'] : '')
-    );
+        'DATE'             => date($user->style['date_notime_short'], $adj['adjustment_date']),
+        'U_VIEW_MEMBER'    => ( isset($adj['member_name']) ) ? $eqdkp_root_path.'viewmember.php'.$SID.'&amp;' . URI_NAME . '='.$adj['member_name'] : '',
+        'MEMBER'           => ( isset($adj['member_name']) ) ? $adj['member_name'] : '',
+        'REASON'           => ( isset($adj['adjustment_reason']) ) ? stripslashes($adj['adjustment_reason'])  : '',
+        'ADJUSTMENT'       => $adj['adjustment_value'],
+        'C_ADJUSTMENT'     => color_item($adj['adjustment_value']),
+        'ADDED_BY'         => ( isset($adj['adjustment_added_by']) ) ? $adj['adjustment_added_by'] : ''
+    ));
 }
 $db->free_result($adj_result);
 
 $tpl->assign_vars(array(
-    'L_DATE' => $user->lang['date'],
-    'L_MEMBER' => $user->lang['member'],
-    'L_REASON' => $user->lang['reason'],
+    'L_DATE'       => $user->lang['date'],
+    'L_MEMBER'     => $user->lang['member'],
+    'L_REASON'     => $user->lang['reason'],
     'L_ADJUSTMENT' => $user->lang['adjustment'],
-    'L_ADDED_BY' => $user->lang['added_by'],
+    'L_ADDED_BY'   => $user->lang['added_by'],
     
-    'O_DATE' => $current_order['uri'][0],
-    'O_MEMBER' => $current_order['uri'][1],
-    'O_REASON' => $current_order['uri'][2],
+    'O_DATE'       => $current_order['uri'][0],
+    'O_MEMBER'     => $current_order['uri'][1],
+    'O_REASON'     => $current_order['uri'][2],
     'O_ADJUSTMENT' => $current_order['uri'][3],
-    'O_ADDED_BY' => $current_order['uri'][4],
+    'O_ADDED_BY'   => $current_order['uri'][4],
     
     'U_LIST_ADJUSTMENTS' => $u_list_adjustments,
     
-    'START' => $start,
-    'S_GROUP_ADJ' => $s_group_adj,
-    'LISTADJ_FOOTCOUNT' => $listadj_footcount,
-    'ADJUSTMENT_PAGINATION' => $pagination)
-);
+    'START'                 => $start,
+    'S_GROUP_ADJ'           => $s_group_adj,
+    'LISTADJ_FOOTCOUNT'     => $listadj_footcount,
+    'ADJUSTMENT_PAGINATION' => $pagination
+));
 
 $eqdkp->set_vars(array(
     'page_title'    => $page_title,
     'template_file' => 'admin/listadj.html',
-    'display'       => true)
-);
+    'display'       => true
+));
 ?>

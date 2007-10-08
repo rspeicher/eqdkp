@@ -17,14 +17,18 @@ if ( !defined('EQDKP_INC') )
 }
 
 /**
- * Translate qoute characters to their HTML entities, and stirp HTML tags.
+ * Translate qoute characters to their HTML entities, and strip HTML tags.
  */
 function sanitize($input)
 {
     return htmlspecialchars(strip_tags($input), ENT_QUOTES);
 }
 
-// FIXME: Insecure misuse of global variables => SQL Injection.
+function unsanitize($input)
+{
+    return htmlspecialchars_decode($input, ENT_QUOTES);
+}
+
 /**
 * Checks if a POST field value exists;
 * If it does, we use that one, otherwise we use the optional database field value,
@@ -212,8 +216,9 @@ function color_item($item, $percentage = false)
 */
 function switch_order($sort_order)
 {
-    // FIXME: Direct use of $_GET variable => SQL Injection.
-    $uri_order = ( isset($_GET[URI_ORDER]) ) ? $_GET[URI_ORDER] : '0.0';
+    global $in;
+    
+    $uri_order = $in->get(URI_ORDER, 0.0);
     $uri_order = explode('.', $uri_order);
     $element1 = ( isset($uri_order[0]) ) ? $uri_order[0] : 0;
     $element2 = ( isset($uri_order[1]) ) ? $uri_order[1] : 0;
@@ -359,6 +364,7 @@ function redirect($url)
     exit;
 }
 
+// TODO: This method seems out of place here, and may be more comfortable in EQdkp_Admin
 /**
 * Outputs a message asking the user if they're sure they want to delete something
 *
@@ -400,6 +406,7 @@ function confirm_delete($confirm_text, $uri_parameter, $parameter_value, $action
     exit;
 }
 
+/*
 function stripmultslashes($string)
 {
     $string = preg_replace("#(\\\){1,}(\"|\&quot;)#", '"', $string);
@@ -407,7 +414,9 @@ function stripmultslashes($string)
     
     return $string;
 }
+*/
 
+// TODO: To be replaced by sanitize() and unsanitize()
 function sanitize_tags($data)
 {
     if ( is_array($data) )
@@ -426,6 +435,7 @@ function sanitize_tags($data)
     return $data;
 }
 
+// TODO: To be replaced by sanitize() and unsanitize()
 function undo_sanitize_tags($data)
 {
     if ( is_array($data) )
@@ -444,6 +454,7 @@ function undo_sanitize_tags($data)
     return $data;
 }
 
+// TODO: Remove this once we remove the few calls to it.
 /**
 * Applies htmlspecialchars to an array of data
 * 
@@ -451,7 +462,6 @@ function undo_sanitize_tags($data)
 * @param $data
 * @return array
 */
-// TODO: Remove this once we remove the few calls to it.
 function htmlspecialchars_array($data)
 {
     if ( is_array($data) )

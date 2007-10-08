@@ -275,8 +275,8 @@ class Add_News extends EQdkp_Admin
             'S_UPDATE'   => ( $this->url_id ) ? true : false,
 
             // Form values
-            'HEADLINE' => stripslashes(htmlspecialchars($this->news['news_headline'])),
-            'MESSAGE'  => stripmultslashes($this->news['news_message']),
+            'HEADLINE' => $this->news['news_headline'],
+            'MESSAGE'  => $this->news['news_message'],
 
             // Language (General)
             'L_HEADLINE'       => $user->lang['headline'],

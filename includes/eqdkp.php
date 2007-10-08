@@ -588,7 +588,7 @@ class EQdkp_Admin
         $processed    = false;
         
         // Form has been submitted
-        if ( @sizeof($_POST) > 0 )
+        if ( count($_POST) > 0 )
         {
             // Sanitize our POST vars
             // FIXME: Shoddy use of $_POST variable
@@ -892,7 +892,7 @@ class EQdkp_Admin
         global $eqdkp, $user, $tpl, $pm;
         global $SID;
         
-        $message = stripmultslashes($message);
+        $message = sanitize($message);
         
         if ( (is_array($link_list)) && (sizeof($link_list) > 0) )
         {
@@ -1027,25 +1027,21 @@ class Form_Validate
         }
     }
 
-    // FIXME: Insecure misuse of global variables => SQL Injection.
     /**
     * Returns the value of a variable in _POST or _GET
     *
     * @access private
     * @param $field_name Field name
-    * @param $from post/get
     * @return mixed Value of the field_name
     */
-    function _get_value($field_name, $from = 'post')
+    function _get_value($field_name)
     {
-        if ( $from == 'post' )
-        {
-            return ( isset($_POST[$field_name]) ) ? $_POST[$field_name] : false;
-        }
-        elseif ( $from == 'get' )
-        {
-            return ( isset($_GET[$field_name]) ) ? $_GET[$field_name] : false;
-        }
+        global $in;
+        
+        // NOTE: This method doesn't know what default type to supply to Input::get()
+        // but it's mostly OK because this class doesn't really do anything with
+        // the user input, just validates that it matches a certain format.
+        return $in->get($field_name, '');
     }
 
     // Begin validator methods

@@ -139,7 +139,7 @@ $in    = new Input();
 
 // Start up the user/session management
 $user->start();
-$user->setup($in->get('style', $eqdkp->config['default_style']));
+$user->setup($in->get('style', 0));
 
 // Set the locale
 $cur_locale = $eqdkp->config['default_locale'];

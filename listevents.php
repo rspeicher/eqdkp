@@ -26,8 +26,7 @@ $current_order = switch_order($sort_order);
 
 $total_events = $db->query_first("SELECT count(*) FROM __events");
 
-// FIXME: SQL Injection
-$start = ( isset($_GET['start']) ) ? $_GET['start'] : 0;
+$start = $in->get('start', 0);
 
 $sql = "SELECT event_id, event_name, event_value
         FROM __events
@@ -41,31 +40,31 @@ if ( !($events_result = $db->query($sql)) )
 while ( $event = $db->fetch_record($events_result) )
 {
     $tpl->assign_block_vars('events_row', array(
-        'ROW_CLASS' => $eqdkp->switch_row_class(),
+        'ROW_CLASS'    => $eqdkp->switch_row_class(),
         'U_VIEW_EVENT' => 'viewevent.php'.$SID . '&amp;' . URI_EVENT . '='.$event['event_id'],
-        'NAME' => stripslashes($event['event_name']),
-        'VALUE' => $event['event_value'])
-    );
+        'NAME'         => stripslashes($event['event_name']),
+        'VALUE'        => $event['event_value']
+    ));
 }
 $db->free_result($events_result);
 
 $tpl->assign_vars(array(
-    'L_NAME' => $user->lang['name'],
+    'L_NAME'  => $user->lang['name'],
     'L_VALUE' => $user->lang['value'],
 
-    'O_NAME' => $current_order['uri'][0],
+    'O_NAME'  => $current_order['uri'][0],
     'O_VALUE' => $current_order['uri'][1],
 
     'U_LIST_EVENTS' => 'listevents.php'.$SID.'&amp;',
 
-    'START' => $start,
+    'START'                => $start,
     'LISTEVENTS_FOOTCOUNT' => sprintf($user->lang['listevents_footcount'], $total_events, $user->data['user_elimit']),
-    'EVENT_PAGINATION' => generate_pagination('listevents.php'.$SID.'&amp;o='.$current_order['uri']['current'], $total_events, $user->data['user_elimit'], $start))
-);
+    'EVENT_PAGINATION'     => generate_pagination('listevents.php'.$SID.'&amp;o='.$current_order['uri']['current'], $total_events, $user->data['user_elimit'], $start)
+));
 
 $eqdkp->set_vars(array(
     'page_title'    => sprintf($user->lang['title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['listevents_title'],
     'template_file' => 'listevents.html',
-    'display'       => true)
-);
+    'display'       => true
+));
 ?>

@@ -29,10 +29,6 @@ class Input
         return $retval;
     }
 
-    // ----------------------------------------------------
-    // Accessor methods
-    // ----------------------------------------------------
-    
     /**
      * A shortcut method to request an input variable. Calls the appropriate
      * type-specifc method based on the variable type of $default
@@ -52,6 +48,24 @@ class Input
             trigger_error("Input accessor method for variables of type <b>{$type}</b> doesn't exist.", E_USER_NOTICE);
             return $this->_get($key, $default);
         }
+    }
+    
+    // ----------------------------------------------------
+    // Data type methods
+    // ----------------------------------------------------
+    
+    /**
+     * Note that this method is special in that it doesn't actually return the
+     * value of the input, rather the result of isset() on the input key.
+     */
+    function boolean($key, $default = false)
+    {
+        if ( isset($_GET[$key]) || isset($_POST[$key]) )
+        {
+            return true;
+        }
+        
+        return false;
     }
     
     /**
@@ -122,7 +136,7 @@ class Input
         {
             $retval = strval($this->_get($key, $default));
             $retval = urldecode($retval);
-            //$retval = preg_replace('/\s+/', ' ', $retval); // FIXME: This breaks addnews re-displaying the form, for example
+            //$retval = preg_replace('/\s+/', ' ', $retval); // NOTE: This breaks addnews re-displaying the form, for example
             $retval = ( get_magic_quotes_gpc() ) ? stripslashes($retval) : $retval;
             
             $this->_cache[$key] = $retval;

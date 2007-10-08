@@ -35,7 +35,7 @@ $current_order = switch_order($sort_order);
 //
 // Compare members
 //
-// FIXME: if-else causes two different pages to be rendered. Split into separate files.
+// TODO: if-else causes two different pages to be rendered. Split into separate files.
 if ( $in->get('submit') == $user->lang['compare_members'] && isset($_POST['compare_ids']) )
 {
     redirect('listmembers.php?compare=' . implode(',', $_POST['compare_ids']));
@@ -152,7 +152,7 @@ else
     $gm = new Game_Manager();
     
     $filter_options = array(
-        // FIXME: Localize this string
+        // TODO: Localize this string
         array('VALUE' => '', 'SELECTED' => '', 'OPTION' => 'None'),
         array('VALUE' => '', 'SELECTED' => '', 'OPTION' => '---------')
     );
@@ -261,10 +261,9 @@ else
         }
     }
     
-    // FIXME: Direct use of $_GET variable.
     $uri_addon  = ''; // Added to the end of the sort links
     $uri_addon .= '&amp;filter=' . urlencode($filter);
-    $uri_addon .= ( isset($_GET['show']) ) ? '&amp;show=' . htmlspecialchars(strip_tags($_GET['show']), ENT_QUOTES) : '';
+    $uri_addon .= ( $in->get('show') != '' ) ? '&amp;show=' . sanitize($in->get('show')) : '';
     
     if ( ($eqdkp->config['hide_inactive'] == 1) && (!$show_all) )
     {
@@ -316,8 +315,7 @@ $tpl->assign_vars(array(
     'S_COMPARE' => $s_compare,
     'S_NOTMM'   => true,
     
-    // FIXME: Mismatched use of variables $_GET['compare'] and $compare
-    'LISTMEMBERS_FOOTCOUNT' => ( isset($_GET['compare']) ) ? sprintf($footcount_text, sizeof(explode(',', $compare))) : $footcount_text)
+    'LISTMEMBERS_FOOTCOUNT' => ( $s_compare ) ? sprintf($footcount_text, sizeof(explode(',', $compare))) : $footcount_text)
 );
 
 $eqdkp->set_vars(array(

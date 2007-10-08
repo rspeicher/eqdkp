@@ -498,7 +498,7 @@ class Register extends EQdkp_Admin
         //
         // Build language drop-down
         //
-        // FIXME: Building language drop-down. Consider revising method (also, perhaps move to functions.php?).
+        // TODO: Building language drop-down. Consider revising method (also, perhaps move to functions.php?).
         if ( $dir = @opendir($eqdkp->root_path . 'language/') )
         {
             while ( $file = @readdir($dir) )
@@ -517,7 +517,7 @@ class Register extends EQdkp_Admin
         //
         // Build style drop-down
         //
-        // FIXME: Building style drop-down. Consider revising method (also, perhaps move to functions.php?).
+        // TODO: Building style drop-down. Consider revising method (also, perhaps move to functions.php?).
         $sql = "SELECT style_id, style_name
                 FROM __styles
                 ORDER BY style_name";

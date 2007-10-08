@@ -19,7 +19,7 @@ include_once($eqdkp_root_path . 'common.php');
 $sort_order = array(
     0 => array('log_date desc', 'log_date'),
     1 => array('log_type', 'log_type desc'),
-    2 => array('username', 'username dsec'),
+    2 => array('username', 'username desc'),
     3 => array('log_ipaddress', 'log_ipaddress desc'),
     4 => array('log_result', 'log_result desc')
 );
@@ -27,8 +27,7 @@ $sort_order = array(
 $current_order = switch_order($sort_order);
 
 // Obtain var settings
-$log_id = ( !empty($_GET[URI_LOG]) ) ? intval($_REQUEST[URI_LOG]) : false;
-$search = ( !empty($_GET['search']) ) ? true : false;
+$log_id = $in->get(URI_LOG, 0);
 
 if ( $log_id )
 {
@@ -130,11 +129,9 @@ switch ( $action )
 
         // If they're looking for something specific, we have to
         // figure out what that is
-        if ( $search )
+        $search_term = $in->get('search');
+        if ( $search_term != '' )
         {
-            // FIXME: Injection? We check it against an array of valid values
-            $search_term = urldecode($_GET['search']);
-
             // Check if it's an action
             if ( in_array($search_term, $valid_action_types) )
             {
@@ -142,19 +139,19 @@ switch ( $action )
                 {
                     if ( $v == $search_term )
                     {
-                        $addon_sql = " WHERE l.`log_type` = '{$k}'";
+                        $addon_sql = " WHERE (l.`log_type` = '{$k}')";
                     }
                 }
             }
             // Check it's an IP
             elseif ( preg_match("/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/", $search_term) )
             {
-                $addon_sql = " WHERE l.`log_ipaddress` = '{$search_term}'";
+                $addon_sql = " WHERE (l.`log_ipaddress` = '{$search_term}')";
             }
             // Still going? It's a username
             else
             {
-                $addon_sql = " WHERE u.`username` = '{$search_term}'";
+                $addon_sql = " WHERE (u.`username` = '{$search_term}')";
             }
         }
 
@@ -162,9 +159,9 @@ switch ( $action )
                       FROM __logs AS l LEFT JOIN __users AS u ON u.`user_id` = l.`admin_id`";
         $total_logs = $db->query_first($total_sql . $addon_sql);
 
-        $start = ( isset($_GET['start']) ) ? $_GET['start'] : 0;
+        $start = $in->get('start', 0);
 
-        $result = $db->query($sql . $addon_sql . " ORDER BY {$current_order['sql']} LIMIT {$start},100");
+        $result = $db->query("{$sql} {$addon_sql} ORDER BY {$current_order['sql']} LIMIT {$start},100");
         while ( $log = $db->fetch_record($result) )
         {
             $log['log_type'] = lang_replace($log['log_type']);

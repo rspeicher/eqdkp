@@ -111,9 +111,9 @@ require_once($eqdkp_root_path . 'includes/eqdkp_plugins.php');
 require_once($eqdkp_root_path . 'includes/input.php');
 
 $tpl   = new Template;
+$in    = new Input();
 $eqdkp = new EQdkp($eqdkp_root_path);
 $user  = new User;
-$in    = new Input();
 
 // Start up the user/session management
 $user->start();

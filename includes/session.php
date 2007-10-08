@@ -19,7 +19,7 @@ class Session
     
     function start()
     {
-        global $SID, $db, $eqdkp;
+        global $SID, $db, $eqdkp, $in;
         
         $current_time = time();
         
@@ -43,16 +43,17 @@ class Session
         else
         {
             $session_data = array();
-            $this->sid    = ( isset($_GET[URI_SESSION]) ) ? $_GET[URI_SESSION] : '';
+            $this->sid    = $in->get(URI_SESSION, '');
             $SID = '?' . URI_SESSION . '=' . $this->sid;
         }
         
-        if ( (!empty($this->sid)) || ((isset($_GET[URI_SESSION])) && ($this->sid == $_GET[URI_SESSION])) )
+        // NOTE: Don't completely understand this check
+        if ( !empty($this->sid) || $this->sid == $in->get(URI_SESSION, 'notempty') )
         {
             $sql = "SELECT u.*, s.*
                     FROM __sessions AS s, __users AS u
-                    WHERE s.`session_id` = '{$this->sid}'
-                    AND u.`user_id` = s.`session_user_id`";
+                    WHERE (s.`session_id` = '{$this->sid}')
+                    AND (u.user_id = s.session_user_id)";
             $result = $db->query($sql);
             
             $this->data = $db->fetch_record($result);
@@ -73,7 +74,7 @@ class Session
                         $sql = "UPDATE __sessions
                                 SET `session_current` = '{$current_time}',
                                     `session_page` = '" . $db->escape($this->current_page) . "'
-                                WHERE `session_id` = '{$this->sid}'";
+                                WHERE (`session_id` = '{$this->sid}')";
                         $db->query($sql);
                     }
                     

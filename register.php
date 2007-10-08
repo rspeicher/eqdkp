@@ -28,8 +28,7 @@ class Register extends EQdkp_Admin
         //
         // If they're trying access this page while logged in, redirect to settings.php
         //
-        // FIXME: Direct use of $_GET variable.
-        if ( ($user->data['user_id'] != ANONYMOUS) && (!isset($_GET['key'])) )
+        if ( $user->data['user_id'] != ANONYMOUS && !$in->get('key', false) )
         {
             header('Location: settings.php' . $SID);
         }
@@ -347,10 +346,9 @@ class Register extends EQdkp_Admin
         global $db, $eqdkp, $user, $tpl, $pm;
         global $SID;
         
-        // FIXME: Injection
         $sql = "SELECT user_id, username, user_active, user_email, user_newpassword, user_lang, user_key
                 FROM __users
-                WHERE `user_key` = '{$_GET['key']}'";
+                WHERE (`user_key` = '" . $db->escape($in->hash('key')) . "')";
         if ( !($result = $db->query($sql)) )
         {
             message_die('Could not obtain user information', '', __FILE__, __LINE__, $sql);

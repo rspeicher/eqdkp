@@ -40,12 +40,12 @@ if ( $in->get('submit') == $user->lang['compare_members'] && isset($_POST['compa
 {
     redirect('listmembers.php?compare=' . implode(',', $_POST['compare_ids']));
 }
-elseif ( isset($_GET['compare']) )
+elseif ( $in->get('compare', false) )
 {
     $s_compare = true;
     $uri_addon = '';
 
-    $compare = validateCompareInput($_GET['compare']);
+    $compare = validateCompareInput($in->get('compare'));
     
     // Find 30 days ago, then find how many raids occurred in those 30 days
     // Do the same for 60 and 90 days
@@ -210,7 +210,7 @@ else
             WHERE (c.class_id = m.member_class_id)
             AND (m.member_rank_id = r.rank_id)
             {$filter_by}";
-    if ( !empty($_GET['rank']) and validateRank($_GET['rank']) )
+    if ( $in->get('rank', false) && validateRank($in->get('rank')) )
     {
         $sql .= " AND (r.`rank_name` = '" . $db->escape($in->get('rank')) . "')";
     }
@@ -365,7 +365,7 @@ function member_display(&$row, $show_all = false, $filter = null)
     return $member_display;
 }
 
-// Assure $_GET['rank'] is one of our ranks
+// Assure _GET['rank'] is one of our ranks
 function validateRank($rank)
 {
     global $db;

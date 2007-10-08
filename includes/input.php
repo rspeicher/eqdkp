@@ -120,7 +120,7 @@ class Input
         }
         else
         {
-            $retval = substr(preg_replace('/[^0-9A-Za-z]/', '', $this->_get($key, $default)), 0, 40);
+            $retval = substr(preg_replace('/[^0-9A-Za-z]/', '', $this->string($key, $default)), 0, 40);
         }
         
         return $retval;

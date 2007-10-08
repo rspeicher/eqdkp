@@ -22,7 +22,7 @@ $user->check_auth('u_item_list');
 //
 
 // TODO: if-else causes two different pages to be rendered. Split into separate files.
-if ( (!isset($_GET[URI_PAGE])) || ($_GET[URI_PAGE] == 'values') )
+if ( $in->get(URI_PAGE) == '' || $in->get(URI_PAGE) == 'values' )
 {
     $sort_order = array(
         0 => array('item_name', 'item_name desc'),
@@ -60,7 +60,7 @@ if ( (!isset($_GET[URI_PAGE])) || ($_GET[URI_PAGE] == 'values') )
 //
 // Item Purchase History (all items)
 //
-elseif ( $_GET[URI_PAGE] == 'history' )
+elseif ( $in->get(URI_PAGE) == 'history' )
 {
     $sort_order = array(
         0 => array('item_date desc', 'item_date'),

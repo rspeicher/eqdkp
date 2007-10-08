@@ -15,33 +15,29 @@ define('EQDKP_INC', true);
 $eqdkp_root_path = './';
 include_once($eqdkp_root_path . 'common.php');
 
-// Make our _GET and _POST vars into normal variables
-// so we can process a login request through get or post
-extract($_GET, EXTR_SKIP);
-extract($_POST, EXTR_SKIP);
+$redirect = '';
 
-if ( (isset($login)) || (isset($logout)) )
+if ( $in->get('logout', false) && $user->data['user_id'] != ANONYMOUS )
 {
-    if ( isset($login) && ($user->data['user_id'] <= 0) )
-    {
-        $redirect = ( isset($redirect) ) ? $redirect : 'index.php';
-        
-        $auto_login = ( !empty($auto_login) ) ? true : false;
-       
-        if ( !$user->login($username, $password, $auto_login) )
-        {
-            $tpl->assign_var('META', '<meta http-equiv="refresh" content="3;url=login.php' . $SID . '&amp;redirect=' . $redirect . '">');
-            
-            message_die($user->lang['invalid_login'], $user->lang['error']);
-        }
-    }
-    elseif ( $user->data['user_id'] != ANONYMOUS )
-    {
-        $user->destroy();
-    }
+    $redirect = $in->get('redirect', $eqdkp->config['start_page']);
     
-    $redirect_url = ( isset($redirect) ) ? preg_replace('#^.*?redirect=(.+?)&(.+?)$#', '\\1' . $SID . '&\\2', $redirect) : 'index.php';
-    redirect($redirect_url);
+    $user->destroy();
+}
+elseif ( $in->get('login', false) && $user->data['user_id'] <= 0 )
+{
+    $redirect = $in->get('redirect', $eqdkp->config['start_page']);
+    
+    if ( !$user->login($in->get('username'), $in->get('password'), $in->get('auto_login', 0)) )
+    {
+        $tpl->assign_var('META', '<meta http-equiv="refresh" content="3;url=login.php' . $SID . '&amp;redirect=' . $redirect . '">');
+        
+        message_die($user->lang['invalid_login'], $user->lang['error']);
+    }
+}
+
+if ( $redirect != '' )
+{
+    redirect(preg_replace('/^.*?redirect=(.+?)&(.+?)$/', "\\1{$SID}&\\2", $redirect));
 }
 
 //
@@ -51,7 +47,7 @@ $eqdkp->set_vars(array(
     'page_title'    => sprintf($user->lang['title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['login_title'],
     'template_file' => 'login.html')
 );
-if ( isset($lost_password) )
+if ( $in->get('lost_password', false) )
 {
     $tpl->assign_vars(array(
         'S_LOGIN' => false,
@@ -73,6 +69,8 @@ elseif ( $user->data['user_id'] <= 0 )
 {
     $tpl->assign_vars(array(
         'S_LOGIN' => true,
+        
+        'FORM_ACTION' => "login.php{$SID}&amp;redirect=" . $in->get('redirect', $eqdkp->config['start_page']),
         
         'L_LOGIN'             => $user->lang['login'],
         'L_USERNAME'          => $user->lang['username'],

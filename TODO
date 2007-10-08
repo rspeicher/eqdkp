@@ -65,6 +65,9 @@ Game Management
       using language files for the games.
     - Hook all the above in the installation process so that users can choose their default game
       from the get-go.
+    - The way that class selection is done is stupid. For WoW there's "Hunter (0-39)", and "Hunter (40+)",
+      for purposes of filtering by armor. The system should just have one Hunter option, and then figure
+      out what they use based on their actual level, which we also ask for.
 
 /listmembers.php
     - Separate the compare members code from the default list members code (make a new file).

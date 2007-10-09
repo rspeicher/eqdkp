@@ -40,10 +40,6 @@ class EQdkp
     var $timer_start = 0;                       // Page timer start         @var timer_start
     var $timer_end   = 0;                       // Page timer end           @var timer_end
     
-    // Input
-    var $_input  = array();
-    var $_idKeys = array(URI_ADJUSTMENT, URI_EVENT, URI_ITEM, URI_LOG, URI_NEWS, URI_PAGE, URI_RAID);
-
     function eqdkp($eqdkp_root_path = './')
     {
         // Start a script timer if we're debugging
@@ -581,20 +577,17 @@ class EQdkp_Admin
     
     function process()
     {
-        global $user;
+        global $user, $in;
         
         $errors_exist = false;
         $processed    = false;
         
         // Form has been submitted
+        // NOTE: This is a rare case acceptable use of POST, do not change.
         if ( count($_POST) > 0 )
         {
-            // Sanitize our POST vars
-            // FIXME: Shoddy use of $_POST variable
-            $_POST = sanitize_tags($_POST);
-            
             // Confirm is an automatic button option if confirm_delete is called
-            if ( isset($_POST['confirm']) )
+            if ( $in->get('confirm', false) )
             {
                 if ( method_exists($this, 'process_confirm') )
                 {
@@ -607,7 +600,7 @@ class EQdkp_Admin
                 }
             }
             // Cancel is an automatic button option if confirm_delete is called
-            elseif ( isset($_POST['cancel']) )
+            elseif ( $in->get('cancel', false) )
             {
                 $processed = true;
                 $this->process_cancel();
@@ -620,7 +613,7 @@ class EQdkp_Admin
                 
                 foreach ( $this->buttons as $code => $button )
                 {
-                    if ( isset($_POST[ $button['name'] ]) )
+                    if ( $in->get($button['name'], false) )
                     {
                         $processed = true;
                         if ( isset($button['check']) )
@@ -632,14 +625,19 @@ class EQdkp_Admin
                 }                
             }
         }
+        
+        // With the Input class, there's no longer a need to differentiate
+        // between GET and POST, but I don't want to refactor this code, it's been
+        // too long, and if it aint' broke...
+        
         // No POST vars, check for GET vars and process as necessary
         foreach ( $this->params as $code => $param )
         {
-            if ( isset($_GET[ $param['name'] ]) )
+            if ( $in->get($param['name'], false) )
             {
                 if ( isset($param['value']) )
                 {
-                    if ( $_GET[ $param['name'] ] == $param['value'] )
+                    if ( $in->get($param['name']) == $param['value'] )
                     {
                         $this->process_error_check();
                         $processed = true;
@@ -754,6 +752,8 @@ class EQdkp_Admin
     */
     function set_vars($var, $val = '')
     {
+        global $in;
+        
         if ( is_array($var) )
         {
             foreach ( $var as $d_var => $d_val )
@@ -774,8 +774,23 @@ class EQdkp_Admin
         //
         // Set url_id if it hasn't already been set
         if ( !$this->url_id )
-        {   
-            $this->url_id = ( !empty($_REQUEST[$this->uri_parameter]) ) ? $_REQUEST[$this->uri_parameter] : 0;
+        {
+            // NOTE: We can't use Input::get's default argument here because the parameter won't always be an integer
+            // This is the one spot so far where auto-discovering the variable type works against us.
+            $integers = array(URI_ADJUSTMENT, URI_EVENT, URI_ITEM, URI_LOG, URI_NEWS, URI_RAID);
+            
+            if ( in_array($this->uri_parameter, $integers) )
+            {
+                $this->url_id = $in->get($this->uri_parameter, 0);
+            }
+            elseif ( $this->uri_parameter == URI_ORDER )
+            {
+                $this->url_id = $in->get($this->uri_parameter, 0.0);
+            }
+            else
+            {
+                $this->url_id = $in->get($this->uri_parameter, '');
+            }
         }
         
         return true;
@@ -879,12 +894,10 @@ class EQdkp_Admin
         return ${$valueX};
     }
     
-    function admin_die(&$message, $link_list = array())
+    function admin_die($message, $link_list = array())
     {
         global $eqdkp, $user, $tpl, $pm;
         global $SID;
-        
-        $message = sanitize($message);
         
         if ( (is_array($link_list)) && (sizeof($link_list) > 0) )
         {

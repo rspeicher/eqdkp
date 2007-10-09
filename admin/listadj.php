@@ -29,7 +29,7 @@ $current_order = switch_order($sort_order);
 //
 // Group Adjustments
 //
-if ( (!isset($_GET[URI_PAGE])) || ($_GET[URI_PAGE] == 'group') )
+if ( $in->get(URI_PAGE, 'group' == 'group') )
 {
     $user->check_auth('a_groupadj_');
     
@@ -56,7 +56,7 @@ if ( (!isset($_GET[URI_PAGE])) || ($_GET[URI_PAGE] == 'group') )
 //
 // Individual Adjustments
 //
-elseif ( $_GET[URI_PAGE] == 'individual' )
+elseif ( $in->get(URI_PAGE) == 'individual' )
 {
     $user->check_auth('a_indivadj_');
     

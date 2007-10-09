@@ -81,7 +81,7 @@ class Input
      * Note that this method is special in that it doesn't actually return the
      * value of the input, rather the result of isset() on the input key.
      */
-    function boolean($key, $default = false)
+    function boolean($key, $default = 'ignored')
     {
         if ( isset($_GET[$key]) || isset($_POST[$key]) )
         {

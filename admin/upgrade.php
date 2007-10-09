@@ -36,9 +36,12 @@ if ( !isset($eqdkp->config['eqdkp_version']) )
 {
     $eqdkp->config_set('eqdkp_version', EQDKP_VERSION);
 }
+elseif ( EQDKP_VERSION == $eqdkp->config['eqdkp_version'] )
+{
+    // TODO: Localize string
+    message_die('No upgrade necessary.');
+}
 
-// FIXME: Massively insecure. Script could be triggered by anyone at any time, 
-// executing alterations to the database which may potentially corrupt guild data.
 class Upgrade
 {
     var $db = null;

@@ -22,7 +22,7 @@ $user->check_auth('u_item_list');
 //
 
 // TODO: if-else causes two different pages to be rendered. Split into separate files.
-if ( $in->get(URI_PAGE) == '' || $in->get(URI_PAGE) == 'values' )
+if ( $in->get(URI_PAGE, 'values') == 'values' )
 {
     $sort_order = array(
         0 => array('item_name', 'item_name desc'),

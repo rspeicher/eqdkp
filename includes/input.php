@@ -25,6 +25,11 @@ class Input
         {
             $retval = $_POST[$key];
         }
+        elseif ( isset($_SESSION[$key]) )
+        {
+            // NOTE: This elseif is intentional. We don't want session data overwriting post.
+            $retval = $_SESSION[$key];
+        }
         
         return $retval;
     }

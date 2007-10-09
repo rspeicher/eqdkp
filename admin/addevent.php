@@ -64,7 +64,7 @@ class Add_Event extends EQdkp_Admin
         {
             $sql = "SELECT event_name, event_value
                     FROM __events
-                    WHERE `event_id` = '{$this->url_id}'";
+                    WHERE (`event_id` = '{$this->url_id}')";
             $result = $db->query($sql);
             if ( !$row = $db->fetch_record($result) )
             {
@@ -98,20 +98,16 @@ class Add_Event extends EQdkp_Admin
     // ---------------------------------------------------------
     function process_add()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $eqdkp_root_path, $SID;
         
         //
         // Insert event
-    // New for 1.3 - stripslashes out of event names.
         //
 
-    $clean_event_name = str_replace("'","", $_POST['event_name']);
-    $clean_event_name = str_replace("`","", $clean_event_name);
-
         $query = $db->build_query('INSERT', array(
-            'event_name'     => ($clean_event_name),
-            'event_value'    => $_POST['event_value'],
+            'event_name'     => sanitize($in->get('event_name')),
+            'event_value'    => $in->get('event_value', 0.00),
             'event_added_by' => $this->admin_user)
         );
         $db->query("INSERT INTO __events {$query}");
@@ -121,7 +117,6 @@ class Add_Event extends EQdkp_Admin
         // Call plugin update hooks
         //
         $pm->do_hooks('/admin/addevent.php?action=add');
-
         
         //
         // Logging
@@ -129,8 +124,8 @@ class Add_Event extends EQdkp_Admin
         $log_action = array(
             'header'       => '{L_ACTION_EVENT_ADDED}',
             'id'           => $this_event_id,
-            '{L_NAME}'     => ($clean_event_name),
-            '{L_VALUE}'    => $_POST['event_value'],
+            '{L_NAME}'     => $in->get('event_name'),
+            '{L_VALUE}'    => $in->get('event_value', 0.00),
             '{L_ADDED_BY}' => $this->admin_user);
         $this->log_insert(array(
             'log_type'   => $log_action['header'],
@@ -140,7 +135,7 @@ class Add_Event extends EQdkp_Admin
         //
         // Success message
         //
-        $success_message = sprintf($user->lang['admin_add_event_success'], $_POST['event_value'], $clean_event_name);
+        $success_message = sprintf($user->lang['admin_add_event_success'], $in->get('event_value', 0.00), sanitize($in->get('event_name')));
         $link_list = array(
             $user->lang['list_events'] => 'listevents.php' . $SID,
             $user->lang['add_event']   => 'addevent.php' . $SID,
@@ -153,7 +148,7 @@ class Add_Event extends EQdkp_Admin
     // ---------------------------------------------------------
     function process_update()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $eqdkp_root_path, $SID;
         
         //
@@ -161,17 +156,16 @@ class Add_Event extends EQdkp_Admin
         //
         
         $this->get_old_data();
-        // FIXME: Injection
-        $clean_event_name = stripslashes($_POST['event_name']);
+        $event_name = sanitize($in->get('event_name'));
         
         //
         // Update any raids with the old name
         //
-        if ( $this->old_event['event_name'] != $clean_event_name )
+        if ( $this->old_event['event_name'] != $event_name )
         {
             $sql = "UPDATE __raids
-                    SET `raid_name` = '{$clean_event_name}'
-                    WHERE `raid_name` = '{$this->old_event['event_name']}'";
+                    SET `raid_name` = '{$event_name}'
+                    WHERE (`raid_name` = '{$this->old_event['event_name']}')";
             $db->query($sql);
         }
         
@@ -179,10 +173,10 @@ class Add_Event extends EQdkp_Admin
         // Update the event
         //
         $query = $db->build_query('UPDATE', array(
-            'event_name'  => $clean_event_name,
-            'event_value' => $_POST['event_value'])
-        );
-        $sql = "UPDATE __events SET {$query} WHERE `event_id` = '{$this->url_id}'";
+            'event_name'  => $event_name,
+            'event_value' => $in->get('event_value', 0.00)
+        ));
+        $sql = "UPDATE __events SET {$query} WHERE (`event_id` = '{$this->url_id}')";
         $db->query($sql);
 
         //
@@ -198,18 +192,19 @@ class Add_Event extends EQdkp_Admin
             'id'               => $this->url_id,
             '{L_NAME_BEFORE}'  => $this->old_event['event_name'],
             '{L_VALUE_BEFORE}' => $this->old_event['event_value'],
-            '{L_NAME_AFTER}'   => $this->find_difference($this->old_event['event_name'],  $clean_event_name),
-            '{L_VALUE_AFTER}'  => $this->find_difference($this->old_event['event_value'], $_POST['event_value']),
-            '{L_UPDATED_BY}'   => $this->admin_user);
+            '{L_NAME_AFTER}'   => $this->find_difference($this->old_event['event_name'],  $event_name),
+            '{L_VALUE_AFTER}'  => $this->find_difference($this->old_event['event_value'], $in->get('event_value', 0.00)),
+            '{L_UPDATED_BY}'   => $this->admin_user
+        );
         $this->log_insert(array(
             'log_type'   => $log_action['header'],
-            'log_action' => $log_action)
-        );
+            'log_action' => $log_action
+        ));
         
         //
         // Success message
         //
-        $success_message = sprintf($user->lang['admin_update_event_success'], $_POST['event_value'], $clean_event_name);
+        $success_message = sprintf($user->lang['admin_update_event_success'], $in->get('event_value', 0.00), $event_name);
         $link_list = array(
             $user->lang['list_events'] => 'listevents.php' . $SID,
             $user->lang['add_event']   => 'addevent.php' . $SID,
@@ -234,24 +229,22 @@ class Add_Event extends EQdkp_Admin
         // Delete the event
         //
         $sql = "DELETE FROM __events
-                WHERE `event_id` = '{$this->url_id}'";
+                WHERE (`event_id` = '{$this->url_id}')";
         $db->query($sql);
         
         //
         // Logging
         //
-
-        $clean_event_name = str_replace("'","", $this->old_event['event_name']);
-
         $log_action = array(
             'header'    => '{L_ACTION_EVENT_DELETED}',
             'id'        => $this->url_id,
-            '{L_NAME}'  => $clean_event_name,
-            '{L_VALUE}' => $this->old_event['event_value']);
+            '{L_NAME}'  => $this->old_event['event_name'],
+            '{L_VALUE}' => $this->old_event['event_value']
+        );
         $this->log_insert(array(
             'log_type'   => $log_action['header'],
-            'log_action' => $log_action)
-        );
+            'log_action' => $log_action
+        ));
         
         //
         // Success message
@@ -260,7 +253,8 @@ class Add_Event extends EQdkp_Admin
         $link_list = array(
             $user->lang['list_events'] => 'listevents.php' . $SID,
             $user->lang['add_event']   => 'addevent.php' . $SID,
-            $user->lang['add_raid']    => 'addraid.php' . $SID);
+            $user->lang['add_raid']    => 'addraid.php' . $SID
+        );
         $this->admin_die($success_message, $link_list);
     }
     
@@ -273,13 +267,13 @@ class Add_Event extends EQdkp_Admin
         
         $sql = "SELECT event_name, event_value
                 FROM __events
-                WHERE `event_id` = '{$this->url_id}'";
+                WHERE (`event_id` = '{$this->url_id}')";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
             $this->old_event = array(
-                'event_name'  => str_replace("'","",$row['event_name']),
-                'event_value' => addslashes($row['event_value'])
+                'event_name'  => $row['event_name'],
+                'event_value' => $row['event_value']
             );
         }
         $db->free_result($result);
@@ -326,8 +320,8 @@ class Add_Event extends EQdkp_Admin
         $eqdkp->set_vars(array(
             'page_title'    => sprintf($user->lang['admin_title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['addevent_title'],
             'template_file' => 'admin/addevent.html',
-            'display'       => true)
-        );
+            'display'       => true
+        ));
     }
 }
 

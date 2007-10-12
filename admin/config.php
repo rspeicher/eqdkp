@@ -74,8 +74,8 @@ class EQdkp_Config extends EQdkp_Admin
 
         $current_game = $eqdkp->config['default_game'];
 
-
         // Update each config setting
+        // FIXME: Injection
         $eqdkp->config_set(array(
             'guildtag'           => $_POST['guildtag'],
             'parsetags'          => $_POST['parsetags'],
@@ -111,12 +111,13 @@ class EQdkp_Config extends EQdkp_Admin
     // New for 1.3 - game selection
     if (( $_POST['default_game'] != $current_game )) 
     {
-
+        // FIXME: Remote file inclusion?
         include($eqdkp->root_path . 'games/' . $_POST['default_game'] . '.php');
 
+        // TODO: "Manage_Game" is the class that runs SQL queries
+        // whereas "Game_Manager" abstracts some stuff; that's confusing
         $game_extension = new Manage_Game;
         $game_extension->process();
-
     }
     
     // end 1.3 game selection change
@@ -181,6 +182,7 @@ class EQdkp_Config extends EQdkp_Admin
         //
         // Build the config permissions
         //
+        // TODO: This is the exact same code block from manage_users.php, maybe refactor it out into a function
         $config_permissions = array(
             // Events
             $user->lang['events'] => array(
@@ -306,7 +308,6 @@ class EQdkp_Config extends EQdkp_Admin
             'ADMIN_EMAIL'               => $eqdkp->config['admin_email'],
             'DEFAULT_GAME'              => $eqdkp->config['default_game'],
 
-
             // Language (General Settings)
             'L_GENERAL_SETTINGS'          => $user->lang['general_settings'],
             'L_GUILDTAG'                  => $user->lang['guildtag'],
@@ -373,6 +374,7 @@ class EQdkp_Config extends EQdkp_Admin
         //
         // Build language drop-down
         //
+        // TODO: This is done in 3 places, refactor into function
         if ( $dir = @opendir($eqdkp->root_path . 'language/') )
         {
             while ( $file = @readdir($dir) )
@@ -391,6 +393,7 @@ class EQdkp_Config extends EQdkp_Admin
         //
         // Build style drop-down
         //
+        // TODO: This is done in 3 places, refactor into function
         $sql = "SELECT style_id, style_name
                 FROM __styles
                 ORDER BY `style_name`";
@@ -408,43 +411,46 @@ class EQdkp_Config extends EQdkp_Admin
 
         //
         // Build game option drop-down
-    // New for 1.3
-    // Total hack job - I moved the class, race, and faction 
-    // info to the db, but I'm hardcoding what games I support 
-    // for the "button push" - what a tard I am :-)
-    // To add a new game option, just copy the 4 lines below,
-    // add them to the botton, increase the value of VALUE by 1,
-    // and be sure to set OPTION to the EXACT SAME THING you put
-    // in the == check in the SELECTED line and there must be
-    // no spaces in the name, since the value below gets changed
-    // to name.php and ran when you change it: for example,
-    // if you change to WoW, this program will redirect you to
-    // WoW.php and use that file to populate the database.
-    // 
-    // Cheesy, but extensible and effective.
+        // New for 1.3
+        // Total hack job - I moved the class, race, and faction 
+        // info to the db, but I'm hardcoding what games I support 
+        // for the "button push" - what a tard I am :-)
+        // To add a new game option, just copy the 4 lines below,
+        // add them to the botton, increase the value of VALUE by 1,
+        // and be sure to set OPTION to the EXACT SAME THING you put
+        // in the == check in the SELECTED line and there must be
+        // no spaces in the name, since the value below gets changed
+        // to name.php and ran when you change it: for example,
+        // if you change to WoW, this program will redirect you to
+        // WoW.php and use that file to populate the database.
+        // 
+        // Cheesy, but extensible and effective.
         //
+        
+        // ^ Hey, if you have to describe something as a "total hack job", it probably sucks
+        // TODO: Use Game_Manager to abstract the game selection drop-down
 
-       $tpl->assign_block_vars('game_row', array(
+        $tpl->assign_block_vars('game_row', array(
             'VALUE' => "Everquest",
             'SELECTED' => ( $eqdkp->config['default_game'] == "Everquest" ) ? ' selected="selected"' : '',
             'OPTION' => "Everquest") );
 
-       $tpl->assign_block_vars('game_row', array(
+        $tpl->assign_block_vars('game_row', array(
             'VALUE' => "Everquest2",
             'SELECTED' => ( $eqdkp->config['default_game'] == "Everquest2" ) ? ' selected="selected"' : '',
             'OPTION' => "Everquest2") );
 
-       $tpl->assign_block_vars('game_row', array(
+        $tpl->assign_block_vars('game_row', array(
             'VALUE' => "WoW",
             'SELECTED' => ( $eqdkp->config['default_game'] == "WoW" ) ? ' selected="selected"' : '',
             'OPTION' => "WoW") );
 
-       $tpl->assign_block_vars('game_row', array(
+        $tpl->assign_block_vars('game_row', array(
             'VALUE' => "DAoC",
             'SELECTED' => ( $eqdkp->config['default_game'] == "DAoC" ) ? ' selected="selected"' : '',
             'OPTION' => "DAoC") );
 
-       $tpl->assign_block_vars('game_row', array(
+        $tpl->assign_block_vars('game_row', array(
             'VALUE' => "Vanguard-SoH",
             'SELECTED' => ( $eqdkp->config['default_game'] == "Vanguard-SoH" ) ? ' selected="selected"' : '',
             'OPTION' => "Vanguard-SoH") );
@@ -473,7 +479,6 @@ class EQdkp_Config extends EQdkp_Admin
                     'OPTION'  => 'French'
             ));
 
-        
         //
         // Build start page drop-down
         //
@@ -486,6 +491,7 @@ class EQdkp_Config extends EQdkp_Admin
             $link = preg_replace('#\?' . URI_SESSION . '\=([0-9A-Za-z]{1,32})?#', '', $page['link']);
             $link = preg_replace('#\.php&amp;#', '.php?', $link);
             
+            // Remove the username from the logout menu option
             $text = ( isset($user->data['username']) ) ? str_replace($user->data['username'], $user->lang['username'], $page['text']) : $page['text'];
             
             $tpl->assign_block_vars('page_row', array(

@@ -16,6 +16,18 @@ if ( !defined('EQDKP_INC') )
      die('Do not access this file directly.');
 }
 
+function page_title($title, $admin = false)
+{
+    global $eqdkp, $user;
+    
+    $retval = '';
+    
+    $section = ( $admin ) ? $user->lang['admin_title_prefix'] : $user->lang['title_prefix'];
+    $global_title = sprintf($section, $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']);
+    
+    return "{$title} - {$global_title}";
+}
+
 /**
  * Translate qoute characters to their HTML entities, and strip HTML tags.
  */

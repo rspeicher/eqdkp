@@ -4,7 +4,6 @@ Global
     - Replace all $_GET, $_POST and $_SESSION accesses with an Input class that has input cleaning.
     - Add x_path() functions a la Rails to clean up some URL generation
     - Use header('HTTP/1.0 404 Not Found'); instead of die('Do not access this file directly.');
-    - Remove the closing '?>' from all PHP-only files. It's not required and can create problems.
     - Move the page title generation to a function to clean up the files, since it happens on every page.
     
 Global de-stupifying from 1.3

@@ -9,9 +9,20 @@ class Input
     /**
      * Stores input variables after any cleaning's been done to them, to
      * prevent overhead of multiple $in->string('var') calls, for example.
+     * 
+     * @var array
+     * @access private
      */
     var $_cache = array();
     
+    /**
+     * Get an input variable from a superglobal. POST > SESSION > GET
+     *
+     * @param string $key Input key
+     * @param string $default Default variable to return if $key is not set
+     * @return mixed
+     * @access private
+     */
     function _get($key, $default = null)
     {
         $retval = $default;
@@ -39,6 +50,18 @@ class Input
      * type-specifc method based on the variable type of $default
      * 
      * Note that our most-used, and default type, is a string.
+     * 
+     * <code>
+     * <?php
+     * $in->get('id', 0); // Return _cleanInt($_GET['id']) or return 0 if not set
+     * $in->get('id', false); // Return true if id is set, false otherwise
+     * $in->get('name'); // Return _cleanString($_GET['name']) or return '' if not set
+     * ?>
+     * </code>
+     * 
+     * @param string $key Input key
+     * @param mixed $default Default variable to return if $key is not set. This also determines the type data of cleaning performed.
+     * @return mixed
      */
     function get($key, $default = '')
     {
@@ -56,8 +79,14 @@ class Input
     }
     
     /**
-     * Special method to get an input array and walk over it, calling the appropriate
-     * filter on each entry.
+     * Clean and fetch an input variable that is an array, for example an array
+     * of checkbox IDs. Depending on $type, the appropriate _clean method will be
+     * called on each element.
+     * 
+     * @param string $key Input key
+     * @param string $type String-based variable type ('int', 'string', etc.)
+     * @param string $max_depth Maximum depth to recurse to
+     * @return array
      */
     function getArray($key, $type, $max_depth = 10)
     {
@@ -85,6 +114,10 @@ class Input
     /**
      * Note that this method is special in that it doesn't actually return the
      * value of the input, rather the result of isset() on the input key.
+     *
+     * @param string $key Input key
+     * @param null $default not used
+     * @return boolean true if the key exists, false if not
      */
     function boolean($key, $default = 'ignored')
     {
@@ -97,13 +130,22 @@ class Input
     }
     
     /**
-     * Alias to float, see http://us2.php.net/manual/en/function.gettype.php
+     * Alias to {@link float}, see http://us2.php.net/manual/en/function.gettype.php
+     * 
+     * @see float
      */
     function double($key, $default = 0.00)
     {
         return $this->float($key, $default);
     }
     
+    /**
+     * Fetch an input variable as a float, or return $default
+     *
+     * @param string $key Input key
+     * @param float $default The default variable to return if $key is not set
+     * @return float Variable cleaned by {@link _cleanFloat}, or $default
+     */
     function float($key, $default = 0.00)
     {
         if ( isset($this->_cache[$key]) )
@@ -120,6 +162,13 @@ class Input
         return $retval;
     }
     
+    /**
+     * Fetch an input variable as an integer, or return $default
+     *
+     * @param string $key Input key
+     * @param int $default The default variable to return if $key is not set
+     * @return int Variable cleaned by {@link _cleanInt}, or $default
+     */
     function int($key, $default = 0)
     {
         if ( isset($this->_cache[$key]) )
@@ -137,13 +186,22 @@ class Input
     }
     
     /**
-     * Alias to int
+     * Alias to {@link int}
+     * 
+     * @see int
      */
     function integer($key, $default = 0)
     {
         return $this->int($key, $default);
     }
     
+    /**
+     * Fetch an input variable as a MD5 or SHA1 hash string, or return $default
+     *
+     * @param string $key Input key
+     * @param string $default The default variable to return if $key is not set
+     * @return string Variable cleaned by {@link _cleanHash}, or $default
+     */
     function hash($key, $default = '')
     {
         if ( isset($this->_cache[$key]) )
@@ -160,6 +218,13 @@ class Input
         return $retval;
     }
     
+    /**
+     * Fetch an input variable as a string, or return $default
+     *
+     * @param string $key Input key
+     * @param string $default The default variable to return if $key is not set
+     * @return string Variable cleaned by {@link _cleanString}, or $default
+     */
     function string($key, $default = '')
     {
         if ( isset($this->_cache[$key]) )
@@ -180,6 +245,13 @@ class Input
     // Data cleaning methods
     // ----------------------------------------------------
     
+    /**
+     * Perform float-specific cleaning on an input variable.
+     *
+     * @param mixed $value Value to be cleaned
+     * @return float
+     * @access private
+     */
     function _cleanFloat($value)
     {
         $value = floatval($value);
@@ -187,6 +259,13 @@ class Input
         return $value;
     }
     
+    /**
+     * Perform integer-specific cleaning on an input variable.
+     *
+     * @param mixed $value Value to be cleaned
+     * @return int
+     * @access private
+     */
     function _cleanInt($value)
     {
         $value = intval($value);
@@ -194,6 +273,13 @@ class Input
         return $value;
     }
     
+    /**
+     * Perform MD5- or SHA1-specific cleaning on an input variable.
+     *
+     * @param mixed $value Value to be cleaned
+     * @return string
+     * @access private
+     */
     function _cleanHash($value)
     {
         $value = substr(preg_replace('/[^0-9A-Za-z]/', '', $this->_string($value)), 0, 40);
@@ -201,6 +287,14 @@ class Input
         return $value;
     }
     
+    /**
+     * Perform string-specific cleaning on an input variable. Forces strval(),
+     * urldecode(), and stripslashes() as needed.
+     *
+     * @param mixed $value Value to be cleaned
+     * @return string
+     * @access private
+     */
     function _cleanString($value)
     {
         $value = strval($value);
@@ -216,10 +310,11 @@ class Input
      * with an unusually high number of dimensions, potentially overloading
      * the server.
      * 
-     * @param   $array      Array to clean
-     * @param   $type       The type of data in each element
-     * @param   $max_depth  The maximum number of iterations to run
-     * @param   $cur_depth  The current number of iterations run
+     * @param $array Array to clean
+     * @param $type The type of data in each element
+     * @param $max_depth The maximum number of iterations to run
+     * @param $cur_depth The current number of iterations run
+     * @access private
      */
     function _recurseClean($array, $type, $max_depth, $cur_depth = 0)
     {

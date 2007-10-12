@@ -45,6 +45,7 @@ function sanitize($input, $ent = true, $tags = true)
 {
     $input = ( $tags ) ? strip_tags($input) : $input;
     $input = ( $ent )  ? htmlspecialchars($input, ENT_QUOTES) : $input;
+    $input = ( get_magic_quotes_gpc() ) ? stripslashes($input) : $input;
     
     return $input;
 }
@@ -76,6 +77,8 @@ function unsanitize($input)
 function post_or_db($post_field, $db_row = array(), $db_field = '')
 {
     global $in;
+    
+    trigger_error("post_or_db is deprecated, use Input::get", E_USER_NOTICE);
     
     if ( @sizeof($db_row) > 0 )
     {

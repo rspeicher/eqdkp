@@ -28,15 +28,7 @@ $current_order = switch_order($sort_order);
 
 // Obtain var settings
 $log_id = $in->get(URI_LOG, 0);
-
-if ( $log_id )
-{
-    $action = 'view';
-}
-else
-{
-    $action = 'list';
-}
+$action = ( $log_id ) ? 'view' : 'list';
 
 $user->check_auth('a_logs_view');
 
@@ -75,7 +67,7 @@ switch ( $action )
         // Get log info
         $sql = "SELECT l.*, u.username 
                 FROM __logs AS l LEFT JOIN __users AS u ON u.`user_id` = l.`admin_id`
-                WHERE log_id = '{$log_id}'";
+                WHERE (`log_id` = '{$log_id}')";
         $result = $db->query($sql);
         $log = $db->fetch_record($result);
         $db->free_result($result);
@@ -98,9 +90,9 @@ switch ( $action )
 
                 $tpl->assign_block_vars('log_row', array(
                     'ROW_CLASS' => $eqdkp->switch_row_class(),
-                    'KEY' => stripslashes($k).':',
-                    'VALUE' => stripslashes($v))
-                );
+                    'KEY'       => sanitize($k).':',
+                    'VALUE'     => sanitize($v)
+                ));
             }
         }
 
@@ -115,9 +107,9 @@ switch ( $action )
 
             'LOG_DATE'       => ( !empty($log['log_date']) ) ? date($user->style['date_time'], $log['log_date']) : '&nbsp;',
             'LOG_USERNAME'   => ( !empty($log['username']) ) ? $log['username'] : '&nbsp;',
-            'LOG_IP_ADDRESS' => $log['log_ipaddress'],
-            'LOG_SESSION_ID' => $log['log_sid'],
-            'LOG_ACTION'     => ( !empty($log_header) ) ? $log_header : '&nbsp;')
+            'LOG_IP_ADDRESS' => sanitize($log['log_ipaddress']),
+            'LOG_SESSION_ID' => sanitize($log['log_sid']),
+            'LOG_ACTION'     => ( !empty($log_header) ) ? sanitize($log_header) : '&nbsp;')
         );
 
         break;
@@ -139,19 +131,19 @@ switch ( $action )
                 {
                     if ( $v == $search_term )
                     {
-                        $addon_sql = " WHERE (l.`log_type` = '{$k}')";
+                        $addon_sql = " WHERE (l.`log_type` = '" . $db->escape($k) . "')";
                     }
                 }
             }
             // Check it's an IP
             elseif ( preg_match("/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/", $search_term) )
             {
-                $addon_sql = " WHERE (l.`log_ipaddress` = '{$search_term}')";
+                $addon_sql = " WHERE (l.`log_ipaddress` = '" . $db->escape($search_term) . "')";
             }
             // Still going? It's a username
             else
             {
-                $addon_sql = " WHERE (u.`username` = '{$search_term}')";
+                $addon_sql = " WHERE (u.`username` = '" . $db->escape($search_term) . "')";
             }
         }
 
@@ -164,7 +156,7 @@ switch ( $action )
         $result = $db->query("{$sql} {$addon_sql} ORDER BY {$current_order['sql']} LIMIT {$start},100");
         while ( $log = $db->fetch_record($result) )
         {
-            $log['log_type'] = lang_replace($log['log_type']);
+            $log['log_type']   = lang_replace($log['log_type']);
             $log['log_result'] = lang_replace($log['log_result']);
 
             $tpl->assign_block_vars('logs_row', array(
@@ -172,14 +164,14 @@ switch ( $action )
                 'DATE'         => ( !empty($log['log_date']) ) ? date($user->style['date_time'], $log['log_date']) : '&nbsp;',
                 'TYPE'         => ( !empty($log['log_type']) ) ? $log['log_type'] : '&nbsp;',
                 'U_VIEW_LOG'   => 'logs.php?' . URI_LOG . '='.$log['log_id'],
-                'USER'         => $log['username'],
-                'IP'           => $log['log_ipaddress'],
-                'RESULT'       => $log['log_result'],
+                'USER'         => sanitize($log['username']),
+                'IP'           => sanitize($log['log_ipaddress']),
+                'RESULT'       => sanitize($log['log_result']),
                 'C_RESULT'     => ( $log['log_result'] == $user->lang['success'] ) ? 'positive' : 'negative',
-                'ENCODED_TYPE' => urlencode($log['log_type']),
-                'ENCODED_USER' => urlencode($log['username']),
-                'ENCODED_IP'   => urlencode($log['log_ipaddress']))
-            );
+                'ENCODED_TYPE' => urlencode(sanitize($log['log_type'])),
+                'ENCODED_USER' => urlencode(sanitize($log['username'])),
+                'ENCODED_IP'   => urlencode(sanitize($log['log_ipaddress']))
+            ));
         }
 
         $tpl->assign_vars(array(
@@ -212,10 +204,10 @@ switch ( $action )
 }
 
 $eqdkp->set_vars(array(
-    'page_title'    => sprintf($user->lang['title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['viewlogs_title'],
+    'page_title'    => page_title($user->lang['viewlogs_title'], true),
     'template_file' => 'admin/logs.html',
-    'display'       => true)
-);
+    'display'       => true
+));
 
 /**
 * Returns the language value of a variable in the format "{L_<LANG_KEY>}"

@@ -23,43 +23,46 @@ class Add_Item extends EQdkp_Admin
     
     function add_item()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $eqdkp_root_path, $SID;
         
         parent::eqdkp_admin();
         
         $this->item = array(
-            'select_item_name' => post_or_db('select_item_name'),
-            'item_name'        => post_or_db('item_name'),
-            'item_buyers'      => post_or_db('item_buyers'),
-            'raid_id'          => post_or_db('raid_id'),
-            'item_value'       => post_or_db('item_value')
+            'item_name'        => $this->get_item_name(),
+            'item_buyers'      => $in->getArray('item_buyers', 'string'),
+            'raid_id'          => $in->get('raid_id', 0),
+            'item_value'       => $in->get('item_value', 0.00),
         );
         
         // Vars used to confirm deletion
         $this->set_vars(array(
             'confirm_text'  => $user->lang['confirm_delete_item'],
-            'uri_parameter' => URI_ITEM)
-        );
+            'uri_parameter' => URI_ITEM
+        ));
         
         $this->assoc_buttons(array(
             'add' => array(
                 'name'    => 'add',
                 'process' => 'process_add',
-                'check'   => 'a_item_add'),
+                'check'   => 'a_item_add'
+            ),
             'update' => array(
                 'name'    => 'update',
                 'process' => 'process_update',
-                'check'   => 'a_item_upd'),
+                'check'   => 'a_item_upd'
+            ),
             'delete' => array(
                 'name'    => 'delete',
                 'process' => 'process_delete',
-                'check'   => 'a_item_del'),
+                'check'   => 'a_item_del'
+            ),
             'form' => array(
                 'name'    => '',
                 'process' => 'display_form',
-                'check'   => 'a_item_'))
-        );
+                'check'   => 'a_item_'
+            )
+        ));
         
         // Build the item array
         // ---------------------------------------------------------
@@ -67,7 +70,7 @@ class Add_Item extends EQdkp_Admin
         {
             $sql = "SELECT item_name, item_buyer, raid_id, item_value, item_date, item_group_key
                     FROM __items
-                    WHERE `item_id` = '{$this->url_id}'";
+                    WHERE (`item_id` = '{$this->url_id}')";
             $result = $db->query($sql);
             if ( !$row = $db->fetch_record($result) )
             {
@@ -77,31 +80,34 @@ class Add_Item extends EQdkp_Admin
         
             $this->time = $row['item_date'];
             $this->item = array(
-                'select_item_name' => post_or_db('select_item_name'),
-                'item_name'        => post_or_db('item_name',  $row),
-                'raid_id'          => post_or_db('raid_id',    $row),
-                'item_value'       => post_or_db('item_value', $row)
+                'item_name'        => $this->get_item_name($row['item_name']),
+                'raid_id'          => $in->get('raid_id', intval($row['raid_id'])),
+                'item_value'       => $in->get('item_value', floatval($row['item_value']))
             );
         
-            $buyers = array();
-            $sql = "SELECT item_buyer
-                    FROM __items
-                    WHERE `item_group_key` = '{$row['item_group_key']}'";
-            $result = $db->query($sql);
-            while ( $row = $db->fetch_record($result) )
+            $buyers = $in->getArray('item_buyers', 'string');
+            if ( count($buyers) == 0 )
             {
-                $buyers[] = $row['item_buyer'];
+                $sql = "SELECT item_buyer
+                        FROM __items
+                        WHERE (`item_group_key` = '{$row['item_group_key']}')";
+                $result = $db->query($sql);
+                while ( $row = $db->fetch_record($result) )
+                {
+                    $buyers[] = $row['item_buyer'];
+                }
             }
-            $this->item['item_buyers'] = ( !empty($_POST['item_buyers']) ) ? $_POST['item_buyers'] : $buyers;
+            $this->item['item_buyers'] = $buyers;
             unset($buyers);
         }
     }
     
     function error_check()
     {
-        global $user;
+        global $user, $in;
         
-        if ( (!isset($_POST['item_buyers'])) || (!is_array($_POST['item_buyers'])) )
+        $buyers = $in->getArray('item_buyers', 'string');
+        if ( count($buyers) == 0 )
         {
             $this->fv->errors['item_buyers'] = $user->lang['fv_required_buyers'];
         }
@@ -111,17 +117,15 @@ class Add_Item extends EQdkp_Admin
             'item_value' => $user->lang['fv_required_value'])
         );
     
-        if ( !empty($_POST['item_name']) )
-        {
-            $this->item['item_name'] = $_POST['item_name'];
-        }
-        elseif ( !empty($_POST['select_item_name']) )
-        {
-            $this->item['item_name'] = $_POST['select_item_name'];
-        }
-        else
+        $item_name = $this->get_item_name();
+        if ( empty($item_name) )
         {
             $this->fv->errors['item_name'] = $user->lang['fv_required_item_name'];
+        }
+        
+        if ( $in->get('raid_id', 0) == 0 )
+        {
+            $this->fv->errors['raid_id'] = $user->lang['fv_required_raidid'];
         }
         
         return $this->fv->is_error();
@@ -132,20 +136,19 @@ class Add_Item extends EQdkp_Admin
     // ---------------------------------------------------------
     function process_add()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $eqdkp_root_path, $SID;
         
         // Get item name from the appropriate field
-        $this->item['item_name'] = ( !empty($_POST['item_name']) ) ? $_POST['item_name'] : $_POST['select_item_name'];
+        $this->item['item_name'] = $this->get_item_name();
         
         // Find out the item's date based on the raid it's associated with
-        // FIXME: Injection
-        $this->time = $db->query_first("SELECT raid_date FROM __raids WHERE `raid_id` = '{$_POST['raid_id']}'");
+        $this->time = $this->get_raid_date($in->get('raid_id', 0));
         
         //
         // Generate our group key
         //
-        $group_key = $this->gen_group_key($this->item['item_name'], $this->time, $_POST['raid_id']);
+        $group_key = $this->gen_group_key($this->item['item_name'], $this->time, $in->get('raid_id', 0));
         
         //
         // Add item to selected members
@@ -155,13 +158,13 @@ class Add_Item extends EQdkp_Admin
         //
         // Logging
         //
-        $item_buyers = implode(', ', $_POST['item_buyers']);
+        $item_buyers = implode(', ', $in->getArray('item_buyers', 'string'));
         $log_action = array(
             'header'       => '{L_ACTION_ITEM_ADDED}',
             '{L_NAME}'     => $this->item['item_name'],
             '{L_BUYERS}'   => $item_buyers,
-            '{L_RAID_ID}'  => $_POST['raid_id'],
-            '{L_VALUE}'    => $_POST['item_value'],
+            '{L_RAID_ID}'  => $in->get('raid_id', 0),
+            '{L_VALUE}'    => $in->get('item_value', 0.00),
             '{L_ADDED_BY}' => $this->admin_user);
         $this->log_insert(array(
             'log_type'   => $log_action['header'],
@@ -171,7 +174,7 @@ class Add_Item extends EQdkp_Admin
         //
         // Success message
         //
-        $success_message = sprintf($user->lang['admin_add_item_success'], $this->item['item_name'], $item_buyers, $_POST['item_value']);
+        $success_message = sprintf($user->lang['admin_add_item_success'], $this->item['item_name'], $item_buyers, sanitize($in->get('item_value', 0.00)));
         $link_list = array(
             $user->lang['add_item']   => 'additem.php' . $SID,
             $user->lang['list_items'] => 'listitems.php' . $SID);
@@ -183,7 +186,7 @@ class Add_Item extends EQdkp_Admin
     // ---------------------------------------------------------
     function process_update()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $eqdkp_root_path, $SID;
         
         //
@@ -192,11 +195,10 @@ class Add_Item extends EQdkp_Admin
         $this->remove_old_item();
         
         // Get item name from the appropriate field
-        $this->item['item_name'] = ( !empty($_POST['item_name']) ) ? $_POST['item_name'] : $_POST['select_item_name'];
+        $this->item['item_name'] = $this->get_item_name();
         
         // Find out the item's date based on the raid it's associated with
-        // FIXME: Injection
-        $this->time = $db->query_first("SELECT raid_date FROM __raids WHERE `raid_id` = '{$_POST['raid_id']}'");
+        $this->time = $this->get_raid_date($in->get('raid_id', 0));
         
         //
         // Generate our group key
@@ -211,7 +213,8 @@ class Add_Item extends EQdkp_Admin
         //
         // Logging
         //
-        $item_buyers = implode(', ', $_POST['item_buyers']);
+        $buyers_array = $in->getArray('item_buyers', 'string');
+        $item_buyers = implode(', ', $buyers_array);
         $log_action = array(
             'header'             => '{L_ACTION_ITEM_UPDATED}',
             '{L_NAME_BEFORE}'    => $this->old_item['item_name'],
@@ -219,9 +222,9 @@ class Add_Item extends EQdkp_Admin
             '{L_RAID_ID_BEFORE}' => $this->old_item['raid_id'],
             '{L_VALUE_BEFORE}'   => $this->old_item['item_value'],
             '{L_NAME_AFTER}'     => $this->find_difference($this->old_item['item_name'], $this->item['item_name']),
-            '{L_BUYERS_AFTER}'   => implode(', ', $this->find_difference($this->old_item['item_buyers'], $_POST['item_buyers'])),
-            '{L_RAID_ID_AFTER}'  => $this->find_difference($this->old_item['raid_id'], $_POST['raid_id']),
-            '{L_VALUE_AFTER}'    => $this->find_difference($this->old_item['item_value'], $_POST['item_value']),
+            '{L_BUYERS_AFTER}'   => implode(', ', $this->find_difference($this->old_item['item_buyers'], $buyers_array)),
+            '{L_RAID_ID_AFTER}'  => $this->find_difference($this->old_item['raid_id'], $in->get('raid_id', 0)),
+            '{L_VALUE_AFTER}'    => $this->find_difference($this->old_item['item_value'], $in->get('item_value', 0.00)),
             '{L_UPDATED_BY}'     => $this->admin_user);
         $this->log_insert(array(
             'log_type'   => $log_action['header'],
@@ -291,12 +294,13 @@ class Add_Item extends EQdkp_Admin
         //
         $sql = "SELECT i2.*
                 FROM __items AS i1 LEFT JOIN __items AS i2 ON i1.`item_group_key` = i2.`item_group_key`
-                WHERE i1.`item_id` = '{$this->url_id}'";
+                WHERE (i1.`item_id` = '{$this->url_id}')";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
-            $item_ids[] = $row['item_id'];
+            $item_ids[] = intval($row['item_id']);
 
+            // NOTE: Don't think we need these addslashes calls, but if it ain't broke...
             $old_buyers[] = addslashes($row['item_buyer']);
             $this->old_item = array(
                 'item_name'   => addslashes($row['item_name']),
@@ -311,7 +315,7 @@ class Add_Item extends EQdkp_Admin
         // Remove the item purchase from the items table
         //
         $sql = "DELETE FROM __items
-                WHERE `item_id` IN (" . implode(',', $item_ids) . ")";
+                WHERE (`item_id` IN (" . implode(',', $item_ids) . "))";
         $db->query($sql);
         
         //
@@ -319,36 +323,36 @@ class Add_Item extends EQdkp_Admin
         //
         $sql = "UPDATE __members
                 SET `member_spent` = `member_spent` - {$this->old_item['item_value']}
-                WHERE `member_name` IN ('" . implode("','", $this->old_item['item_buyers']) . "')";
+                WHERE (`member_name` IN ('" . implode("','", $this->old_item['item_buyers']) . "'))";
         $db->query($sql);
     }
     
     function add_new_item($group_key)
     {
-        global $db;
+        global $db, $in;
         
         $query = array();
         
-        foreach ( $_POST['item_buyers'] as $member_name )
+        $buyers = $in->getArray('item_buyers', 'string');
+        foreach ( $buyers as $buyer )
         {
             $query[] = $db->build_query('INSERT', array(
-                'item_name'      => stripslashes($this->item['item_name']),
-                'item_buyer'     => $member_name,
-                'raid_id'        => $_POST['raid_id'],
-                'item_value'     => $_POST['item_value'],
+                'item_name'      => $this->item['item_name'],
+                'item_buyer'     => $buyer,
+                'raid_id'        => $in->get('raid_id', 0),
+                'item_value'     => $in->get('item_value', 0.00),
                 'item_date'      => $this->time,
                 'item_group_key' => $group_key,
-                'item_added_by'  => $this->admin_user)
-            );
+                'item_added_by'  => $this->admin_user
+            ));
         }
         
         //
         // Add charge to members
         //
-        // FIXME: Injection
         $sql = "UPDATE __members
-                SET `member_spent` = `member_spent` + {$_POST['item_value']}
-                WHERE `member_name` IN ('" . implode("','", $_POST['item_buyers']) . "')";
+                SET `member_spent` = `member_spent` + " . $in->get('item_value', 0.00) . "
+                WHERE (`member_name` IN ('" . implode("','", $buyers) . "'))";
         $db->query($sql);
         
         //
@@ -367,18 +371,34 @@ class Add_Item extends EQdkp_Admin
         $db->query($sql);
     }
     
+    function get_raid_date($raid_id)
+    {
+        global $db;
+        
+        $retval = $db->query_first("SELECT raid_date FROM __raids WHERE (`raid_id` = '" . $db->escape($raid_id) . "')");
+        
+        return $retval;
+    }
+    
+    function get_item_name($default = '')
+    {
+        global $in;
+        
+        return $in->get('item_name', $in->get('select_item_name', $default));
+    }
+    
     // ---------------------------------------------------------
     // Display form
     // ---------------------------------------------------------
     function display_form()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $eqdkp_root_path, $SID;
         
         //
         // Build member and buyer drop-downs
         //
-        $buyer_source = ( $this->url_id ) ? $this->item['item_buyers'] : (( isset($_POST['item_buyers']) ) ? $_POST['item_buyers'] : '');
+        $buyer_source = ( $this->url_id ) ? $this->item['item_buyers'] : $in->getArray('item_buyers', 'string');
         
         $sql = "SELECT member_name
                 FROM __members
@@ -388,15 +408,15 @@ class Add_Item extends EQdkp_Admin
         {
             $tpl->assign_block_vars('members_row', array(
                 'VALUE'  => $row['member_name'],
-                'OPTION' => $row['member_name'])
-            );
+                'OPTION' => $row['member_name']
+            ));
             
-            if ( @in_array($row['member_name'], $buyer_source) )
+            if ( is_array($buyer_source) && in_array($row['member_name'], $buyer_source) )
             {
                 $tpl->assign_block_vars('buyers_row', array(
                     'VALUE'  => $row['member_name'],
-                    'OPTION' => $row['member_name'])
-                );
+                    'OPTION' => $row['member_name']
+                ));
             }
         }
         $db->free_result($result);
@@ -405,10 +425,10 @@ class Add_Item extends EQdkp_Admin
         // Build raid drop-down
         //
         // Show all raids?
-        $show_all = ( (!empty($_GET['show'])) && ($_GET['show'] == 'all') ) ? true : false;
+        $show_all = $in->get('show', false);
         
         // Make two_weeks two weeks before the date the item was purchased
-        $two_weeks = mktime(0, 0, 0, date('m', $this->time), date('d', $this->time)-14, date('y', $this->time));
+        $two_weeks = strtotime(date("Y-m-d", $this->time - 60 * 60 * 24 * 14));
 
         $sql_where_clause = ( $show_all ) ? '' : " WHERE (raid_date >= {$two_weeks})";
         $sql = "SELECT raid_id, raid_name, raid_date
@@ -416,13 +436,12 @@ class Add_Item extends EQdkp_Admin
                 {$sql_where_clause}
                 ORDER BY raid_date DESC";
         $result = $db->query($sql);
-        $raid_id = ( isset($_GET['raid_id']) ) ? $_GET['raid_id'] : '0'; // 'Add items from this raid' link
-        // FIXME: XSS
+        $raid_id = $in->get('raid_id', $this->item['raid_id']);
         while ( $row = $db->fetch_record($result) )
         {
             $tpl->assign_block_vars('raids_row', array(
                 'VALUE'    => $row['raid_id'],
-                'SELECTED' => ( ($raid_id == $row['raid_id']) || ($this->item['raid_id'] == $row['raid_id']) ) ? ' selected="selected"' : '',
+                'SELECTED' => option_selected($raid_id == $row['raid_id']),
                 'OPTION'   => date($user->style['date_notime_short'], $row['raid_date']) . ' - ' . stripslashes($row['raid_name']))
             );
         }
@@ -431,7 +450,8 @@ class Add_Item extends EQdkp_Admin
         //
         // Build item drop-down
         //
-        $max_value = $db->query_first("SELECT max(item_value) FROM __items");
+        // TODO: This is a hack to let our shitty JavaScript work. Fix the JavaScript.
+        $max_value = $db->query_first("SELECT MAX(item_value) FROM __items");
         $float = @explode('.', $max_value);
         $floatlen = @strlen($float[0]);
         $format = '%0' . $floatlen . '.2f';
@@ -439,6 +459,7 @@ class Add_Item extends EQdkp_Admin
         $previous_item = '';
         $sql = "SELECT item_value, item_name
                 FROM __items
+                GROUP BY item_name
                 ORDER BY `item_name`, `item_date` DESC";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
@@ -446,13 +467,12 @@ class Add_Item extends EQdkp_Admin
             $item_select_name = stripslashes(trim($row['item_name']));
             $item_name        = stripslashes(trim($this->item['item_name']));
             $item_value       = $row['item_value'];
-
+            
             if ( $previous_item != $item_select_name )
             {
                 $tpl->assign_block_vars('items_row', array(
                     'VALUE'    => $item_select_name,
-                    'SELECTED' => ( ($item_select_name == $item_name) || ($item_select_name == $this->item['select_item_name']) ) ? ' selected="selected"' : '',
-                    // 'OPTION'   => '(' . sprintf($format, $row['item_value']) . ') - ' . $item_select_name)
+                    'SELECTED' => option_selected($item_select_name == $item_name),
                     'OPTION'   => $item_select_name . ' - ( ' . sprintf($format, $row['item_value']) . ' )'
                 ));
                 
@@ -465,11 +485,11 @@ class Add_Item extends EQdkp_Admin
             // Form vars
             'F_ADD_ITEM'        => 'additem.php' . $SID,
             'ITEM_ID'           => $this->url_id,
-            'U_ADD_RAID'        => 'addraid.php'.$SID,
+            'U_ADD_RAID'        => 'addraid.php' . $SID,
             'S_MULTIPLE_BUYERS' => ( !$this->url_id ) ? true : false,
 
             // Form values
-            'ITEM_NAME'  => stripslashes($this->item['item_name']),
+            'ITEM_NAME'  => $this->item['item_name'],
             'ITEM_VALUE' => $this->item['item_value'],
 
             // Language
@@ -507,14 +527,14 @@ class Add_Item extends EQdkp_Admin
             'ITEM_VALUE_LENGTH' => ($floatlen + 3), // The first three digits plus '.00';
 
             // Buttons
-            'S_ADD' => ( !$this->url_id ) ? true : false)
-        );
+            'S_ADD' => ( !$this->url_id ) ? true : false
+        ));
         
         $eqdkp->set_vars(array(
-            'page_title'    => sprintf($user->lang['admin_title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['additem_title'],
+            'page_title'    => page_title($user->lang['additem_title'], true),
             'template_file' => 'admin/additem.html',
-            'display'       => true)
-        );
+            'display'       => true
+        ));
     }
 }
 
@@ -531,18 +551,22 @@ class Item_Search extends EQdkp_Admin
             'search' => array(
                 'name'    => 'search',
                 'process' => 'process_search',
-                'check'   => 'a_item_'),
+                'check'   => 'a_item_'
+            ),
             'form' => array(
                 'name'    => '',
                 'process' => 'display_form',
-                'check'   => 'a_item_'))
-        );
+                'check'   => 'a_item_'
+            )
+        ));
     }
     
     function error_check()
     {
+        global $in;
+        
         $this->fv->is_filled('query');
-        if ( strlen($_POST['query']) < 2 )
+        if ( strlen($in->get('query')) < 2 )
         {
             $this->fv->errors['query'] = '';
         }
@@ -555,7 +579,7 @@ class Item_Search extends EQdkp_Admin
     // ---------------------------------------------------------
     function process_search()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $SID;
         
         $items_array = array();
@@ -566,48 +590,35 @@ class Item_Search extends EQdkp_Admin
             //
             // Get item names from our standard items table
             //
-            // FIXME: Injection
             $sql = "SELECT item_name
                     FROM __items
-                    WHERE `item_name` LIKE '%{$_POST['query']}%'
+                    WHERE (`item_name` LIKE '%" . addcslashes($db->escape($in->get('query')), '%_') . "%')
                     GROUP BY item_name";
             $result = $db->query($sql);
+            $num_items = $db->num_rows($result);
             while ( $row = $db->fetch_record($result) )
             {
-                $items_array[] = $row['item_name'];
+                $tpl->assign_block_vars('items_row', array(
+                    'VALUE'  => stripslashes($row['item_name']),
+                    'OPTION' => stripslashes($row['item_name'])
+                ));
             }
             $db->free_result($result);
-            
-            //
-            // Get item names from our stats table if the stats plugin is installed
-            //
-
-            //
-            // Build the drop-down
-            //
-            foreach ( $items_array as $item_name )
-            {
-                $tpl->assign_block_vars('items_row', array(
-                    'VALUE'  => stripslashes($item_name),
-                    'OPTION' => stripslashes($item_name))
-                );
-            }
         }
         
         $tpl->assign_vars(array(
             'S_STEP1' => false,
             
-            // FIXME: XSS
-            'L_RESULTS' => sprintf($user->lang['results'], sizeof($items_array), stripslashes($_POST['query'])),
-            'L_SELECT'  => $user->lang['select'])
-        );
+            'L_RESULTS' => sprintf($user->lang['results'], $num_items, sanitize($in->get('query'))),
+            'L_SELECT'  => $user->lang['select']
+        ));
         
         $eqdkp->set_vars(array(
-            'page_title'        => sprintf($user->lang['admin_title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['additem_title'],
+            'page_title'        => page_title($user->lang['additem_title'], true),
             'gen_simple_header' => true,
             'template_file'     => 'admin/additem_search.html',
-            'display'           => true)
-        );
+            'display'           => true
+        ));
     }
     
     // ---------------------------------------------------------
@@ -625,19 +636,19 @@ class Item_Search extends EQdkp_Admin
             
             'L_ITEM_SEARCH'  => $user->lang['item_search'],
             'L_SEARCH'       => $user->lang['search'],
-            'L_CLOSE_WINDOW' => $user->lang['close_window'])
-        );
+            'L_CLOSE_WINDOW' => $user->lang['close_window']
+        ));
         
         $eqdkp->set_vars(array(
-            'page_title'        => sprintf($user->lang['admin_title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['additem_title'],
+            'page_title'        => page_title($user->lang['additem_title'], true),
             'gen_simple_header' => true,
             'template_file'     => 'admin/additem_search.html',
-            'display'           => true)
-        );
+            'display'           => true
+        ));
     }
 }
 
-$mode = ( isset($_GET['mode']) ) ? $_GET['mode'] : 'additem';
+$mode = $in->get('mode', 'additem');
 switch ( $mode )
 {
     case 'additem':

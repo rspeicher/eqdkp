@@ -5,6 +5,8 @@ Global
     - Add x_path() functions a la Rails to clean up some URL generation
     - Use header('HTTP/1.0 404 Not Found'); instead of die('Do not access this file directly.');
     - Move the page title generation to a function to clean up the files, since it happens on every page.
+    - Deprecate post_or_db. We can change post_or_db('my_variable', $row); to $in->get('my_variable', $row['my_variable']);
+    - Don't call sanitize on a variable that's being input into the database, only on OUTPUT TO THE USER.
     
 Global de-stupifying from 1.3
     - Search for '1.3' across the project and probably undo most of it, or make it less stupid.
@@ -27,6 +29,9 @@ Languages
     - re-write the whole thing. In particular it probably makes more sense to have an
       action=(login|logout) variable than separate variables for both.
       Update other parts of eqdkp that use login.php accordingly.
+      
+/admin/additem.php
+    - (Template) Fix the Javascript abomination for searching, selecting/deselecting members.
       
 /admin/addturnin.php
     - Consider re-naming. It isn't so much turning something in as it is transferring something (an item)

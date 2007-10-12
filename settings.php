@@ -118,7 +118,7 @@ switch ( $action )
         }
         if ( $change_password )
         {
-            $update['user_password'] = md5($in->get('new_user_password1');
+            $update['user_password'] = md5($in->get('new_user_password1'));
         }
         
         $query = $db->build_query('UPDATE', $update);

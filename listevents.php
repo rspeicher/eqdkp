@@ -42,7 +42,7 @@ while ( $event = $db->fetch_record($events_result) )
     $tpl->assign_block_vars('events_row', array(
         'ROW_CLASS'    => $eqdkp->switch_row_class(),
         'U_VIEW_EVENT' => 'viewevent.php'.$SID . '&amp;' . URI_EVENT . '='.$event['event_id'],
-        'NAME'         => stripslashes($event['event_name']),
+        'NAME'         => sanitize($event['event_name']),
         'VALUE'        => $event['event_value']
     ));
 }
@@ -63,7 +63,7 @@ $tpl->assign_vars(array(
 ));
 
 $eqdkp->set_vars(array(
-    'page_title'    => sprintf($user->lang['title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['listevents_title'],
+    'page_title'    => page_title($user->lang['listevents_title']),
     'template_file' => 'listevents.html',
     'display'       => true
 ));

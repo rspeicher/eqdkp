@@ -236,10 +236,13 @@ if ( !defined('IN_ADMIN') )
         $table_name = ( $type != 'news' ) ? "__{$type}s" : "__news";
         $field_name = ( $type != 'news' ) ? "{$type}_name" : "news_headline";
         
-        $sql = "SELECT {$field_name} FROM {$table_name} WHERE `{$type}_id` = '{$id}'";
+        // Escape input since an anonymous user could access any page with a 
+        // bogus ID and, even though they won't see anything, they'd potentially
+        // break this query.
+        $sql = "SELECT `{$field_name}` FROM `{$table_name}` WHERE (`{$type}_id` = '" . $db->escape($id) . "')";
         $name = $db->query_first($sql);
         
-        return ( !empty($name) ) ? $name : 'Unknown';
+        return ( !empty($name) ) ? sanitize($name) : 'Unknown';
     }
 
     // TODO: Apparently 1.3 disabled a call to this function, for unknown reasons.
@@ -476,9 +479,9 @@ if ( !defined('IN_ADMIN') )
                 if ( isset($logline) )
                 {
                     $tpl->assign_block_vars('actions_row', array(
-                        'ROW_CLASS' => $eqdkp->switch_row_class(),
+                        'ROW_CLASS'  => $eqdkp->switch_row_class(),
                         'U_VIEW_LOG' => 'logs.php?' . URI_LOG . '='.$row['log_id'],
-                        'ACTION' => sanitize($logline)
+                        'ACTION'     => sanitize($logline)
                     ));
                 }
                 unset($logline);
@@ -492,7 +495,7 @@ if ( !defined('IN_ADMIN') )
     $eqdkp_com_version = EQDKP_VERSION;
 
     $tpl->assign_vars(array(
-        'S_NEW_VERSION' => ( $eqdkp_com_version != EQDKP_VERSION ) ? true : false,
+        'S_NEW_VERSION' => false, // Always false, for now
         'S_LOGS'        => $s_logs,
 
         'L_VERSION_UPDATE'     => $user->lang['version_update'],
@@ -641,6 +644,6 @@ else
     $tpl->assign_vars(array(
         'L_ADMINISTRATION' => $user->lang['administration'],
         'L_ADMIN_INDEX'    => $user->lang['admin_index'],
-        'L_EQDKP_INDEX'    => $user->lang['eqdkp_index'])
-    );
+        'L_EQDKP_INDEX'    => $user->lang['eqdkp_index']
+    ));
 }

@@ -373,7 +373,7 @@ if ( !defined('IN_ADMIN') )
 
         $tpl->assign_block_vars('online_row', array(
             'ROW_CLASS'   => $eqdkp->switch_row_class(),
-            'USERNAME'    => ( !empty($row['username']) ) ? $row['username'] : $user->lang['anonymous'],
+            'USERNAME'    => ( !empty($row['username']) ) ? sanitize($row['username']) : $user->lang['anonymous'],
             'LOGIN'       => date($user->style['date_time'], $row['session_start']),
             'LAST_UPDATE' => date($user->style['date_time'], $row['session_current']),
             'LOCATION'    => $session_page,
@@ -478,8 +478,8 @@ if ( !defined('IN_ADMIN') )
                     $tpl->assign_block_vars('actions_row', array(
                         'ROW_CLASS' => $eqdkp->switch_row_class(),
                         'U_VIEW_LOG' => 'logs.php?' . URI_LOG . '='.$row['log_id'],
-                        'ACTION' => stripslashes($logline))
-                    );
+                        'ACTION' => sanitize($logline)
+                    ));
                 }
                 unset($logline);
             }

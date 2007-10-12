@@ -803,7 +803,7 @@ class EQdkp_Admin
         $str_action = "\$log_action = array(";
         foreach ( $action as $k => $v )
         {
-            $str_action .= "'" . $k . "' => '" . $db->escape(sanitize($v)) . "',";
+            $str_action .= "'" . $k . "' => '" . $db->escape($v) . "',";
         }
         $action = substr($str_action, 0, strlen($str_action)- 1) . ");";
         

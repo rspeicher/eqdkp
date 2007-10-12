@@ -15,6 +15,8 @@ class Input
      */
     var $_cache = array();
     
+    var $_caching = true;
+    
     /**
      * Get an input variable from a superglobal. POST > SESSION > GET
      *
@@ -101,7 +103,10 @@ class Input
             $input  = $this->_get($key, $retval);
             $retval = $this->_recurseClean($input, $type, $max_depth);
             
-            $this->_cache[$key] = $retval;
+            if ( $this->_caching )
+            {
+                $this->_cache[$key] = $retval;
+            }
         }
         
         return $retval;
@@ -156,7 +161,10 @@ class Input
         {
             $retval = $this->_cleanFloat($this->_get($key, $default));
             
-            $this->_cache[$key] = $retval;
+            if ( $this->_caching && $retval != $default )
+            {
+                $this->_cache[$key] = $retval;
+            }
         }
         
         return $retval;
@@ -179,7 +187,10 @@ class Input
         {
             $retval = $this->_cleanInt($this->_get($key, $default));
             
-            $this->_cache[$key] = $retval;
+            if ( $this->_caching && $retval != $default )
+            {
+                $this->_cache[$key] = $retval;
+            }
         }
         
         return $retval;
@@ -212,7 +223,10 @@ class Input
         {
             $retval = $this->_cleanHash($this->string($key, $default));
             
-            $this->_cache[$key] = $retval;
+            if ( $this->_caching && $retval != $default )
+            {
+                $this->_cache[$key] = $retval;
+            }
         }
         
         return $retval;
@@ -235,7 +249,10 @@ class Input
         {
             $retval = $this->_cleanString($this->_get($key, $default));
             
-            $this->_cache[$key] = $retval;
+            if ( $this->_caching && $retval != $default )
+            {
+                $this->_cache[$key] = $retval;
+            }
         }
         
         return $retval;

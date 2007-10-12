@@ -137,4 +137,3 @@ if ( (defined('IN_ADMIN')) && (IN_ADMIN === true) )
         }
     }
 }
-?>

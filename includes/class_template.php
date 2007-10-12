@@ -908,5 +908,3 @@ class Template {
         return $_str;
     }
 }
-
-?>

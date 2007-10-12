@@ -1301,4 +1301,3 @@ class Add_Raid extends EQdkp_Admin
 
 $add_raid = new Add_Raid;
 $add_raid->process();
-?>

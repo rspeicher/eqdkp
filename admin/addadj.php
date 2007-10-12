@@ -327,4 +327,3 @@ class Add_GroupAdj extends EQdkp_Admin
 
 $add_groupadj = new Add_GroupAdj;
 $add_groupadj->process();
-?>

@@ -433,4 +433,3 @@ class SQL_DB
         $this->error_die = $setting;
     }
 }
-?>

@@ -761,4 +761,3 @@ class Manage_Users extends EQdkp_Admin
 
 $manage_users = new Manage_users;
 $manage_users->process();
-?>

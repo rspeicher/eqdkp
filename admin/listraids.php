@@ -75,4 +75,3 @@ $eqdkp->set_vars(array(
     'template_file' => 'listraids.html',
     'display'       => true)
 );
-?>

@@ -534,4 +534,3 @@ class Register extends EQdkp_Admin
 
 $register = new Register;
 $register->process();
-?>

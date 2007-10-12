@@ -326,4 +326,3 @@ $eqdkp->set_vars(array(
     'template_file' => 'stats.html',
     'display'       => true)
 );
-?>

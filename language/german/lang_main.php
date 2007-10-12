@@ -369,5 +369,3 @@ $lang['password_sent'] = 'Dein neues Accountpaﬂwort wurde Dir zugemailt.';
 $lang['register_activation_self']  = "Dein Account wurde erstellt. Bevor Du ihn nutzen kannst, muﬂ er von Dir aktiviert werden.<br /><br />Eine Mail wurde an %1\$s gesendet mit den Informationen zur Aktivierung.";
 $lang['register_activation_admin'] = "Dein Account wurde erstellt. Bevor Du ihn nutzen kannst, muﬂ er von einem Administrator aktiviert werden.<br /><br />Eine Mail mit mehr Informationen wurde an %1\$s gesendet.";
 $lang['register_activation_none']  = "Dein Account wurde erstellt und Du kannst Dich nun %1\$seinloggen%2\$s.<br /><br />Eine Mail mit mehr Informationen wurde an %3\$s gesendet.";
-
-?>

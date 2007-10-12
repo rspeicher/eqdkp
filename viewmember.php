@@ -350,4 +350,3 @@ function raid_count($start_date, $end_date, $member_name)
     
     return $percent_of_raids;
 }
-?>

@@ -221,4 +221,3 @@ class EMail
         return true;
     }
 }
-?>

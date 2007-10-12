@@ -558,4 +558,3 @@ class Manage_Styles extends EQdkp_Admin
 
 $manage_styles = new Manage_Styles;
 $manage_styles->process();
-?>

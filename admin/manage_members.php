@@ -148,4 +148,3 @@ class Manage_Members extends EQdkp_Admin
 
 $manage_members = new Manage_Members;
 $manage_members->process();
-?>

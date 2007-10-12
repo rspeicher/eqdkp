@@ -88,4 +88,3 @@ else
 {
     redirect('index.php'.$SID);
 }
-?>

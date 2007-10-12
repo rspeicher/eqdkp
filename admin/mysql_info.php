@@ -128,4 +128,3 @@ class MySQL_Info extends EQdkp_Admin
 
 $info = new MySQL_Info;
 $info->process();
-?>

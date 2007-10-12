@@ -327,4 +327,3 @@ class Add_Event extends EQdkp_Admin
 
 $add_event = new Add_Event;
 $add_event->process();
-?>

@@ -87,4 +87,3 @@ $eqdkp->set_vars(array(
     'template_file' => 'listitems.html',
     'display'       => true
 ));
-?>

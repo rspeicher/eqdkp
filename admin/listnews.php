@@ -71,4 +71,3 @@ $eqdkp->set_vars(array(
     'template_file' => 'admin/listnews.html',
     'display'       => true)
 );
-?>

@@ -459,4 +459,3 @@ $lang['rows'] = '行';
 $lang['table_size'] = '表格大小';
 $lang['index_size'] = '索引大小';
 $lang['num_tables'] = "%d 表格";
-?>

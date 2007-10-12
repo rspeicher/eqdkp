@@ -68,4 +68,3 @@ $eqdkp->set_vars(array(
     'template_file' => 'listevents.html',
     'display'       => true)
 );
-?>

@@ -91,4 +91,3 @@ else
 {
     message_die($user->lang['error_invalid_item_provided']);
 }
-?>

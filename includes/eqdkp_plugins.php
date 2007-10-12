@@ -1262,4 +1262,3 @@ class EQdkp_Plugin
         }
     }
 }
-?>

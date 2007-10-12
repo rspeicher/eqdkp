@@ -1271,4 +1271,3 @@ class Form_Validate
         return true;
     }
 }
-?>

@@ -650,4 +650,3 @@ switch ( $mode )
         $item_search->process();
         break;
 }
-?>

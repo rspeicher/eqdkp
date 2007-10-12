@@ -125,4 +125,3 @@ $eqdkp->set_vars(array(
     'template_file' => 'listmembers.html',
     'display'       => true)
 );
-?>

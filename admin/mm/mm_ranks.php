@@ -146,4 +146,3 @@ class MM_Ranks extends EQdkp_Admin
         );
     }
 }
-?>

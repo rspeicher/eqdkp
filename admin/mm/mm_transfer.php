@@ -246,4 +246,3 @@ class MM_Transfer extends EQdkp_Admin
         );
     }
 }
-?>

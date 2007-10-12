@@ -628,7 +628,6 @@ function process_step3()
     $config_file .= "\$ns           = '" . $server_name   . "'; \n";
     $config_file .= "\$debug        = '0';                      \n";
     $config_file .= "\$table_prefix = '" . $table_prefix  . "';\n\n";
-    $config_file .= "?>";
 
     // Set our permissions to execute-only
     @umask(0111);
@@ -712,7 +711,6 @@ function process_step4()
     $config_file  = implode("\n", $config_file);
     $config_file  = preg_replace('#\?>$#', '', $config_file);
     $config_file .= 'define(\'EQDKP_INSTALLED\', true);' . "\n";
-    $config_file .= '?>';
 
     // Set our permissions to execute-only
     @umask(0111);
@@ -903,4 +901,3 @@ function parse_sql($sql, $delim)
 
     return $retval;
 }
-?>

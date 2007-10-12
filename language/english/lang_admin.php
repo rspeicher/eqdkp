@@ -468,4 +468,3 @@ $lang['create_table'] = 'Add \'CREATE TABLE\' statements?';
 $lang['skip_nonessential'] = 'Skip non essential data?<br />Will not produce insert rows for eqdkp_sessions.';
 $lang['gzip_content'] = 'GZIP Content?<br />Will produce a smaller file if GZIP is enabled.';
 $lang['backup_database'] = 'Backup Database';
-?>

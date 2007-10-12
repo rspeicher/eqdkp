@@ -491,4 +491,3 @@ class User extends Session
         return false;
     }
 }
-?>

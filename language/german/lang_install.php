@@ -150,5 +150,3 @@ $lang['password'] = 'Kennwort';
 $lang['remember_password'] = 'an mich erinnern (Cookie)';
 
 $lang['lost_password'] = 'Passwort vergessen';
-
-?>

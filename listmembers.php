@@ -403,4 +403,3 @@ function validateCompareInput($input)
     
     return $retval;
 }
-?>

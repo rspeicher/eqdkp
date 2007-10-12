@@ -584,4 +584,3 @@ class Parse_Log extends EQdkp_Admin
 
 $parse_log = new Parse_Log;
 $parse_log->process();
-?>

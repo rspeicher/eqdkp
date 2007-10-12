@@ -193,4 +193,3 @@ else
 {
     message_die($user->lang['error_invalid_raid_provided']);
 }
-?>

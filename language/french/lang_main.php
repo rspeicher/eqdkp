@@ -368,4 +368,3 @@ $lang['password_sent'] = 'Votre nouveau mot de passe de compte vous a été envoyé
 $lang['register_activation_self']  = "Votre compte a été créé, mais avant de pouvoir l\'utiliser vous devez l\'activer.<br /><br />Un email a été envoyé à %1\$s avec les informations pour activer votre compte.";
 $lang['register_activation_admin'] = "Votre compte a été créé, mais avant de pouvoir l\'utiliser un administrateur doit l\'activer.<br /><br />Un email a été envoyé à %1\$s avec plus d\'informations.";
 $lang['register_activation_none']  = "Votre compte a été créé et vous pouvez maintenant vous %1\$sconnecter%2\$s.<br /><br />Un email a été envoyé à %3\$s avec plus d\'informations.";
-?>

@@ -251,4 +251,3 @@ class Add_Turnin extends EQdkp_Admin
 
 $add_turnin = new Add_Turnin;
 $add_turnin->process();
-?>

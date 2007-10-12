@@ -306,4 +306,3 @@ $eqdkp->set_vars(array(
     'template_file' => 'summary.html',
     'display'       => true
 ));
-?>

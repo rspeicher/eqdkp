@@ -302,4 +302,3 @@ class Backup extends EQdkp_Admin
 
 $backup = new Backup;
 $backup->process();
-?>

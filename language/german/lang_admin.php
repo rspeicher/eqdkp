@@ -460,4 +460,3 @@ $lang['rows'] = 'Zeilen';
 $lang['table_size'] = 'Tabellengröße';
 $lang['index_size'] = 'Indexgröße';
 $lang['num_tables'] = "%d Tabellen";
-?>

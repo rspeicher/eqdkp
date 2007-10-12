@@ -202,4 +202,3 @@ function news_make_clickable(&$message)
 
     $message = preg_replace($match, $replace, $message);
 }
-?>

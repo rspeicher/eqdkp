@@ -127,4 +127,3 @@ $eqdkp->set_vars(array(
     'template_file' => 'admin/listadj.html',
     'display'       => true
 ));
-?>

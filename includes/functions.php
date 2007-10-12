@@ -511,4 +511,3 @@ function create_bar($width, $show_text = '')
     
     return "<div class=\"graph\"><strong class=\"bar\" style=\"width: {$width}%;\">{$show_text}</strong></div>\n";
 }
-?>

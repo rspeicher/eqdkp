@@ -506,4 +506,3 @@ class EQdkp_Config extends EQdkp_Admin
 
 $eqdkp_config = new EQdkp_Config;
 $eqdkp_config->process();
-?>

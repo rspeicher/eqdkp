@@ -644,4 +644,3 @@ else
         'L_EQDKP_INDEX'    => $user->lang['eqdkp_index'])
     );
 }
-?>

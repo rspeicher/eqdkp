@@ -318,4 +318,3 @@ class Add_News extends EQdkp_Admin
 
 $add_news = new Add_News;
 $add_news->process();
-?>

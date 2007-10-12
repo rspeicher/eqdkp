@@ -365,4 +365,3 @@ $lang['password_sent'] = '新的密码已经通过e_mail发给你了.';
 $lang['register_activation_self']  = "账号已经创建, 但枪用之前必须激活.<br /><br />e-mail已经发送到 %1\$s 里面包含了如何激活账号的信息.";
 $lang['register_activation_admin'] = "账号已经创建, 但枪用之前管理员必须激活它.<br /><br />e-mail已经发送到 %1\$s 里面包含更多信息.";
 $lang['register_activation_none']  = "账号已经创建，你现在可以 %1\$s登入%2\$s.<br /><br />e-mail已经发送到 %3\$s 里面包含更多信息.";
-?>

@@ -372,6 +372,3 @@ class Upgrade
 }
 
 $upgrade = new Upgrade();
-
-// And the upgrade-o-matic 5000 takes care of the rest.
-?>

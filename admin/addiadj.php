@@ -416,4 +416,3 @@ class Add_IndivAdj extends EQdkp_Admin
 
 $add_indivadj = new Add_IndivAdj;
 $add_indivadj->process();
-?>

@@ -512,4 +512,3 @@ After using the above 4, we now test with the same members in different states o
 
 $parse_log = new Parse_Log;
 $parse_log->process();
-?>

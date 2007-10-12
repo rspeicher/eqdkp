@@ -100,4 +100,3 @@ switch ( $mode )
  
         break;
 }
-?>

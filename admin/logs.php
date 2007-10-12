@@ -236,4 +236,3 @@ function lang_replace($variable)
 
     return $variable;
 }
-?>

@@ -30,4 +30,3 @@ if ( !$db->link_id )
 {
     message_die('Could not connect to the database.');
 }
-?>

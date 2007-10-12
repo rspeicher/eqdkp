@@ -202,4 +202,3 @@ else
 {
     message_die($user->lang['error_invalid_event_provided']);
 }
-?>

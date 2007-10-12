@@ -25,6 +25,3 @@ else
 {
     redirect('viewnews.php' . $SID);
 }
-
-// Thassit
-?>

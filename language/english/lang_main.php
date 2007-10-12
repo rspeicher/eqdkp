@@ -390,5 +390,3 @@ $lang['lua_step3_raidadded'] = "%s (%s, %s DKP) was added<br>\n";
 $lang['lua_step3_memberadded'] = "%s (race: %s, class: %s, level: %s, rank: %s) was added to the Members<br>\n";
 $lang['lua_step3_attendeesadded'] = "%s attendees were added<br>\n";
 $lang['lua_step3_lootadded'] = "%s (%s DKP) was added to %s<br>\n";
-
-?>

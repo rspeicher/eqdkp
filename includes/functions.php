@@ -28,6 +28,16 @@ function page_title($title, $admin = false)
     return "{$title} - {$global_title}";
 }
 
+function option_selected($condition)
+{
+    if ( $condition )
+    {
+        return ' selected="selected"';
+    }
+    
+    return '';
+}
+
 /**
  * Translate qoute characters to their HTML entities, and strip HTML tags.
  */
@@ -41,7 +51,16 @@ function sanitize($input, $ent = true, $tags = true)
 
 function unsanitize($input)
 {
-    return htmlspecialchars_decode($input, ENT_QUOTES);
+    //return htmlspecialchars_decode($input, ENT_QUOTES); // PHP >= 5.1.0
+    
+    $retval = $input;
+    $retval = str_replace('&amp;', '&', $retval);
+    $retval = str_replace('&#039;', '\'', $retval);
+    $retval = str_replace('&quot;', '"', $retval);
+    $retval = str_replace('&lt;', '<', $retval);
+    $retval = str_replace('&gt;', '>', $retval);
+    
+    return $retval;
 }
 
 /**

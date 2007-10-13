@@ -35,9 +35,9 @@ if ( $in->get(URI_PAGE, 'group') == 'group' )
     
     $u_list_adjustments = 'listadj.php'.$SID.'&amp;';
     
-    $page_title = sprintf($user->lang['admin_title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['listadj_title'];
+    $page_title = page_title($user->lang['listadj_title']);
     
-    $total_adjustments = $db->query_first("SELECT count(*) FROM __adjustments WHERE member_name IS NULL");
+    $total_adjustments = $db->query_first("SELECT count(*) FROM __adjustments WHERE (member_name IS NULL)");
     $start = $in->get('start', 0);
     
     $s_group_adj = true;
@@ -62,9 +62,9 @@ elseif ( $in->get(URI_PAGE) == 'individual' )
     
     $u_list_adjustments = 'listadj.php'.$SID.'&amp;' . URI_PAGE . '=individual&amp;';
     
-    $page_title = sprintf($user->lang['admin_title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['listiadj_title'];
+    $page_title = page_title($user->lang['listiadj_title']);
     
-    $total_adjustments = $db->query_first("SELECT count(*) FROM __adjustments WHERE member_name IS NOT NULL");
+    $total_adjustments = $db->query_first("SELECT count(*) FROM __adjustments WHERE (member_name IS NOT NULL)");
     $start = $in->get('start', 0);
     
     $s_group_adj = false;
@@ -92,11 +92,11 @@ while ( $adj = $db->fetch_record($adj_result) )
         'U_ADD_ADJUSTMENT' => (( $s_group_adj ) ? 'addadj.php' : 'addiadj.php') . $SID.'&amp;' . URI_ADJUSTMENT . '='.$adj['adjustment_id'],
         'DATE'             => date($user->style['date_notime_short'], $adj['adjustment_date']),
         'U_VIEW_MEMBER'    => ( isset($adj['member_name']) ) ? $eqdkp_root_path.'viewmember.php'.$SID.'&amp;' . URI_NAME . '='.$adj['member_name'] : '',
-        'MEMBER'           => ( isset($adj['member_name']) ) ? $adj['member_name'] : '',
-        'REASON'           => ( isset($adj['adjustment_reason']) ) ? stripslashes($adj['adjustment_reason'])  : '',
-        'ADJUSTMENT'       => $adj['adjustment_value'],
+        'MEMBER'           => ( isset($adj['member_name']) ) ? sanitize($adj['member_name']) : '',
+        'REASON'           => ( isset($adj['adjustment_reason']) ) ? sanitize($adj['adjustment_reason'])  : '',
+        'ADJUSTMENT'       => sanitize($adj['adjustment_value']),
         'C_ADJUSTMENT'     => color_item($adj['adjustment_value']),
-        'ADDED_BY'         => ( isset($adj['adjustment_added_by']) ) ? $adj['adjustment_added_by'] : ''
+        'ADDED_BY'         => ( isset($adj['adjustment_added_by']) ) ? sanitize($adj['adjustment_added_by']) : ''
     ));
 }
 $db->free_result($adj_result);

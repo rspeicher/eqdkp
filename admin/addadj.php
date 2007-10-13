@@ -23,39 +23,43 @@ class Add_GroupAdj extends EQdkp_Admin
     
     function add_groupadj()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $eqdkp_root_path;
         
         parent::eqdkp_admin();
         
         $this->adjustment = array(
-            'adjustment_value' => post_or_db('adjustment_value')
+            'adjustment_value' => $in->get('adjustment_value')
         );
         
         // Vars used to confirm deletion
         $this->set_vars(array(
             'confirm_text'  => $user->lang['confirm_delete_adj'],
-            'uri_parameter' => URI_ADJUSTMENT)
-        );
+            'uri_parameter' => URI_ADJUSTMENT
+        ));
         
         $this->assoc_buttons(array(
             'add' => array(
                 'name'    => 'add',
                 'process' => 'process_add',
-                'check'   => 'a_groupadj_add'),
+                'check'   => 'a_groupadj_add'
+            ),
             'update' => array(
                 'name'    => 'update',
                 'process' => 'process_update',
-                'check'   => 'a_groupadj_upd'),
+                'check'   => 'a_groupadj_upd'
+            ),
             'delete' => array(
                 'name'    => 'delete',
                 'process' => 'process_delete',
-                'check'   => 'a_groupadj_del'),
+                'check'   => 'a_groupadj_del'
+            ),
             'form' => array(
                 'name'    => '',
                 'process' => 'display_form',
-                'check'   => 'a_groupadj_'))
-        );
+                'check'   => 'a_groupadj_'
+            )
+        ));
         
         // Build the adjustment aray
         // -----------------------------------------------------
@@ -63,7 +67,7 @@ class Add_GroupAdj extends EQdkp_Admin
         {
             $sql = "SELECT adjustment_value, member_name
                     FROM __adjustments
-                    WHERE `adjustment_id` = '{$this->url_id}'";
+                    WHERE (`adjustment_id` = '" . $db->escape($this->url_id) . "')";
             $result = $db->query($sql);
             if ( !$row = $db->fetch_record($result) )
             {
@@ -78,7 +82,7 @@ class Add_GroupAdj extends EQdkp_Admin
             }
         
             $this->adjustment = array(
-                'adjustment_value' => post_or_db('adjustment_value', $row)
+                'adjustment_value' => $in->get('adjustment_value', $row['adjustment_value'])
             );
         }
     }
@@ -101,24 +105,24 @@ class Add_GroupAdj extends EQdkp_Admin
     // ---------------------------------------------------------
     function process_add()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $eqdkp_root_path, $SID;
         
         //
         // Change member's adjustment column
         //
         $sql = "UPDATE __members
-                SET `member_adjustment` = `member_adjustment` + " . $db->escape($_POST['adjustment_value']);
+                SET `member_adjustment` = `member_adjustment` + " . $db->escape($in->get('adjustment_value', 0.00));
         $db->query($sql);
         
         //
         // Insert adjustment
         //
         $query = $db->build_query('INSERT', array(
-            'adjustment_value'    => $_POST['adjustment_value'],
+            'adjustment_value'    => $in->get('adjustment_value', 0.00),
             'adjustment_date'     => $this->time,
-            'adjustment_added_by' => $this->admin_user)
-        );
+            'adjustment_added_by' => $this->admin_user
+        ));
         $db->query("INSERT INTO __adjustments {$query}");
         $this_adjustment_id = $db->insert_id();
         
@@ -129,16 +133,17 @@ class Add_GroupAdj extends EQdkp_Admin
             'header'         => '{L_ACTION_GROUPADJ_ADDED}',
             'id'             => $this_adjustment_id,
             '{L_ADJUSTMENT}' => $_POST['adjustment_value'],
-            '{L_ADDED_BY}'   => $this->admin_user);
+            '{L_ADDED_BY}'   => $this->admin_user
+        );
         $this->log_insert(array(
             'log_type'   => $log_action['header'],
-            'log_action' => $log_action)
-        );
+            'log_action' => $log_action
+        ));
         
         //
         // Success message
         //
-        $success_message = sprintf($user->lang['admin_add_adj_success'], $eqdkp->config['dkp_name'], $_POST['adjustment_value']);
+        $success_message = sprintf($user->lang['admin_add_adj_success'], $eqdkp->config['dkp_name'], sanitize($in->get('adjustment_value', 0.00)));
         $link_list = array(
             $user->lang['list_groupadj'] => 'listadj.php' . $SID,
             $user->lang['list_members']  => $eqdkp_root_path . 'listmembers.php' . $SID);
@@ -150,7 +155,7 @@ class Add_GroupAdj extends EQdkp_Admin
     // ---------------------------------------------------------
     function process_update()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $eqdkp_root_path, $SID;
         
         //
@@ -165,24 +170,24 @@ class Add_GroupAdj extends EQdkp_Admin
         //
         $sql = "UPDATE __members
                 SET `member_adjustment` = `member_adjustment` - {$this->old_adjustment['adjustment_value']}
-                WHERE `member_firstraid` <= {$this->old_adjustment['adjustment_date']}";
+                WHERE (`member_firstraid` <= {$this->old_adjustment['adjustment_date']})";
         $db->query($sql);
         
         //
         // Add the new adjustment
         //
         $sql = "UPDATE __members
-                SET `member_adjustment` = `member_adjustment` + " . $db->escape($_POST['adjustment_value']);
+                SET `member_adjustment` = `member_adjustment` + " . $db->escape($in->get('adjustment_value', 0.00));
         $db->query($sql);
         
         //
         // Update the adjustment table
         //
         $query = $db->build_query('UPDATE', array(
-            'adjustment_value'      => $_POST['adjustment_value'],
-            'adjustment_updated_by' => $this->admin_user)
-        );
-        $sql = "UPDATE __adjustments SET {$query} WHERE `adjustment_id` = '{$this->url_id}'";
+            'adjustment_value'      => $in->get('adjustment_value', 0.00),
+            'adjustment_updated_by' => $this->admin_user
+        ));
+        $sql = "UPDATE __adjustments SET {$query} WHERE (`adjustment_id` = '" . $db->escape($this->url_id) . "')";
         $db->query($sql);
         
         //
@@ -192,20 +197,22 @@ class Add_GroupAdj extends EQdkp_Admin
             'header'                => '{L_ACTION_GROUPADJ_UPDATED}',
             'id'                    => $this->url_id,
             '{L_ADJUSTMENT_BEFORE}' => $this->old_adjustment['adjustment_value'],
-            '{L_ADJUSTMENT_AFTER}'  => $this->find_difference($this->old_adjustment['adjustment_value'], $_POST['adjustment_value']),
-            '{L_UPDATED_BY}'        => $this->admin_user);
+            '{L_ADJUSTMENT_AFTER}'  => $this->find_difference($this->old_adjustment['adjustment_value'], $in->get('adjustment_value')),
+            '{L_UPDATED_BY}'        => $this->admin_user
+        );
         $this->log_insert(array(
             'log_type'   => $log_action['header'],
-            'log_action' => $log_action)
-        );
+            'log_action' => $log_action
+        ));
         
         //
         // Success message
         //
-        $success_message = sprintf($user->lang['admin_update_adj_success'], $eqdkp->config['dkp_name'], $_POST['adjustment_value']);
+        $success_message = sprintf($user->lang['admin_update_adj_success'], $eqdkp->config['dkp_name'], sanitize($in->get('adjustment_value')));
         $link_list = array(
             $user->lang['list_groupadj'] => 'listadj.php' . $SID,
-            $user->lang['list_members']  => $eqdkp_root_path . 'listmembers.php' . $SID);
+            $user->lang['list_members']  => $eqdkp_root_path . 'listmembers.php' . $SID
+        );
         $this->admin_die($success_message, $link_list);
     }
     
@@ -229,14 +236,14 @@ class Add_GroupAdj extends EQdkp_Admin
         //
         $sql = "UPDATE __members
                 SET `member_adjustment` = `member_adjustment` - {$this->old_adjustment['adjustment_value']}
-                WHERE `member_firstraid` <= {$this->old_adjustment['adjustment_date']}";
+                WHERE (`member_firstraid` <= {$this->old_adjustment['adjustment_date']})";
         $db->query($sql);
         
         //
         // Remove the adjustment from members
         //
         $sql = "DELETE FROM __adjustments
-                WHERE `adjustment_id` = '{$this->url_id}'";
+                WHERE (`adjustment_id` = '" . $db->escape($this->url_id) . "')";
         $db->query($sql);
         
         //
@@ -245,11 +252,12 @@ class Add_GroupAdj extends EQdkp_Admin
         $log_action = array(
             'header'         => '{L_ACTION_GROUPADJ_DELETED}',
             'id'             => $this->url_id,
-            '{L_ADJUSTMENT}' => $this->old_adjustment['adjustment_value']);
+            '{L_ADJUSTMENT}' => $this->old_adjustment['adjustment_value']
+        );
         $this->log_insert(array(
             'log_type'   => $log_action['header'],
-            'log_action' => $log_action)
-        );
+            'log_action' => $log_action
+        ));
         
         //
         // Success message
@@ -257,7 +265,8 @@ class Add_GroupAdj extends EQdkp_Admin
         $success_message = sprintf($user->lang['admin_delete_adj_success'], $eqdkp->config['dkp_name'], $this->old_adjustment['adjustment_value']);
         $link_list = array(
             $user->lang['list_groupadj'] => 'listadj.php' . $SID,
-            $user->lang['list_members']  => $eqdkp_root_path . 'listmembers.php' . $SID);
+            $user->lang['list_members']  => $eqdkp_root_path . 'listmembers.php' . $SID
+        );
         $this->admin_die($success_message, $link_list);    
     }
     
@@ -270,13 +279,13 @@ class Add_GroupAdj extends EQdkp_Admin
         
         $sql = "SELECT adjustment_value, adjustment_date
                 FROM __adjustments
-                WHERE `adjustment_id` = '{$this->url_id}'";
+                WHERE (`adjustment_id` = '" . $db->escape($this->url_id) . "')";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
             $this->old_adjustment = array(
-                'adjustment_value' => addslashes($row['adjustment_value']),
-                'adjustment_date'  => addslashes($row['adjustment_date'])
+                'adjustment_value' => $row['adjustment_value'],
+                'adjustment_date'  => $row['adjustment_date']
             );
         }
         $db->free_result($result);
@@ -320,8 +329,8 @@ class Add_GroupAdj extends EQdkp_Admin
         $eqdkp->set_vars(array(
             'page_title'    => page_title($user->lang['addadj_title']),
             'template_file' => 'admin/addadj.html',
-            'display'       => true)
-        );
+            'display'       => true
+        ));
     }
 }
 

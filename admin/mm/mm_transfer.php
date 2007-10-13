@@ -25,44 +25,46 @@ class MM_Transfer extends EQdkp_Admin
     
     function mm_transfer()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $SID;
         
         parent::eqdkp_admin();
         
         $this->transfer = array(
-            'from' => post_or_db('turnin_from'),
-            'to'   => post_or_db('turnin_to')
+            'from' => $in->get('transfer_from'),
+            'to'   => $in->get('transfer_to')
         );
         
         $this->assoc_buttons(array(
             'transfer' => array(
                 'name'    => 'transfer',
                 'process' => 'process_transfer',
-                'check'   => 'a_members_man'),
+                'check'   => 'a_members_man'
+            ),
             'form' => array(
                 'name'    => '',
                 'process' => 'display_form',
-                'check'   => 'a_members_man'))
-        );
+                'check'   => 'a_members_man'
+            )
+        ));
     }
     
     function error_check()
     {
-        global $user;
+        global $user, $in;
         
-        if ( (!isset($_POST['transfer_from'])) || (!isset($_POST['transfer_to'])) || ($_POST['transfer_from'] == '') || ($_POST['transfer_to'] == '') )
+        if ( $in->get('transfer_from') == '' || $in->get('transfer_to') == '' )
         {
-            $this->fv->errors['transfer'] = '';
+            $this->fv->errors['transfer'] = $user->lang['fv_difference_transfer'];
         }
-        if ( $_POST['transfer_from'] == $_POST['transfer_to'] )
+        if ( $in->get('transfer_from', 'from') == $in->get('transfer_to', 'to') )
         {
             $this->fv->errors['transfer'] = $user->lang['fv_difference_transfer'];
         }
         
         $this->transfer = array(
-            'from' => post_or_db('transfer_from'),
-            'to'   => post_or_db('transfer_to')
+            'from' => $in->get('transfer_from'),
+            'to'   => $in->get('transfer_to')
         );
         
         return $this->fv->is_error();
@@ -73,7 +75,7 @@ class MM_Transfer extends EQdkp_Admin
     // ---------------------------------------------------------
     function process_transfer()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $SID;
         
         // Dev note: At some point, I'd like to make this more configurable
@@ -81,74 +83,74 @@ class MM_Transfer extends EQdkp_Admin
         // and maybe even select specific raids/items/adjustments - not now though
         
         // FIXME: Injection
-        $member_from = $_POST['transfer_from'];
-        $member_to   = $_POST['transfer_to'];
+        $member_from = $db->escape($in->get('transfer_from'));
+        $member_to   = $db->escape($in->get('transfer_to'));
         
         // Transfer raids
         $raidcount_addon = 0; // So we know their new raidcount
         $sql = "SELECT raid_id, member_name
                 FROM __raid_attendees
-                WHERE `member_name` = '{$member_from}'";
+                WHERE (`member_name` = '{$member_from}')";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
             // Check if the TO attended the same raid
             $sql = "SELECT member_name
                     FROM __raid_attendees
-                    WHERE `raid_id` = '{$row['raid_id']}'
-                    AND `member_name` = '{$member_to}'";
+                    WHERE (`raid_id` = '{$row['raid_id']}')
+                    AND (`member_name` = '{$member_to}')";
                     
             // If they didn't, replace the FROM with the TWO
             if ( $db->num_rows($db->query($sql)) == 0 )
             {
                 $sql = "UPDATE __raid_attendees
                         SET `member_name` = '{$member_to}'
-                        WHERE `raid_id` = '{$row['raid_id']}'
-                        AND `member_name` = '{$member_from}'";
+                        WHERE (`raid_id` = '{$row['raid_id']}')
+                        AND (`member_name` = '{$member_from}')";
                 $db->query($sql);
                 $raidcount_addon++;
             }
         }
         
         // Find their new earned
-        $sql = "SELECT sum(r.raid_value) 
+        $sql = "SELECT SUM(r.raid_value) 
                 FROM __raids AS r, __raid_attendees AS ra 
-                WHERE ra.`raid_id` = r.`raid_id`
-                AND ra.`member_name` = '{$member_to}'";
+                WHERE (ra.`raid_id` = r.`raid_id`)
+                AND (ra.`member_name` = '{$member_to}')";
         $earned = $db->query_first($sql);
         
         // Transfer Items
         $sql = "UPDATE __items
                 SET `item_buyer` = '{$member_to}'
-                WHERE `item_buyer` = '{$member_from}'";
+                WHERE (`item_buyer` = '{$member_from}')";
         $db->query($sql);
         
         // Find their new spent
-        $sql = "SELECT sum(item_value)
+        $sql = "SELECT SUM(item_value)
                 FROM __items
-                WHERE `item_buyer` = '{$member_to}'";
+                WHERE (`item_buyer` = '{$member_to}')";
         $spent = $db->query_first($sql);
         
         // Transfer adjustments
         $sql = "UPDATE __adjustments
                 SET `member_name` = '{$member_to}'
-                WHERE `member_name` = '{$member_from}'";
+                WHERE (`member_name` = '{$member_from}')";
         $db->query($sql);
         
         // Find the new total adjustment
         // We're doing this two ways
         // 1: Individual adjustments get lumped into the total no matter what
-        // 2: Group adjustments are added if their first raid was (they were added) 
-        // on or before the adjustment date
-        $sql = "SELECT sum(adjustment_value)
+        // 2: Group adjustments are added if their first raid was on or before 
+        //    the adjustment date
+        $sql = "SELECT SUM(adjustment_value)
                 FROM __adjustments
-                WHERE `member_name` = '{$member_to}'";
+                WHERE (`member_name` = '{$member_to}')";
         $total_iadj = $db->query_first($sql);
         
-        $sql = "SELECT sum(a.adjustment_value)
+        $sql = "SELECT SUM(a.adjustment_value)
                 FROM __adjustments AS a LEFT JOIN __members AS m ON m.`member_firstraid` <= a.`adjustment_date`
-                WHERE m.`member_name` = '{$member_to}'
-                AND a.`member_name` IS NULL";
+                WHERE (m.`member_name` = '{$member_to}')
+                AND (a.`member_name` IS NULL)";
         $total_gadj = $db->query_first($sql);
         
         $adjustment = ($total_gadj + $total_iadj);
@@ -160,17 +162,17 @@ class MM_Transfer extends EQdkp_Admin
                     `member_spent` = '{$spent}',
                     `member_adjustment` = '{$adjustment}',
                     `member_raidcount` = `member_raidcount` + {$raidcount_addon}
-                WHERE `member_name` = '{$member_to}'";
+                WHERE (`member_name` = '{$member_to}')";
         $db->query($sql);
         
         // Delete the member_from
         $sql = "DELETE FROM __members
-                WHERE `member_name` = '{$member_from}'";
+                WHERE (`member_name` = '{$member_from}')";
         $db->query($sql);
         
         // Delete any remaining raids that the FROM attended
         $sql = "DELETE FROM __raid_attendees
-                WHERE `member_name` = '{$member_from}'";
+                WHERE (`member_name` = '{$member_from}')";
         $db->query($sql);
         
         //
@@ -179,16 +181,17 @@ class MM_Transfer extends EQdkp_Admin
         $log_action = array(
             'header'   => '{L_ACTION_HISTORY_TRANSFER}',
             '{L_FROM}' => $member_from,
-            '{L_TO}'   => $member_to);
+            '{L_TO}'   => $member_to
+        );
         $this->log_insert(array(
             'log_type'   => $log_action['header'],
-            'log_action' => $log_action)
-        );
+            'log_action' => $log_action
+        ));
         
         //
         // Success message
         //
-        $success_message = sprintf($user->lang['admin_transfer_history_success'], $member_from, $member_to);
+        $success_message = sprintf($user->lang['admin_transfer_history_success'], sanitize($member_from), sanitize($member_to));
         $this->admin_die($success_message);
     }
     
@@ -235,14 +238,14 @@ class MM_Transfer extends EQdkp_Admin
             'L_TRANSFER_HISTORY'                    => $user->lang['transfer_history'],
             
             // Form validation
-            'FV_TRANSFER' => $this->fv->generate_error('transfer'))
-        );
+            'FV_TRANSFER' => $this->fv->generate_error('transfer')
+        ));
         $db->free_result($result);
         
         $eqdkp->set_vars(array(
-            'page_title'    => sprintf($user->lang['admin_title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['manage_members_title'],
+            'page_title'    => page_title($user->lang['manage_members_title']),
             'template_file' => 'admin/mm_transfer.html',
-            'display'       => true)
-        );
+            'display'       => true
+        ));
     }
 }

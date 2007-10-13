@@ -789,6 +789,8 @@ class EQdkp_Admin
             }
             else
             {
+                // FIXME: Any pages that use a string-based uri parameter need to SQL_DB::escape this when using it for queries
+                // Anything with members, maybe users
                 $this->url_id = $in->get($this->uri_parameter, '');
             }
         }

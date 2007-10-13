@@ -55,7 +55,7 @@ function option_selected($condition)
     return '';
 }
 
-function select_style()
+function select_style($comparison)
 {
     global $db, $eqdkp;
     
@@ -69,7 +69,7 @@ function select_style()
     {
         $retval[] = array(
             'VALUE'    => $row['style_id'],
-            'SELECTED' => option_selected(intval($eqdkp->config['default_style']) == intval($row['style_id'])),
+            'SELECTED' => option_selected(intval($comparison) == intval($row['style_id'])),
             'OPTION'   => $row['style_name']
         );
     }
@@ -78,7 +78,7 @@ function select_style()
     return $retval;
 }
 
-function select_template($template_path = 'default')
+function select_template($comparison)
 {
     global $eqdkp;
     
@@ -91,7 +91,7 @@ function select_template($template_path = 'default')
             {
                 $retval[] = array(
                     'VALUE'    => $file,
-                    'SELECTED' => option_selected(strtolower($template_path) == strtolower($file)),
+                    'SELECTED' => option_selected(strtolower($comparison) == strtolower($file)),
                     'OPTION'   => $file
                 );
             }
@@ -101,7 +101,7 @@ function select_template($template_path = 'default')
     return $retval;
 }
 
-function select_language()
+function select_language($comparison)
 {
     global $eqdkp;
     
@@ -114,7 +114,7 @@ function select_language()
             {
                 $retval[] = array(
                     'VALUE'    => $file,
-                    'SELECTED' => option_selected(strtolower($eqdkp->config['default_lang']) == strtolower($file)),
+                    'SELECTED' => option_selected(strtolower($comparison) == strtolower($file)),
                     'OPTION'   => ucfirst($file)
                 );
             }

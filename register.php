@@ -501,42 +501,17 @@ class Register extends EQdkp_Admin
             'FV_USER_RLIMIT'   => $this->fv->generate_error('user_rlimit'))
         );
 
-        //
         // Build language drop-down
-        //
-        // TODO: Building language drop-down. Consider revising method (also, perhaps move to functions.php?).
-        if ( $dir = @opendir($eqdkp->root_path . 'language/') )
+        foreach ( select_language($this->data['user_lang']) as $row )
         {
-            while ( $file = @readdir($dir) )
-            {
-                if ( (!is_file($eqdkp->root_path . 'language/' . $file)) && (!is_link($eqdkp->root_path . 'language/' . $file)) && ($file != '.') && ($file != '..') && ($file != 'CVS') )
-                {
-                    $tpl->assign_block_vars('lang_row', array(
-                        'VALUE'    => $file,
-                        'SELECTED' => option_selected($this->data['user_lang'] == $file),
-                        'OPTION'   => ucfirst($file))
-                    );
-                }
-            }
+            $tpl->assign_block_vars('lang_row', $row);
         }
 
-        //
         // Build style drop-down
-        //
-        // TODO: Building style drop-down. Consider revising method (also, perhaps move to functions.php?).
-        $sql = "SELECT style_id, style_name
-                FROM __styles
-                ORDER BY style_name";
-        $result = $db->query($sql);
-        while ( $row = $db->fetch_record($result) )
+        foreach ( select_style($this->data['user_style']) as $row )
         {
-            $tpl->assign_block_vars('style_row', array(
-                'VALUE'    => $row['style_id'],
-                'SELECTED' => option_selected($this->data['user_style'] == $row['style_id']),
-                'OPTION'   => $row['style_name'])
-            );
+            $tpl->assign_block_vars('style_row', $row);
         }
-        $db->free_result($result);
         
         $eqdkp->set_vars(array(
             'page_title'    => page_title($user->lang['register_title']),

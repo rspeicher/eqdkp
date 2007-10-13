@@ -47,19 +47,23 @@ class MM_Addmember extends EQdkp_Admin
 
         // Vars used to confirm deletion
         $confirm_text = $user->lang['confirm_delete_members'];
-        $member_names = array();
-        if ( isset($_POST['delete']) )
+        $member_ids = array();
+        if ( $in->get('delete', false) )
         {
-            if ( isset($_POST['compare_ids']) )
+            // NOTE: We use the misnomer compare_ids because it's just recyling the listmembers template. Oh well.
+            $member_ids = $in->getArray('compare_ids', 'int');
+            if ( count($member_ids) > 0 )
             {
-                foreach ( $_POST['compare_ids'] as $id )
+                $sql = "SELECT member_name
+                        FROM __members
+                        WHERE (`member_id` IN (" . implode(',', $member_ids) . "))";
+                $result = $db->query($sql);
+                while ( $row = $db->fetch_record($result) )
                 {
-                    // FIXME: Injection
-                    $member_name = $db->query_first("SELECT member_name FROM __members WHERE (`member_id` = '{$id}')");
-                    $member_names[] = $member_name;
+                    $members[] = $row['member_name'];
                 }
 
-                $names = implode(', ', $member_names);
+                $names = implode(', ', $members);
 
                 $confirm_text .= '<br /><br />' . $names;
             }
@@ -72,7 +76,7 @@ class MM_Addmember extends EQdkp_Admin
         $this->set_vars(array(
             'confirm_text'  => $confirm_text,
             'uri_parameter' => URI_NAME,
-            'url_id'        => ( sizeof($member_names) > 0 ) ? $names : (( isset($_GET[URI_NAME]) ) ? $_GET[URI_NAME] : ''),
+            'url_id'        => ( count($member_ids) > 0 ) ? implode(',', $member_ids) : $in->get(URI_NAME),
             'script_name'   => 'manage_members.php' . $SID . '&amp;mode=addmember'
         ));
 
@@ -108,7 +112,7 @@ class MM_Addmember extends EQdkp_Admin
                     FROM __members AS m, __classes AS c, __races AS r  
                     WHERE (r.`race_id` = m.`member_race_id`)
                     AND (c.`class_id` = m.`member_class_id`)
-                    AND (m.`member_name` = '" . $db->escape($this->url_id) . "')";
+                    AND (m.`member_name` = '" . $db->escape($this->url_id) . "' OR m.`member_id` = '" . $db->escape($this->url_id) . "')";
             $result = $db->query($sql);
             $row = $db->fetch_record($result);
             $db->free_result($result);
@@ -175,17 +179,17 @@ class MM_Addmember extends EQdkp_Admin
 
         $query = $db->build_query('INSERT', array(
             'member_name'       => $member_name,
-            'member_earned'     => $_POST['member_earned'],
-            'member_spent'      => $_POST['member_spent'],
-            'member_adjustment' => $_POST['member_adjustment'],
+            'member_earned'     => $in->get('member_earned', 0.00),
+            'member_spent'      => $in->get('member_spent', 0.00),
+            'member_adjustment' => $in->get('member_adjustment', 0.00),
             'member_firstraid'  => 0,
             'member_lastraid'   => 0,
             'member_raidcount'  => 0,
-            'member_level'      => $_POST['member_level'],
-            'member_race_id'    => $_POST['member_race_id'],
-            'member_class_id'   => $_POST['member_class_id'],
-            'member_rank_id'    => $_POST['member_rank_id'])
-        );
+            'member_level'      => $in->get('member_level', 0), // TODO: Default level?
+            'member_race_id'    => $in->get('member_race_id', 0),
+            'member_class_id'   => $in->get('member_class_id', 0),
+            'member_rank_id'    => $in->get('member_rank_id', 0)
+        ));
         $db->query("INSERT INTO __members {$query}");
 
         //
@@ -194,22 +198,23 @@ class MM_Addmember extends EQdkp_Admin
         $log_action = array(
             'header'         => '{L_ACTION_MEMBER_ADDED}',
             '{L_NAME}'       => $member_name,
-            '{L_EARNED}'     => $_POST['member_earned'],
-            '{L_SPENT}'      => $_POST['member_spent'],
-            '{L_ADJUSTMENT}' => $_POST['member_adjustment'],
-            '{L_LEVEL}'      => $_POST['member_level'],
-            '{L_RACE}'       => $_POST['member_race_id'],
-            '{L_CLASS}'      => $_POST['member_class_id'],
-            '{L_ADDED_BY}'   => $this->admin_user);
+            '{L_EARNED}'     => $in->get('member_earned', 0.00),
+            '{L_SPENT}'      => $in->get('member_spent', 0.00),
+            '{L_ADJUSTMENT}' => $in->get('member_adjustment', 0.00),
+            '{L_LEVEL}'      => $in->get('member_level', 0),
+            '{L_RACE}'       => $in->get('member_race_id', 0),
+            '{L_CLASS}'      => $in->get('member_class_id', 0),
+            '{L_ADDED_BY}'   => $this->admin_user
+        );
         $this->log_insert(array(
             'log_type'   => $log_action['header'],
-            'log_action' => $log_action)
-        );
+            'log_action' => $log_action
+        ));
 
         //
         // Success message
         //
-        $success_message = sprintf($user->lang['admin_add_member_success'], $member_name);
+        $success_message = sprintf($user->lang['admin_add_member_success'], sanitize($member_name));
         $link_list = array(
             $user->lang['add_member']           => 'manage_members.php' . $SID . '&amp;mode=addmember',
             $user->lang['list_edit_del_member'] => 'manage_members.php' . $SID . '&amp;mode=list');
@@ -221,19 +226,18 @@ class MM_Addmember extends EQdkp_Admin
     // ---------------------------------------------------------
     function process_update()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $SID;
 
         //
         // Get old member data
         //
-        $this->get_old_data($_POST[URI_NAME]);
+        $this->get_old_data($in->get(URI_NAME));
         $member_id = $this->old_member['member_id'];
         $old_member_name = $this->old_member['member_name'];
 
         // Make sure that each member's name is properly capitalized
-        // FIXME: Injection
-        $member_name = strtolower(preg_replace('/[[:space:]]/i', ' ', $_POST['member_name']));
+        $member_name = strtolower(preg_replace('/\s+/i', ' ', $in->get('member_name')));
         $member_name = ucwords($member_name);
 
         //
@@ -241,25 +245,27 @@ class MM_Addmember extends EQdkp_Admin
         //
         $query = $db->build_query('UPDATE', array(
             'member_name'       => $member_name,
-            'member_earned'     => $_POST['member_earned'],
-            'member_spent'      => $_POST['member_spent'],
-            'member_adjustment' => $_POST['member_adjustment'],
-            'member_level'      => $_POST['member_level'],
-            'member_race_id'    => $_POST['member_race_id'],
-            'member_class_id'   => $_POST['member_class_id'],
-            'member_rank_id'    => $_POST['member_rank_id'])
-        );
-        $db->query("UPDATE __members SET {$query} WHERE `member_name` = '{$old_member_name}'");
+            'member_earned'     => $in->get('member_earned', 0.00),
+            'member_spent'      => $in->get('member_spent', 0.00),
+            'member_adjustment' => $in->get('member_adjustment', 0.00),
+            'member_level'      => $in->get('member_level', 0), // TODO: Default level?
+            'member_race_id'    => $in->get('member_race_id', 0),
+            'member_class_id'   => $in->get('member_class_id', 0),
+            'member_rank_id'    => $in->get('member_rank_id', 0)
+        ));
+        $db->query("UPDATE __members SET {$query} WHERE (`member_name` = '" . $db->escape($old_member_name) . "')");
 
-        if ( !($member_name == $old_member_name) )
+        if ( $member_name != $old_member_name )
         {
-            $sql = "UPDATE __raid_attendees SET `member_name` = '{$member_name}' WHERE `member_name` = '{$old_member_name}'";
+            $escaped_new = $db->escape($member_name);
+            $escaped_old = $db->escape($old_member_name);
+            $sql = "UPDATE __raid_attendees SET `member_name` = '{$escaped_new}' WHERE (`member_name` = '{$escaped_old}')";
             $db->query_first($sql);
     
-            $sql = "UPDATE __items SET `item_buyer` = '{$member_name}' WHERE `item_buyer` = '{$old_member_name}'";
+            $sql = "UPDATE __items SET `item_buyer` = '{$escaped_new}' WHERE (`item_buyer` = '{$escaped_old}')";
             $db->query_first($sql);
 
-            $sql = "UPDATE __adjustments SET `member_name` = '{$member_name}' WHERE `member_name` = '{$old_member_name}'";
+            $sql = "UPDATE __adjustments SET `member_name` = '{$escaped_new}' WHERE (`member_name` = '{$escaped_old}')";
             $db->query_first($sql);
         }
 
@@ -276,22 +282,23 @@ class MM_Addmember extends EQdkp_Admin
             '{L_RACE_BEFORE}'       => $this->old_member['member_race_id'],
             '{L_CLASS_BEFORE}'      => $this->old_member['member_class_id'],
             '{L_NAME_AFTER}'        => $this->find_difference($this->old_member['member_name'],       $member_name),
-            '{L_EARNED_AFTER}'      => $this->find_difference($this->old_member['member_earned'],     $_POST['member_earned']),
-            '{L_SPENT_AFTER}'       => $this->find_difference($this->old_member['member_spent'],      $_POST['member_spent']),
-            '{L_ADJUSTMENT_AFTER}'  => $this->find_difference($this->old_member['member_adjustment'], $_POST['member_adjustment']),
-            '{L_LEVEL_AFTER}'       => $this->find_difference($this->old_member['member_level'],      $_POST['member_level']),
-            '{L_RACE_AFTER}'        => $this->find_difference($this->old_member['member_race_id'],       $_POST['member_race_id']),
-            '{L_CLASS_AFTER}'       => $this->find_difference($this->old_member['member_class_id'],   $_POST['member_class_id']),
-            '{L_UPDATED_BY}'        => $this->admin_user);
+            '{L_EARNED_AFTER}'      => $this->find_difference($this->old_member['member_earned'],     $in->get('member_earned', 0.00)),
+            '{L_SPENT_AFTER}'       => $this->find_difference($this->old_member['member_spent'],      $in->get('member_spent', 0.00)),
+            '{L_ADJUSTMENT_AFTER}'  => $this->find_difference($this->old_member['member_adjustment'], $in->get('member_adjustment', 0.00)),
+            '{L_LEVEL_AFTER}'       => $this->find_difference($this->old_member['member_level'],      $in->get('member_level', 0)),
+            '{L_RACE_AFTER}'        => $this->find_difference($this->old_member['member_race_id'],    $in->get('member_race_id', 0)),
+            '{L_CLASS_AFTER}'       => $this->find_difference($this->old_member['member_class_id'],   $in->get('member_class_id', 0)),
+            '{L_UPDATED_BY}'        => $this->admin_user
+        );
         $this->log_insert(array(
             'log_type'   => $log_action['header'],
-            'log_action' => $log_action)
-        );
+            'log_action' => $log_action
+        ));
 
         //
         // Success message
         //
-        $success_message = sprintf($user->lang['admin_update_member_success'], $this->old_member['member_name']);
+        $success_message = sprintf($user->lang['admin_update_member_success'], sanitize($this->old_member['member_name']));
         $this->admin_die($success_message);
     }
 
@@ -300,73 +307,70 @@ class MM_Addmember extends EQdkp_Admin
     // ---------------------------------------------------------
     function process_confirm()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $SID;
 
         $success_message = '';
-        $members = explode(', ', $_POST[URI_NAME]);
-        foreach ( $members as $member_name )
+        
+        if ( $in->get(URI_NAME, false) )
         {
-            if ( empty($member_name) )
+            $member_ids = explode(',', $in->get(URI_NAME));
+            // Make sure each of these is actually an integer
+            foreach ( $member_ids as $k => $v )
             {
-                continue;
+                $member_ids[$k] = intval($v);
             }
+            
+            foreach ( $member_ids as $id )
+            {
+                // Since we (stupidly) use the member name as a key in several tables, get that first
+                $sql = "SELECT member_name FROM __members WHERE (`member_id` = '" . $db->escape($id) . "')";
+                $member_name = $db->query_first($sql);
+                
+                if ( !empty($member_name) )
+                {
+                    // Get old member data
+                    $this->get_old_data($member_name);
 
-            //
-            // Get old member data
-            //
-            $this->get_old_data($member_name);
+                    // Delete attendance
+                    $sql = "DELETE FROM __raid_attendees WHERE (`member_name` = '" . $db->escape($member_name) . "')";
+                    $db->query($sql);
 
-            //
-            // Delete attendance
-            //
-            $sql = "DELETE FROM __raid_attendees WHERE `member_name` = '{$member_name}'";
-            $db->query($sql);
+                    // Delete items
+                    $sql = "DELETE FROM __items WHERE (`item_buyer` = '" . $db->escape($member_name) . "')";
+                    $db->query($sql);
 
-            //
-            // Delete items
-            //
-            $sql = "DELETE FROM __items WHERE `item_buyer` = '{$member_name}'";
-            $db->query($sql);
+                    // Delete adjustments
+                    $sql = "DELETE FROM __adjustments WHERE (`member_name` = '" . $db->escape($member_name) . "')";
+                    $db->query($sql);
 
-            //
-            // Delete adjustments
-            //
-            $sql = "DELETE FROM __adjustments WHERE `member_name` = '{$member_name}'";
-            $db->query($sql);
+                    // Delete member
+                    $sql = "DELETE FROM __members WHERE (`member_name` = '" . $db->escape($member_name) . "')";
+                    $db->query($sql);
 
-            //
-            // Delete member
-            //
-            $sql = "DELETE FROM __members WHERE `member_name` = '{$member_name}'";
-            $db->query($sql);
+                    //
+                    // Logging
+                    //
+                    $log_action = array(
+                        'header'         => '{L_ACTION_MEMBER_DELETED}',
+                        '{L_NAME}'       => $this->old_member['member_name'],
+                        '{L_EARNED}'     => $this->old_member['member_earned'],
+                        '{L_SPENT}'      => $this->old_member['member_spent'],
+                        '{L_ADJUSTMENT}' => $this->old_member['member_adjustment'],
+                        '{L_LEVEL}'      => $this->old_member['member_level'],
+                        '{L_RACE}'       => $this->old_member['member_race_id'],
+                        '{L_CLASS}'      => $this->old_member['member_class_id']);
+                    $this->log_insert(array(
+                        'log_type'   => $log_action['header'],
+                        'log_action' => $log_action)
+                    );
 
-            //
-            // Logging
-            //
-            $log_action = array(
-                'header'         => '{L_ACTION_MEMBER_DELETED}',
-                '{L_NAME}'       => $this->old_member['member_name'],
-                '{L_EARNED}'     => $this->old_member['member_earned'],
-                '{L_SPENT}'      => $this->old_member['member_spent'],
-                '{L_ADJUSTMENT}' => $this->old_member['member_adjustment'],
-                '{L_LEVEL}'      => $this->old_member['member_level'],
-                '{L_RACE}'       => $this->old_member['member_race_id'],
-                '{L_CLASS}'      => $this->old_member['member_class_id']);
-            $this->log_insert(array(
-                'log_type'   => $log_action['header'],
-                'log_action' => $log_action)
-            );
-
-            //
-            // Append success message
-            //
-            $success_message .= sprintf($user->lang['admin_delete_members_success'], $member_name) . '<br />';
+                    // Append success message
+                    $success_message .= sprintf($user->lang['admin_delete_members_success'], sanitize($member_name)) . '<br />';
+                }
+            }
         }
 
-        //
-        // Success message
-        //
         $this->admin_die($success_message);
     }
 
@@ -380,7 +384,7 @@ class MM_Addmember extends EQdkp_Admin
 
         $sql = "SELECT *
                 FROM __members
-                WHERE `member_name` = '{$member_name}'";
+                WHERE (`member_name` = '" . $db->escape($member_name) . "')";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
@@ -392,7 +396,8 @@ class MM_Addmember extends EQdkp_Admin
                 'member_adjustment' => $row['member_adjustment'],
                 'member_level'      => $row['member_level'],
                 'member_race_id'    => $row['member_race_id'],
-                'member_class_id'   => $row['member_class_id']);
+                'member_class_id'   => $row['member_class_id']
+            );
         }
         $db->free_result($result);
     }
@@ -402,72 +407,42 @@ class MM_Addmember extends EQdkp_Admin
     // ---------------------------------------------------------
     function display_form()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $SID;
 
-        // New for 1.3 - get class and race information from the database
-        // This section populates $eq_classes for the form. They are not
-        // populated in a multidimensional array anymore. 
-
-        $eq_classes = array();
-
-        $sql = "SELECT class_id, class_name, class_min_level, class_max_level FROM __classes GROUP BY `class_id`";
-        $result = $db->query($sql);
-
-        while ( $row = $db->fetch_record($result) )
+        require_once($eqdkp->root_path . 'games/game_manager.php');
+        $gm = new Game_Manager();
+        
+        foreach ( $gm->getClasses() as $class )
         {
-
-       if ( $row['class_min_level'] == '0' ) {
-             $option = ( !empty($row['class_name']) ) ? stripslashes($row['class_name'])." Level (".$row['class_min_level']." - ".$row['class_max_level'].")" : '(None)';
-           } else {
-             $option = ( !empty($row['class_name']) ) ? stripslashes($row['class_name'])." Level ".$row['class_min_level']."+" : '(None)';
-       }
-
             $tpl->assign_block_vars('class_row', array(
-                'VALUE' => $row['class_id'],
-                'SELECTED' => ( $this->member['member_class_id'] == $row['class_id'] ) ? ' selected="selected"' : '',
-        'OPTION'   => $option )
-        );
-
-            $eq_classes[] = $row[0];
+                'VALUE'    => $class['id'],
+                'SELECTED' => option_selected($class['id'] == $this->member['member_class_id']),
+                'OPTION'   => $gm->formatClassNameWithLevel($class['id']),
+            ));
         }
 
-        $db->free_result($result);
-
-        // New for 1.3 - get race information from the database
-
-        $eq_races = array();
-
-        $sql = "SELECT race_id, race_name FROM __races GROUP BY `race_name`";
-        $result = $db->query($sql);
-
-        while ( $row = $db->fetch_record($result) )
+        foreach ( $gm->getRaces() as $race )
         {
             $tpl->assign_block_vars('race_row', array(
-                'VALUE' => $row['race_id'],
-                'SELECTED' => ( $this->member['member_race_id'] == $row['race_id'] ) ? ' selected="selected"' : '',
-                'OPTION'   => ( !empty($row['race_name']) ) ? stripslashes($row['race_name']) : '(None)')
-        );
-
-            $eq_races[] = $row[0];
+                'VALUE'    => $race['id'],
+                'SELECTED' => option_selected($race['id'] == $this->member['member_race_id']),
+                'OPTION'   => $race['name']
+            ));
         }
-
-        $db->free_result($result);
-
-    // end 1.3 changes
 
         if ( !empty($this->member['member_name']) )
         {
             // Get their correct earned/spent
-            $sql = "SELECT sum(r.raid_value) 
+            $sql = "SELECT SUM(r.raid_value) 
                     FROM __raids AS r, __raid_attendees AS ra 
-                    WHERE ra.`raid_id` = r.`raid_id` 
-                    AND ra.`member_name` = '" . addslashes($this->member['member_name']) . "'";
+                    WHERE (ra.`raid_id` = r.`raid_id`)
+                    AND (ra.`member_name` = '" . $db->escape($this->member['member_name']) . "')";
             $correct_earned = $db->query_first($sql);
 
-            $sql = "SELECT sum(item_value) 
+            $sql = "SELECT SUM(item_value) 
                     FROM __items
-                    WHERE `item_buyer` = '" . addslashes($this->member['member_name']) . "'";
+                    WHERE (`item_buyer` = '" . $db->escape($this->member['member_name']) . "')";
             $correct_spent  = $db->query_first($sql);
         }
 
@@ -483,8 +458,8 @@ class MM_Addmember extends EQdkp_Admin
         {
             $tpl->assign_block_vars('rank_row', array(
                 'VALUE'    => $row['rank_id'],
-                'SELECTED' => ( $this->member['member_rank_id'] == $row['rank_id'] ) ? ' selected="selected"' : '',
-                'OPTION'   => ( !empty($row['rank_name']) ) ? stripslashes($row['rank_name']) : '(None)')
+                'SELECTED' => option_selected($this->member['member_rank_id'] == $row['rank_id']),
+                'OPTION'   => ( !empty($row['rank_name']) ) ? stripslashes($row['rank_name']) : '(None)') // TODO: Localize
             );
         }
         $db->free_result($result);
@@ -495,7 +470,7 @@ class MM_Addmember extends EQdkp_Admin
 
             // Form values
             'MEMBER_NAME'           => $this->member['member_name'],
-            'V_MEMBER_NAME'         => ( isset($_POST['add']) ) ? '' : $this->member['member_name'],
+            'V_MEMBER_NAME'         => ( $in->get('add', false) ) ? '' : $this->member['member_name'],
             'MEMBER_ID'             => $this->member['member_id'],
             'MEMBER_EARNED'         => $this->member['member_earned'],
             'MEMBER_SPENT'          => $this->member['member_spent'],
@@ -535,11 +510,11 @@ class MM_Addmember extends EQdkp_Admin
             'MSG_NAME_EMPTY' => $user->lang['fv_required_name'],
 
             // Buttons
-            'S_ADD' => ( !empty($this->url_id) ) ? false : true)
-        );
+            'S_ADD' => ( !empty($this->url_id) ) ? false : true
+        ));
 
         $eqdkp->set_vars(array(
-            'page_title'    => sprintf($user->lang['admin_title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['manage_members_title'],
+            'page_title'    => page_title($user->lang['manage_members_title'], true),
             'template_file' => 'admin/mm_addmember.html',
             'display'       => true)
         );

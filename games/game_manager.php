@@ -8,6 +8,7 @@ class Game_Manager
 {
     var $armor_types = array();
     var $classes     = array();
+    var $races       = array();
 
     function getArmorTypes()
     {
@@ -36,20 +37,83 @@ class Game_Manager
         {
             $sql = "SELECT class_name, class_id, class_min_level, class_max_level 
                     FROM __classes
-                    GROUP BY class_name";
+                    ORDER BY class_name, class_min_level";
             $result = $db->query($sql);
             while ( $row = $db->fetch_record($result) )
             {
                 $this->classes[] = array(
-                    'class_name'      => stripslashes($row['class_name']),
-                    'class_id'        => $row['class_id'],
-                    'class_min_level' => $row['class_min_level'],
-                    'class_max_level' => $row['class_max_level']
+                    'name'      => stripslashes($row['class_name']),
+                    'id'        => intval($row['class_id']),
+                    'min_level' => intval($row['class_min_level']),
+                    'max_level' => intval($row['class_max_level'])
                 );
             }
             $db->free_result($result);
         }
 
         return $this->classes;
+    }
+    
+    function getRaces()
+    {
+        global $db;
+        
+        if ( count($this->races) == 0 )
+        {
+            $sql = "SELECT race_id, race_name, race_faction_id, race_hide
+                    FROM __races 
+                    GROUP BY race_name";
+            $result = $db->query($sql);
+            while ( $row = $db->fetch_record($result) )
+            {
+                $this->races[] = array(
+                    'name'       => stripslashes($row['race_name']),
+                    'id'         => intval($row['race_id']),
+                    'faction_id' => intval($row['race_faction_id']),
+                    'hide'       => intval($row['race_hide'])
+                );
+            }
+            $db->free_result($result);
+        }
+        
+        return $this->races;
+    }
+    
+    function formatClassNameWithLevel($class_id)
+    {
+        if ( count($this->classes) == 0 )
+        {
+            $this->getClasses();
+        }
+        
+        foreach ( $this->classes as $class )
+        {
+            if ( $class['id'] == $class_id )
+            {
+                return $this->_dumbFormatClass($class['name'], $class['min_level'], $class['max_level']);
+            }
+        }
+    }
+    
+    /**
+     * This function is to provide compatibility with the retarded 1.3 method,
+     * expect to deprecate this when we Do It Better™
+     */
+    // TODO: Localize
+    function _dumbFormatClass($class_name, $min_level = 0, $max_level = 0)
+    {
+        if ( empty($class_name) )
+        {
+            return '(None)';
+        }
+        
+        if ( intval($min_level) == 0 )
+        {
+            return sanitize($class_name) . " (Level {$min_level}-{$max_level})";
+        }
+        else
+        {
+            return sanitize($class_name) . " (Level {$min_level}+)";
+        }
     }
 }

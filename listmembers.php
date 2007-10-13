@@ -171,9 +171,9 @@ else
     foreach ( $gm->getClasses() as $class )
     {
         $filter_options[] = array(
-            'VALUE'    => $class['class_name'],
-            'SELECTED' => ( $filter == $class['class_name'] ) ? ' selected="selected"' : '',
-            'OPTION'   => $class['class_name']
+            'VALUE'    => $class['name'],
+            'SELECTED' => option_selected($filter == $class['name']),
+            'OPTION'   => $class['name']
         );
     }
     

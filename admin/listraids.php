@@ -71,7 +71,7 @@ $tpl->assign_vars(array(
 );
 
 $eqdkp->set_vars(array(
-    'page_title'    => sprintf($user->lang['admin_title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['listraids_title'],
+    'page_title'    => page_title($user->lang['listraids_title']),
     'template_file' => 'listraids.html',
     'display'       => true)
 );

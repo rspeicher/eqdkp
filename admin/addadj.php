@@ -318,7 +318,7 @@ class Add_GroupAdj extends EQdkp_Admin
         );
         
         $eqdkp->set_vars(array(
-            'page_title'    => sprintf($user->lang['admin_title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['addadj_title'],
+            'page_title'    => page_title($user->lang['addadj_title']),
             'template_file' => 'admin/addadj.html',
             'display'       => true)
         );

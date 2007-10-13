@@ -193,7 +193,7 @@ if ( $in->get(URI_EVENT, 0) )
     );
     
     $eqdkp->set_vars(array(
-        'page_title'    => sprintf($user->lang['title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.sprintf($user->lang['viewevent_title'], stripslashes($event['event_name'])),
+        'page_title'    => page_title(sprintf($user->lang['viewevent_title'], stripslashes($event['event_name']))),
         'template_file' => 'viewevent.html',
         'display'       => true)
     );

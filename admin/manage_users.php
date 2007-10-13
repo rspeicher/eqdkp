@@ -526,7 +526,7 @@ class Manage_Users extends EQdkp_Admin
         );
 
         $eqdkp->set_vars(array(
-            'page_title'    => sprintf($user->lang['title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['manage_users_title'],
+            'page_title'    => page_title($user->lang['manage_users_title']),
             'template_file' => 'admin/listusers.html',
             'display'       => true
         ));

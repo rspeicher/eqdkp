@@ -302,7 +302,7 @@ $tpl->assign_vars(array(
 ));
 
 $eqdkp->set_vars(array(
-    'page_title'    => sprintf($user->lang['title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['summary_title'],
+    'page_title'    => page_title($user->lang['summary_title']),
     'template_file' => 'summary.html',
     'display'       => true
 ));

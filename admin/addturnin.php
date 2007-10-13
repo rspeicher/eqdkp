@@ -185,7 +185,7 @@ class Add_Turnin extends EQdkp_Admin
         );
         
         $eqdkp->set_vars(array(
-            'page_title'    => sprintf($user->lang['admin_title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.sprintf($user->lang['addturnin_title'], '2'),
+            'page_title'    => page_title(sprintf($user->lang['addturnin_title'], '2')),
             'template_file' => 'admin/addturnin.html',
             'display'       => true)
         );
@@ -242,7 +242,7 @@ class Add_Turnin extends EQdkp_Admin
         );
         
         $eqdkp->set_vars(array(
-            'page_title'    => sprintf($user->lang['admin_title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.sprintf($user->lang['addturnin_title'], '1'),
+            'page_title'    => page_title(sprintf($user->lang['addturnin_title'], '1')),
             'template_file' => 'admin/addturnin.html',
             'display'       => true)
         );

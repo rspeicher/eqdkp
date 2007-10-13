@@ -158,7 +158,7 @@ New log file format for EQ2
         );
         
         $eqdkp->set_vars(array(
-            'page_title'        => sprintf($user->lang['title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['parselog_title'],
+            'page_title'        => page_title($user->lang['parselog_title']),
             'gen_simple_header' => true,
             'template_file'     => 'admin/parse_Everquest2.html',
             'display'           => true)
@@ -533,7 +533,7 @@ After using the above 4, we now test with the same members in different states o
         );
         
         $eqdkp->set_vars(array(
-            'page_title'        => sprintf($user->lang['title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['parselog_title'],
+            'page_title'        => page_title($user->lang['parselog_title']),
             'gen_simple_header' => true,
             'template_file'     => 'admin/parse_Everquest2.html',
             'display'           => true)

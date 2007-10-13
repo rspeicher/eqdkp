@@ -87,7 +87,7 @@ class Manage_Members extends EQdkp_Admin
         );
         
         $eqdkp->set_vars(array(
-            'page_title'    => sprintf($user->lang['admin_title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['manage_members_title'],
+            'page_title'    => page_title($user->lang['manage_members_title']),
             'template_file' => 'admin/mm_menu.html',
             'display'       => true)
         );

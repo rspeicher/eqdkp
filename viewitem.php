@@ -82,7 +82,7 @@ if ( $in->get(URI_ITEM, 0) )
     $pm->do_hooks('/viewitem.php');
 
     $eqdkp->set_vars(array(
-        'page_title'    => sprintf($user->lang['title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.sprintf($user->lang['viewitem_title'], stripslashes($item_name)),
+        'page_title'    => page_title(sprintf($user->lang['viewitem_title'], stripslashes($item_name))),
         'template_file' => 'viewitem.html',
         'display'       => true)
     );

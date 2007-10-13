@@ -236,7 +236,7 @@ class Parse_Log extends EQdkp_Admin
         );
         
         $eqdkp->set_vars(array(
-            'page_title'        => sprintf($user->lang['title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['parselog_title'],
+            'page_title'        => page_title($user->lang['parselog_title']),
             'gen_simple_header' => true,
             'template_file'     => 'admin/parse_Everquest.html',
             'display'           => true)
@@ -574,7 +574,7 @@ class Parse_Log extends EQdkp_Admin
         );
         
         $eqdkp->set_vars(array(
-            'page_title'        => sprintf($user->lang['title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['parselog_title'],
+            'page_title'        => page_title($user->lang['parselog_title']),
             'gen_simple_header' => true,
             'template_file'     => 'admin/parse_Everquest.html',
             'display'           => true)

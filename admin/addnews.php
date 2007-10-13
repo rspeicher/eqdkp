@@ -309,7 +309,7 @@ class Add_News extends EQdkp_Admin
         );
 
         $eqdkp->set_vars(array(
-            'page_title'    => sprintf($user->lang['admin_title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['addnews_title'],
+            'page_title'    => page_title($user->lang['addnews_title']),
             'template_file' => 'admin/addnews.html',
             'display'       => true)
         );

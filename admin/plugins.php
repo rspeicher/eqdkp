@@ -18,8 +18,8 @@ include_once($eqdkp_root_path . 'common.php');
 
 $user->check_auth('a_plugins_man');
 
-$mode = ( isset($_GET['mode']) ) ? $_GET['mode'] : 'list';
-$code = ( isset($_GET['code']) ) ? $_GET['code'] : '';
+$mode = $in->get('mode', 'list');
+$code = $in->get('code');
 
 if ( (!empty($code)) && (!is_dir($eqdkp_root_path . 'plugins/' . $code)) )
 {
@@ -68,12 +68,12 @@ switch ( $mode )
             
             $tpl->assign_block_vars('plugins_row', array(
                 'ROW_CLASS' => $eqdkp->switch_row_class(),
-                'NAME'      => $pm->get_data($plugin_code, 'name'),
-                'CODE'      => $plugin_code,
-                'VERSION'   => ( !empty($version) ) ? $version : '&nbsp;',
+                'NAME'      => sanitize($pm->get_data($plugin_code, 'name')),
+                'CODE'      => sanitize($plugin_code),
+                'VERSION'   => ( !empty($version) ) ? sanitize($version) : '&nbsp;',
                 'U_ACTION'  => 'plugins.php' . $SID . '&amp;mode=' . (( $installed ) ? 'uninstall' : 'install') . '&amp;code=' . $plugin_code,
                 'ACTION'    => ( $installed ) ? $user->lang['uninstall'] : $user->lang['install'],
-                'CONTACT'   => ( !is_null($contact) ) ? '<a href="mailto:' . $contact . '">' . $contact . '</a>' : '&nbsp;')
+                'CONTACT'   => ( !is_null($contact) ) ? '<a href="mailto:' . sanitize($contact) . '">' . sanitize($contact) . '</a>' : '&nbsp;')
             );
             unset($contact, $installed, $version);
         }
@@ -93,10 +93,10 @@ switch ( $mode )
         );
         
         $eqdkp->set_vars(array(
-            'page_title'    => sprintf($user->lang['admin_title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['plugins_title'],
+            'page_title'    => page_title($user->lang['plugins_title']),
             'template_file' => 'admin/plugins.html',
-            'display'       => true)
-        );
+            'display'       => true
+        ));
  
         break;
 }

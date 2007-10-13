@@ -98,11 +98,11 @@ if ( $in->get(URI_NAME) != '' )
             'ROW_CLASS'      => $eqdkp->switch_row_class(),
             'DATE'           => ( !empty($raid['raid_date']) ) ? date($user->style['date_notime_short'], $raid['raid_date']) : '&nbsp;',
             'U_VIEW_RAID'    => 'viewraid.php'.$SID.'&amp;' . URI_RAID . '='.$raid['raid_id'],
-            'NAME'           => ( !empty($raid['raid_name']) ) ? stripslashes($raid['raid_name']) : '&lt;<i>Not Found</i>&gt;',
-            'NOTE'           => ( !empty($raid['raid_note']) ) ? stripslashes($raid['raid_note']) : '&nbsp;',
+            'NAME'           => ( !empty($raid['raid_name']) ) ? sanitize($raid['raid_name']) : '&lt;<i>Not Found</i>&gt;',
+            'NOTE'           => ( !empty($raid['raid_note']) ) ? sanitize($raid['raid_note']) : '&nbsp;',
             'EARNED'         => $raid['raid_value'],
-            'CURRENT_EARNED' => sprintf("%.2f", $current_earned))
-        );
+            'CURRENT_EARNED' => sprintf("%.2f", $current_earned)
+        ));
         $current_earned -= $raid['raid_value'];
     }
     $db->free_result($raids_result);
@@ -157,10 +157,10 @@ if ( $in->get(URI_NAME) != '' )
             'U_VIEW_ITEM'   => 'viewitem.php'.$SID.'&amp;' . URI_ITEM . '=' . $item['item_id'],
             'U_VIEW_RAID'   => 'viewraid.php'.$SID.'&amp;' . URI_RAID . '=' . $item['raid_id'],
             'NAME'          => stripslashes($item['item_name']),
-            'RAID'          => ( !empty($item['raid_name']) ) ? stripslashes($item['raid_name']) : '&lt;<i>Not Found</i>&gt;',
+            'RAID'          => ( !empty($item['raid_name']) ) ? sanitize($item['raid_name']) : '&lt;<i>Not Found</i>&gt;',
             'SPENT'         => $item['item_value'],
-            'CURRENT_SPENT' => sprintf("%.2f", $current_spent))
-        );
+            'CURRENT_SPENT' => sprintf("%.2f", $current_spent)
+        ));
         $current_spent -= $item['item_value'];
     }
     $db->free_result($items_result);
@@ -168,11 +168,11 @@ if ( $in->get(URI_NAME) != '' )
     $total_purchased_items = $db->query_first("SELECT count(*) FROM __items WHERE (`item_buyer` = '{$member['member_name']}') ORDER BY item_date DESC");
 
     //
-    // Individual Adjustment History
+    // Adjustment History
     //
-    $sql = "SELECT adjustment_value, adjustment_date, adjustment_reason
+    $sql = "SELECT adjustment_value, adjustment_date, adjustment_reason, member_name
             FROM __adjustments
-            WHERE (`member_name` = '{$member['member_name']}')
+            WHERE (`member_name` = '{$member['member_name']}' OR member_name IS NULL)
             ORDER BY adjustment_date DESC";
     if ( !($adjustments_result = $db->query($sql)) )
     {
@@ -180,13 +180,15 @@ if ( $in->get(URI_NAME) != '' )
     }
     while ( $adjustment = $db->fetch_record($adjustments_result) )
     {
+        $reason = ( is_null($adjustment['member_name']) ) ? $user->lang['group_adjustments'] : sanitize($adjustment['adjustment_reason']);
+        
         $tpl->assign_block_vars('adjustments_row', array(
             'ROW_CLASS'               => $eqdkp->switch_row_class(),
             'DATE'                    => ( !empty($adjustment['adjustment_date']) ) ? date($user->style['date_notime_short'], $adjustment['adjustment_date']) : '&nbsp;',
-            'REASON'                  => ( !empty($adjustment['adjustment_reason']) ) ? stripslashes($adjustment['adjustment_reason']) : '&nbsp;',
+            'REASON'                  => $reason,
             'C_INDIVIDUAL_ADJUSTMENT' => color_item($adjustment['adjustment_value']),
-            'INDIVIDUAL_ADJUSTMENT'   => $adjustment['adjustment_value'])
-        );
+            'INDIVIDUAL_ADJUSTMENT'   => sanitize($adjustment['adjustment_value'])
+        ));
     }
 
     //

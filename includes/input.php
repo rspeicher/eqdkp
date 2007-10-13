@@ -75,7 +75,7 @@ class Input
         }
         else
         {
-            trigger_error("Input accessor method for variables of type <b>{$type}</b> doesn't exist.", E_USER_NOTICE);
+            trigger_error("Input accessor method for variables of type <b>{$type}</b> with an input key of <b>{$key}</b> doesn't exist", E_USER_NOTICE);
             return $this->_get($key, $default);
         }
     }
@@ -256,6 +256,11 @@ class Input
         }
         
         return $retval;
+    }
+    
+    function NULL($key, $default = null)
+    {
+        trigger_error("Tried to get a null variable type for <b>{$key}</b>", E_USER_NOTICE);
     }
     
     // ----------------------------------------------------

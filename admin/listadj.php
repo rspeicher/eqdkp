@@ -29,7 +29,7 @@ $current_order = switch_order($sort_order);
 //
 // Group Adjustments
 //
-if ( $in->get(URI_PAGE, 'group' == 'group') )
+if ( $in->get(URI_PAGE, 'group') == 'group' )
 {
     $user->check_auth('a_groupadj_');
     

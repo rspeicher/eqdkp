@@ -106,6 +106,7 @@ class EMail
         global $eqdkp, $eqdkp_root_path;
         
         $lang = ( $lang == '' ) ? $eqdkp->config['default_lang'] : $lang;
+        $lang = preg_replace('/[^\w]+/', '', $lang);
         
         $this->tpl_file = $eqdkp_root_path . 'language/' . $lang . '/email/' . $template . '.txt';
 

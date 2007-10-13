@@ -904,7 +904,7 @@ class EQdkp_Admin
             $message .= '<br /><br />' . $this->generate_link_list($link_list);
         }
         
-        message_die($message);
+        message_die(stripslashes($message));
     }
     
     /**

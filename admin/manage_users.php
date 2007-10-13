@@ -129,7 +129,7 @@ class Manage_Users extends EQdkp_Admin
                 $this->change_username = true;
             }
             $this->change_password = false;
-            if ( $in->get('new_user_password1', false) || $in->get('new_user_password2', false) )
+            if ( $in->get('new_user_password1') != '' && $in->get('new_user_password2') != '' )
             {
                 $this->fv->matching_passwords('new_user_password1', 'new_user_password2', $user->lang['fv_match_password']);
                 $this->change_password = true;

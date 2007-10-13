@@ -54,7 +54,7 @@ if ( $in->get('submit', false) )
     }
     
     $change_password = false;
-    if ( $in->get('new_user_password1', false) && $in->get('new_user_password2') )
+    if ( $in->get('new_user_password1') != '' && $in->get('new_user_password2') != '' )
     {
         $fv->matching_passwords('new_user_password1', 'new_user_password2', $user->lang['fv_match_password']);
         $change_password = true;

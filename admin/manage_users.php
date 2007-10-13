@@ -583,7 +583,7 @@ class Manage_Users extends EQdkp_Admin
             'S_MU_TABLE'         => true,
 
             // Form values
-            'NAME'                    => sanitize($in->get(URI_NAME)),
+            'NAME'                    => $in->get(URI_NAME),
             'USER_ID'                 => $this->user_data['user_id'],
             'USERNAME'                => $this->user_data['username'],
             'USER_EMAIL'              => $this->user_data['user_email'],
@@ -674,8 +674,8 @@ class Manage_Users extends EQdkp_Admin
         $eqdkp->set_vars(array(
             'page_title'    => sprintf($user->lang['title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': Manage Users',
             'template_file' => 'settings.html',
-            'display'       => true)
-        );
+            'display'       => true
+        ));
     }
 
     function generate_permission_boxes()

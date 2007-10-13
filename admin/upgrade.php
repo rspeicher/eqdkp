@@ -340,6 +340,20 @@ class Upgrade
             }
         $this->finalize($index);
     }
+    
+    function upgrade_133($index)
+    {
+        /*
+        NOTE: Haven't decided if we're going to upgrade upgrade.php for this release.
+        
+        While we decided, these are just queries that need to be run - this method won't actually run them (yet).
+        
+        -- These are necessary because we changed to a REPLACE INTO syntax
+        ALTER TABLE __auth_users DROP INDEX user_id;
+        ALTER TABLE __auth_users DROP INDEX auth_id;
+        ALTER TABLE __auth_users ADD UNIQUE `user_auth` ( `user_id` , `auth_id` ); -- Before this is run, we might need to remove possible duplicates, so it doesn't error out
+        */
+    }
 
     function display_form()
     {

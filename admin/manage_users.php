@@ -447,7 +447,7 @@ class Manage_Users extends EQdkp_Admin
 
             $tpl->assign_block_vars('users_row', array(
                 'ROW_CLASS'     => $eqdkp->switch_row_class(),
-                'U_MANAGE_USER' => 'manage_users.php'.$SID.'&amp;' . URI_NAME . '='.$row['username'],
+                'U_MANAGE_USER' => 'manage_users.php'.$SID.'&amp;' . URI_NAME . '=' . urlencode($row['username']),
                 'USER_ID'       => $row['user_id'],
                 'NAME_STYLE'    => ( $user->check_auth('a_', false, $row['user_id']) ) ? 'font-weight: bold' : 'font-weight: none',
                 'USERNAME'      => sanitize($row['username']),
@@ -583,7 +583,7 @@ class Manage_Users extends EQdkp_Admin
             'S_MU_TABLE'         => true,
 
             // Form values
-            'NAME'                    => $in->get(URI_NAME),
+            'NAME'                    => urldecode($in->get(URI_NAME)),
             'USER_ID'                 => $this->user_data['user_id'],
             'USERNAME'                => $this->user_data['username'],
             'USER_EMAIL'              => $this->user_data['user_email'],

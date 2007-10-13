@@ -50,8 +50,7 @@ CREATE TABLE `eqdkp_auth_users` (
   `user_id` smallint(5) unsigned NOT NULL,
   `auth_id` smallint(3) unsigned NOT NULL,
   `auth_setting` ENUM('N','Y') NOT NULL default 'N',
-  KEY auth_id (`auth_id`),
-  KEY user_id (`user_id`)
+  UNIQUE KEY user_auth (user_id,auth_id)
 )TYPE=InnoDB;
 
 DROP TABLE IF EXISTS eqdkp_sessions;

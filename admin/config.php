@@ -299,43 +299,17 @@ class EQdkp_Config extends EQdkp_Admin
             'L_RESET'  => $user->lang['reset'])
         );
 
-        //
         // Build language drop-down
-        //
-        // TODO: This is done in 3 places, refactor into function
-        if ( $dir = @opendir($eqdkp->root_path . 'language/') )
+        foreach ( select_language($eqdkp->config['default_lang']) as $row )
         {
-            while ( $file = @readdir($dir) )
-            {
-                if ( (!is_file($eqdkp->root_path . 'language/' . $file)) && (!is_link($eqdkp->root_path . 'language/' . $file)) && ($file != '.') && ($file != '..') && ($file != 'CVS')  && ($file != '.svn') )
-                {
-                    $tpl->assign_block_vars('lang_row', array(
-                        'VALUE'    => $file,
-                        'SELECTED' => option_selected($eqdkp->config['default_lang'] == $file),
-                        'OPTION'   => ucfirst($file))
-                    );
-                }
-            }
+            $tpl->assign_block_vars('lang_row', $row);
         }
 
-        //
         // Build style drop-down
-        //
-        // TODO: This is done in 3 places, refactor into function
-        $sql = "SELECT style_id, style_name
-                FROM __styles
-                ORDER BY `style_name`";
-        $result = $db->query($sql);
-        while ( $row = $db->fetch_record($result) )
+        foreach ( select_style($eqdkp->config['default_style']) as $row )
         {
-            $tpl->assign_block_vars('style_row', array(
-                'VALUE' => $row['style_id'],
-                'SELECTED' => option_selected($eqdkp->config['default_style'] == $row['style_id']),
-                'OPTION' => $row['style_name'])
-            );
+            $tpl->assign_block_vars('style_row', $row);
         }
-        $db->free_result($result);
-
 
         //
         // Build game option drop-down

@@ -16,6 +16,10 @@ if ( !defined('EQDKP_INC') )
      die('Do not access this file directly.');
 }
 
+// -----------------------------------------
+// Template helpers
+// -----------------------------------------
+
 function page_title($title = '')
 {
     global $eqdkp, $user;
@@ -51,6 +55,87 @@ function option_selected($condition)
     return '';
 }
 
+function select_style()
+{
+    global $db, $eqdkp;
+    
+    $retval = array();
+    
+    $sql = "SELECT style_id, style_name
+            FROM __styles
+            ORDER BY `style_name`";
+    $result = $db->query($sql);
+    while ( $row = $db->fetch_record($result) )
+    {
+        $retval[] = array(
+            'VALUE'    => $row['style_id'],
+            'SELECTED' => option_selected(intval($eqdkp->config['default_style']) == intval($row['style_id'])),
+            'OPTION'   => $row['style_name']
+        );
+    }
+    $db->free_result($result);
+    
+    return $retval;
+}
+
+function select_template($template_path = 'default')
+{
+    global $eqdkp;
+    
+    $retval = array();
+    if ( $dir = @opendir($eqdkp->root_path . 'templates/') )
+    {
+        while ( $file = @readdir($dir) )
+        {
+            if ( valid_folder("{$eqdkp->root_path}templates/{$file}") )
+            {
+                $retval[] = array(
+                    'VALUE'    => $file,
+                    'SELECTED' => option_selected(strtolower($template_path) == strtolower($file)),
+                    'OPTION'   => $file
+                );
+            }
+        }
+    }
+    
+    return $retval;
+}
+
+function select_language()
+{
+    global $eqdkp;
+    
+    $retval = array();
+    if ( $dir = @opendir($eqdkp->root_path . 'language/') )
+    {
+        while ( $file = @readdir($dir) )
+        {
+            if ( valid_folder("{$eqdkp->root_path}language/{$file}") )
+            {
+                $retval[] = array(
+                    'VALUE'    => $file,
+                    'SELECTED' => option_selected(strtolower($eqdkp->config['default_lang']) == strtolower($file)),
+                    'OPTION'   => ucfirst($file)
+                );
+            }
+        }
+    }
+    
+    return $retval;
+}
+
+function valid_folder($path)
+{
+    $ignore = array('.', '..', '.svn', 'CVS', 'cache', 'install');
+    
+    if ( !is_file($path) && !is_link($path) && !in_array(basename($path), $ignore) )
+    {
+        return true;
+    }
+    
+    return false;
+}
+
 /**
  * Translate qoute characters to their HTML entities, and strip HTML tags.
  */
@@ -78,49 +163,42 @@ function unsanitize($input)
 }
 
 /**
-* Checks if a POST field value exists;
-* If it does, we use that one, otherwise we use the optional database field value,
-* or return a null string if $db_row contains no data
-*
-* @param    string  $post_field POST field name
-* @param    array   $db_row     Array of DB values
-* @param    string  $db_field   DB field name
-* @return   string
-*/
-function post_or_db($post_field, $db_row = array(), $db_field = '')
+ * Create a bar graph
+ * 
+ * @param int $width Width of the bar
+ * @param string $text Text to show
+ * @return string
+ */
+function create_bar($width, $text = '')
 {
-    global $in;
-    
-    trigger_error("post_or_db is deprecated, use Input::get", E_USER_NOTICE);
-    
-    if ( @sizeof($db_row) > 0 )
+    if ( strstr($width, '%') )
     {
-        if ( $db_field == '' )
+        $width = intval(str_replace('%', '', $width));
+        if ( $width > 0 )
         {
-            $db_field = $post_field;
+            $width = ( intval($width) <= 100 ) ? $width . '%' : '100%';
         }
-
-        $db_value = $db_row[$db_field];
     }
-    else
-    {
-        $db_value = '';
-    }
-
-    // NOTE: post_or_db doesn't supply a default value to Input::get, and may be less secure than other uses
-    return ( $in->get($post_field, '') != '' ) ? $in->get($post_field) : $db_value;
+    
+    $text = ( $text == '' ) ? $width . '%' : $text;
+    
+    return "<div class=\"graph\"><strong class=\"bar\" style=\"width: {$width}%;\">{$text}</strong></div>\n";
 }
 
+// -----------------------------------------
+// Other stuff?
+// -----------------------------------------
+
 /**
-* Outputs a message with debugging info if needed
-* and ends output.  Clean replacement for die()
-*
-* @param $text Message text
-* @param $title Message title
-* @param $file File name
-* @param $line File line
-* @param $sql SQL code
-*/
+ * Outputs a message with debugging info if needed and ends output.  
+ * Clean replacement for die()
+ *
+ * @param string $text Message text
+ * @param string $title Message title
+ * @param string $file File name
+ * @param int $line File line
+ * @param string $sql SQL code
+ */
 function message_die($text = '', $title = '', $file = '', $line = '', $sql = '')
 {
     global $db, $tpl, $eqdkp, $user, $pm;
@@ -199,13 +277,13 @@ function message_die($text = '', $title = '', $file = '', $line = '', $sql = '')
 }
 
 /**
-* Returns the appropriate CSS class to use based on
-* a number's range
-*
-* @param $item The number
-* @param $percentage Treat the number like a percentage?
-* @return mixed CSS Class / false
-*/
+ * Returns the appropriate CSS class to use based on
+ * a number's range
+ *
+ * @param string $item The number
+ * @param boolean $percentage Treat the number like a percentage?
+ * @return mixed CSS Class / false
+ */
 function color_item($item, $percentage = false)
 {
     if ( !is_numeric($item) )
@@ -251,19 +329,19 @@ function color_item($item, $percentage = false)
     return $class;
 }
 
-/*
-* Switches the sorting order of a supplied array
-* The array is in the format [number][0/1] (0 = the default, 1 = the opposite)
-* Returns an array containing the code to use in an SQL query and the code to
-* use to pass the sort value through the URI.  URI is in the format
-* (number).(0/1)
-*
-* Also contains checks to make sure the first element is not larger than the
-* sort_order array and that the second selement is either 0 or 1
-*
-* @param $sort_order Sorting order array
-* @return array SQL/URI information
-*/
+/**
+ * Switches the sorting order of a supplied array
+ * The array is in the format [number][0/1] (0 = the default, 1 = the opposite)
+ * Returns an array containing the code to use in an SQL query and the code to
+ * use to pass the sort value through the URI.  URI is in the format
+ * (number).(0/1)
+ *
+ * Also contains checks to make sure the first element is not larger than the
+ * sort_order array and that the second selement is either 0 or 1
+ *
+ * @param $sort_order Sorting order array
+ * @return array SQL/URI information
+ */
 function switch_order($sort_order)
 {
     global $in;
@@ -303,16 +381,15 @@ function switch_order($sort_order)
 }
 
 /**
-* Returns a string with a list of available pages
-*
-* @param $base_url The starting URL for each page link
-* @param $num_items The number of items we're paging through
-* @param $per_page How many items to display per page
-* @param $start_item Which number are we starting on
-* @param $start_variable In case you need to call your _GET var something other
-*        than 'start'
-* @return string Pages
-*/
+ * Returns a string with a list of available pages
+ *
+ * @param string $base_url The starting URL for each page link
+ * @param int $num_items The number of items we're paging through
+ * @param int $per_page How many items to display per page
+ * @param int $start_item Which number are we starting on
+ * @param string $start_variable In case you need to call your _GET var something other than 'start'
+ * @return string
+ */
 function generate_pagination($base_url, $num_items, $per_page, $start_item, $start_variable='start')
 {
     global $user;
@@ -374,10 +451,10 @@ function generate_pagination($base_url, $num_items, $per_page, $start_item, $sta
 }
 
 /**
-* Redirects the user to another page and exits cleanly
-*
-* @param $url URL to redirect to
-*/
+ * Redirects the user to another page and exits cleanly
+ *
+ * @param $url URL to redirect to
+ */
 function redirect($url)
 {
     global $db, $eqdkp, $user;
@@ -397,13 +474,6 @@ function redirect($url)
         echo '<body><div align="center">If your browser does not support meta redirection, please click <a href="' . $location . '">here</a> to be redirected</div></body></html>';
         exit;
     }
- 
-    /*
-    if ( sizeof(@file($location)) == 1 )
-    {
-        message_die('Redirect error: ' . $location . ' does not exist.');
-    }
-    */
     
     if ( isset($db) )
     {
@@ -414,7 +484,43 @@ function redirect($url)
     exit;
 }
 
-// TODO: To be replaced by sanitize() and unsanitize()
+// -----------------------------------------
+// Deprecated
+// -----------------------------------------
+
+/**
+ * Checks if a POST field value exists;
+ * If it does, we use that one, otherwise we use the optional database field value,
+ * or return a null string if $db_row contains no data
+ *
+ * @param    string  $post_field POST field name
+ * @param    array   $db_row     Array of DB values
+ * @param    string  $db_field   DB field name
+ * @return   string
+ */
+function post_or_db($post_field, $db_row = array(), $db_field = '')
+{
+    global $in;
+    
+    trigger_error("post_or_db is deprecated, use Input::get", E_USER_NOTICE);
+    
+    if ( @sizeof($db_row) > 0 )
+    {
+        if ( $db_field == '' )
+        {
+            $db_field = $post_field;
+        }
+
+        $db_value = $db_row[$db_field];
+    }
+    else
+    {
+        $db_value = '';
+    }
+
+    return ( $in->get($post_field, '') != '' ) ? $in->get($post_field) : $db_value;
+}
+
 function sanitize_tags($data)
 {
     trigger_error("sanitize_tags is deprecated, use sanitize()", E_USER_NOTICE);
@@ -434,7 +540,6 @@ function sanitize_tags($data)
     return $data;
 }
 
-// TODO: To be replaced by sanitize() and unsanitize()
 function undo_sanitize_tags($data)
 {
     trigger_error("undo_sanitize_tags is deprecated, use unsanitize()", E_USER_NOTICE);
@@ -454,14 +559,13 @@ function undo_sanitize_tags($data)
     return $data;
 }
 
-// TODO: Remove this once we remove the few calls to it.
 /**
-* Applies htmlspecialchars to an array of data
-* 
-* @deprec sanitize_tags
-* @param $data
-* @return array
-*/
+ * Applies htmlspecialchars to an array of data
+ * 
+ * @deprec sanitize_tags
+ * @param $data
+ * @return array
+ */
 function htmlspecialchars_array($data)
 {
     trigger_error("htmlspecialchars_arary is deprecated", E_USER_NOTICE);
@@ -476,7 +580,6 @@ function htmlspecialchars_array($data)
     return $data;
 }
 
-// TODO: Remove this once we remove the few calls to it.
 function htmlspecialchars_remove($data)
 {
     trigger_error("htmlspecialchars_remove is deprecated, use sanitize()", E_USER_NOTICE);
@@ -486,27 +589,4 @@ function htmlspecialchars_remove($data)
     $data = preg_replace($find, $replace, $data);
     
     return $data;
-}
-
-/**
-* Create a bar graph
-* 
-* @param $width     int     Width of the bar
-* @param $show_text string  Text to show
-* @return string Bar HTML
-*/
-function create_bar($width, $show_text = '')
-{
-    if ( strstr($width, '%') )
-    {
-        $width = intval(str_replace('%', '', $width));
-        if ( $width > 0 )
-        {
-            $width = ( intval($width) <= 100 ) ? $width . '%' : '100%';
-        }
-    }
-    
-    $show_text = ( $show_text == '' ) ? $width . '%' : $show_text;
-    
-    return "<div class=\"graph\"><strong class=\"bar\" style=\"width: {$width}%;\">{$show_text}</strong></div>\n";
 }

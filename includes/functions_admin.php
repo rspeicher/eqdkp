@@ -76,7 +76,7 @@ function generate_permission_boxes()
     );
 
     // Add plugin checkboxes to our array
-    $pm->generate_permission_boxes($user_permissions);
+    $pm->generate_permission_boxes($retval);
     
     return $retval;
 }

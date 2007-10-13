@@ -531,7 +531,7 @@ class Add_Item extends EQdkp_Admin
         ));
         
         $eqdkp->set_vars(array(
-            'page_title'    => page_title($user->lang['additem_title'], true),
+            'page_title'    => page_title($user->lang['additem_title']),
             'template_file' => 'admin/additem.html',
             'display'       => true
         ));
@@ -614,7 +614,7 @@ class Item_Search extends EQdkp_Admin
         ));
         
         $eqdkp->set_vars(array(
-            'page_title'        => page_title($user->lang['additem_title'], true),
+            'page_title'        => page_title($user->lang['additem_title']),
             'gen_simple_header' => true,
             'template_file'     => 'admin/additem_search.html',
             'display'           => true
@@ -640,7 +640,7 @@ class Item_Search extends EQdkp_Admin
         ));
         
         $eqdkp->set_vars(array(
-            'page_title'        => page_title($user->lang['additem_title'], true),
+            'page_title'        => page_title($user->lang['additem_title']),
             'gen_simple_header' => true,
             'template_file'     => 'admin/additem_search.html',
             'display'           => true

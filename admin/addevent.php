@@ -322,7 +322,7 @@ class Add_Event extends EQdkp_Admin
         );
         
         $eqdkp->set_vars(array(
-            'page_title'    => page_title($user->lang['addevent_title'], true),
+            'page_title'    => page_title($user->lang['addevent_title']),
             'template_file' => 'admin/addevent.html',
             'display'       => true
         ));

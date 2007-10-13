@@ -514,7 +514,7 @@ class MM_Addmember extends EQdkp_Admin
         ));
 
         $eqdkp->set_vars(array(
-            'page_title'    => page_title($user->lang['manage_members_title'], true),
+            'page_title'    => page_title($user->lang['manage_members_title']),
             'template_file' => 'admin/mm_addmember.html',
             'display'       => true)
         );

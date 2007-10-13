@@ -204,7 +204,7 @@ switch ( $action )
 }
 
 $eqdkp->set_vars(array(
-    'page_title'    => page_title($user->lang['viewlogs_title'], true),
+    'page_title'    => page_title($user->lang['viewlogs_title']),
     'template_file' => 'admin/logs.html',
     'display'       => true
 ));

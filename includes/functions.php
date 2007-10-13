@@ -16,16 +16,26 @@ if ( !defined('EQDKP_INC') )
      die('Do not access this file directly.');
 }
 
-function page_title($title, $admin = false)
+function page_title($title)
 {
     global $eqdkp, $user;
     
     $retval = '';
     
-    $section = ( $admin ) ? $user->lang['admin_title_prefix'] : $user->lang['title_prefix'];
+    $section = ( defined('IN_ADMIN') ) ? $user->lang['admin_title_prefix'] : $user->lang['title_prefix'];
     $global_title = sprintf($section, $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']);
     
     return "{$title} - {$global_title}";
+}
+
+function option_checked($condition)
+{
+    if ( $condition )
+    {
+        return ' checked="checked"';
+    }
+    
+    return '';
 }
 
 function option_selected($condition)

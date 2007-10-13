@@ -64,7 +64,7 @@ $tpl->assign_vars(array(
 ));
 
 $eqdkp->set_vars(array(
-    'page_title'    => page_title($user->lang['listevents_title'], true),
+    'page_title'    => page_title($user->lang['listevents_title']),
     'template_file' => 'listevents.html',
     'display'       => true
 ));

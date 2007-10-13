@@ -351,7 +351,7 @@ class SQL_DB
         if ( $this->link_id )
         {
             $result = @mysql_insert_id($this->link_id);
-            return $result;
+            return intval($result);
         }
         else
         {

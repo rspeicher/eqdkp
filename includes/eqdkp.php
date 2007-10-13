@@ -363,7 +363,7 @@ class EQdkp
         // Switch login/logout link
         if ( $user->data['user_id'] != ANONYMOUS )
         {
-            $main_menu2[] = array('link' => 'login.php' . $SID . '&amp;logout=true', 'text' => $user->lang['logout'] . ' [ ' . $user->data['username'] . ' ]');
+            $main_menu2[] = array('link' => 'login.php' . $SID . '&amp;logout=true', 'text' => $user->lang['logout'] . ' [ ' . sanitize($user->data['username']) . ' ]');
         }
         else
         {

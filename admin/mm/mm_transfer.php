@@ -211,13 +211,13 @@ class MM_Transfer extends EQdkp_Admin
         {
             $tpl->assign_block_vars('transfer_from_row', array(
                 'VALUE'    => $row['member_name'],
-                'SELECTED' => ( $this->transfer['from'] == $row['member_name'] ) ? ' selected="selected"' : '',
+                'SELECTED' => option_selected($this->transfer['from'] == $row['member_name']),
                 'OPTION'   => $row['member_name'])
             );
             
             $tpl->assign_block_vars('transfer_to_row', array(
                 'VALUE'    => $row['member_name'],
-                'SELECTED' => ( $this->transfer['to'] == $row['member_name'] ) ? ' selected="selected"' : '',
+                'SELECTED' => option_selected($this->transfer['to'] == $row['member_name']),
                 'OPTION'   => $row['member_name'])
             );
         }

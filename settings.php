@@ -196,9 +196,9 @@ switch ( $action )
                 if ( (!is_file($eqdkp_root_path . 'language/' . $file)) && (!is_link($eqdkp_root_path . 'language/' . $file)) && ($file != '.') && ($file != '..') && ($file != 'CVS') & ($file != '.svn') )
                 {
                     $tpl->assign_block_vars('lang_row', array(
-                        'VALUE' => $file,
-                        'SELECTED' => ( $user->data['user_lang'] == $file ) ? ' selected="selected"' : '',
-                        'OPTION' => ucfirst($file)
+                        'VALUE'    => $file,
+                        'SELECTED' => option_selected($user->data['user_lang'] == $file),
+                        'OPTION'   => ucfirst($file)
                     ));
                 }
             }
@@ -213,7 +213,7 @@ switch ( $action )
         {
             $tpl->assign_block_vars('style_row', array(
                 'VALUE'    => $row['style_id'],
-                'SELECTED' => ( $user->data['user_style'] == $row['style_id'] ) ? ' selected="selected"' : '',
+                'SELECTED' => option_selected($user->data['user_style'] == $row['style_id']),
                 'OPTION'   => $row['style_name']
             ));
         }

@@ -1,12 +1,12 @@
 1.3.3 (1.4 after all these changes?)
 ------------------------------------
+Reminders
+    - Don't call sanitize on a variable that's being input into the database, only on OUTPUT TO THE USER.
+    
 Global
     - Replace all $_GET, $_POST and $_SESSION accesses with an Input class that has input cleaning.
     - Add x_path() functions a la Rails to clean up some URL generation
     - Use header('HTTP/1.0 404 Not Found'); instead of die('Do not access this file directly.');
-    - Move the page title generation to a function to clean up the files, since it happens on every page.
-    - Deprecate post_or_db. We can change post_or_db('my_variable', $row); to $in->get('my_variable', $row['my_variable']);
-    - Don't call sanitize on a variable that's being input into the database, only on OUTPUT TO THE USER.
     - Get rid of the permission globals, all they're used for is permission checkboxes and we can just as easily use the string.
     - The list<x>.php classes in admin and root are basically identical, they just have different links depending
       whether or not we're in admin. Could reduce a bunch of code here, just not sure the best way to do it.
@@ -21,6 +21,9 @@ Global de-stupifying from 1.3
 Installation
     - Add checks to prevent people overriding their current installation data.
     - Perhaps replace the installation stuff with the development branch's (needs a bit of polish tho).
+    - Need to use User::Encrypt, which means including that file during installation. Look into that.
+    - Need to use page_title() and option_selected() from functions.php, so include that.
+    - Need to use the Input class, so include that.
     
 Languages
     - Re-write the language files in a new format for ease of writing and readability.

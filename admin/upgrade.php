@@ -362,7 +362,7 @@ class Upgrade
 
         foreach ( $this->versions as $version )
         {
-            $selected = ( $version == $eqdkp->config['eqdkp_version'] ) ? ' selected="selected"' : '';
+            $selected = option_selected($version == $eqdkp->config['eqdkp_version']);
 
             $tpl->assign_block_vars('version_row', array(
                 'VALUE'    => str_replace('.', '', $version),

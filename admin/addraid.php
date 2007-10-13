@@ -1229,7 +1229,7 @@ class Add_Raid extends EQdkp_Admin
             
             $tpl->assign_block_vars('events_row', array(
                 'VALUE'    => stripslashes($row['event_name']),
-                'SELECTED' => ( $select_check ) ? ' selected="selected"' : '',
+                'SELECTED' => option_selected($select_check),
                 'OPTION'   => '(' . sprintf($format, $row['event_value']) . ') - ' . stripslashes($row['event_name']))
             );
         }

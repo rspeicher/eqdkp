@@ -161,7 +161,7 @@ else
     {
         $filter_options[] = array(
             'VALUE'    => "armor_" . $type,
-            'SELECTED' => ( $filter == "armor_{$type}" ) ? ' selected="selected"' : '',
+            'SELECTED' => option_selected($filter == "armor_{$type}"),
             'OPTION'   => str_replace('_', ' ', $type)
         );
     }

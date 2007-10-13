@@ -349,11 +349,11 @@ class Add_IndivAdj extends EQdkp_Admin
         {
             if ( $this->url_id )
             {
-                $selected = ( @in_array($row['member_name'], $this->adjustment['member_names']) ) ? ' selected="selected"' : '';
+                $selected = option_selected(@in_array($row['member_name'], $this->adjustment['member_names']));
             }
             else
             {
-                $selected = ( @in_array($row['member_name'], $_POST['member_names']) ) ? ' selected="selected"' : '';
+                $selected = option_selected(@in_array($row['member_name'], $_POST['member_names']));
             }
             
             $tpl->assign_block_vars('members_row', array(

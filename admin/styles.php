@@ -383,7 +383,7 @@ class Manage_Styles extends EQdkp_Admin
                 {
                     $tpl->assign_block_vars('template_row', array(
                         'VALUE'    => stripslashes($file),
-                        'SELECTED' => ( $this->style['template_path'] == stripslashes($file) ) ? ' selected="selected"' : '',
+                        'SELECTED' => option_selected($this->style['template_path'] == stripslashes($file)),
                         'OPTION'   => stripslashes($file))
                     );
                 }
@@ -393,46 +393,36 @@ class Manage_Styles extends EQdkp_Admin
         //
         // Text decorations
         //
+        $decoration_blocks = array('body_link_style', 'body_hlink_style', 'header_link_style', 'header_hlink_style');
         foreach ( $text_decoration as $k => $v )
         {
-            $tpl->assign_block_vars('body_link_style_row', array(
-                'VALUE'    => $v,
-                'SELECTED' => ( $this->style['body_link_style'] == $v ) ? ' selected="selected"' : '',
-                'OPTION'   => $v)
-            );
-            $tpl->assign_block_vars('body_hlink_style_row', array(
-                'VALUE'    => $v,
-                'SELECTED' => ( $this->style['body_hlink_style'] == $v ) ? ' selected="selected"' : '',
-                'OPTION'   => $v)
-            );
-            $tpl->assign_block_vars('header_link_style_row', array(
-                'VALUE'    => $v,
-                'SELECTED' => ( $this->style['header_link_style'] == $v ) ? ' selected="selected"' : '',
-                'OPTION'   => $v)
-            );
-            $tpl->assign_block_vars('header_hlink_style_row', array(
-                'VALUE'    => $v,
-                'SELECTED' => ( $this->style['header_hlink_style'] == $v ) ? ' selected="selected"' : '',
-                'OPTION'   => $v)
-            );
+            foreach ( $decoration_blocks as $block )
+            {
+                $tpl->assign_block_vars("{$block}_row", array(
+                    'VALUE'    => $v,
+                    'SELECTED' => option_selected($this->style[$block] == $v),
+                    'OPTION'   => $v
+                ));
+            }
         }
+        unset($decoration_blocks, $text_decoration);
         
         //
         // Border styles
         //
+        $border_blocks = array('table_border_style', 'input_border_style');
         foreach ( $border_style as $k => $v )
         {
-            $tpl->assign_block_vars('table_border_style_row', array(
-                'VALUE'    => $v,
-                'SELECTED' => ( $this->style['table_border_style'] == $v ) ? ' selected="selected"' : '',
-                'OPTION'   => $v)
-            );
-            $tpl->assign_block_vars('input_border_style_row', array(
-                'VALUE'    => $v,
-                'SELECTED' => ( $this->style['input_border_style'] == $v ) ? ' selected="selected"' : '',
-                'OPTION'   => $v)
-            );
+            foreach ( $border_blocks as $block )
+            {
+                $tpl->assign_block_vars("{$block}_row", array(
+                    'VALUE'    => $v,
+                    'SELECTED' => option_selected($this->style[$block] == $v),
+                    'OPTION'   => $v
+                ));
+            }
         }
+        unset($border_blocks, $border_style);
         
         //
         // Attendees columns
@@ -441,9 +431,9 @@ class Manage_Styles extends EQdkp_Admin
         {
             $tpl->assign_block_vars('attendees_columns_row', array(
                 'VALUE'    => $i,
-                'SELECTED' => ( $this->style['attendees_columns'] == $i ) ? ' selected="selected"' : '',
-                'OPTION'   => $i)
-            );
+                'SELECTED' => option_selected($this->style['attendees_columns'] == $i),
+                'OPTION'   => $i
+            ));
         }
         
         $tpl->assign_vars(array(

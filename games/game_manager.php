@@ -4,6 +4,9 @@ if ( !defined('EQDKP_INC') )
      die('Do not access this file directly.');
 }
 
+// TODO: Log files store the race and class *IDs*, not the strings
+// This class needs to provide methods to find the names by ID.
+
 class Game_Manager
 {
     var $armor_types = array();

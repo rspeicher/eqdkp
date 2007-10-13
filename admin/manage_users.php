@@ -568,7 +568,7 @@ class Manage_Users extends EQdkp_Admin
         {
             $tpl->assign_block_vars('member_row', array(
                 'VALUE'    => $row['member_id'],
-                'SELECTED' => ( (isset($row['user_id'])) && ($row['user_id'] == $this->user_data['user_id']) ) ? ' selected="selected"' : '',
+                'SELECTED' => option_selected(isset($row['user_id']) && $row['user_id'] == $this->user_data['user_id']),
                 'OPTION'   => $row['member_name'])
             );
         }
@@ -647,7 +647,7 @@ class Manage_Users extends EQdkp_Admin
                 {
                     $tpl->assign_block_vars('lang_row', array(
                         'VALUE'    => $file,
-                        'SELECTED' => ( $this->user_data['user_lang'] == $file ) ? ' selected="selected"' : '',
+                        'SELECTED' => option_selected($this->user_data['user_lang'] == $file),
                         'OPTION'   => ucfirst($file))
                     );
                 }
@@ -665,7 +665,7 @@ class Manage_Users extends EQdkp_Admin
         {
             $tpl->assign_block_vars('style_row', array(
                 'VALUE'    => $row['style_id'],
-                'SELECTED' => ( $this->user_data['user_style'] == $row['style_id'] ) ? ' selected="selected"' : '',
+                'SELECTED' => option_selected($this->user_data['user_style'] == $row['style_id']),
                 'OPTION'   => $row['style_name'])
             );
         }

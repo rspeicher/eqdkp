@@ -383,7 +383,7 @@ class EQdkp_Config extends EQdkp_Admin
                 {
                     $tpl->assign_block_vars('lang_row', array(
                         'VALUE'    => $file,
-                        'SELECTED' => ( $eqdkp->config['default_lang'] == $file ) ? ' selected="selected"' : '',
+                        'SELECTED' => option_selected($eqdkp->config['default_lang'] == $file),
                         'OPTION'   => ucfirst($file))
                     );
                 }
@@ -402,7 +402,7 @@ class EQdkp_Config extends EQdkp_Admin
         {
             $tpl->assign_block_vars('style_row', array(
                 'VALUE' => $row['style_id'],
-                'SELECTED' => ( $eqdkp->config['default_style'] == $row['style_id'] ) ? ' selected="selected"' : '',
+                'SELECTED' => option_selected($eqdkp->config['default_style'] == $row['style_id']),
                 'OPTION' => $row['style_name'])
             );
         }
@@ -429,55 +429,33 @@ class EQdkp_Config extends EQdkp_Admin
         
         // ^ Hey, if you have to describe something as a "total hack job", it probably sucks
         // TODO: Use Game_Manager to abstract the game selection drop-down
+        $games = array('Everquest', 'Everquest2', 'WoW', 'DAoC', 'Vanguard-SoH');
+        foreach ( $games as $game )
+        {
+            $tpl->assign_block_vars('game_row', array(
+                'VALUE'    => $game,
+                'SELECTED' => option_selected($eqdkp->config['default_game'] == $game),
+                'OPTION'   => $game
+            ));
+        }
+        unset($games);
 
-        $tpl->assign_block_vars('game_row', array(
-            'VALUE' => "Everquest",
-            'SELECTED' => ( $eqdkp->config['default_game'] == "Everquest" ) ? ' selected="selected"' : '',
-            'OPTION' => "Everquest") );
+        // Default locale drop-down
+        // new for 1.3
+        // Dont forget to change the install script -- maybe query the system for all supported
+        // locales? that would break the "pretty" name of the locale (english, french, etc)
+        // but would provide greater support
 
-        $tpl->assign_block_vars('game_row', array(
-            'VALUE' => "Everquest2",
-            'SELECTED' => ( $eqdkp->config['default_game'] == "Everquest2" ) ? ' selected="selected"' : '',
-            'OPTION' => "Everquest2") );
-
-        $tpl->assign_block_vars('game_row', array(
-            'VALUE' => "WoW",
-            'SELECTED' => ( $eqdkp->config['default_game'] == "WoW" ) ? ' selected="selected"' : '',
-            'OPTION' => "WoW") );
-
-        $tpl->assign_block_vars('game_row', array(
-            'VALUE' => "DAoC",
-            'SELECTED' => ( $eqdkp->config['default_game'] == "DAoC" ) ? ' selected="selected"' : '',
-            'OPTION' => "DAoC") );
-
-        $tpl->assign_block_vars('game_row', array(
-            'VALUE' => "Vanguard-SoH",
-            'SELECTED' => ( $eqdkp->config['default_game'] == "Vanguard-SoH" ) ? ' selected="selected"' : '',
-            'OPTION' => "Vanguard-SoH") );
-
-    // Default locale drop-down
-    // new for 1.3
-    // Dont forget to change the install script -- maybe query the system for all supported
-    // locales? that would break the "pretty" name of the locale (english, french, etc)
-    // but would provide greater support
-
+        // TODO: Abstract the available locales?
+        $locales = array('en_US', 'de_DE', 'fr_FR');
+        foreach ( $locales as $locale )
+        {
             $tpl->assign_block_vars('locale_row', array(
-                    'VALUE' => 'en_US',
-                 'SELECTED' => ( $eqdkp->config['default_locale'] == "en_US" ) ? ' selected="selected"' : '',
-                    'OPTION'  => 'English'
-            ));
-
-            $tpl->assign_block_vars('locale_row', array(
-                    'VALUE' => 'de_DE',
-                 'SELECTED' => ( $eqdkp->config['default_locale'] == "de_DE" ) ? ' selected="selected"' : '',
-                    'OPTION'  => 'German'
-            ));
-
-          $tpl->assign_block_vars('locale_row', array(
-                    'VALUE' => 'fr_FR',
-                 'SELECTED' => ( $eqdkp->config['default_locale'] == "fr_FR" ) ? ' selected="selected"' : '',
-                    'OPTION'  => 'French'
-            ));
+                'VALUE'    => $locale,
+                'SELECTED' => option_selected($eqdkp->config['default_locale'] == $locale),
+                'OPTION'   => $locale
+            ));            
+        }
 
         //
         // Build start page drop-down
@@ -496,7 +474,7 @@ class EQdkp_Config extends EQdkp_Admin
             
             $tpl->assign_block_vars('page_row', array(
                 'VALUE'    => $link,
-                'SELECTED' => ( $eqdkp->config['start_page'] == $link ) ? ' selected="selected"' : '',
+                'SELECTED' => option_selected($eqdkp->config['start_page'] == $link),
                 'OPTION'   => $text)
             );
             unset($link, $text);

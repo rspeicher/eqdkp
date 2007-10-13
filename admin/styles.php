@@ -340,7 +340,7 @@ class Manage_Styles extends EQdkp_Admin
         );
         
         $eqdkp->set_vars(array(
-            'page_title'    => sprintf($user->lang['admin_title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['styles_title'],
+            'page_title'    => page_title($user->lang['styles_title']),
             'template_file' => 'admin/styles.html',
             'display'       => true
         ));
@@ -371,23 +371,10 @@ class Manage_Styles extends EQdkp_Admin
             'outset'
         );
         
-        //
-        // Available templates    
-        //
-        if ( $dir = @opendir($eqdkp->root_path . 'templates/') )
+        // Available templates
+        foreach ( select_template($this->style['template_path']) as $row )
         {
-            $ignore = array('.', '..', '.svn', 'CVS', 'cache', 'install');
-            while ( $file = @readdir($dir) )
-            {
-                if ( !is_file($eqdkp->root_path . 'templates/' . $file) && !is_link($eqdkp->root_path . 'templates/' . $file) && !in_array($file, $ignore) )
-                {
-                    $tpl->assign_block_vars('template_row', array(
-                        'VALUE'    => stripslashes($file),
-                        'SELECTED' => option_selected($this->style['template_path'] == stripslashes($file)),
-                        'OPTION'   => stripslashes($file))
-                    );
-                }
-            }
+            $tpl->assign_block_vars('template_row', $row);
         }
         
         //
@@ -539,7 +526,7 @@ class Manage_Styles extends EQdkp_Admin
         );
         
         $eqdkp->set_vars(array(
-            'page_title'    => sprintf($user->lang['admin_title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['styles_title'],
+            'page_title'    => page_title($user->lang['styles_title']),
             'template_file' => 'admin/addstyle.html',
             'display'       => true
         ));

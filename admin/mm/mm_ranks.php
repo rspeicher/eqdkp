@@ -30,12 +30,14 @@ class MM_Ranks extends EQdkp_Admin
             'submit' => array(
                 'name'    => 'submit',
                 'process' => 'process_submit',
-                'check'   => 'a_members_man'),
+                'check'   => 'a_members_man'
+            ),
             'form' => array(
                 'name'    => '',
                 'process' => 'display_form',
-                'check'   => 'a_members_man'))
-        );
+                'check'   => 'a_members_man'
+            )
+        ));
     }
     
     function error_check()
@@ -48,39 +50,43 @@ class MM_Ranks extends EQdkp_Admin
     // ---------------------------------------------------------
     function process_submit()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $SID;
         
-        foreach ( $_POST['ranks'] as $rank_id => $rank_name )
+        $rank_names = $in->getArray('ranks', 'string');
+        $prefixes   = $in->getArray('prefix', 'string');
+        $suffixes   = $in->getArray('suffix', 'string');
+        $hidden     = $in->getArray('hide', 'int');
+        
+        foreach ( $rank_names as $rank_id => $rank_name )
         {
-            $sql = "DELETE FROM __member_ranks WHERE `rank_id` = '{$rank_id}'";
-            $db->query($sql);
+            $rank_id = intval($rank_id);
             
             // If the rank's been removed, NULL the member_rank for users that have it
             if ( $rank_name == '' )
             {
+                $sql = "DELETE FROM __member_ranks WHERE (`rank_id` = '{$rank_id}')";
+                $db->query($sql);
+                
                 $sql = "UPDATE __members
                         SET `member_rank_id` = NULL
-                        WHERE `member_rank_id` = '{$rank_id}'";
+                        WHERE (`member_rank_id` = '{$rank_id}')";
                 $db->query($sql);
             }
             // Otherwise re-add the rank to the table
             else
             {
-                $rank_prefix = ( isset($_POST['prefix'][$rank_id]) ) ? $_POST['prefix'][$rank_id] : '';
-                $rank_suffix = ( isset($_POST['suffix'][$rank_id]) ) ? $_POST['suffix'][$rank_id] : '';
-                
-                $rank_prefix = undo_sanitize_tags(stripslashes($rank_prefix));
-                $rank_suffix = undo_sanitize_tags(stripslashes($rank_suffix));
+                $rank_prefix = ( isset($prefixes[$rank_id]) ) ? unsanitize($prefixes[$rank_id]) : '';
+                $rank_suffix = ( isset($suffixes[$rank_id]) ) ? unsanitize($suffixes[$rank_id]) : '';
                
                 $query = $db->build_query('INSERT', array(
                     'rank_id'     => $rank_id,
                     'rank_name'   => $rank_name,
-                    'rank_hide'   => ( isset($_POST['hide'][$rank_id]) ) ? '1' : '0',
+                    'rank_hide'   => ( isset($hidden[$rank_id]) ) ? '1' : '0',
                     'rank_prefix' => $rank_prefix,
-                    'rank_suffix' => $rank_suffix)
-                );
-                $db->query("INSERT INTO __member_ranks {$query}");
+                    'rank_suffix' => $rank_suffix
+                ));
+                $db->query("REPLACE INTO __member_ranks {$query}");
             }
         }
         
@@ -101,33 +107,34 @@ class MM_Ranks extends EQdkp_Admin
         $max_id = 0;
         $sql = "SELECT rank_id, rank_name, rank_hide, rank_prefix, rank_suffix
                 FROM __member_ranks
-                WHERE `rank_id` > 0
+                WHERE (`rank_id` > 0)
                 ORDER BY `rank_id`";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
-            $prefix = htmlspecialchars($row['rank_prefix']);
-            $suffix = htmlspecialchars($row['rank_suffix']);
+            // Don't strip HTML tags, we want to allow them. That's the whole point.
+            $prefix = sanitize($row['rank_prefix'], true, false);
+            $suffix = sanitize($row['rank_suffix'], true, false);
             
             $tpl->assign_block_vars('ranks_row', array(
                 'ROW_CLASS'    => $eqdkp->switch_row_class(),
-                'RANK_ID'      => $row['rank_id'],
+                'RANK_ID'      => intval($row['rank_id']),
                 'RANK_NAME'    => stripslashes($row['rank_name']),
                 'RANK_PREFIX'  => stripslashes($prefix),
                 'RANK_SUFFIX'  => stripslashes($suffix),
-                'HIDE_CHECKED' => ( $row['rank_hide'] == '1' ) ? 'checked="checked"' : '')
-            );
+                'HIDE_CHECKED' => option_checked($row['rank_hide'] == '1')
+            ));
             $max_id = ( $max_id < $row['rank_id'] ) ? $row['rank_id'] : $max_id;
         }
         $db->free_result($result);
         
         $tpl->assign_vars(array(
             // Form vars
-            'F_EDIT_RANKS' => 'manage_members.php' . $SID . '&amp;mode=ranks',
+            'F_EDIT_RANKS' => "manage_members.php{$SID}&amp;mode=ranks",
             
             // Form values
             'ROW_CLASS' => $eqdkp->switch_row_class(),
-            'RANK_ID'   => ($max_id * 2),
+            'RANK_ID'   => $max_id + 1,
             
             // Language
             'L_EDIT_RANKS_TITLE' => $user->lang['edit_ranks'],
@@ -140,9 +147,9 @@ class MM_Ranks extends EQdkp_Admin
         );
         
         $eqdkp->set_vars(array(
-            'page_title'    => sprintf($user->lang['admin_title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['manage_members_title'],
+            'page_title'    => page_title($user->lang['manage_members_title']),
             'template_file' => 'admin/mm_ranks.html',
-            'display'       => true)
-        );
+            'display'       => true
+        ));
     }
 }

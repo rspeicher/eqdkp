@@ -481,13 +481,27 @@ class User extends Session
         {
             $db->free_result($result);
 
-            if ( (md5($password) == $row['user_password']) && ($row['user_active']) )
+            if ( User::Encrypt($password) == $row['user_password'] && $row['user_active'] )
             {
-                $auto_login = ( !empty($auto_login) ) ? md5($password) : '';
+                $auto_login = ( !empty($auto_login) ) ? User::Encrypt($password) : '';
 
                 return $this->create($row['user_id'], $auto_login, true);
             }
         }
+        
         return false;
+    }
+    
+    /**
+     * Static function to abstract password encryption
+     *
+     * @param string $string String to encrypt
+     * @param string $salt Salt value; not yet in use
+     * @return string
+     * @static
+     */
+    function Encrypt($string, $salt = '')
+    {
+        return md5($salt . $string);
     }
 }

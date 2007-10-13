@@ -227,7 +227,7 @@ class Manage_Users extends EQdkp_Admin
         }
         if ( $this->change_password )
         {
-            $update['user_password'] = md5($in->get('new_user_password1'));
+            $update['user_password'] = User::Encrypt($in->get('new_user_password1'));
         }
         $query = $db->build_query('UPDATE', $update);
         $sql = "UPDATE __users SET {$query} WHERE (`user_id` = '{$this->user_data['user_id']}')";

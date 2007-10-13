@@ -692,6 +692,7 @@ function process_step4()
     $sql = 'SELECT config_value FROM ' . CONFIG_TABLE . " WHERE config_name='default_lang'";
     $default_lang = $db->query_first($sql);
 
+    // TODO: Change md5() calls to User::Encrypt()
     $query = $db->build_query('UPDATE', array(
         'username'      => $username,
         'user_password' => ( $user_password1 == $user_password2 ) ? md5($user_password1) : md5('admin'),

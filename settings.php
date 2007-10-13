@@ -67,7 +67,7 @@ if ( $in->get('submit', false) )
         $sql = "SELECT user_id
                 FROM __users
                 WHERE (`user_id` = '{$user->data['user_id']}')
-                AND (`user_password` = '" . md5($in->get('user_password')) . "')";
+                AND (`user_password` = '" . User::Encrypt($in->get('user_password')) . "')";
         if ( $db->num_rows($db->query($sql)) == 0 )
         {
             $fv->errors['user_password'] = $user->lang['incorrect_password'];
@@ -118,7 +118,7 @@ switch ( $action )
         }
         if ( $change_password )
         {
-            $update['user_password'] = md5($in->get('new_user_password1'));
+            $update['user_password'] = User::Encrypt($in->get('new_user_password1'));
         }
         
         $query = $db->build_query('UPDATE', $update);

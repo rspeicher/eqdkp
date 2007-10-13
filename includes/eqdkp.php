@@ -1263,7 +1263,7 @@ class Form_Validate
         $value1 = $this->_get_value($field1);
         $value2 = $this->_get_value($field2);
 
-        if ( md5($value1) != md5($value2) )
+        if ( User::Encrypt($value1) != User::Encrypt($value2) )
         {
             $this->errors[$field1] = $message;
             return false;

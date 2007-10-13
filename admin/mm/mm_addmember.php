@@ -27,27 +27,22 @@ class MM_Addmember extends EQdkp_Admin
 
     function mm_addmember()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $SID;
 
         parent::eqdkp_admin();
 
-        $defaults = array(
-            'member_earned'     => '0.00',
-            'member_spent'      => '0.00',
-            'member_adjustment' => '0.00');
-
         $this->member = array(
             'member_id'         => 0,
-            'member_name'       => post_or_db('member_name'),
-            'member_earned'     => post_or_db('member_earned', $defaults),
-            'member_spent'      => post_or_db('member_spent', $defaults),
-            'member_adjustment' => post_or_db('member_adjustment', $defaults),
-            'member_current'    => '0.00',
-            'member_race_id'    => post_or_db('member_race_id'),
-            'member_class_id'   => post_or_db('member_class_id'),
-            'member_level'      => post_or_db('member_level'),
-            'member_rank_id'    => post_or_db('member_rank_id')
+            'member_name'       => $in->get('member_name'),
+            'member_earned'     => $in->get('member_earned', 0.00),
+            'member_spent'      => $in->get('member_spent', 0.00),
+            'member_adjustment' => $in->get('member_adjustment', 0.00),
+            'member_current'    => 0.00,
+            'member_race_id'    => $in->get('member_race_id', 0),
+            'member_class_id'   => $in->get('member_class_id', 0),
+            'member_level'      => $in->get('member_level', 0), // TODO: Default level?
+            'member_rank_id'    => $in->get('member_rank_id', 0)
         );
 
         // Vars used to confirm deletion
@@ -60,7 +55,7 @@ class MM_Addmember extends EQdkp_Admin
                 foreach ( $_POST['compare_ids'] as $id )
                 {
                     // FIXME: Injection
-                    $member_name = $db->query_first("SELECT member_name FROM __members WHERE `member_id` = '{$id}'");
+                    $member_name = $db->query_first("SELECT member_name FROM __members WHERE (`member_id` = '{$id}')");
                     $member_names[] = $member_name;
                 }
 
@@ -78,27 +73,31 @@ class MM_Addmember extends EQdkp_Admin
             'confirm_text'  => $confirm_text,
             'uri_parameter' => URI_NAME,
             'url_id'        => ( sizeof($member_names) > 0 ) ? $names : (( isset($_GET[URI_NAME]) ) ? $_GET[URI_NAME] : ''),
-            'script_name'   => 'manage_members.php' . $SID . '&amp;mode=addmember')
-        );
+            'script_name'   => 'manage_members.php' . $SID . '&amp;mode=addmember'
+        ));
 
         $this->assoc_buttons(array(
             'add' => array(
                 'name'    => 'add',
                 'process' => 'process_add',
-                'check'   => 'a_members_man'),
+                'check'   => 'a_members_man'
+            ),
             'update' => array(
                 'name'    => 'update',
                 'process' => 'process_update',
-                'check'   => 'a_members_man'),
+                'check'   => 'a_members_man'
+            ),
             'delete' => array(
                 'name'    => 'delete',
                 'process' => 'process_delete',
-                'check'   => 'a_members_man'),
+                'check'   => 'a_members_man'
+            ),
             'form' => array(
                 'name'    => '',
                 'process' => 'display_form',
-                'check'   => 'a_members_man'))
-        );
+                'check'   => 'a_members_man'
+            )
+        ));
 
         // Build the member array
         // ---------------------------------------------------------
@@ -107,35 +106,35 @@ class MM_Addmember extends EQdkp_Admin
             $sql = "SELECT m.*, (m.member_earned - m.member_spent + m.member_adjustment) AS member_current, 
                         c.class_name AS member_class, r.race_name AS member_race
                     FROM __members AS m, __classes AS c, __races AS r  
-                    WHERE r.`race_id` = m.`member_race_id` 
-                    AND c.`class_id` = m.`member_class_id`
-                    AND m.`member_name` = '{$this->url_id}'";
+                    WHERE (r.`race_id` = m.`member_race_id`)
+                    AND (c.`class_id` = m.`member_class_id`)
+                    AND (m.`member_name` = '" . $db->escape($this->url_id) . "')";
             $result = $db->query($sql);
             $row = $db->fetch_record($result);
             $db->free_result($result);
 
             $this->member = array(
                 'member_id'         => $row['member_id'],
-                'member_name'       => post_or_db('member_name', $row),
-                'member_earned'     => post_or_db('member_earned', $row),
-                'member_spent'      => post_or_db('member_spent', $row),
-                'member_adjustment' => post_or_db('member_adjustment', $row),
                 'member_current'    => $row['member_current'],
-                'member_race_id'    => post_or_db('member_race_id', $row),
                 'member_race'       => $row['member_race'],
-                'member_class_id'   => post_or_db('member_class_id', $row),
                 'member_class'      => $row['member_class'],
-                'member_level'      => post_or_db('member_level', $row),
-                'member_rank_id'    => post_or_db('member_rank_id', $row)
+                'member_name'       => $in->get('member_name', $row['member_name']),
+                'member_earned'     => $in->get('member_earned',     floatval($row['member_earned'])),
+                'member_spent'      => $in->get('member_spent',      floatval($row['member_spent'])),
+                'member_adjustment' => $in->get('member_adjustment', floatval($row['member_adjustment'])),
+                'member_race_id'    => $in->get('member_race_id',  intval($row['member_race_id'])),
+                'member_class_id'   => $in->get('member_class_id', intval($row['member_class_id'])),
+                'member_level'      => $in->get('member_level',    intval($row['member_level'])),
+                'member_rank_id'    => $in->get('member_rank_id',  intval($row['member_rank_id'])),
             );
         }
     }
 
     function error_check()
     {
-        global $user, $SID;
+        global $db, $user, $in, $SID;
 
-        if ( (isset($_POST['add'])) || (isset($_POST['update'])) )
+        if ( $in->get('add', false) || $in->get('update', false) )
         {
             $this->fv->is_filled('member_name', $user->lang['fv_required_name']);
             $this->fv->is_number(array(
@@ -143,6 +142,16 @@ class MM_Addmember extends EQdkp_Admin
                 'member_spent'      => $user->lang['fv_number'],
                 'member_adjustment' => $user->lang['fv_number'])
             );
+        }
+        
+        if ( $in->get('add', false) )
+        {
+            // Ensure username is unique
+            $sql = "SELECT member_id FROM __members WHERE (`member_name` = '" . $db->escape($in->get('member_name')) . "') LIMIT 1";
+            if ( $db->num_rows($db->query($sql)) == 1 )
+            {
+                $this->fv->errors['member_name'] = "Member already exists."; // TODO: Localize string
+            }
         }
 
         return $this->fv->is_error();
@@ -153,7 +162,7 @@ class MM_Addmember extends EQdkp_Admin
     // ---------------------------------------------------------
     function process_add()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $SID;
 
         //
@@ -161,26 +170,8 @@ class MM_Addmember extends EQdkp_Admin
         //
 
         // Make sure that each member's name is properly capitalized
-        $member_name = strtolower(preg_replace('/[[:space:]]/i', ' ', $_POST['member_name']));
+        $member_name = strtolower(preg_replace('/\s+/i', ' ', $in->get('member_name')));
         $member_name = ucwords($member_name);
-
-    // Check for existing member name
-    $sql = "SELECT member_id FROM __members WHERE `member_name` = '{$member_name}'";
-    $member_id = $db->query_first($sql);
-
-
-    // Error out if member name exists
-    if ( isset($member_id) && $member_id > 0 ) {
-
-          $failure_message = "Failed to add $member_name; member exists as ID $member_id";
-          $link_list = array(
-              $user->lang['add_member']           => 'manage_members.php' . $SID . '&amp;mode=addmember',
-              $user->lang['list_edit_del_member'] => 'manage_members.php' . $SID . '&amp;mode=list');
-
-          message_die($failure_message, $link_list);
-
-        }
-    
 
         $query = $db->build_query('INSERT', array(
             'member_name'       => $member_name,

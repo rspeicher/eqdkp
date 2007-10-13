@@ -68,7 +68,7 @@ class Add_Event extends EQdkp_Admin
         {
             $sql = "SELECT event_name, event_value
                     FROM __events
-                    WHERE (`event_id` = '{$this->url_id}')";
+                    WHERE (`event_id` = '" . $db->escape($this->url_id) . "')";
             $result = $db->query($sql);
             if ( !$row = $db->fetch_record($result) )
             {

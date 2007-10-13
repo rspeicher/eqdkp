@@ -131,6 +131,7 @@ if ( (defined('IN_ADMIN')) && (IN_ADMIN === true) )
 {
     if ( $user->check_auth('a_', false) )
     {
+        require_once($eqdkp_root_path . 'includes/functions_admin.php');
         if ( !$gen_simple_header )
         {
             include($eqdkp_root_path . 'admin/index.php');

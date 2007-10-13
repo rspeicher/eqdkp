@@ -188,39 +188,18 @@ switch ( $action )
             'FV_USER_RLIMIT'  => $fv->generate_error('user_rlimit')
         ));
 
-        // TODO: Building language drop-down. Consider revising method (also, perhaps move to functions.php?).
-        if ( $dir = @opendir($eqdkp_root_path . 'language/') )
+        foreach ( select_language($user->data['user_lang']) as $row )
         {
-            while ( $file = @readdir($dir) )
-            {
-                if ( (!is_file($eqdkp_root_path . 'language/' . $file)) && (!is_link($eqdkp_root_path . 'language/' . $file)) && ($file != '.') && ($file != '..') && ($file != 'CVS') & ($file != '.svn') )
-                {
-                    $tpl->assign_block_vars('lang_row', array(
-                        'VALUE'    => $file,
-                        'SELECTED' => option_selected($user->data['user_lang'] == $file),
-                        'OPTION'   => ucfirst($file)
-                    ));
-                }
-            }
+            $tpl->assign_block_vars('lang_row', $row);
         }
 
-        // TODO: Building style drop-down. Consider revising method (also, perhaps move to functions.php?).
-        $sql = "SELECT style_id, style_name
-                FROM __styles
-                ORDER BY `style_name`";
-        $result = $db->query($sql);
-        while ( $row = $db->fetch_record($result) )
+        foreach ( select_style($user->data['user_style']) as $row )
         {
-            $tpl->assign_block_vars('style_row', array(
-                'VALUE'    => $row['style_id'],
-                'SELECTED' => option_selected($user->data['user_style'] == $row['style_id']),
-                'OPTION'   => $row['style_name']
-            ));
+            $tpl->assign_block_vars('style_row', $row);
         }
-        $db->free_result($result);
         
         $eqdkp->set_vars(array(
-            'page_title'    => sprintf($user->lang['title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['settings_title'],
+            'page_title'    => page_title($user->lang['settings_title']),
             'template_file' => 'settings.html',
             'display'       => true
         ));
@@ -239,7 +218,7 @@ switch ( $action )
         );
         
         $plugins_menu = $pm->get_menus('settings');
-        if ( @sizeof($plugins_menu) > 0 )
+        if ( @count($plugins_menu) > 0 )
         {
             $settings_menu = array_merge($settings_menu, $plugins_menu);
         }
@@ -259,10 +238,10 @@ switch ( $action )
         }
         
         $eqdkp->set_vars(array(
-            'page_title'    => sprintf($user->lang['title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['settings_title'],
+            'page_title'    => page_title($user->lang['settings_title']),
             'template_file' => 'settings_menu.html',
-            'display'       => true)
-        );
+            'display'       => true
+        ));
         
         break;
 }

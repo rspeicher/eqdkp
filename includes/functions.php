@@ -16,7 +16,7 @@ if ( !defined('EQDKP_INC') )
      die('Do not access this file directly.');
 }
 
-function page_title($title)
+function page_title($title = '')
 {
     global $eqdkp, $user;
     
@@ -25,7 +25,10 @@ function page_title($title)
     $section = ( defined('IN_ADMIN') ) ? $user->lang['admin_title_prefix'] : $user->lang['title_prefix'];
     $global_title = sprintf($section, $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']);
     
-    return "{$title} - {$global_title}";
+    $retval = ( $title != '' ) ? "{$title} - " : '';
+    $retval .= $global_title;
+    
+    return $retval;
 }
 
 function option_checked($condition)
@@ -411,61 +414,10 @@ function redirect($url)
     exit;
 }
 
-// TODO: This method seems out of place here, and may be more comfortable in EQdkp_Admin
-/**
-* Outputs a message asking the user if they're sure they want to delete something
-*
-* @param $confirm_text Confirm message
-* @param $uri_parameter URI_RAID, URI_NAME, etc.
-* @param $parameter_value Value of the parameter
-* @param $action Form action
-*/
-function confirm_delete($confirm_text, $uri_parameter, $parameter_value, $action = '')
-{
-    global $db, $tpl, $eqdkp, $user, $pm;
-    global $gen_simple_header, $eqdkp_root_path;
-
-    if ( !defined('HEADER_INC') )
-    {
-        $eqdkp->set_vars(array(
-            'page_title' => sprintf($user->lang['admin_title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']),
-            'gen_simple_header' => $gen_simple_header,
-            'template_file' => 'admin/confirm_delete.html')
-        );
-        
-        $eqdkp->page_header();
-    }
-
-    $tpl->assign_vars(array(
-        'F_CONFIRM_DELETE_ACTION' => ( !empty($action) ) ? $action : $_SERVER['PHP_SELF'],
-
-        'URI_PARAMETER' => $uri_parameter,
-        'PARAMETER_VALUE' => $parameter_value,
-
-        'L_DELETE_CONFIRMATION' => $user->lang['delete_confirmation'],
-        'L_CONFIRM_TEXT' => $confirm_text,
-        'L_YES' => $user->lang['yes'],
-        'L_NO' => $user->lang['no'])
-    );
-
-    $eqdkp->page_tail();
-
-    exit;
-}
-
-/*
-function stripmultslashes($string)
-{
-    $string = preg_replace("#(\\\){1,}(\"|\&quot;)#", '"', $string);
-    $string = preg_replace("#(\\\){1,}(\'|\&\#039)#", "'", $string);
-    
-    return $string;
-}
-*/
-
 // TODO: To be replaced by sanitize() and unsanitize()
 function sanitize_tags($data)
 {
+    trigger_error("sanitize_tags is deprecated, use sanitize()", E_USER_NOTICE);
     if ( is_array($data) )
     {
         foreach ( $data as $k => $v )
@@ -485,6 +437,7 @@ function sanitize_tags($data)
 // TODO: To be replaced by sanitize() and unsanitize()
 function undo_sanitize_tags($data)
 {
+    trigger_error("undo_sanitize_tags is deprecated, use unsanitize()", E_USER_NOTICE);
     if ( is_array($data) )
     {
         foreach ( $data as $k => $v )
@@ -511,6 +464,7 @@ function undo_sanitize_tags($data)
 */
 function htmlspecialchars_array($data)
 {
+    trigger_error("htmlspecialchars_arary is deprecated", E_USER_NOTICE);
     if ( is_array($data) )
     {
         foreach ( $data as $k => $v )
@@ -525,6 +479,7 @@ function htmlspecialchars_array($data)
 // TODO: Remove this once we remove the few calls to it.
 function htmlspecialchars_remove($data)
 {
+    trigger_error("htmlspecialchars_remove is deprecated, use sanitize()", E_USER_NOTICE);
     $find    = array('#&amp;#', '#&quot;#', '#&\#039;#', '#&lt;#', '#&gt;#');
     $replace = array('&', '"', '\'', '<', '>');
     

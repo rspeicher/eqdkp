@@ -706,7 +706,7 @@ class EQdkp_Admin
         
         $this->script_name = ( strpos($this->script_name, '?' . URI_SESSION . '=') ) ? $this->script_name : $this->script_name . $SID;
         
-        confirm_delete($this->confirm_text, $this->uri_parameter, $this->url_id, $this->script_name);
+        $this->_confirmDelete($this->confirm_text, $this->uri_parameter, $this->url_id, $this->script_name);
     }
     
     function process_cancel()
@@ -947,6 +947,47 @@ class EQdkp_Admin
         $group_key = md5(uniqid($group_key));
         
         return $group_key;
+    }
+    
+    /**
+    * Outputs a message asking the user if they're sure they want to delete something
+    *
+    * @param $confirm_text Confirm message
+    * @param $uri_parameter URI_RAID, URI_NAME, etc.
+    * @param $parameter_value Value of the parameter
+    * @param $action Form action
+    */
+    function _confirmDelete($confirm_text, $uri_parameter, $parameter_value, $action = '')
+    {
+        global $eqdkp, $tpl, $user;
+        global $gen_simple_header;
+
+        if ( !defined('HEADER_INC') )
+        {
+            $eqdkp->set_vars(array(
+                'page_title'        => page_title(),
+                'gen_simple_header' => $gen_simple_header,
+                'template_file'     => 'admin/confirm_delete.html'
+            ));
+
+            $eqdkp->page_header();
+        }
+
+        $tpl->assign_vars(array(
+            'F_CONFIRM_DELETE_ACTION' => ( !empty($action) ) ? $action : $_SERVER['PHP_SELF'],
+
+            'URI_PARAMETER'   => $uri_parameter,
+            'PARAMETER_VALUE' => $parameter_value,
+
+            'L_DELETE_CONFIRMATION' => $user->lang['delete_confirmation'],
+            'L_CONFIRM_TEXT'        => $confirm_text,
+            'L_YES'                 => $user->lang['yes'],
+            'L_NO'                  => $user->lang['no']
+        ));
+
+        $eqdkp->page_tail();
+
+        exit;
     }
 }
 

@@ -20,6 +20,12 @@ if ( !defined('EQDKP_INC') )
 // Template helpers
 // -----------------------------------------
 
+/**
+ * Keep a consistent page title across the entire application
+ *
+ * @param string $title The dynamic part of the page title, appears before " - Guild Name DKP"
+ * @return string
+ */
 function page_title($title = '')
 {
     global $eqdkp, $user;
@@ -35,6 +41,12 @@ function page_title($title = '')
     return $retval;
 }
 
+/**
+ * Returns ' selected="selected"' for use in <option> tags if $condition is true
+ *
+ * @param boolean $condition 
+ * @return string
+ */
 function option_checked($condition)
 {
     if ( $condition )
@@ -45,6 +57,12 @@ function option_checked($condition)
     return '';
 }
 
+/**
+ * Returns ' checked="checked"' for use in checkbox/radio <input> tags if $condition is true
+ *
+ * @param boolean $condition 
+ * @return string
+ */
 function option_selected($condition)
 {
     if ( $condition )
@@ -55,6 +73,12 @@ function option_selected($condition)
     return '';
 }
 
+/**
+ * Returns an array of valid Style ID options for use in populating a <select> tag
+ *
+ * @param mixed $comparison Used with {@link option_selected} to determine the selected row in the drop-down
+ * @return array
+ */
 function select_style($comparison)
 {
     global $db, $eqdkp;
@@ -78,6 +102,12 @@ function select_style($comparison)
     return $retval;
 }
 
+/**
+ * Returns an array of valid template folder names for use in populating a <select> tag
+ *
+ * @param mixed $comparison Used with {@link option_selected} to determine the selected row in the drop-down
+ * @return array
+ */
 function select_template($comparison)
 {
     global $eqdkp;
@@ -101,6 +131,12 @@ function select_template($comparison)
     return $retval;
 }
 
+/**
+ * Returns an array of valid language folders for use in populating a <select> tag
+ *
+ * @param mixed $comparison Used with {@link option_selected} to determine the selected row in the drop-down
+ * @return array
+ */
 function select_language($comparison)
 {
     global $eqdkp;
@@ -124,6 +160,12 @@ function select_language($comparison)
     return $retval;
 }
 
+/**
+ * Determines if a folder path is valid. Ignores .svn, CVS, cache, etc.
+ *
+ * @param string $path Path to check
+ * @return boolean
+ */
 function valid_folder($path)
 {
     $ignore = array('.', '..', '.svn', 'CVS', 'cache', 'install');
@@ -137,7 +179,13 @@ function valid_folder($path)
 }
 
 /**
- * Translate qoute characters to their HTML entities, and strip HTML tags.
+ * Translate qoute characters to their HTML entities, and strip HTML tags. Calls
+ * stripslashes() if magic quotes are enabled.
+ * 
+ * @param string $input Input to sanitize
+ * @param boolean $ent Translate HTML entities?
+ * @param boolean $tags Strip all HTML tags?
+ * @return string
  */
 function sanitize($input, $ent = true, $tags = true)
 {
@@ -148,6 +196,12 @@ function sanitize($input, $ent = true, $tags = true)
     return $input;
 }
 
+/**
+ * Reverse the effects of htmlspecialchars()
+ *
+ * @param string $input Input to reverse
+ * @return string
+ */
 function unsanitize($input)
 {
     //return htmlspecialchars_decode($input, ENT_QUOTES); // PHP >= 5.1.0
@@ -163,7 +217,7 @@ function unsanitize($input)
 }
 
 /**
- * Create a bar graph
+ * Create a CSS bar graph
  * 
  * @param int $width Width of the bar
  * @param string $text Text to show
@@ -277,8 +331,7 @@ function message_die($text = '', $title = '', $file = '', $line = '', $sql = '')
 }
 
 /**
- * Returns the appropriate CSS class to use based on
- * a number's range
+ * Returns the appropriate CSS class to use based on a number's range
  *
  * @param string $item The number
  * @param boolean $percentage Treat the number like a percentage?
@@ -339,8 +392,8 @@ function color_item($item, $percentage = false)
  * Also contains checks to make sure the first element is not larger than the
  * sort_order array and that the second selement is either 0 or 1
  *
- * @param $sort_order Sorting order array
- * @return array SQL/URI information
+ * @param array $sort_order Sorting order array
+ * @return array
  */
 function switch_order($sort_order)
 {

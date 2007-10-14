@@ -26,10 +26,27 @@ Installation
     - Need to use the Input class, so include that.
     
 Languages
-    - Re-write the language files in a new format for ease of writing and readability.
     - Remove the excess crap from the language files if there is any
     - Add language file calls to scripts which need it (ie: install.php, and any other files which
       may have hard-coded, language-specific text and messages)
+
+    x Re-write the language files in a new format for ease of writing and readability.
+    - Language format update:
+      - OLD: $lang['key'] = 'value';
+      - NEW: $lang = array_merge($lang,array( 
+                 'key' => 'value, 
+             ));
+      
+      - REGEX: 
+        (\s+)\$lang\[(.*?)\](\s+)\=(\s+)(.*?)\;
+      - REPLACE:
+        $1$2$3=>$4$5,
+        
+      - REGEX (Spaces to tabs):
+        (?:((?:    ){1})+?)((?: ){1,3})*
+        REPLACE:
+        \t\t
+        Note: regex matches each occurence of four spaces and the remainder, so the idea is to replace each match with one tab.
     
 /login.php
     - re-write the whole thing. In particular it probably makes more sense to have an

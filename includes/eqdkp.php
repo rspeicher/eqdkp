@@ -777,22 +777,27 @@ class EQdkp_Admin
         {
             // NOTE: We can't use Input::get's default argument here because the parameter won't always be an integer
             // This is the one spot so far where auto-discovering the variable type works against us.
-            $integers = array(URI_ADJUSTMENT, URI_EVENT, URI_ITEM, URI_LOG, URI_NEWS, URI_RAID);
-            
-            if ( in_array($this->uri_parameter, $integers) )
-            {
-                $this->url_id = $in->get($this->uri_parameter, 0);
-            }
-            elseif ( $this->uri_parameter == URI_ORDER )
-            {
-                $this->url_id = $in->get($this->uri_parameter, 0.0);
-            }
-            else
-            {
-                // FIXME: Any pages that use a string-based uri parameter need to SQL_DB::escape this when using it for queries
-                // Anything with members, maybe users
-                $this->url_id = $in->get($this->uri_parameter, '');
-            }
+			switch( $this->uri_parameter )
+			{
+				case URI_ADJUSTMENT:
+				case URI_EVENT:
+				case URI_ITEM:
+				case URI_LOG:
+				case URI_NEWS:
+				case URI_RAID:
+					$this->url_id = $in->get($this->uri_parameter, 0);
+				break;
+				
+				case URI_ORDER:
+					$this->url_id = $in->get($this->uri_parameter, 0.0);
+				break;
+				
+				default:
+					// FIXME: Any pages that use a string-based uri parameter need to SQL_DB::escape this when using it for queries
+					// Anything with members, maybe users
+					$this->url_id = $in->get($this->uri_parameter, '');
+				break;					
+			}
         }
         
         return true;

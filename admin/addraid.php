@@ -170,6 +170,7 @@ class Add_Raid extends EQdkp_Admin
                 'raid_value'    => $raid_value,
                 'raid_added_by' => $this->admin_user
             ));
+            // echo "INSERT INTO __raids {$query}<br />";
             $db->query("INSERT INTO __raids {$query}");
             $this_raid_id = $db->insert_id();
             // $this_raid_id = rand(0, 999);
@@ -829,21 +830,48 @@ class Add_Raid extends EQdkp_Admin
         {
             // Set the bare-minimum values for a new member
             $row = array(
-                'member_name'   => $attendee,
+                'member_name'      => $attendee,
+                'member_firstraid' => 0,
+                'member_lastraid'  => 0,
+                'member_raidcount' => 0
             );
             
             if ( isset($att_data[$attendee]) )
             {
+                // Data exists - Update member's values
+                
+                // Inject our saved data into our row that gets updated
                 $row = array_merge($row, $att_data[$attendee]);
-                $row['member_earned'] = floatval($row['member_earned'] + $raid_value;
+                
+                // Some of our values need to be updated, so do that!
+                $row['member_earned']    = floatval($row['member_earned']) + $raid_value;
+                $row['member_firstraid'] = ( $row['member_firstraid'] > 0 ) ? min($row['member_firstraid'], $this->time) : $this->time;
+                $row['member_lastraid']  = max($row['member_lastraid'], $this->time);
+                $row['member_raidcount'] = intval($row['member_raidcount']) + 1;
+                
+                $query = $db->build_query('UPDATE', $row);
+                $sql = "UPDATE __members SET {$query} WHERE (`member_name` = '" . $db->escape($attendee) . "')";
+                $db->query($sql);
+            }
+            else
+            {
+                // No data exists - Insert member
+                $row['member_earned']    = $raid_value;
+                $row['member_firstraid'] = $this->time;
+                $row['member_lastraid']  = $this->time;
+                $row['member_raidcount'] = 1;
+                
+                $query = $db->build_query('INSERT', $row);
+                $sql = "INSERT INTO __members {$query}";
+                $db->query($sql);
             }
             
-            // Give each attendee the value of the raid
-            // Note that this will insert a member if they didn't previously exist
-            $sql = "REPLACE INTO __members (member_name, member_earned, member_raidcount)
-                    VALUES ('" . $db->escape($attendee) . "', `member_earned` + {$raid_value}, `member_raidcount` + 1)";
+            // NOTE: Disabling the REPLACE method for now since it increments member_id each time, and that could get ridiculous
+            // Replace or insert the member - remember that earned, first and last raid, and raid count get updated above
+            // $query = $db->build_query('INSERT', $row);
+            // $sql = "REPLACE INTO __members {$query}";
             // echo "{$sql}<br />\n";
-            $db->query($sql);
+            // $db->query($sql);
             
             // Add each attendee to the attendees table for this raid
             $sql = "REPLACE INTO __raid_attendees (raid_id, member_name)
@@ -853,24 +881,6 @@ class Add_Raid extends EQdkp_Admin
             
             // SESSION-based Race/Class/Level shit goes here, since it's per-member
         }
-        
-        $raid_time = $db->escape($this->time);
-        
-        // Update any attendees who have a firstraid greater than this one (meaning this raid is older)
-        $sql = "UPDATE __members 
-                SET `member_firstraid` = '{$raid_time}'
-                WHERE (`member_firstraid` > '{$raid_time}' OR `member_firstraid` = '0')
-                AND (`member_name` IN ('" . $db->escape("','", $att_array) . "'))";
-        // echo "{$sql}<br />\n";
-        $db->query($sql);
-        
-        // Update any attendees who have a lastraid less than this one (meaning this raid is newer)
-        $sql = "UPDATE __members 
-                SET `member_lastraid` = '{$raid_time}'
-                WHERE (`member_lastraid` < '{$raid_time}' OR `member_lastraid` = '0')
-                AND (`member_name` IN ('" . $db->escape("','", $att_array) . "'))";
-        // echo "{$sql}<br />\n";
-        $db->query($sql);
         
         // ---------------------------------------------------------------------
         // OLD METHOD ----------------------------------------------------------

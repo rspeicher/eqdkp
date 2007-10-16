@@ -358,12 +358,6 @@ class Upgrade
         ALTER TABLE __raid_attendees DROP INDEX `member_name`;
         -- Before next query is run, we might need to remove possible duplicates, so it doesn't error out
         ALTER TABLE __raid_attendees ADD UNIQUE `raid_member` ( `raid_id` , `member_name` );
-        
-        -- Change __members to make the member_name the primary key
-        ALTER TABLE `__members` ADD UNIQUE (`member_id`)
-        ALTER TABLE `__members` DROP INDEX `member_name` 
-        ALTER TABLE `__members` DROP PRIMARY KEY 
-        ALTER TABLE `__members` ADD PRIMARY KEY (`member_name`)
         */
     }
 

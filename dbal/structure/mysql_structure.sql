@@ -50,7 +50,7 @@ CREATE TABLE `eqdkp_auth_users` (
   `user_id` smallint(5) unsigned NOT NULL,
   `auth_id` smallint(3) unsigned NOT NULL,
   `auth_setting` ENUM('N','Y') NOT NULL default 'N',
-  UNIQUE KEY user_auth (user_id,auth_id)
+  UNIQUE KEY `user_auth` (`user_id`,`auth_id`)
 )TYPE=InnoDB;
 
 DROP TABLE IF EXISTS eqdkp_sessions;
@@ -198,8 +198,7 @@ DROP TABLE IF EXISTS eqdkp_raid_attendees;
 CREATE TABLE `eqdkp_raid_attendees` (
   `raid_id` mediumint(8) unsigned NOT NULL,
   `member_name` varchar(30) NOT NULL,
-  KEY `raid_id` (`raid_id`),
-  KEY `member_name` (`member_name`)
+  UNIQUE KEY `raid_member` (`raid_id`,`member_name`)
 )TYPE=InnoDB;
 
 # --------------------------------------------------------

@@ -349,9 +349,15 @@ class Upgrade
         While we decided, these are just queries that need to be run - this method won't actually run them (yet).
         
         -- These are necessary because we changed to a REPLACE INTO syntax
-        ALTER TABLE __auth_users DROP INDEX user_id;
-        ALTER TABLE __auth_users DROP INDEX auth_id;
-        ALTER TABLE __auth_users ADD UNIQUE `user_auth` ( `user_id` , `auth_id` ); -- Before this is run, we might need to remove possible duplicates, so it doesn't error out
+        ALTER TABLE __auth_users DROP INDEX `user_id`;
+        ALTER TABLE __auth_users DROP INDEX `auth_id`;
+        -- Before next query is run, we might need to remove possible duplicates, so it doesn't error out
+        ALTER TABLE __auth_users ADD UNIQUE `user_auth` ( `user_id` , `auth_id` );
+        
+        ALTER TABLE __raid_attendees DROP INDEX `raid_id`;
+        ALTER TABLE __raid_attendees DROP INDEX `member_name`;
+        -- Before next query is run, we might need to remove possible duplicates, so it doesn't error out
+        ALTER TABLE __raid_attendees ADD UNIQUE `raid_member` ( `raid_id` , `member_name` );
         */
     }
 

@@ -112,6 +112,25 @@ class Input
         return $retval;
     }
     
+    /**
+     * Checks if $key exists as an input value.
+     *
+     * @param string $key Input key
+     * @return boolean
+     */
+    function exists($key)
+    {
+        $retval = false;
+        
+        $value = $this->_get($key);
+        if ( !is_null($value) )
+        {
+            $retval = true;
+        }
+        
+        return $retval;
+    }
+    
     // ----------------------------------------------------
     // Data type methods
     // ----------------------------------------------------
@@ -126,12 +145,7 @@ class Input
      */
     function boolean($key, $default = 'ignored')
     {
-        if ( isset($_GET[$key]) || isset($_POST[$key]) )
-        {
-            return true;
-        }
-        
-        return false;
+        return $this->exists($key);
     }
     
     /**
@@ -340,9 +354,11 @@ class Input
      */
     function _recurseClean($array, $type, $max_depth, $cur_depth = 0)
     {
+        $cleaner = '_clean' . ucwords(strtolower($type));
+        
         if ( !is_array($array) )
         {
-            return $array;
+            return $this->$cleaner($array);
         }
         
         if ( $cur_depth >= $max_depth )
@@ -350,7 +366,6 @@ class Input
             return $array;
         }
         
-        $cleaner = '_clean' . ucwords(strtolower($type));
         foreach ( $array as $k => $v )
         {
             if ( is_array($v) )

@@ -49,12 +49,7 @@ function page_title($title = '')
  */
 function option_checked($condition)
 {
-    if ( $condition )
-    {
-        return ' checked="checked"';
-    }
-    
-    return '';
+    return ( $condition ) ? ' checked="checked"' : '';
 }
 
 /**
@@ -65,12 +60,7 @@ function option_checked($condition)
  */
 function option_selected($condition)
 {
-    if ( $condition )
-    {
-        return ' selected="selected"';
-    }
-    
-    return '';
+    return ( $condition ) ? ' selected="selected"' : '';
 }
 
 /**

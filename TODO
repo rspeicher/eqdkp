@@ -123,3 +123,4 @@ Game Management
   and make API calls to update a raid, add attendees to it, etc.
 - Update to PHP5 along with the above two changes?
 - Update our templating engine. Smarty? Sugar-PHP if we go PHP5?
+- Start implementing Chris' interface changes.

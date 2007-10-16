@@ -256,7 +256,7 @@ if ( $in->get(URI_NAME) != '' )
     foreach ( $raid_counts as $event => $data )
     {
         $tpl->assign_block_vars('event_row', array(
-            'EVENT'        => stripslashes($event),
+            'EVENT'        => sanitize($event),
             'U_VIEW_EVENT' => 'viewevent.php' . $SID . '&' . URI_EVENT . '=' . $event_ids[$event],
             'BAR'          => create_bar($data['percent'], $data['count'] . ' (' . $data['percent'] . '%)')
         ));

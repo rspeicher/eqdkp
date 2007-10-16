@@ -391,7 +391,7 @@ class SQL_DB
     * Remove quote escape
     * 
     * @param $string    The string to escape, or the implode() delimiter if $array is set
-    * @param $array     An array to pass to implode(), escaping its values
+    * @param $array     An array to pass to _implode(), escaping its values
     * @return string
     */
     function escape($string, $array = null)

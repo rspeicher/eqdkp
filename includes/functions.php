@@ -168,19 +168,26 @@ function valid_folder($path)
     return false;
 }
 
+define('ENT', 1); // Escape HTML entities
+define('TAG', 2); // Strip HTML tags
+
 /**
  * Translate qoute characters to their HTML entities, and strip HTML tags. Calls
  * stripslashes() if magic quotes are enabled.
  * 
  * @param string $input Input to sanitize
- * @param boolean $ent Translate HTML entities?
- * @param boolean $tags Strip all HTML tags?
+ * @param int $options ENT | TAG
  * @return string
  */
-function sanitize($input, $ent = true, $tags = true)
+function sanitize($input, $options = 3, $ignore = null)
 {
-    $input = ( $tags ) ? strip_tags($input) : $input;
-    $input = ( $ent )  ? htmlspecialchars($input, ENT_QUOTES) : $input;
+    if ( !is_null($ignore) )
+    {
+        trigger_error('Third parameter to sanitize is deprecated!', E_USER_WARNING);
+    }
+    
+    $input = ( $options & TAG ) ? strip_tags($input) : $input;
+    $input = ( $options & ENT )  ? htmlspecialchars($input, ENT_QUOTES) : $input;
     $input = ( get_magic_quotes_gpc() ) ? stripslashes($input) : $input;
     
     return $input;

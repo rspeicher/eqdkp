@@ -45,8 +45,8 @@ while ( $row = $db->fetch_record($raids_result) )
         'ROW_CLASS'   => $eqdkp->switch_row_class(),
         'DATE'        => ( !empty($row['raid_date']) ) ? date($user->style['date_notime_short'], $row['raid_date']) : '&nbsp;',
         'U_VIEW_RAID' => 'viewraid.php'.$SID.'&amp;' . URI_RAID . '='.$row['raid_id'],
-        'NAME'        => ( !empty($row['raid_name']) ) ? stripslashes($row['raid_name']) : '&lt;<i>Not Found</i>&gt;',
-        'NOTE'        => ( !empty($row['raid_note']) ) ? stripslashes($row['raid_note']) : '&nbsp;',
+        'NAME'        => ( !empty($row['raid_name']) ) ? sanitize($row['raid_name']) : '&lt;<i>Not Found</i>&gt;',
+        'NOTE'        => ( !empty($row['raid_note']) ) ? sanitize($row['raid_note']) : '&nbsp;',
         'VALUE'       => $row['raid_value']
     ));
 }

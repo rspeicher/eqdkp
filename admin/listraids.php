@@ -43,13 +43,13 @@ if ( !($raids_result = $db->query($sql)) )
 while ( $row = $db->fetch_record($raids_result) )
 {
     $tpl->assign_block_vars('raids_row', array(
-        'ROW_CLASS' => $eqdkp->switch_row_class(),
-        'DATE' => ( !empty($row['raid_date']) ) ? date($user->style['date_notime_short'], $row['raid_date']) : '&nbsp;',
+        'ROW_CLASS'   => $eqdkp->switch_row_class(),
+        'DATE'        => ( !empty($row['raid_date']) ) ? date($user->style['date_notime_short'], $row['raid_date']) : '&nbsp;',
         'U_VIEW_RAID' => 'addraid.php'.$SID.'&amp;' . URI_RAID . '='.$row['raid_id'],
-        'NAME' => stripslashes($row['raid_name']),
-        'NOTE' => ( !empty($row['raid_note']) ) ? stripslashes($row['raid_note']) : '&nbsp;',
-        'VALUE' => $row['raid_value'])
-    );
+        'NAME'        => sanitize($row['raid_name']),
+        'NOTE'        => ( !empty($row['raid_note']) ) ? sanitize($row['raid_note']) : '&nbsp;',
+        'VALUE'       => $row['raid_value']
+    ));
 }
 
 $tpl->assign_vars(array(

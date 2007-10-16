@@ -474,7 +474,7 @@ class EQdkp
 
         // Non-passive keywords
         $red_keywords = array('/(INSERT INTO)/','/(UPDATE\s+)/','/(DELETE FROM\s+)/', '/(CREATE TABLE)/', '/(IF (NOT)? EXISTS)/', 
-                              '/(ALTER TABLE)/', '/(CHANGE)/');
+                              '/(ALTER TABLE)/', '/(CHANGE)/', '/(REPLACE INTO)/');
         $red_replace = array_fill(0, sizeof($red_keywords), '<span class="negative">\\1</span>');
         $sql = preg_replace($red_keywords, $red_replace, $sql);
 

@@ -493,25 +493,7 @@ class Add_Raid extends EQdkp_Admin
         $db->query("DELETE FROM __raids WHERE (`raid_id` = '{$this->url_id}')");
         
         // Update firstraid / lastraid / raidcount
-        $sql = "SELECT m.member_name, MIN(r.raid_date) AS firstraid, 
-                    MAX(r.raid_date) AS lastraid, COUNT(r.raid_id) AS raidcount
-                FROM __members AS m
-                LEFT JOIN __raid_attendees AS ra ON m.member_name = ra.member_name
-                LEFT JOIN eqdkp_raids AS r on ra.raid_id = r.raid_id
-                WHERE (m.`member_name` IN ('" . $db->escape("','", $raid_attendees) . "'))
-                GROUP BY m.member_name";
-        $result = $db->query($sql);
-        while ( $row = $db->fetch_record($result) )
-        {
-            $update = $db->build_query('UPDATE', array(
-                'member_firstraid' => $row['firstraid'],
-                'member_lastraid'  => $row['lastraid'],
-                'member_raidcount' => $row['raidcount']
-            ));
-            
-            $db->query("UPDATE __members SET {$update} WHERE (`member_name` = '{$row['member_name']}')");
-        }
-        $db->free_result($result);
+        $this->update_member_cache($raid_attendees);
         
         // Call plugin delete hooks
         $pm->do_hooks('/admin/addraid.php?action=delete');
@@ -991,6 +973,43 @@ class Add_Raid extends EQdkp_Admin
                 WHERE `member_raidcount` = 0";
         $db->query($sql);
         */
+    }
+    
+    /**
+     * Recalculates and updates the first and last raids and raid counts for each
+     * member in $att_array
+     *
+     * @param string $att_array Array of raid attendees
+     * @return void
+     */
+    function update_member_cache($att_array)
+    {
+        global $db;
+        
+        if ( !is_array($att_array) || count($att_array) == 0 )
+        {
+            return;
+        }
+        
+        $sql = "SELECT m.member_name, MIN(r.raid_date) AS firstraid, 
+                    MAX(r.raid_date) AS lastraid, COUNT(r.raid_id) AS raidcount
+                FROM __members AS m
+                LEFT JOIN __raid_attendees AS ra ON m.member_name = ra.member_name
+                LEFT JOIN eqdkp_raids AS r on ra.raid_id = r.raid_id
+                WHERE (m.`member_name` IN ('" . $db->escape("','", $att_array) . "'))
+                GROUP BY m.member_name";
+        $result = $db->query($sql);
+        while ( $row = $db->fetch_record($result) )
+        {
+            $update = $db->build_query('UPDATE', array(
+                'member_firstraid' => $row['firstraid'],
+                'member_lastraid'  => $row['lastraid'],
+                'member_raidcount' => $row['raidcount']
+            ));
+            
+            $db->query("UPDATE __members SET {$update} WHERE (`member_name` = '{$row['member_name']}')");
+        }
+        $db->free_result($result);
     }
     
     /**

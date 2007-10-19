@@ -242,6 +242,13 @@ class SQL_DB
         {
             foreach ( $array as $field => $value )
             {
+                // Hack to prevent assigning $array directly from a fetch_record call
+                // injecting number-based indices into the built query
+                if ( is_numeric($field) )
+                {
+                    continue;
+                }
+                
                 if ( is_null($value) )
                 {
                     $values[] = "$field = NULL";

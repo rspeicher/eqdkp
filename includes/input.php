@@ -103,7 +103,7 @@ class Input
             $input  = $this->_get($key, $retval);
             $retval = $this->_recurseClean($input, $type, $max_depth);
             
-            if ( $this->_caching )
+            if ( $this->_caching && count($retval) > 0 )
             {
                 $this->_cache[$key] = $retval;
             }

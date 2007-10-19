@@ -282,9 +282,6 @@ class Add_Raid extends EQdkp_Admin
         ));
         $db->query("UPDATE __raids SET {$query} WHERE (`raid_id` = '{$this->url_id}')");
         
-        // Attendee handling
-        $raid_attendees = $this->prepare_attendees();
-        
         // Replaces attendee entries in __raid_attendees; adds/updates Member entries as necessary
         $this->process_attendees($raid_attendees, $this->url_id, $raid_value);
         

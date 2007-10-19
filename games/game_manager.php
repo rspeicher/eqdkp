@@ -12,6 +12,35 @@ class Game_Manager
     var $armor_types = array();
     var $classes     = array();
     var $races       = array();
+    
+    /**
+     * Returns a Game_Manager class instance for a specific game
+     *
+     * @param string $game Game
+     * @return Game_Manager
+     * @static
+     */
+    function factory($game)
+    {
+        $game = str_replace(' ', '', $game);
+        
+        $file = basedir(__FILE__) . 'gm_' . strtolower($game);
+        $class = 'GM_' . ucfirst(strtolower($game));
+        
+        $retval = null;
+        
+        if ( file_exists($file) )
+        {
+            include_once($fie);
+            $retval = new $class;
+        }
+        else
+        {
+            trigger_error("Game_Manager class file <b>{$file}</b> doesn't exist.", E_USER_WARNING);
+        }
+        
+        return $retval;
+    }
 
     function getArmorTypes()
     {

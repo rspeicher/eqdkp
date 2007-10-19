@@ -861,7 +861,9 @@ class EQdkp_Admin
         {
             $return_var = 2;
         }
-    
+        
+        // FIXME: The span tags are removed by sanitize() called by make_log_action()
+        // Do we just mark this as an acceptable sacrifice for the improvement of safety?
         if ( (is_array($value1)) && (is_array($value2)) )
         {
             foreach ( $value1 as $k => $v )

@@ -126,12 +126,13 @@ class SQL_DB
     }
     
     /**
-    * Basic query function
-    * 
-    * @param $query Query string
-    * @return mixed Query ID / Error string / Bool
-    */
-    function query($query)
+     * Basic query function
+     * 
+     * @param string $query Query string
+     * @param array $params If present, replce :params in $query with the value of {@link build_query}
+     * @return mixed Query ID / Error string / Bool
+     */
+    function query($query, $params = null)
     {
         global $table_prefix;
         
@@ -140,11 +141,19 @@ class SQL_DB
         
         $query = preg_replace('#__([^\s]+)#', $table_prefix . '\1', $query);
         
+        if ( is_array($params) && count($params) > 0 )
+        {
+            $params = $this->build_query(preg_replace('/^(INSERT|UPDATE).+/', '\1', $query), $params);
+            
+            $query = str_replace(':params', $params, $query);
+        }
+        
         if ( $query != '' )
         {
             $this->query_count++;
             $this->query_id = @mysql_query($query, $this->link_id);
         }
+        
         if ( !empty($this->query_id) )
         {
             if ( DEBUG == 2 )

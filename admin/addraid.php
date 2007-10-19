@@ -85,7 +85,7 @@ class Add_Raid extends EQdkp_Admin
                 'raid_note'  => $in->get('raid_note', $row['raid_note']),
                 'raid_value' => $in->get('raid_value', floatval($row['raid_value']))
             );
-        
+            
             $attendees = $in->get('raid_attendees');
             if ( empty($attendees) )
             {
@@ -100,7 +100,7 @@ class Add_Raid extends EQdkp_Admin
                     $attendees[] = $row['member_name'];
                 }
             }
-            $this->raid['raid_attendees'] = $attendees;
+            $this->raid['raid_attendees'] = ( is_array($attendees) ) ? implode("\n", $attendees) : $attendees;
             unset($attendees);
         }
     }
@@ -493,11 +493,12 @@ class Add_Raid extends EQdkp_Admin
         $db->query("DELETE FROM __raids WHERE (`raid_id` = '{$this->url_id}')");
         
         // Update firstraid / lastraid / raidcount
-        $sql = "SELECT m.member_name, MIN(r.raid_date) AS firstraid, MAX(r.raid_date) AS lastraid, COUNT(r.raid_id) AS raidcount
+        $sql = "SELECT m.member_name, MIN(r.raid_date) AS firstraid, 
+                    MAX(r.raid_date) AS lastraid, COUNT(r.raid_id) AS raidcount
                 FROM __members AS m
                 LEFT JOIN __raid_attendees AS ra ON m.member_name = ra.member_name
                 LEFT JOIN eqdkp_raids AS r on ra.raid_id = r.raid_id
-                WHERE (`m.member_name` IN ('" . $db->escape("','", $raid_attendees) . "'))
+                WHERE (m.`member_name` IN ('" . $db->escape("','", $raid_attendees) . "'))
                 GROUP BY m.member_name";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
@@ -508,7 +509,7 @@ class Add_Raid extends EQdkp_Admin
                 'member_raidcount' => $row['raidcount']
             ));
             
-            $db->query("UPDATE __members SET {$query} WHERE (`member_name` = '{$row['member_name']}')");
+            $db->query("UPDATE __members SET {$update} WHERE (`member_name` = '{$row['member_name']}')");
         }
         $db->free_result($result);
         
@@ -540,7 +541,7 @@ class Add_Raid extends EQdkp_Admin
         if ( $eqdkp->config['hide_inactive'] == 1 )
         {
             $success_message .= '<br /><br />' . $user->lang['admin_raid_success_hideinactive'];
-            $this->update_player_status();
+            $this->update_member_status();
             $success_message .= ' ' . strtolower($user->lang['done']);
         }
         
@@ -1233,7 +1234,7 @@ class Add_Raid extends EQdkp_Admin
             'S_EVENT_MULTIPLE' => ( !$this->url_id ) ? true : false,
             
             // Form values
-            'RAID_ATTENDEES' => str_replace(',', "\n", $this->raid['raid_attendees']),
+            'RAID_ATTENDEES' => $this->raid['raid_attendees'],
             'RAID_VALUE'     => ( is_numeric($raid_value) ) ? number_format(floatval($raid_value), 2) : '',
             'RAID_NOTE'      => sanitize($this->raid['raid_note'], ENT),
             'MO'             => date('m', $this->time),

@@ -176,7 +176,7 @@ $lang = array_merge($lang, array(
     'admin_update_item_success'           => "The item purchase entry for %1\$s, purchased by %2\$s for %3\$.2f has been updated in the database for your guild.",
     'admin_update_member_success'         => "Membership settings for %1\$s have been updated.",
     'admin_update_news_success'           => 'The news entry has been updated in the database for your guild.',
-    'admin_update_raid_success'           => "The %1\$d/%2\$d/%3\$d raid on %4\$s has been updated in the database for your guild.",
+    'admin_update_raid_success'           => "The %1\$s raid on %2\$s has been updated in the database for your guild.",
     'admin_update_style_success'          => 'The style has been updated successfully.',
     
     'admin_raid_success_hideinactive'     => 'Updating active/inactive player status...',

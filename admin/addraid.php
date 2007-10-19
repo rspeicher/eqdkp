@@ -179,6 +179,9 @@ class Add_Raid extends EQdkp_Admin
             // Adds attendees to __raid_attendees; adds/updates Member entries as necessary
             $this->process_attendees($raid_attendees, $this_raid_id, $raid_value);
             
+            // Update firstraid / lastraid / raidcount
+            $this->update_member_cache($raid_attendees);
+            
             // Call plugin add hooks
             $pm->do_hooks('/admin/addraid.php?action=add');
             
@@ -721,10 +724,6 @@ class Add_Raid extends EQdkp_Admin
     {
         global $db, $eqdkp, $user;
         
-        /**********************************************************************
-
-        **********************************************************************/
-        
         $raid_id    = intval($raid_id);
         $raid_value = floatval($raid_value);
         
@@ -745,12 +744,14 @@ class Add_Raid extends EQdkp_Admin
         
         foreach ( $att_array as $attendee )
         {
+            // Add each attendee to the attendees table for this raid
+            $sql = "REPLACE INTO __raid_attendees (raid_id, member_name)
+                    VALUES ('{$raid_id}', '" . $db->escape($attendee) . "')";
+            $db->query($sql);
+            
             // Set the bare-minimum values for a new member
             $row = array(
-                'member_name'      => $attendee,
-                'member_firstraid' => 0,
-                'member_lastraid'  => 0,
-                'member_raidcount' => 0
+                'member_name' => $attendee,
             );
             
             if ( isset($att_data[$attendee]) )
@@ -761,10 +762,7 @@ class Add_Raid extends EQdkp_Admin
                 $row = array_merge($row, $att_data[$attendee]);
                 
                 // Some of our values need to be updated, so do that!
-                $row['member_earned']    = floatval($row['member_earned']) + $raid_value;
-                $row['member_firstraid'] = ( $row['member_firstraid'] > 0 ) ? min($row['member_firstraid'], $this->time) : $this->time;
-                $row['member_lastraid']  = max($row['member_lastraid'], $this->time);
-                $row['member_raidcount'] = intval($row['member_raidcount']) + 1;
+                $row['member_earned'] = floatval($row['member_earned']) + $raid_value;
                 
                 $query = $db->build_query('UPDATE', $row);
                 $sql = "UPDATE __members SET {$query} WHERE (`member_name` = '" . $db->escape($attendee) . "')";
@@ -773,23 +771,14 @@ class Add_Raid extends EQdkp_Admin
             else
             {
                 // No data exists - Insert member
-                $row['member_earned']    = $raid_value;
-                $row['member_firstraid'] = $this->time;
-                $row['member_lastraid']  = $this->time;
-                $row['member_raidcount'] = 1;
+                $row['member_earned'] = $raid_value;
                 
                 $query = $db->build_query('INSERT', $row);
                 $sql = "INSERT INTO __members {$query}";
                 $db->query($sql);
             }
             
-            // Add each attendee to the attendees table for this raid
-            $sql = "REPLACE INTO __raid_attendees (raid_id, member_name)
-                    VALUES ('{$raid_id}', '" . $db->escape($attendee) . "')";
-            // echo "{$sql}<br />\n";
-            $db->query($sql);
-            
-            // SESSION-based Race/Class/Level shit goes here, since it's per-member
+            // TODO: SESSION-based Race/Class/Level shit goes here (or likely above, since it will vary with insert/update), since it's per-member
         }
         
         // ---------------------------------------------------------------------
@@ -1013,7 +1002,9 @@ class Add_Raid extends EQdkp_Admin
     }
     
     /**
-     * Update active/inactive player status
+     * Update active/inactive player status, inserting adjustments if necessary
+     * 
+     * @return void
      */
     function update_member_status()
     {

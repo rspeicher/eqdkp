@@ -117,10 +117,10 @@ if ( $in->get(URI_RAID, 0) )
             'ROW_CLASS'    => $eqdkp->switch_row_class(),
             'BUYER'        => $item['item_buyer'],
             'U_VIEW_BUYER' => 'viewmember.php' . $SID . '&amp;' . URI_NAME . '='.$item['item_buyer'],
-            'NAME'         => stripslashes($item['item_name']),
+            'NAME'         => sanitize($item['item_name']),
             'U_VIEW_ITEM'  => 'viewitem.php' . $SID . '&amp;' . URI_ITEM . '='.$item['item_id'],
-            'VALUE'        => $item['item_value'])
-        );
+            'VALUE'        => number_format($item['item_value'], 2)
+        ));
     }
 
     //

@@ -265,7 +265,7 @@ if ( $in->get(URI_NAME) != '' )
 
     $tpl->assign_vars(array(
         'GUILDTAG' => $eqdkp->config['guildtag'],
-        'NAME'     => $member['member_name'],
+        'NAME'     => sanitize($member['member_name']),
 
         'L_EARNED'                        => $user->lang['earned'],
         'L_SPENT'                         => $user->lang['spent'],

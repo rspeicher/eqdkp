@@ -235,13 +235,13 @@ else
             $tpl->assign_block_vars('members_row', array(
                 'ROW_CLASS'     => $eqdkp->switch_row_class(),
                 'ID'            => $row['member_id'],
-                //'COUNT'         => ($row[$previous_source] == $previous_data) ? '&nbsp;' : $member_count,
+                //'COUNT'       => ($row[$previous_source] == $previous_data) ? '&nbsp;' : $member_count,
                 'COUNT'         => $member_count,
-                'NAME'          => $row['rank_prefix'] . (( $row['member_status'] == '0' ) ? '<i>' . $row['member_name'] . '</i>' : $row['member_name']) . $row['rank_suffix'],
-                'RANK'          => ( !empty($row['rank_name']) ) ? (( $row['rank_hide'] == '1' ) ? '<i>' . '<a href="'.$u_rank_search.'">' . stripslashes($row['rank_name']) . '</a>' . '</i>'  : '<a href="'.$u_rank_search.'">' . stripslashes($row['rank_name']) . '</a>') : '&nbsp;',
+                'NAME'          => $row['rank_prefix'] . (( $row['member_status'] == '0' ) ? '<i>' . sanitize($row['member_name']) . '</i>' : sanitize($row['member_name'])) . $row['rank_suffix'],
+                'RANK'          => ( !empty($row['rank_name']) ) ? (( $row['rank_hide'] == '1' ) ? '<i>' . '<a href="'.$u_rank_search.'">' . stripslashes($row['rank_name']) . '</a>' . '</i>'  : '<a href="'.$u_rank_search.'">' . sanitize($row['rank_name']) . '</a>') : '&nbsp;',
                 'LEVEL'         => ( $row['member_level'] > 0 ) ? $row['member_level'] : '&nbsp;',
                 'CLASS'         => ( !empty($row['member_class']) ) ? $row['member_class'] : '&nbsp;',
-                'ARMOR'        => ( !empty($row['armor_type']) ) ? $row['armor_type'] : '&nbsp;',
+                'ARMOR'         => ( !empty($row['armor_type']) ) ? $row['armor_type'] : '&nbsp;',
                 'EARNED'        => $row['member_earned'],
                 'SPENT'         => $row['member_spent'],
                 'ADJUSTMENT'    => $row['member_adjustment'],
@@ -250,8 +250,8 @@ else
                 'C_ADJUSTMENT'  => color_item($row['member_adjustment']),
                 'C_CURRENT'     => color_item($row['member_current']),
                 'C_LASTRAID'    => 'neutral',
-                'U_VIEW_MEMBER' => 'viewmember.php' . $SID . '&amp;' . URI_NAME . '='.$row['member_name'])
-            );
+                'U_VIEW_MEMBER' => 'viewmember.php' . $SID . '&amp;' . URI_NAME . '=' . $row['member_name']
+            ));
             $u_rank_search = '';
             unset($last_loot);
             

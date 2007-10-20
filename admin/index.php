@@ -579,6 +579,7 @@ else
             0 => $user->lang['raids'],
             1 => array('link' => 'admin/addraid.php' . $SID,   'text' => $user->lang['add'],  'check' => 'a_raid_add'),
             2 => array('link' => 'admin/listraids.php' . $SID, 'text' => $user->lang['list'], 'check' => 'a_raid_'),
+            3 => array('link' => 'admin/parse_log.php' . $SID, 'text' => 'Parse Log (DEBUG)', 'check' => 'a_raid_'),
         ),
         'turnin' => array(
             0 => $user->lang['turn_ins'],

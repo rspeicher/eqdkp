@@ -172,7 +172,8 @@ if ( $in->get(URI_NAME) != '' )
     //
     $sql = "SELECT adjustment_value, adjustment_date, adjustment_reason, member_name
             FROM __adjustments
-            WHERE (`member_name` = '{$member['member_name']}' OR member_name IS NULL)
+            WHERE (`member_name` = '{$member['member_name']}')
+            OR (member_name IS NULL AND adjustment_date >= {$member['member_firstraid']})
             ORDER BY adjustment_date DESC";
     if ( !($adjustments_result = $db->query($sql)) )
     {

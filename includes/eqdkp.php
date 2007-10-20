@@ -221,9 +221,9 @@ class EQdkp
         $tpl->assign_vars(array(
             'ENCODING'        => $user->lang['ENCODING'],
             'XML_LANG'        => $user->lang['XML_LANG'],
-            'PAGE_TITLE'      => $this->page_title,
-            'MAIN_TITLE'      => $this->config['main_title'],
-            'SUB_TITLE'       => $this->config['sub_title'],
+            'PAGE_TITLE'      => sanitize($this->page_title, TAG),
+            'MAIN_TITLE'      => sanitize($this->config['main_title']),
+            'SUB_TITLE'       => sanitize($this->config['sub_title']),
             'EQDKP_ROOT_PATH' => $this->root_path,
             'TEMPLATE_PATH'   => $this->root_path . 'templates/' . $user->style['template_path'])
         );
@@ -281,8 +281,8 @@ class EQdkp
             'T_INPUT_BORDER_COLOR' => $user->style['input_border_color'],
             'T_INPUT_BORDER_STYLE' => $user->style['input_border_style'],
 
-            'EXTRA_CSS' => $this->extra_css)
-        );
+            'EXTRA_CSS' => $this->extra_css
+        ));
         
         //
         // Menus
@@ -405,8 +405,8 @@ class EQdkp
             $tpl->assign_vars(array(
                 'S_NORMAL_FOOTER' => true,
                 'L_POWERED_BY' => $user->lang['powered_by'],
-                'EQDKP_VERSION' => EQDKP_VERSION)
-            );
+                'EQDKP_VERSION' => EQDKP_VERSION
+            ));
         
             if ( DEBUG )
             {
@@ -420,8 +420,8 @@ class EQdkp
                     'S_SHOW_DEBUG' => true,
                     'S_SHOW_QUERIES' => $s_show_queries,
                     'EQDKP_RENDERTIME' => substr($this->timer_end - $this->timer_start, 0, 5),
-                    'EQDKP_QUERYCOUNT' => $db->query_count)
-                );
+                    'EQDKP_QUERYCOUNT' => $db->query_count
+                ));
                 
                 if ( $s_show_queries )
                 {
@@ -429,8 +429,8 @@ class EQdkp
                     {
                         $tpl->assign_block_vars('query_row', array(
                             'ROW_CLASS' => $this->switch_row_class(),
-                            'QUERY' => $this->sql_highlight($query))
-                        );
+                            'QUERY' => $this->sql_highlight($query)
+                        ));
                     }
                 }
             }
@@ -438,15 +438,15 @@ class EQdkp
             {
                 $tpl->assign_vars(array(
                     'S_SHOW_DEBUG' => false,
-                    'S_SHOW_QUERIES' => false)
-                );
+                    'S_SHOW_QUERIES' => false
+                ));
             }
         }
         else
         {
             $tpl->assign_vars(array(
-                'S_NORMAL_FOOTER' => false)
-            );
+                'S_NORMAL_FOOTER' => false
+            ));
         }
         
         // Close our DB connection.

@@ -36,7 +36,7 @@ if ( $in->get(URI_PAGE, 'values') == 'values' )
     
     $u_list_items = 'listitems.php'.$SID.'&amp;';
     
-    $page_title = sprintf($user->lang['title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['listitems_title'];   
+    $page_title = page_title($user->lang['listitems_title']);
     
     $total_items = $db->num_rows($db->query("SELECT item_id FROM __items GROUP BY item_name"));
     $start = $in->get('start', 0);
@@ -44,7 +44,7 @@ if ( $in->get(URI_PAGE, 'values') == 'values' )
     // We don't care about history; ignore making the items unique
     $s_history = false;
 
-    $sql = "SELECT i.item_id, i.item_name, i.item_buyer, i.item_date, i.raid_id, min(i.item_value) AS item_value, r.raid_name
+    $sql = "SELECT i.item_id, i.item_name, i.item_buyer, i.item_date, i.raid_id, MIN(i.item_value) AS item_value, r.raid_name
             FROM __items AS i, __raids AS r
             WHERE (i.raid_id = r.raid_id)
             GROUP BY `item_name`
@@ -74,7 +74,7 @@ elseif ( $in->get(URI_PAGE) == 'history' )
 
     $u_list_items = 'listitems.php'.$SID.'&amp;' . URI_PAGE . '=history&amp;';
     
-    $page_title = sprintf($user->lang['title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']).': '.$user->lang['listpurchased_title'];
+    $page_title = page_title($user->lang['listpurchased_title']);
     
     $total_items = $db->query_first("SELECT count(*) FROM __items");
     $start = $in->get('start', 0);
@@ -102,42 +102,42 @@ if ( !($items_result = $db->query($sql)) )
 while ( $item = $db->fetch_record($items_result) )
 {
     $tpl->assign_block_vars('items_row', array(
-        'ROW_CLASS' => $eqdkp->switch_row_class(),
-        'DATE' => ( !empty($item['item_date']) ) ? date($user->style['date_notime_short'], $item['item_date']) : '&nbsp;',
-        'BUYER' => ( !empty($item['item_buyer']) ) ? $item['item_buyer'] : '&lt;<i>Not Found</i>&gt;',
+        'ROW_CLASS'    => $eqdkp->switch_row_class(),
+        'DATE'         => ( !empty($item['item_date']) ) ? date($user->style['date_notime_short'], $item['item_date']) : '&nbsp;',
+        'BUYER'        => ( !empty($item['item_buyer']) ) ? sanitize($item['item_buyer']) : '&lt;<i>Not Found</i>&gt;',
         'U_VIEW_BUYER' => 'viewmember.php'.$SID.'&amp;' . URI_NAME . '='.$item['item_buyer'],
-        'NAME' => stripslashes($item['item_name']),
-        'U_VIEW_ITEM' => 'viewitem.php'.$SID.'&amp;' . URI_ITEM . '='.$item['item_id'],
-        'RAID' => ( !empty($item['raid_name']) ) ? stripslashes($item['raid_name']) : '&lt;<i>Not Found</i>&gt;',
-        'U_VIEW_RAID' => 'viewraid.php'.$SID.'&amp;' . URI_RAID . '='.$item['raid_id'],
-        'VALUE' => $item['item_value'])
-    );
+        'NAME'         => sanitize($item['item_name']),
+        'U_VIEW_ITEM'  => 'viewitem.php'.$SID.'&amp;' . URI_ITEM . '='.$item['item_id'],
+        'RAID'         => ( !empty($item['raid_name']) ) ? sanitize($item['raid_name']) : '&lt;<i>Not Found</i>&gt;',
+        'U_VIEW_RAID'  => 'viewraid.php'.$SID.'&amp;' . URI_RAID . '='.$item['raid_id'],
+        'VALUE'        => floatval($item['item_value'])
+    ));
 }
 $db->free_result($items_result);
 
 $tpl->assign_vars(array(
-    'L_DATE' => $user->lang['date'],
+    'L_DATE'  => $user->lang['date'],
     'L_BUYER' => $user->lang['buyer'],
-    'L_ITEM' => $user->lang['item'],
-    'L_RAID' => $user->lang['raid'],
+    'L_ITEM'  => $user->lang['item'],
+    'L_RAID'  => $user->lang['raid'],
     'L_VALUE' => $user->lang['value'],
     
-    'O_DATE' => $current_order['uri'][0],
+    'O_DATE'  => $current_order['uri'][0],
     'O_BUYER' => $current_order['uri'][1],
-    'O_NAME' => $current_order['uri'][2],
-    'O_RAID' => $current_order['uri'][3],
+    'O_NAME'  => $current_order['uri'][2],
+    'O_RAID'  => $current_order['uri'][3],
     'O_VALUE' => $current_order['uri'][4],
     
     'U_LIST_ITEMS' => $u_list_items,
     
-    'START' => $start,
-    'S_HISTORY' => $s_history,
+    'START'               => $start,
+    'S_HISTORY'           => $s_history,
     'LISTITEMS_FOOTCOUNT' => $listitems_footcount,
-    'ITEM_PAGINATION' => $pagination)
-);
+    'ITEM_PAGINATION'     => $pagination
+));
 
 $eqdkp->set_vars(array(
     'page_title'    => $page_title,
     'template_file' => 'listitems.html',
-    'display'       => true)
-);
+    'display'       => true
+));

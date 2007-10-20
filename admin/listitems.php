@@ -50,13 +50,13 @@ while ( $item = $db->fetch_record($items_result) )
     $tpl->assign_block_vars('items_row', array(
         'ROW_CLASS'    => $eqdkp->switch_row_class(),
         'DATE'         => ( !empty($item['item_date']) ) ? date($user->style['date_notime_short'], $item['item_date']) : '&nbsp;',
-        'BUYER'        => ( !empty($item['item_buyer']) ) ? $item['item_buyer'] : '&lt;<i>Not Found</i>&gt;',
+        'BUYER'        => ( !empty($item['item_buyer']) ) ? sanitize($item['item_buyer']) : '&lt;<i>Not Found</i>&gt;',
         'U_VIEW_BUYER' => ( !empty($item['item_buyer']) ) ? '../viewmember.php'.$SID.'&amp;' . URI_NAME . '='.$item['item_buyer'] : '',
-        'NAME'         => stripslashes($item['item_name']),
+        'NAME'         => sanitize($item['item_name']),
         'U_VIEW_ITEM'  => 'additem.php'.$SID.'&amp;' . URI_ITEM . '='.$item['item_id'],
-        'RAID'         => ( !empty($item['raid_name']) ) ? stripslashes($item['raid_name']) : '&lt;<i>Not Found</i>&gt;',
+        'RAID'         => ( !empty($item['raid_name']) ) ? sanitize($item['raid_name']) : '&lt;<i>Not Found</i>&gt;',
         'U_VIEW_RAID'  => ( !empty($item['raid_name']) ) ? 'addraid.php'.$SID.'&amp;' . URI_RAID . '='.$item['raid_id'] : '',
-        'VALUE'        => $item['item_value']
+        'VALUE'        => floatval($item['item_value'])
     ));
 }
 $db->free_result($items_result);

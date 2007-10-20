@@ -156,10 +156,10 @@ if ( $in->get(URI_NAME) != '' )
             'DATE'          => ( !empty($item['item_date']) ) ? date($user->style['date_notime_short'], $item['item_date']) : '&nbsp;',
             'U_VIEW_ITEM'   => 'viewitem.php'.$SID.'&amp;' . URI_ITEM . '=' . $item['item_id'],
             'U_VIEW_RAID'   => 'viewraid.php'.$SID.'&amp;' . URI_RAID . '=' . $item['raid_id'],
-            'NAME'          => stripslashes($item['item_name']),
+            'NAME'          => sanitize($item['item_name']),
             'RAID'          => ( !empty($item['raid_name']) ) ? sanitize($item['raid_name']) : '&lt;<i>Not Found</i>&gt;',
-            'SPENT'         => $item['item_value'],
-            'CURRENT_SPENT' => sprintf("%.2f", $current_spent)
+            'SPENT'         => number_format($item['item_value'], 2),
+            'CURRENT_SPENT' => number_format($current_spent, 2)
         ));
         $current_spent -= $item['item_value'];
     }
@@ -327,8 +327,8 @@ if ( $in->get(URI_NAME) != '' )
     $eqdkp->set_vars(array(
         'page_title'    => page_title(sprintf($user->lang['viewmember_title'], $member['member_name'])),
         'template_file' => 'viewmember.html',
-        'display'       => true)
-    );
+        'display'       => true
+    ));
 }
 else
 {
@@ -338,6 +338,10 @@ else
 function raid_count($start_date, $end_date, $member_name)
 {
     global $db;
+    
+    $member_name = $db->escape($member_name);
+    $start_date  = intval($start_date);
+    $end_date    = intval($end_date);
 
     $raid_count = $db->query_first("SELECT count(*) FROM __raids WHERE (raid_date BETWEEN {$start_date} AND {$end_date})");
 

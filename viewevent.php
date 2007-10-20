@@ -58,7 +58,7 @@ if ( $in->get(URI_EVENT, 0) )
     // Find the raids for this event
     $sql = "SELECT raid_id, raid_date, raid_note, raid_value 
             FROM __raids
-            WHERE (`raid_name` = '" . addslashes($event['event_name']) . "')
+            WHERE (`raid_name` = '" . $db->escape($event['event_name']) . "')
             ORDER BY {$current_order['sql']}";
     $result = $db->query($sql);
     
@@ -122,9 +122,9 @@ if ( $in->get(URI_EVENT, 0) )
             'DATE'        => ( !empty($raid['raid_id']) ) ? date($user->style['date_notime_short'], $raid['raid_date']) : '&nbsp;',
             'ATTENDEES'   => $attendees_count,
             'DROPS'       => $drop_count,
-            'NOTE'        => ( !empty($raid['raid_note']) ) ? stripslashes($raid['raid_note']) : '&nbsp;',
-            'VALUE'       => $raid['raid_value'])
-        );
+            'NOTE'        => ( !empty($raid['raid_note']) ) ? sanitize($raid['raid_note']) : '&nbsp;',
+            'VALUE'       => $raid['raid_value']
+        ));
         
         // Add the values of this row to our totals
         $total_drop_count += $drop_count;
@@ -150,18 +150,18 @@ if ( $in->get(URI_EVENT, 0) )
             'ROW_CLASS'     => $eqdkp->switch_row_class(),
             'DATE'          => date($user->style['date_notime_short'], $row['item_date']),
             'U_VIEW_RAID'   => 'viewraid.php' . $SID . '&amp;' . URI_RAID . '=' . $row['raid_id'],
-            'BUYER'         => stripslashes($row['item_buyer']),
+            'BUYER'         => sanitize($row['item_buyer']),
             'U_VIEW_MEMBER' => 'viewmember.php' . $SID . '&amp;' . URI_NAME . '=' . $row['item_buyer'],
-            'NAME'          => stripslashes($row['item_name']),
+            'NAME'          => sanitize($row['item_name']),
             'U_VIEW_ITEM'   => 'viewitem.php' . $SID . '&amp;' . URI_ITEM . '=' . $row['item_id'],
-            'SPENT'         => sprintf("%.2f", $row['item_value']))
-        );
+            'SPENT'         => number_format($row['item_value'], 2)
+        ));
     }
     $total_items = $db->num_rows($result);
     $db->free_result($result);
     
     $tpl->assign_vars(array(
-        'L_RECORDED_RAID_HISTORY' => sprintf($user->lang['recorded_raid_history'], stripslashes($event['event_name'])),
+        'L_RECORDED_RAID_HISTORY' => sprintf($user->lang['recorded_raid_history'], sanitize($event['event_name'])),
         'L_ADDED_BY'              => $user->lang['added_by'],
         'L_UPDATED_BY'            => $user->lang['updated_by'],
         'L_DATE'                  => $user->lang['date'],
@@ -187,7 +187,7 @@ if ( $in->get(URI_EVENT, 0) )
         'ROW_CLASS'           => $eqdkp->switch_row_class(),
         'AVERAGE_ATTENDEES'   => $average_attendees,
         'AVERAGE_DROPS'       => $average_drops,
-        'TOTAL_EARNED'        => sprintf("%.2f", $total_earned),
+        'TOTAL_EARNED'        => number_format($total_earned, 2),
         'VIEWEVENT_FOOTCOUNT' => sprintf($user->lang['viewevent_footcount'], $total_raid_count),
         'ITEM_FOOTCOUNT'      => sprintf($user->lang['viewitem_footcount'], $total_items, $total_items))
     );
@@ -195,8 +195,8 @@ if ( $in->get(URI_EVENT, 0) )
     $eqdkp->set_vars(array(
         'page_title'    => page_title(sprintf($user->lang['viewevent_title'], stripslashes($event['event_name']))),
         'template_file' => 'viewevent.html',
-        'display'       => true)
-    );
+        'display'       => true
+    ));
 }
 else
 {

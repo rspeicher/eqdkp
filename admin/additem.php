@@ -174,7 +174,7 @@ class Add_Item extends EQdkp_Admin
         //
         // Success message
         //
-        $success_message = sprintf($user->lang['admin_add_item_success'], $this->item['item_name'], $item_buyers, sanitize($in->get('item_value', 0.00)));
+        $success_message = sprintf($user->lang['admin_add_item_success'], sanitize($this->item['item_name']), sanitize($item_buyers), sanitize($in->get('item_value', 0.00)));
         $link_list = array(
             $user->lang['add_item']   => 'additem.php' . $SID,
             $user->lang['list_items'] => 'listitems.php' . $SID);
@@ -234,7 +234,7 @@ class Add_Item extends EQdkp_Admin
         //
         // Success message
         //
-        $success_message = sprintf($user->lang['admin_update_item_success'], $this->old_item['item_name'], implode(', ', $this->old_item['item_buyers']), $this->old_item['item_value']);
+        $success_message = sprintf($user->lang['admin_update_item_success'], sanitize($this->old_item['item_name']), sanitize(implode(', ', $this->old_item['item_buyers'])), sanitize($this->old_item['item_value']));
         $link_list = array(
             $user->lang['add_item']   => 'additem.php' . $SID,
             $user->lang['list_items'] => 'listitems.php' . $SID);
@@ -272,7 +272,7 @@ class Add_Item extends EQdkp_Admin
         //
         // Success message
         //
-        $success_message = sprintf($user->lang['admin_delete_item_success'], $this->old_item['item_name'], $item_buyers, $this->old_item['item_value']);
+        $success_message = sprintf($user->lang['admin_delete_item_success'], sanitize($this->old_item['item_name']), sanitize($item_buyers), sanitize($this->old_item['item_value']));
         $link_list = array(
             $user->lang['add_item']   => 'additem.php' . $SID,
             $user->lang['list_items'] => 'listitems.php' . $SID);

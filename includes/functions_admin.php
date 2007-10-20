@@ -1,4 +1,8 @@
 <?php
+if ( !defined('EQDKP_INC') )
+{
+     die('Do not access this file directly.');
+}
 
 function generate_permission_boxes()
 {

@@ -505,67 +505,81 @@ class Add_Raid extends EQdkp_Admin
     function get_member_info($member_name)
     {
         global $db, $eqdkp;
+        
+        // The code below is too stupid to be trusted with using any data it may return
+        return array();
 
         // FIXME: Injections
-        // FIXME: 1.3 mess
-        if ($_SESSION[$member_name]['class'] == "") {
+        if ($_SESSION[$member_name]['class'] == "")
+        {
             unset($_SESSION[$member_name]['class']);
         }
 
-        if ($_SESSION[$member_name]['level'] == "") {
+        if ($_SESSION[$member_name]['level'] == "")
+        {
             unset($_SESSION[$member_name]['level']);
         }
 
-        if ($_SESSION[$member_name]['race'] == "") {
+        if ($_SESSION[$member_name]['race'] == "") 
+        {
             unset($_SESSION[$member_name]['race']);
         }
 
-        if ( isset($_SESSION[$member_name]['level']) && isset($_SESSION[$member_name]['class']) ) {
-
+        if ( isset($_SESSION[$member_name]['level']) && isset($_SESSION[$member_name]['class']) )
+        {
+            // Why are we looking it up when it's set?
             $sql = "SELECT race_name FROM __races WHERE `race_name` = '" . $_SESSION[$member_name]['race'] . "'";
             $race_name = $db->query_first($sql);
 
-            if (!isset($race_name)) {
+            if (!isset($race_name))
+            {
                 $race_name = "Unknown";
             }
 
-                $retval = array(
+            $retval = array(
                 'name'  => $_SESSION[$member_name],
-                        'level' => ( isset($_SESSION[$member_name]['level']) ) ? $_SESSION[$member_name]['level'] : false,
-                        'race'  => $race_name,
-                        'class' => ( isset($_SESSION[$member_name]['class']) ) ? $_SESSION[$member_name]['class'] : false);
-
-                    unset($_SESSION[$member_name]);
-        } else {
+                'level' => ( isset($_SESSION[$member_name]['level']) ) ? $_SESSION[$member_name]['level'] : false,
+                'race'  => $race_name,
+                'class' => ( isset($_SESSION[$member_name]['class']) ) ? $_SESSION[$member_name]['class'] : false
+            );
+            unset($_SESSION[$member_name]);
+        }
+        else 
+        {
+            // Why don't we just lookup everything here instead of using the pointless block above?
             $sql = "SELECT member_name, member_race_id, member_class_id, member_level 
                     FROM __members
                     WHERE `member_name` = '{$member_name}'";
             $result = $db->query($sql);
             $info = $db->fetch_record($result);
 
-            if (!isset($info['member_level'])) {
+            if (!isset($info['member_level'])) 
+            {
                 $member_level = "1";
             }
 
             $sql = "SELECT race_name FROM __races WHERE `race_id` = '{$info['member_race_id']}'";
             $race_name = $db->query_first($sql);
 
-            if (!isset($race_name)) {
+            if (!isset($race_name))
+            {
                 $race_name = "Unknown";
             }
     
             $sql = "SELECT class_name FROM __classes WHERE `class_id` = '{$info['member_class_id']}'";
             $class_name = $db->query_first($sql);
 
-            if (!isset($class_name)) {
+            if (!isset($class_name))
+            {
                 $class_name = "Unknown";
             }
 
-                   $retval = array(
-                    'name'  => $member_name,
-                           'race'  => $race_name,
-                           'level' => $member_level,
-                           'class' => $class_name);
+            $retval = array(
+                'name'  => $member_name,
+                'race'  => $race_name,
+                'level' => $member_level,
+                'class' => $class_name
+            );
         }
 
         return $retval;

@@ -118,8 +118,8 @@ function pop_preview()
     <td width="40%" class="row2">{permissions_row.GROUP}:</td>
     <td width="60%" class="row1" nowrap="nowrap">
       <!-- BEGIN check_group -->
-      <input type="checkbox" name="{permissions_row.check_group.CBNAME}" value="Y"{permissions_row.check_group.CBCHECKED} />
-      <span class="small">{permissions_row.check_group.TEXT}</span>
+      <input type="checkbox" name="{permissions_row.check_group.CBNAME}" id="{permissions_row.check_group.CBNAME}" value="Y"{permissions_row.check_group.CBCHECKED} />
+      <label for="{permissions_row.check_group.CBNAME}" class="small">{permissions_row.check_group.TEXT}</label>
       <!-- END check_group -->
     </td>
   </tr>

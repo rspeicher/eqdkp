@@ -469,8 +469,8 @@ class MM_Addmember extends EQdkp_Admin
             'F_ADD_MEMBER' => 'manage_members.php' . $SID . '&amp;mode=addmember',
 
             // Form values
-            'MEMBER_NAME'           => $this->member['member_name'],
-            'V_MEMBER_NAME'         => ( $in->get('add', false) ) ? '' : $this->member['member_name'],
+            'MEMBER_NAME'           => sanitize($this->member['member_name'], ENT),
+            'V_MEMBER_NAME'         => ( $in->get('add', false) ) ? '' : sanitize($this->member['member_name'], ENT),
             'MEMBER_ID'             => $this->member['member_id'],
             'MEMBER_EARNED'         => $this->member['member_earned'],
             'MEMBER_SPENT'          => $this->member['member_spent'],

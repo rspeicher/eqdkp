@@ -1086,7 +1086,7 @@ class Add_Raid extends EQdkp_Admin
         while ( $row = $db->fetch_record($result) )
         {
             $tpl->assign_block_vars('members_row', array(
-                'VALUE'  => $row['member_name'],
+                'VALUE'  => sanitize($row['member_name'], ENT),
                 'OPTION' => $row['member_name'])
             );
         }

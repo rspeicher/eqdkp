@@ -370,7 +370,7 @@ class Add_IndivAdj extends EQdkp_Admin
             }
             
             $tpl->assign_block_vars('members_row', array(
-                'VALUE'    => $row['member_name'],
+                'VALUE'    => sanitize($row['member_name'], ENT),
                 'SELECTED' => $selected,
                 'OPTION'   => $row['member_name']
             ));

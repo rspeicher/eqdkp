@@ -82,7 +82,6 @@ class MM_Transfer extends EQdkp_Admin
         // ie, They can select what (raid, item, adjustment) they want to transfer
         // and maybe even select specific raids/items/adjustments - not now though
         
-        // FIXME: Injection
         $member_from = $db->escape($in->get('transfer_from'));
         $member_to   = $db->escape($in->get('transfer_to'));
         
@@ -213,13 +212,13 @@ class MM_Transfer extends EQdkp_Admin
         while ( $row = $db->fetch_record($result) )
         {
             $tpl->assign_block_vars('transfer_from_row', array(
-                'VALUE'    => $row['member_name'],
+                'VALUE'    => sanitize($row['member_name'], ENT),
                 'SELECTED' => option_selected($this->transfer['from'] == $row['member_name']),
                 'OPTION'   => $row['member_name'])
             );
             
             $tpl->assign_block_vars('transfer_to_row', array(
-                'VALUE'    => $row['member_name'],
+                'VALUE'    => sanitize($row['member_name'], ENT),
                 'SELECTED' => option_selected($this->transfer['to'] == $row['member_name']),
                 'OPTION'   => $row['member_name'])
             );

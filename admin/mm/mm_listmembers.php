@@ -63,8 +63,8 @@ while ( $row = $db->fetch_record($members_result) )
         'ROW_CLASS'     => $eqdkp->switch_row_class(),
         'ID'            => $row['member_id'],
         'COUNT'         => ($row[$previous_source] == $previous_data) ? '&nbsp;' : $member_count,
-        'NAME'          => $row['rank_prefix'] . $row['member_name'] . $row['rank_suffix'],
-        'RANK'          => stripslashes($row['rank_name']),
+        'NAME'          => $row['rank_prefix'] . sanitize($row['member_name']) . $row['rank_suffix'],
+        'RANK'          => sanitize($row['rank_name']),
         'LEVEL'         => ( $row['member_level'] > 0 ) ? $row['member_level'] : '&nbsp;',
         'ARMOR'         => ( !empty($row['armor_type']) ) ? $row['armor_type'] : '&nbsp;',
         'CLASS'         => ( $row['member_class'] != 'NULL' ) ? $row['member_class'] : '&nbsp;',
@@ -76,8 +76,8 @@ while ( $row = $db->fetch_record($members_result) )
         'C_ADJUSTMENT'  => color_item($row['member_adjustment']),
         'C_CURRENT'     => color_item($row['member_current']),
         'C_LASTRAID'    => 'neutral',
-        'U_VIEW_MEMBER' => 'manage_members.php'.$SID . '&amp;mode=addmember&amp;' . URI_NAME . '='.$row['member_name'])
-    );
+        'U_VIEW_MEMBER' => 'manage_members.php'.$SID . '&amp;mode=addmember&amp;' . URI_NAME . '=' . urlencode($row['member_name'])
+    ));
     
     // So that we can compare this member to the next member,
     // set the value of the previous data to the source
@@ -88,40 +88,40 @@ $footcount_text = sprintf($user->lang['listmembers_footcount'], $db->num_rows($m
 $tpl->assign_vars(array(
     'F_MEMBERS' => 'manage_members.php' . $SID . '&amp;mode=addmember',
     
-    'L_NAME' => $user->lang['name'],
-    'L_RANK' => $user->lang['rank'],
-    'L_LEVEL' => $user->lang['level'],
-    'L_CLASS' => $user->lang['class'],
-    'L_EARNED' => $user->lang['earned'],
-    'L_SPENT' => $user->lang['spent'],
-    'L_ARMOR'         => $user->lang['armor'],
+    'L_NAME'       => $user->lang['name'],
+    'L_RANK'       => $user->lang['rank'],
+    'L_LEVEL'      => $user->lang['level'],
+    'L_CLASS'      => $user->lang['class'],
+    'L_EARNED'     => $user->lang['earned'],
+    'L_SPENT'      => $user->lang['spent'],
+    'L_ARMOR'      => $user->lang['armor'],
     'L_ADJUSTMENT' => $user->lang['adjustment'],
-    'L_CURRENT' => $user->lang['current'],
-    'L_LASTRAID' => $user->lang['lastraid'],
-    'BUTTON_NAME' => 'delete',
+    'L_CURRENT'    => $user->lang['current'],
+    'L_LASTRAID'   => $user->lang['lastraid'],
+    'BUTTON_NAME'  => 'delete',
     'BUTTON_VALUE' => $user->lang['delete_selected_members'],
     
-    'O_NAME' => $current_order['uri'][0],
-    'O_RANK' => $current_order['uri'][8],
-    'O_LEVEL' => $current_order['uri'][6],
-    'O_CLASS' => $current_order['uri'][7],
+    'O_NAME'       => $current_order['uri'][0],
+    'O_RANK'       => $current_order['uri'][8],
+    'O_LEVEL'      => $current_order['uri'][6],
+    'O_CLASS'      => $current_order['uri'][7],
     'O_ARMOR'      => $current_order['uri'][9],
-    'O_EARNED' => $current_order['uri'][1],
-    'O_SPENT' => $current_order['uri'][2],
+    'O_EARNED'     => $current_order['uri'][1],
+    'O_SPENT'      => $current_order['uri'][2],
     'O_ADJUSTMENT' => $current_order['uri'][3],
-    'O_CURRENT' => $current_order['uri'][4],
-    'O_LASTRAID' => $current_order['uri'][5],
+    'O_CURRENT'    => $current_order['uri'][4],
+    'O_LASTRAID'   => $current_order['uri'][5],
     
     'U_LIST_MEMBERS' => 'manage_members.php'.$SID.'&amp;mode=list&amp;',
     
     'S_COMPARE' => false,
-    'S_NOTMM' => false,
+    'S_NOTMM'   => false,
     
-    'LISTMEMBERS_FOOTCOUNT' => $footcount_text)
-);
+    'LISTMEMBERS_FOOTCOUNT' => $footcount_text
+));
 
 $eqdkp->set_vars(array(
     'page_title'    => page_title($user->lang['listmembers_title']),
     'template_file' => 'listmembers.html',
-    'display'       => true)
-);
+    'display'       => true
+));

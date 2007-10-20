@@ -407,14 +407,14 @@ class Add_Item extends EQdkp_Admin
         while ( $row = $db->fetch_record($result) )
         {
             $tpl->assign_block_vars('members_row', array(
-                'VALUE'  => $row['member_name'],
+                'VALUE'  => sanitize($row['member_name'], ENT),
                 'OPTION' => $row['member_name']
             ));
             
             if ( is_array($buyer_source) && in_array($row['member_name'], $buyer_source) )
             {
                 $tpl->assign_block_vars('buyers_row', array(
-                    'VALUE'  => $row['member_name'],
+                    'VALUE'  => sanitize($row['member_name'], ENT),
                     'OPTION' => $row['member_name']
                 ));
             }

@@ -215,13 +215,13 @@ class Add_Turnin extends EQdkp_Admin
         while ( $row = $db->fetch_record($result) )
         {
             $tpl->assign_block_vars('turnin_from_row', array(
-                'VALUE'    => $row['member_name'],
+                'VALUE'    => sanitize($row['member_name'], ENT),
                 'SELECTED' => option_selected($this->turnin['from'] == $row['member_name']),
                 'OPTION'   => sanitize($row['member_name'])
             ));
             
             $tpl->assign_block_vars('turnin_to_row', array(
-                'VALUE'    => $row['member_name'],
+                'VALUE'    => sanitize($row['member_name'], ENT),
                 'SELECTED' => option_selected($this->turnin['to'] == $row['member_name']),
                 'OPTION'   => sanitize($row['member_name'])
             ));

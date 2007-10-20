@@ -22,47 +22,54 @@ class Add_Turnin extends EQdkp_Admin
     
     function add_turnin()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $SID;
         
         parent::eqdkp_admin();
         
         $this->turnin = array(
-            'from' => post_or_db('turnin_from'),
-            'to'   => post_or_db('turnin_to')
+            'from' => $in->get('turnin_from'),
+            'to'   => $in->get('turnin_to')
         );
         
         $this->assoc_buttons(array(
             'add' => array(
                 'name'    => 'add',
                 'process' => 'process_add',
-                'check'   => 'a_turnin_add'),
+                'check'   => 'a_turnin_add'
+            ),
             'proceed' => array(
                 'name'    => 'proceed',
                 'process' => 'display_step2',
-                'check'   => 'a_turnin_add'),
+                'check'   => 'a_turnin_add'
+            ),
             'form' => array(
                 'name'    => '',
                 'process' => 'display_form',
-                'check'   => 'a_raid_'))
-        );
+                'check'   => 'a_turnin_add'
+            )
+        ));
     }
     
     function error_check()
     {
-        global $user;
+        global $user, $in;
         
-        if ( isset($_POST['turnin_from']) )
+        if ( $in->exists('turnin_from') )
         {
-            if ( ($_POST['turnin_from'] == $_POST['turnin_to']) || (empty($_POST['turnin_from'])) || (empty($_POST['turnin_to'])) )
+            $from = $in->get('turnin_from');
+            $to   = $in->get('turnin_to');
+            
+            if ( empty($from) || empty($to) || $from == $to )
             {
                 $this->fv->errors['turnin_from'] = $user->lang['fv_difference_turnin'];
                 $this->fv->errors['turnin_to']   = $user->lang['fv_difference_turnin'];
             }
-            
+        
+            // TODO: Why is this here?
             $this->turnin = array(
-                'from' => post_or_db('turnin_from'),
-                'to'   => post_or_db('turnin_to')
+                'from' => $in->get('turnin_from'),
+                'to'   => $in->get('turnin_to')
             );
         }
         
@@ -74,28 +81,30 @@ class Add_Turnin extends EQdkp_Admin
     // ---------------------------------------------------------
     function process_add()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $SID;
         
-        // FIXME: Oh god Injection
+        $item_id = $db->escape($in->get('item_id', 0));
+        $from    = $db->escape($in->get('from'));
+        $to      = $db->escape($in->get('to'));
         
         //
         // Get item information
         //
         $sql = "SELECT item_value, item_name
                 FROM __items
-                WHERE `item_id` = '{$_POST['item_id']}'";
+                WHERE (`item_id` = '{$item_id}')";
         $result = $db->query($sql);
         $row = $db->fetch_record($result);
         
-        $item_value = ( !empty($row['item_value']) ) ? $row['item_value'] : '0.00';
+        $item_value = ( !empty($row['item_value']) ) ? floatval($row['item_value']) : 0.00;
         
         //
         // Remove price from the 'From' member
         //
         $sql = "UPDATE __members
                 SET `member_spent` = `member_spent` - {$item_value}
-                WHERE `member_name` = '{$_POST['from']}'";
+                WHERE (`member_name` = '{$from}')";
         $db->query($sql);
         
         //
@@ -103,15 +112,15 @@ class Add_Turnin extends EQdkp_Admin
         //
         $sql = "UPDATE __members
                 SET `member_spent` = `member_spent` + {$item_value}
-                WHERE `member_name` = '{$_POST['to']}'";
+                WHERE (`member_name` = '{$to}')";
         $db->query($sql);
         
         //
         // Change the buyer
         //
         $sql = "UPDATE __items
-                SET `item_buyer` = '{$_POST['to']}'
-                WHERE `item_id` = '{$_POST['item_id']}'";
+                SET `item_buyer` = '{$to}'
+                WHERE (`item_id` = '{$item_id}')";
         $db->query($sql);
         
         //
@@ -119,17 +128,18 @@ class Add_Turnin extends EQdkp_Admin
         //
         $log_action = array(
             'header'       => '{L_ACTION_TURNIN_ADDED}',
-            '{L_ITEM}'     => addslashes($row['item_name']),
+            '{L_ITEM}'     => $row['item_name'],
             '{L_VALUE}'    => $item_value,
-            '{L_FROM}'     => $_POST['from'],
-            '{L_TO}'       => $_POST['to'],
-            '{L_ADDED_BY}' => $this->admin_user);
+            '{L_FROM}'     => $from,
+            '{L_TO}'       => $to,
+            '{L_ADDED_BY}' => $this->admin_user
+        );
         $this->log_insert(array(
             'log_type'   => $log_action['header'],
-            'log_action' => $log_action)
-        );
+            'log_action' => $log_action
+        ));
         
-        $success_message = sprintf($user->lang['admin_add_turnin_success'], $row['item_name'], $_POST['from'], $_POST['to']);
+        $success_message = sprintf($user->lang['admin_add_turnin_success'], sanitize($row['item_name']), sanitize($from), sanitize($to));
         $this->admin_die($success_message);
     }
     
@@ -138,24 +148,23 @@ class Add_Turnin extends EQdkp_Admin
     // ---------------------------------------------------------
     function display_step2()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $SID;
         
-        $max_value = $db->query_first("SELECT max(item_value) FROM __items WHERE `item_buyer` = '{$_POST['turnin_from']}'");
-        $float = @explode('.', $max_value);
-        $format = '%0'.@strlen($float[0]).'.2f';
+        $max_length = strlen(strval($db->query_first("SELECT MAX(item_value) FROM __items")));
         
         $sql = "SELECT item_id, item_name, item_value
                 FROM __items
-                WHERE `item_buyer` = '{$_POST['turnin_from']}'
+                WHERE (`item_buyer` = '" . $db->escape($in->get('turnin_from')) . "')
                 ORDER BY item_name";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
             $tpl->assign_block_vars('items_row', array(
                 'VALUE'  => $row['item_id'],
-                'OPTION' => '(' . sprintf($format, $row['item_value']) . ') - ' . stripslashes($row['item_name']))
-            );
+                // NOTE: Kinda pointless since the select box isn't fixed width!
+                'OPTION'   => str_pad($row['item_value'], $max_length, ' ', STR_PAD_LEFT) . ' - ' . sanitize($row['item_name'])
+            ));
         }
         
         $tpl->assign_vars(array(
@@ -164,10 +173,10 @@ class Add_Turnin extends EQdkp_Admin
             'S_STEP1'      => false,
                         
             // Form values
-            'FROM'        => $this->turnin['from'],
-            'TO'          => $this->turnin['to'],
-            'TURNIN_FROM' => $this->turnin['from'],
-            'TURNIN_TO'   => $this->turnin['to'],
+            'FROM'        => sanitize($this->turnin['from'], ENT),  // Hidden field
+            'TO'          => sanitize($this->turnin['to'], ENT),
+            'TURNIN_FROM' => sanitize($this->turnin['from']),       // Displayed value
+            'TURNIN_TO'   => sanitize($this->turnin['to']),
             
             // Language
             'L_ADD_TURNIN_TITLE' => sprintf($user->lang['addturnin_title'], '2'),
@@ -181,14 +190,14 @@ class Add_Turnin extends EQdkp_Admin
             'FV_TURNIN_TO'   => $this->fv->generate_error('turnin_to'),
             
             // Javascript messages
-            'MSG_FROM_TO_SAME' => $user->lang['fv_difference_turnin'])
-        );
+            'MSG_FROM_TO_SAME' => $user->lang['fv_difference_turnin']
+        ));
         
         $eqdkp->set_vars(array(
             'page_title'    => page_title(sprintf($user->lang['addturnin_title'], '2')),
             'template_file' => 'admin/addturnin.html',
-            'display'       => true)
-        );
+            'display'       => true
+        ));
     }
     
     // ---------------------------------------------------------
@@ -208,14 +217,14 @@ class Add_Turnin extends EQdkp_Admin
             $tpl->assign_block_vars('turnin_from_row', array(
                 'VALUE'    => $row['member_name'],
                 'SELECTED' => option_selected($this->turnin['from'] == $row['member_name']),
-                'OPTION'   => $row['member_name'])
-            );
+                'OPTION'   => sanitize($row['member_name'])
+            ));
             
             $tpl->assign_block_vars('turnin_to_row', array(
                 'VALUE'    => $row['member_name'],
                 'SELECTED' => option_selected($this->turnin['to'] == $row['member_name']),
-                'OPTION'   => $row['member_name'])
-            );
+                'OPTION'   => sanitize($row['member_name'])
+            ));
         }
         
         $tpl->assign_vars(array(
@@ -224,8 +233,8 @@ class Add_Turnin extends EQdkp_Admin
             'S_STEP1'      => true,
             
             // Form values
-            'FROM'    => $this->turnin['from'],
-            'TO'      => $this->turnin['to'],
+            'FROM'    => sanitize($this->turnin['from'], ENT),
+            'TO'      => sanitize($this->turnin['to'], ENT),
             
             // Language
             'L_ADD_TURNIN_TITLE' => sprintf($user->lang['addturnin_title'], '1'),
@@ -238,14 +247,14 @@ class Add_Turnin extends EQdkp_Admin
             'FV_TURNIN_TO'   => $this->fv->generate_error('turnin_to'),
             
             // Javascript messages
-            'MSG_FROM_TO_SAME' => $user->lang['fv_difference_turnin'])
-        );
+            'MSG_FROM_TO_SAME' => $user->lang['fv_difference_turnin']
+        ));
         
         $eqdkp->set_vars(array(
             'page_title'    => page_title(sprintf($user->lang['addturnin_title'], '1')),
             'template_file' => 'admin/addturnin.html',
-            'display'       => true)
-        );
+            'display'       => true
+        ));
     }
 }
 

@@ -383,8 +383,8 @@ class Add_IndivAdj extends EQdkp_Admin
             'ADJUSTMENT_ID'    => $this->url_id,
             
             // Form values
-            'ADJUSTMENT_VALUE'  => sanitize($this->adjustment['adjustment_value'], true, false),
-            'ADJUSTMENT_REASON' => sanitize($this->adjustment['adjustment_reason'], true, false),
+            'ADJUSTMENT_VALUE'  => sanitize($this->adjustment['adjustment_value'], ENT),
+            'ADJUSTMENT_REASON' => sanitize($this->adjustment['adjustment_reason'], ENT),
             'MO'                => date('m', $this->time),
             'D'                 => date('d', $this->time),
             'Y'                 => date('Y', $this->time),

@@ -29,12 +29,14 @@ class EQdkp_Config extends EQdkp_Admin
             'submit' => array(
                 'name'    => 'submit',
                 'process' => 'process_submit',
-                'check'   => 'a_config_man'),
+                'check'   => 'a_config_man'
+            ),
             'form' => array(
                 'name'    => '',
                 'process' => 'display_form',
-                'check'   => 'a_config_man'))
-        );
+                'check'   => 'a_config_man'
+            )
+        ));
     }
     
     function error_check()
@@ -48,8 +50,8 @@ class EQdkp_Config extends EQdkp_Admin
             'default_nlimit'     => $user->lang['fv_number'],
             'default_rlimit'     => $user->lang['fv_number'],
             'active_point_adj'   => $user->lang['fv_number'],
-            'inactive_point_adj' => $user->lang['fv_number'])
-        );
+            'inactive_point_adj' => $user->lang['fv_number']
+        ));
         
         $this->fv->is_within_range('default_alimit', 1, 1000);
         $this->fv->is_within_range('default_elimit', 1, 1000);
@@ -65,62 +67,55 @@ class EQdkp_Config extends EQdkp_Admin
     // ---------------------------------------------------------
     function process_submit()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $SID;
         
-        // Remove < > from guildtags if we need to
-        $_POST['parsetags'] = preg_replace('#<(.+)>([[:space:]])?#', "\\1", $_POST['parsetags']);
-        $_POST = htmlspecialchars_array($_POST);
-
-        $current_game = $eqdkp->config['default_game'];
+        $parsetags = $in->get('parsetags');
+        $parsetags = preg_replace('/([^\w\s]+)/', '', $parsetags);
 
         // Update each config setting
-        // FIXME: Injection
         $eqdkp->config_set(array(
-            'guildtag'           => $_POST['guildtag'],
-            'parsetags'          => $_POST['parsetags'],
-            'server_name'        => $_POST['server_name'],
-            'server_port'        => intval($_POST['server_port']),
-            'server_path'        => $_POST['server_path'],
-            'main_title'         => $_POST['main_title'],
-            'sub_title'          => $_POST['sub_title'],
-            'dkp_name'           => $_POST['dkp_name'],
-            'default_game'       => $_POST['default_game'],
-            'default_locale'     => $_POST['default_locale'],
-            'account_activation' => ( isset($_POST['account_activation']) ) ? $_POST['account_activation'] : '0',
-            'default_alimit'     => intval($_POST['default_alimit']),
-            'default_elimit'     => intval($_POST['default_elimit']),
-            'default_ilimit'     => intval($_POST['default_ilimit']),
-            'default_nlimit'     => intval($_POST['default_nlimit']),
-            'default_rlimit'     => intval($_POST['default_rlimit']),
-            'default_lang'       => $_POST['default_lang'],
-            'default_style'      => intval($_POST['default_style']),
-            'hide_inactive'      => ( isset($_POST['hide_inactive']) ) ? $_POST['hide_inactive'] : '0',
-            'inactive_period'    => intval($_POST['inactive_period']),
-            'active_point_adj'   => $_POST['active_point_adj'],
-            'inactive_point_adj' => $_POST['inactive_point_adj'],
-            'enable_gzip'        => ( isset($_POST['enable_gzip']) ) ? $_POST['enable_gzip'] : '0',
-            'cookie_domain'      => $_POST['cookie_domain'],
-            'cookie_name'        => $_POST['cookie_name'],
-            'cookie_path'        => $_POST['cookie_path'],
-            'session_length'     => intval($_POST['session_length']),
-            'admin_email'        => $_POST['admin_email'],
-            'start_page'         => $_POST['start_page'])
-        );
+            'guildtag'           => $in->get('guildtag',           $eqdkp->config['guildtag']),
+            'parsetags'          => $parsetags,
+            'server_name'        => $in->get('server_name',        $eqdkp->config['server_name']),
+            'server_port'        => $in->get('server_port',        intval($eqdkp->config['server_port'])),
+            'server_path'        => $in->get('server_path',        $eqdkp->config['server_path']),
+            'main_title'         => $in->get('main_title',         $eqdkp->config['main_title']),
+            'sub_title'          => $in->get('sub_title',          $eqdkp->config['sub_title']),
+            'dkp_name'           => $in->get('dkp_name',           $eqdkp->config['dkp_name']),
+            'default_game'       => $in->get('default_game',       $eqdkp->config['default_game']),
+            'default_locale'     => $in->get('default_locale',     $eqdkp->config['default_locale']),
+            'account_activation' => $in->get('account_activation', intval($eqdkp->config['account_activation'])),
+            'default_alimit'     => $in->get('default_alimit',     intval($eqdkp->config['default_alimit'])),
+            'default_elimit'     => $in->get('default_elimit',     intval($eqdkp->config['default_elimit'])),
+            'default_ilimit'     => $in->get('default_ilimit',     intval($eqdkp->config['default_ilimit'])),
+            'default_nlimit'     => $in->get('default_nlimit',     intval($eqdkp->config['default_nlimit'])),
+            'default_rlimit'     => $in->get('default_rlimit',     intval($eqdkp->config['default_rlimit'])),
+            'default_lang'       => $in->get('default_lang',       $eqdkp->config['default_lang']),
+            'default_style'      => $in->get('default_style',      intval($eqdkp->config['default_style'])),
+            'hide_inactive'      => $in->get('hide_inactive',      intval($eqdkp->config['hide_inactive'])),
+            'inactive_period'    => $in->get('inactive_period',    intval($eqdkp->config['inactive_period'])),
+            'active_point_adj'   => $in->get('active_point_adj',   floatval($eqdkp->config['active_point_adj'])),
+            'inactive_point_adj' => $in->get('inactive_point_adj', floatval($eqdkp->config['inactive_point_adj'])),
+            'enable_gzip'        => $in->get('enable_gzip',        intval($eqdkp->config['enable_gzip'])),
+            'cookie_domain'      => $in->get('cookie_domain',      $eqdkp->config['cookie_domain']),
+            'cookie_name'        => $in->get('cookie_name',        $eqdkp->config['cookie_name']),
+            'cookie_path'        => $in->get('cookie_path',        $eqdkp->config['cookie_path']),
+            'session_length'     => $in->get('session_length',     intval($eqdkp->config['session_length'])),
+            'admin_email'        => $in->get('admin_email',        $eqdkp->config['admin_email']),
+            'start_page'         => $in->get('start_page',         $eqdkp->config['start_page'])
+        ));
 
-    // New for 1.3 - game selection
-    if (( $_POST['default_game'] != $current_game )) 
-    {
-        // FIXME: Remote file inclusion?
-        include($eqdkp->root_path . 'games/' . $_POST['default_game'] . '.php');
-
-        // TODO: "Manage_Game" is the class that runs SQL queries
-        // whereas "Game_Manager" abstracts some stuff; that's confusing
-        $game_extension = new Manage_Game;
-        $game_extension->process();
-    }
-    
-    // end 1.3 game selection change
+        $current_game = $eqdkp->config['default_game'];
+        $default_game = preg_replace('/[^\w]+/', '', $in->get('default_game', $current_game));
+        
+        if ( $default_game != $current_game ) 
+        {
+            // TODO: Change to Game Manager
+            include($eqdkp->root_path . 'games/' . $default_game . '.php');
+            $game_extension = new Manage_Game;
+            $game_extension->process();
+        }
 
         // Permissions
         $sql = "SELECT auth_id, auth_value
@@ -129,7 +124,8 @@ class EQdkp_Config extends EQdkp_Admin
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
-            $this->update_auth_default($row['auth_value'], ( isset($_POST[$row['auth_value']]) ) ? 'Y' : 'N');
+            $auth_default = $in->get($row['auth_value'], 'N');
+            $this->update_auth_default($row['auth_value'], $auth_default);
         }
 
         header('Location: config.php' . $SID);
@@ -147,9 +143,12 @@ class EQdkp_Config extends EQdkp_Admin
             return false;
         }
         
+        $auth_value   = $db->escape($auth_value);
+        $auth_default = ( $auth_default != 'Y' ) ? 'N' : 'Y';
+        
         $sql = "UPDATE __auth_options
-                SET `auth_default` = '" . strip_tags(htmlspecialchars($auth_default)) . "'
-                WHERE `auth_value` = '{$auth_value}'";
+                SET `auth_default` = '{$auth_default}'
+                WHERE (`auth_value` = '{$auth_value}')";
         if ( !($result = $db->query($sql)) )
         {
             return false;
@@ -169,6 +168,7 @@ class EQdkp_Config extends EQdkp_Admin
         //
         // Find default auth settings
         //
+        $auth_defaults = array();
         $sql = "SELECT auth_id, auth_default
                 FROM __auth_options
                 ORDER BY `auth_id`";
@@ -183,20 +183,19 @@ class EQdkp_Config extends EQdkp_Admin
         // Build the config permissions
         //
         $config_permissions = generate_permission_boxes();
-        
         foreach ( $config_permissions as $group => $checks )
         {
             $tpl->assign_block_vars('permissions_row', array(
-                'GROUP' => $group)
-            );
+                'GROUP' => $group
+            ));
             
             foreach ( $checks as $data )
             {
                 $tpl->assign_block_vars('permissions_row.check_group', array(
-                    'CBNAME'    => $data['CBNAME'],
+                    'CBNAME'    => sanitize($data['CBNAME']),
                     'CBCHECKED' => option_checked($auth_defaults[$data['CBCHECKED']] == 'Y'),
-                    'TEXT'      => $data['TEXT'])
-                );
+                    'TEXT'      => sanitize($data['TEXT'])
+                ));
             }
         }
         unset($config_permissions);
@@ -206,35 +205,35 @@ class EQdkp_Config extends EQdkp_Admin
             'F_CONFIG' => 'config.php' . $SID,
             
             // Form values
-            'GUILDTAG'                  => $eqdkp->config['guildtag'],
-            'PARSETAGS'                 => $eqdkp->config['parsetags'],
-            'SERVER_NAME'               => $eqdkp->config['server_name'],
-            'SERVER_PORT'               => $eqdkp->config['server_port'],
-            'SERVER_PATH'               => $eqdkp->config['server_path'],
-            'MAIN_TITLE'                => $eqdkp->config['main_title'],
-            'SUB_TITLE'                 => $eqdkp->config['sub_title'],
-            'DKP_NAME'                  => $eqdkp->config['dkp_name'],
+            'GUILDTAG'                  => sanitize($eqdkp->config['guildtag'], ENT),
+            'PARSETAGS'                 => sanitize($eqdkp->config['parsetags'], ENT),
+            'SERVER_NAME'               => sanitize($eqdkp->config['server_name'], ENT),
+            'SERVER_PORT'               => intval($eqdkp->config['server_port']),
+            'SERVER_PATH'               => sanitize($eqdkp->config['server_path'], ENT),
+            'MAIN_TITLE'                => sanitize($eqdkp->config['main_title'], ENT),
+            'SUB_TITLE'                 => sanitize($eqdkp->config['sub_title'], ENT),
+            'DKP_NAME'                  => sanitize($eqdkp->config['dkp_name'], ENT),
             'ACTIVATION_NONE_CHECKED'   => option_checked($eqdkp->config['account_activation'] == USER_ACTIVATION_NONE),
             'ACTIVATION_USER_CHECKED'   => option_checked($eqdkp->config['account_activation'] == USER_ACTIVATION_SELF),
             'ACTIVATION_ADMIN_CHECKED'  => option_checked($eqdkp->config['account_activation'] == USER_ACTIVATION_ADMIN),
-            'DEFAULT_ALIMIT'            => $eqdkp->config['default_alimit'],
-            'DEFAULT_ELIMIT'            => $eqdkp->config['default_elimit'],
-            'DEFAULT_ILIMIT'            => $eqdkp->config['default_ilimit'],
-            'DEFAULT_NLIMIT'            => $eqdkp->config['default_nlimit'],
-            'DEFAULT_RLIMIT'            => $eqdkp->config['default_rlimit'],
+            'DEFAULT_ALIMIT'            => intval($eqdkp->config['default_alimit']),
+            'DEFAULT_ELIMIT'            => intval($eqdkp->config['default_elimit']),
+            'DEFAULT_ILIMIT'            => intval($eqdkp->config['default_ilimit']),
+            'DEFAULT_NLIMIT'            => intval($eqdkp->config['default_nlimit']),
+            'DEFAULT_RLIMIT'            => intval($eqdkp->config['default_rlimit']),
             'HIDE_INACTIVE_YES_CHECKED' => option_checked($eqdkp->config['hide_inactive'] == '1'),
             'HIDE_INACTIVE_NO_CHECKED'  => option_checked($eqdkp->config['hide_inactive'] == '0'),
-            'INACTIVE_PERIOD'           => $eqdkp->config['inactive_period'],
-            'ACTIVE_POINT_ADJ'          => $eqdkp->config['active_point_adj'],
-            'INACTIVE_POINT_ADJ'        => $eqdkp->config['inactive_point_adj'],
+            'INACTIVE_PERIOD'           => intval($eqdkp->config['inactive_period']),
+            'ACTIVE_POINT_ADJ'          => number_format($eqdkp->config['active_point_adj'], 2),
+            'INACTIVE_POINT_ADJ'        => number_format($eqdkp->config['inactive_point_adj'], 2),
             'GZIP_YES_CHECKED'          => option_checked($eqdkp->config['enable_gzip'] == '1'),
             'GZIP_NO_CHECKED'           => option_checked($eqdkp->config['enable_gzip'] == '0'),
-            'COOKIE_DOMAIN'             => $eqdkp->config['cookie_domain'],
-            'COOKIE_NAME'               => $eqdkp->config['cookie_name'],
-            'COOKIE_PATH'               => $eqdkp->config['cookie_path'],
-            'SESSION_LENGTH'            => $eqdkp->config['session_length'],
-            'ADMIN_EMAIL'               => $eqdkp->config['admin_email'],
-            'DEFAULT_GAME'              => $eqdkp->config['default_game'],
+            'COOKIE_DOMAIN'             => sanitize($eqdkp->config['cookie_domain'], ENT),
+            'COOKIE_NAME'               => sanitize($eqdkp->config['cookie_name'], ENT),
+            'COOKIE_PATH'               => sanitize($eqdkp->config['cookie_path'], ENT),
+            'SESSION_LENGTH'            => intval($eqdkp->config['session_length']),
+            'ADMIN_EMAIL'               => sanitize($eqdkp->config['admin_email'], ENT),
+            'DEFAULT_GAME'              => sanitize($eqdkp->config['default_game'], ENT),
 
             // Language (General Settings)
             'L_GENERAL_SETTINGS'          => $user->lang['general_settings'],
@@ -296,8 +295,8 @@ class EQdkp_Config extends EQdkp_Admin
             'L_YES'    => $user->lang['yes'],
             'L_NO'     => $user->lang['no'],
             'L_SUBMIT' => $user->lang['submit'],
-            'L_RESET'  => $user->lang['reset'])
-        );
+            'L_RESET'  => $user->lang['reset']
+        ));
 
         // Build language drop-down
         foreach ( select_language($eqdkp->config['default_lang']) as $row )
@@ -377,16 +376,16 @@ class EQdkp_Config extends EQdkp_Admin
             $tpl->assign_block_vars('page_row', array(
                 'VALUE'    => $link,
                 'SELECTED' => option_selected($eqdkp->config['start_page'] == $link),
-                'OPTION'   => $text)
-            );
+                'OPTION'   => $text
+            ));
             unset($link, $text);
         }
         
         $eqdkp->set_vars(array(
             'page_title'    => page_title($user->lang['config_title']),
             'template_file' => 'admin/config.html',
-            'display'       => true)
-        );
+            'display'       => true
+        ));
     }
 }
 

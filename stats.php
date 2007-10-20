@@ -85,7 +85,7 @@ while ( $row = $db->fetch_record($members_result) )
 
     $tpl->assign_block_vars('stats_row', array(
         'ROW_CLASS'          => $eqdkp->switch_row_class(),
-        'U_VIEW_MEMBER'      => 'viewmember.php'.$SID.'&amp;' . URI_NAME . '='.$row['member_name'],
+        'U_VIEW_MEMBER'      => member_path($row['member_name']),
         'NAME'               => $row['rank_prefix'] . $row['member_name'] . $row['rank_suffix'],
         'FIRST_RAID'         => ( !empty($row['member_firstraid']) ) ? date($user->style['date_notime_short'], $row['member_firstraid']) : '&nbsp;',
         'LAST_RAID'          => ( !empty($row['member_lastraid']) ) ? date($user->style['date_notime_short'], $row['member_lastraid']) : '&nbsp;',

@@ -151,7 +151,7 @@ if ( $in->get(URI_EVENT, 0) )
             'DATE'          => date($user->style['date_notime_short'], $row['item_date']),
             'U_VIEW_RAID'   => 'viewraid.php' . $SID . '&amp;' . URI_RAID . '=' . $row['raid_id'],
             'BUYER'         => sanitize($row['item_buyer']),
-            'U_VIEW_MEMBER' => 'viewmember.php' . $SID . '&amp;' . URI_NAME . '=' . $row['item_buyer'],
+            'U_VIEW_MEMBER' => member_path($row['item_buyer']),
             'NAME'          => sanitize($row['item_name']),
             'U_VIEW_ITEM'   => 'viewitem.php' . $SID . '&amp;' . URI_ITEM . '=' . $row['item_id'],
             'SPENT'         => number_format($row['item_value'], 2)

@@ -50,14 +50,14 @@ if ( $in->get(URI_ITEM, 0) )
     while ( $item = $db->fetch_record($items_result) )
     {
         $tpl->assign_block_vars('items_row', array(
-            'ROW_CLASS' => $eqdkp->switch_row_class(),
-            'DATE' => ( !empty($item['item_date']) ) ? date($user->style['date_notime_short'], $item['item_date']) : '&nbsp;',
-            'BUYER' => ( !empty($item['item_buyer']) ) ? $item['item_buyer'] : '&nbsp;',
-            'U_VIEW_BUYER' => 'viewmember.php'.$SID.'&amp;' . URI_NAME . '='.$item['item_buyer'],
-            'U_VIEW_RAID' => 'viewraid.php'.$SID.'&amp;' . URI_RAID . '='.$item['raid_id'],
-            'RAID' => ( !empty($item['raid_name']) ) ? stripslashes($item['raid_name']) : '&lt;<i>Not Found</i>&gt;',
-            'VALUE' => $item['item_value'])
-        );
+            'ROW_CLASS'    => $eqdkp->switch_row_class(),
+            'DATE'         => ( !empty($item['item_date']) ) ? date($user->style['date_notime_short'], $item['item_date']) : '&nbsp;',
+            'BUYER'        => ( !empty($item['item_buyer']) ) ? $item['item_buyer'] : '&nbsp;',
+            'U_VIEW_BUYER' => member_path($item['item_buyer']),
+            'U_VIEW_RAID'  => 'viewraid.php'.$SID.'&amp;' . URI_RAID . '='.$item['raid_id'],
+            'RAID'         => ( !empty($item['raid_name']) ) ? stripslashes($item['raid_name']) : '&lt;<i>Not Found</i>&gt;',
+            'VALUE'        => $item['item_value']
+        ));
     }
 
     $tpl->assign_vars(array(

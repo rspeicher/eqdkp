@@ -78,7 +78,7 @@ if ( $in->get(URI_RAID, 0) )
                 if ( is_array($attendee) )
                 {
                     $block_vars += array(
-                        'COLUMN'.$j.'_NAME' => '<a href="viewmember.php' . $SID . '&amp;' . URI_NAME . '=' . $attendee['name'] . '">' . $attendee['styled'] . '</a>'
+                        'COLUMN'.$j.'_NAME' => '<a href="' . member_path($attendee['name']) . '">' . $attendee['styled'] . '</a>'
                     );
                 }
                 else
@@ -116,7 +116,7 @@ if ( $in->get(URI_RAID, 0) )
         $tpl->assign_block_vars('items_row', array(
             'ROW_CLASS'    => $eqdkp->switch_row_class(),
             'BUYER'        => $item['item_buyer'],
-            'U_VIEW_BUYER' => 'viewmember.php' . $SID . '&amp;' . URI_NAME . '='.$item['item_buyer'],
+            'U_VIEW_BUYER' => member_path($item['item_buyer']),
             'NAME'         => sanitize($item['item_name']),
             'U_VIEW_ITEM'  => 'viewitem.php' . $SID . '&amp;' . URI_ITEM . '='.$item['item_id'],
             'VALUE'        => number_format($item['item_value'], 2)

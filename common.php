@@ -38,7 +38,6 @@ if ( !defined('EQDKP_INSTALLED') )
     header('Location: ' . $eqdkp_root_path . 'install.php');
 }
 
-
 // Constants
 define('EQDKP_VERSION', '1.3.3');
 define('NO_CACHE', true);
@@ -53,18 +52,6 @@ define('USER',       0);
 define('USER_ACTIVATION_NONE',  0);
 define('USER_ACTIVATION_SELF',  1);
 define('USER_ACTIVATION_ADMIN', 2);
-
-// URI Parameters
-define('URI_ADJUSTMENT', 'a');
-define('URI_EVENT',      'e');
-define('URI_ITEM',       'i');
-define('URI_LOG',        'l');
-define('URI_NAME',       'name');
-define('URI_NEWS',       'n');
-define('URI_ORDER',      'o');
-define('URI_PAGE',       'p');
-define('URI_RAID',       'r');
-define('URI_SESSION',    's');
 
 // Auth Options
 define('A_EVENT_ADD',    1);
@@ -103,6 +90,7 @@ define('A_STYLES_MAN',  33);
 define('A_BACKUP',      36);
 
 require_once($eqdkp_root_path . 'includes/functions.php');
+require_once($eqdkp_root_path . 'includes/functions_paths.php');
 require_once($eqdkp_root_path . 'includes/dbal.php');
 require_once($eqdkp_root_path . 'includes/eqdkp.php');
 require_once($eqdkp_root_path . 'includes/session.php');

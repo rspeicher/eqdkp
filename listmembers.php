@@ -115,8 +115,8 @@ elseif ( $in->get('compare', false) )
             'C_LASTRAID'      => 'neutral',
             'C_RAIDS_30_DAYS' => color_item($percent_of_raids_30, true),
             'C_RAIDS_90_DAYS' => color_item($percent_of_raids_90, true),
-            'U_VIEW_MEMBER'   => 'viewmember.php' . $SID . '&amp;' . URI_NAME . '=' . $row['member_name'])
-        );
+            'U_VIEW_MEMBER'   => member_path($row['member_name'])
+        ));
         unset($last_loot);
     }
     $db->free_result($result);
@@ -250,7 +250,7 @@ else
                 'C_ADJUSTMENT'  => color_item($row['member_adjustment']),
                 'C_CURRENT'     => color_item($row['member_current']),
                 'C_LASTRAID'    => 'neutral',
-                'U_VIEW_MEMBER' => 'viewmember.php' . $SID . '&amp;' . URI_NAME . '=' . $row['member_name']
+                'U_VIEW_MEMBER' => member_path($row['member_name'])
             ));
             $u_rank_search = '';
             unset($last_loot);

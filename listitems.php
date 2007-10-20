@@ -105,7 +105,7 @@ while ( $item = $db->fetch_record($items_result) )
         'ROW_CLASS'    => $eqdkp->switch_row_class(),
         'DATE'         => ( !empty($item['item_date']) ) ? date($user->style['date_notime_short'], $item['item_date']) : '&nbsp;',
         'BUYER'        => ( !empty($item['item_buyer']) ) ? sanitize($item['item_buyer']) : '&lt;<i>Not Found</i>&gt;',
-        'U_VIEW_BUYER' => 'viewmember.php'.$SID.'&amp;' . URI_NAME . '='.$item['item_buyer'],
+        'U_VIEW_BUYER' => member_path($item['item_buyer']),
         'NAME'         => sanitize($item['item_name']),
         'U_VIEW_ITEM'  => 'viewitem.php'.$SID.'&amp;' . URI_ITEM . '='.$item['item_id'],
         'RAID'         => ( !empty($item['raid_name']) ) ? sanitize($item['raid_name']) : '&lt;<i>Not Found</i>&gt;',

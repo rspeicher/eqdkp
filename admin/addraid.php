@@ -889,7 +889,7 @@ class Add_Raid extends EQdkp_Admin
                     MAX(r.raid_date) AS lastraid, COUNT(r.raid_id) AS raidcount
                 FROM __members AS m
                 LEFT JOIN __raid_attendees AS ra ON m.member_name = ra.member_name
-                LEFT JOIN eqdkp_raids AS r on ra.raid_id = r.raid_id
+                LEFT JOIN __raids AS r on ra.raid_id = r.raid_id
                 WHERE (m.`member_name` IN ('" . $db->escape("','", $att_array) . "'))
                 GROUP BY m.member_name";
         $result = $db->query($sql);

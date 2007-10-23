@@ -475,4 +475,7 @@ $lang = array_merge($lang, array(
     'skip_nonessential' => 'Skip non essential data?<br />Will not produce insert rows for eqdkp_sessions.',
     'gzip_content'      => 'GZIP Content?<br />Will produce a smaller file if GZIP is enabled.',
     'backup_database'   => 'Backup Database',
+    
+    // Form validation
+    'fv_turnin_noitems' => "%1\$s has no purchased items to transfer.",
 ));

@@ -53,7 +53,7 @@ class Add_Turnin extends EQdkp_Admin
     
     function error_check()
     {
-        global $user, $in;
+        global $db, $user, $in;
         
         if ( $in->exists('turnin_from') )
         {
@@ -64,6 +64,20 @@ class Add_Turnin extends EQdkp_Admin
             {
                 $this->fv->errors['turnin_from'] = $user->lang['fv_difference_turnin'];
                 $this->fv->errors['turnin_to']   = $user->lang['fv_difference_turnin'];
+            }
+            
+            // Make sure $from has an item to buy, first
+            if ( $in->exists('proceed') )
+            {
+                $sql = "SELECT COUNT(item_id)
+                        FROM __items
+                        WHERE (`item_buyer` = '" . $db->escape($from) . "')";
+                $count = $db->query_first($sql);
+                
+                if ( $count == 0 )
+                {
+                    $this->fv->errors['turnin_from'] = sprintf($user->lang['fv_turnin_noitems'], sanitize($from));
+                }
             }
         
             // TODO: Why is this here?

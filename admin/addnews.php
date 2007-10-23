@@ -275,8 +275,8 @@ class Add_News extends EQdkp_Admin
             'S_UPDATE'   => ( $this->url_id ) ? true : false,
 
             // Form values
-            'HEADLINE' => $this->news['news_headline'],
-            'MESSAGE'  => $this->news['news_message'],
+            'HEADLINE' => sanitize($this->news['news_headline'], ENT),
+            'MESSAGE'  => sanitize($this->news['news_message'], ENT),
 
             // Language (General)
             'L_HEADLINE'       => $user->lang['headline'],

@@ -74,7 +74,7 @@ while ( $row = $db->fetch_record($members_result) )
         'C_ADJUSTMENT'  => color_item($row['member_adjustment']),
         'C_CURRENT'     => color_item($row['member_current']),
         'C_LASTRAID'    => 'neutral',
-        'U_VIEW_MEMBER' => 'manage_members.php'.$SID . '&amp;mode=addmember&amp;' . URI_NAME . '=' . urlencode($row['member_name'])
+        'U_VIEW_MEMBER' => edit_member_path($row['member_name'])
     ));
     
     // So that we can compare this member to the next member,

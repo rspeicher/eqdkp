@@ -203,7 +203,7 @@ class Add_Item extends EQdkp_Admin
         //
         // Generate our group key
         //
-        $group_key = $this->gen_group_key($this->item['item_name'], $this->time, $_POST['raid_id']);
+        $group_key = $this->gen_group_key($this->item['item_name'], $this->time, $in->get('raid_id', 0));
         
         //
         // Add item to selected members
@@ -583,7 +583,7 @@ class Item_Search extends EQdkp_Admin
         global $SID;
         
         $items_array = array();
-        if ( !empty($_POST['query']) )
+        if ( $in->exists('query') )
         {
             $items_array = array();
             

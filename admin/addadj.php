@@ -91,7 +91,7 @@ class Add_GroupAdj extends EQdkp_Admin
     {
         global $user;
         
-        if ( sizeof($_POST) > 0 )
+        if ( $in->exists('adjustment_value') )
         {
             $this->fv->is_number('adjustment_value', $user->lang['fv_number_adjustment']);
             $this->fv->is_filled('adjustment_value', $user->lang['fv_required_adjustment']);
@@ -132,7 +132,7 @@ class Add_GroupAdj extends EQdkp_Admin
         $log_action = array(
             'header'         => '{L_ACTION_GROUPADJ_ADDED}',
             'id'             => $this_adjustment_id,
-            '{L_ADJUSTMENT}' => $_POST['adjustment_value'],
+            '{L_ADJUSTMENT}' => $in->get('adjustment_value', 0.00),
             '{L_ADDED_BY}'   => $this->admin_user
         );
         $this->log_insert(array(

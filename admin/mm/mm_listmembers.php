@@ -43,8 +43,6 @@ $previous_data = '';
 $sort_index = explode('.', $current_order['uri']['current']);
 $previous_source = preg_replace('/( (asc|desc))?/i', '', $sort_order[$sort_index[0]][$sort_index[1]]);
 
-$show_all = ( (!empty($_GET['show'])) && ($_GET['show'] == 'all') ) ? true : false;
-
 $sql = "SELECT m.*, (m.member_earned-m.member_spent+m.member_adjustment) AS member_current, 
             c.class_name AS member_class, r.rank_name, r.rank_prefix, r.rank_suffix,
             c.class_armor_type AS armor_type

@@ -37,21 +37,21 @@ while ( $news = $db->fetch_record($result) )
     if ( date($user->style['date_notime_long'], $news['news_date']) != date($user->style['date_notime_long'], $previous_date) )
     {
         $tpl->assign_block_vars('date_row', array(
-            'DATE' => date($user->style['date_notime_long'], $news['news_date']))
+            'DATE' => date($user->style['date_notime_long'], intval($news['news_date'])))
         );
         
         $previous_date = $news['news_date'];
     }
     
-    $message = $news['news_message'];
+    $message = sanitize($news['news_message']);
     $message = nl2br($message);
     news_parse($message);
     $message = preg_replace('#(\&amp;){2,}#', '&amp;', $message);
     
     $tpl->assign_block_vars('date_row.news_row', array(
         'ROW_CLASS' => $eqdkp->switch_row_class(),
-        'HEADLINE'  => $news['news_headline'],
-        'AUTHOR'    => $news['username'],
+        'HEADLINE'  => sanitize($news['news_headline']),
+        'AUTHOR'    => sanitize($news['username']),
         'TIME'      => date("h:ia T", $news['news_date']),
         'MESSAGE'   => $message
     ));

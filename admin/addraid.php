@@ -895,7 +895,7 @@ class Add_Raid extends EQdkp_Admin
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
-            $db->query("UPDATE __members SET :params WHERE (`member_name` = '{$row['member_name']}')", array(
+            $db->query("UPDATE __members SET :params WHERE (`member_name` = '" . $db->escape($row['member_name']) . "')", array(
                 'member_firstraid' => $row['firstraid'],
                 'member_lastraid'  => $row['lastraid'],
                 'member_raidcount' => $row['raidcount']

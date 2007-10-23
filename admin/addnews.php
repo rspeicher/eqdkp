@@ -23,40 +23,44 @@ class Add_News extends EQdkp_Admin
 
     function add_news()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $in;
         global $SID;
 
         parent::eqdkp_admin();
 
         $this->news = array(
-            'news_headline' => post_or_db('news_headline'),
-            'news_message'  => post_or_db('news_message')
+            'news_headline' => $in->get('news_headline'),
+            'news_message'  => $in->get('news_message')
         );
 
         // Vars used to confirm deletion
         $this->set_vars(array(
             'confirm_text'  => $user->lang['confirm_delete_news'],
-            'uri_parameter' => URI_NEWS)
-        );
+            'uri_parameter' => URI_NEWS
+        ));
 
         $this->assoc_buttons(array(
             'add' => array(
                 'name'    => 'add',
                 'process' => 'process_add',
-                'check'   => 'a_news_add'),
+                'check'   => 'a_news_add'
+            ),
             'update' => array(
                 'name'    => 'update',
                 'process' => 'process_update',
-                'check'   => 'a_news_upd'),
+                'check'   => 'a_news_upd'
+            ),
             'delete' => array(
                 'name'    => 'delete',
                 'process' => 'process_delete',
-                'check'   => 'a_news_del'),
+                'check'   => 'a_news_del'
+            ),
             'form' => array(
                 'name'    => '',
                 'process' => 'display_form',
-                'check'   => 'a_news_'))
-        );
+                'check'   => 'a_news_'
+            )
+        ));
 
         // Build the news array
         // ---------------------------------------------------------
@@ -64,7 +68,7 @@ class Add_News extends EQdkp_Admin
         {
             $sql = "SELECT news_headline, news_message
                     FROM __news
-                    WHERE `news_id` = '{$this->url_id}'";
+                    WHERE (`news_id` = '{$this->url_id}')";
             $result = $db->query($sql);
             if ( !$row = $db->fetch_record($result) )
             {
@@ -74,8 +78,8 @@ class Add_News extends EQdkp_Admin
 
             $this->time = time();
             $this->news = array(
-                'news_headline' => post_or_db('news_headline', $row),
-                'news_message'  => post_or_db('news_message', $row)
+                'news_headline' => $in->get('news_headline', $row['news_headline']),
+                'news_message'  => $in->get('news_message',  $row['news_message'])
             );
         }
     }
@@ -103,13 +107,12 @@ class Add_News extends EQdkp_Admin
         //
         // Insert the news
         //
-        $query = $db->build_query('INSERT', array(
+        $db->query("INSERT INTO __news :params", array(
             'news_headline' => $in->get('news_headline'),
             'news_message'  => $in->get('news_message'),
             'news_date'     => $this->time,
             'user_id'       => $user->data['user_id']
         ));
-        $db->query("INSERT INTO __news {$query}");
         $this_news_id = $db->insert_id();
 
         //
@@ -119,12 +122,13 @@ class Add_News extends EQdkp_Admin
             'header'           => '{L_ACTION_NEWS_ADDED}',
             'id'               => $this_news_id,
             '{L_HEADLINE}'     => $in->get('news_headline'),
-            '{L_MESSAGE_BODY}' => nl2br($in->get('news_message')),
-            '{L_ADDED_BY}'     => $this->admin_user);
+            '{L_MESSAGE_BODY}' => $in->get('news_message'),
+            '{L_ADDED_BY}'     => $this->admin_user
+        );
         $this->log_insert(array(
             'log_type'   => $log_action['header'],
-            'log_action' => $log_action)
-        );
+            'log_action' => $log_action
+        ));
 
         //
         // Success message
@@ -132,7 +136,8 @@ class Add_News extends EQdkp_Admin
         $success_message = $user->lang['admin_add_news_success'];
         $link_list = array(
             $user->lang['add_news']  => 'addnews.php' . $SID,
-            $user->lang['list_news'] => 'listnews.php' . $SID);
+            $user->lang['list_news'] => 'listnews.php' . $SID
+        );
         $this->admin_die($success_message, $link_list);
     }
 
@@ -176,15 +181,15 @@ class Add_News extends EQdkp_Admin
             'header'              => '{L_ACTION_NEWS_UPDATED}',
             'id'                  => $this->url_id,
             '{L_HEADLINE_BEFORE}' => $this->old_news['news_headline'],
-            '{L_MESSAGE_BEFORE}'  => nl2br($this->old_news['news_message']),
+            '{L_MESSAGE_BEFORE}'  => $this->old_news['news_message'],
             '{L_HEADLINE_AFTER}'  => $this->find_difference($this->old_news['news_headline'], $in->get('news_headline')),
-            '{L_MESSAGE_AFTER}'   => nl2br($in->get('news_message')),
+            '{L_MESSAGE_AFTER}'   => $in->get('news_message'),
             '{L_UPDATED_BY}'      => $this->admin_user
         );
         $this->log_insert(array(
             'log_type'   => $log_action['header'],
-            'log_action' => $log_action)
-        );
+            'log_action' => $log_action
+        ));
 
         //
         // Success message
@@ -192,7 +197,8 @@ class Add_News extends EQdkp_Admin
         $success_message = $user->lang['admin_update_news_success'];
         $link_list = array(
             $user->lang['add_news']  => 'addnews.php' . $SID,
-            $user->lang['list_news'] => 'listnews.php' . $SID);
+            $user->lang['list_news'] => 'listnews.php' . $SID
+        );
         $this->admin_die($success_message, $link_list);
     }
 
@@ -213,7 +219,7 @@ class Add_News extends EQdkp_Admin
         // Remove the news entry
         //
         $sql = "DELETE FROM __news
-                WHERE `news_id` = '{$this->url_id}'";
+                WHERE (`news_id` = '{$this->url_id}')";
         $db->query($sql);
 
         //
@@ -223,11 +229,12 @@ class Add_News extends EQdkp_Admin
             'header'           => '{L_ACTION_NEWS_DELETED}',
             'id'               => $this->url_id,
             '{L_HEADLINE}'     => $this->old_news['news_headline'],
-            '{L_MESSAGE_BODY}' => nl2br($this->old_news['news_message']));
+            '{L_MESSAGE_BODY}' => $this->old_news['news_message']
+        );
         $this->log_insert(array(
             'log_type'   => $log_action['header'],
-            'log_action' => $log_action)
-        );
+            'log_action' => $log_action
+        ));
 
         //
         // Success message
@@ -235,7 +242,8 @@ class Add_News extends EQdkp_Admin
         $success_message = $user->lang['admin_delete_news_success'];
         $link_list = array(
             $user->lang['add_news']  => 'addnews.php' . $SID,
-            $user->lang['list_news'] => 'listnews.php' . $SID);
+            $user->lang['list_news'] => 'listnews.php' . $SID
+        );
         $this->admin_die($success_message, $link_list);
     }
 
@@ -248,13 +256,13 @@ class Add_News extends EQdkp_Admin
 
         $sql = "SELECT news_headline, news_message
                 FROM __news
-                WHERE `news_id` = '{$this->url_id}'";
+                WHERE (`news_id` = '{$this->url_id}')";
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
             $this->old_news = array(
-                'news_headline' => addslashes($row['news_headline']),
-                'news_message'  => addslashes($row['news_message'])
+                'news_headline' => $row['news_headline'],
+                'news_message'  => $row['news_message']
             );
         }
         $db->free_result($result);
@@ -285,7 +293,7 @@ class Add_News extends EQdkp_Admin
             'L_RESET'          => $user->lang['reset'],
             'L_UPDATE_NEWS'    => $user->lang['update_news'],
             'L_DELETE_NEWS'    => $user->lang['delete_news'],
-            'L_UPDATE_DATE_TO' => sprintf($user->lang['update_date_to'], date('m/d/y h:ia T', time())),
+            'L_UPDATE_DATE_TO' => sprintf($user->lang['update_date_to'], date('m/d/Y h:ia T', time())),
 
             // Language (Help messages)
             'L_B_HELP' => $user->lang['b_help'],
@@ -305,14 +313,14 @@ class Add_News extends EQdkp_Admin
             'MSG_MESSAGE_EMPTY'  => $user->lang['fv_required_message'],
 
             // Buttons
-            'S_ADD' => ( !$this->url_id ) ? true : false)
-        );
+            'S_ADD' => ( !$this->url_id ) ? true : false
+        ));
 
         $eqdkp->set_vars(array(
             'page_title'    => page_title($user->lang['addnews_title']),
             'template_file' => 'admin/addnews.html',
-            'display'       => true)
-        );
+            'display'       => true
+        ));
     }
 }
 

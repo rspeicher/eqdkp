@@ -91,7 +91,7 @@ switch ( $action )
                 $tpl->assign_block_vars('log_row', array(
                     'ROW_CLASS' => $eqdkp->switch_row_class(),
                     'KEY'       => sanitize($k).':',
-                    'VALUE'     => sanitize($v)
+                    'VALUE'     => nl2br(sanitize($v))
                 ));
             }
         }

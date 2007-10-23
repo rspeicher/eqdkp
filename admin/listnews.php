@@ -44,10 +44,10 @@ while ( $news = $db->fetch_record($result) )
     $tpl->assign_block_vars('news_row', array(
         'ROW_CLASS' => $eqdkp->switch_row_class(),
         'DATE' => date($user->style['date_time'], $news['news_date']),
-        'USERNAME' => $news['username'],
+        'USERNAME' => sanitize($news['username']),
         'U_VIEW_NEWS' => 'addnews.php'.$SID.'&amp;' . URI_NEWS . '='.$news['news_id'],
-        'HEADLINE' => stripslashes($news['news_headline']))
-    );
+        'HEADLINE' => sanitize($news['news_headline'])
+    ));
 }
 
 $tpl->assign_vars(array(

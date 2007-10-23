@@ -104,8 +104,8 @@ class Add_News extends EQdkp_Admin
         // Insert the news
         //
         $query = $db->build_query('INSERT', array(
-            'news_headline' => sanitize($in->get('news_headline')),
-            'news_message'  => sanitize($in->get('news_message')),
+            'news_headline' => $in->get('news_headline'),
+            'news_message'  => $in->get('news_message'),
             'news_date'     => $this->time,
             'user_id'       => $user->data['user_id']
         ));
@@ -155,16 +155,16 @@ class Add_News extends EQdkp_Admin
         if ( $in->get('update_date', 0) == 1 )
         {
             $query = $db->build_query('UPDATE', array(
-                'news_headline' => sanitize($in->get('news_headline')),
-                'news_message'  => sanitize($in->get('news_message')),
+                'news_headline' => $in->get('news_headline'),
+                'news_message'  => $in->get('news_message'),
                 'news_date'     => $this->time
             ));
         }
         else
         {
             $query = $db->build_query('UPDATE', array(
-                'news_headline' => sanitize($in->get('news_headline')),
-                'news_message'  => sanitize($in->get('news_message'))
+                'news_headline' => $in->get('news_headline'),
+                'news_message'  => $in->get('news_message')
             ));
         }
         $db->query("UPDATE __news SET {$query} WHERE (`news_id` = '{$this->url_id}')");

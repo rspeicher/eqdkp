@@ -41,7 +41,7 @@ if ( $in->get(URI_RAID, 0) )
     $classes   = array();
     
     $sql = "SELECT ra.member_name, c.class_name AS member_class,
-                CONCAT(r.rank_prefix, m.member_name, r.rank_suffix) AS member_sname
+                CONCAT(r.rank_prefix, '%s', r.rank_suffix) AS member_sname
             FROM __raid_attendees AS ra, __members AS m
                 LEFT JOIN __member_ranks AS r ON r.rank_id = m.member_rank_id
                 LEFT JOIN __classes AS c ON c.class_id = m.member_class_id
@@ -51,8 +51,8 @@ if ( $in->get(URI_RAID, 0) )
     $result = $db->query($sql);
     while ( $arow = $db->fetch_record($result) )
     {
-        $attendees[] = array('name' => $arow['member_name'], 'styled' => $arow['member_sname']);
-        $classes[ $arow['member_class'] ][] = $arow['member_sname'];
+        $attendees[] = array('name' => $arow['member_name'], 'styled' => sprintf($arow['member_sname'], sanitize($arow['member_name'])));
+        $classes[ $arow['member_class'] ][] = sprintf($arow['member_sname'], sanitize($arow['member_name']));
     }
     $db->free_result($result);
     $total_attendees = sizeof($attendees);

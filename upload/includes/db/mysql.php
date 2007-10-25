@@ -33,16 +33,16 @@ class dbal_mysql extends dbal
     }
 */
     
-    /** sql_connect 
-    * Connects to a MySQL database
-    * 
-    * @param $dbhost Database server
-    * @param $dbname Database name
-    * @param $dbuser Database username
-    * @param $dbpass Database password
-    * @param $pconnect Use persistent connection
-    * @return mixed Link ID / false
-    */
+    /**
+     * Connects to a MySQL database
+     * 
+     * @param string $dbhost Database server
+     * @param string $dbname Database name
+     * @param string $dbuser Database username
+     * @param string $dbpass Database password
+     * @param bool $pconnect Use persistent connection
+     * @return resource|bool Link ID / false
+     */
     function sql_connect($dbhost, $dbname, $dbuser, $dbpass='', $pconnect = false)
     {
         $this->pconnect = $pconnect;
@@ -96,10 +96,10 @@ class dbal_mysql extends dbal
     }
 
     /**
-    * Closes MySQL connection
-    * 
-    * @return bool
-    */
+     * Closes MySQL connection
+     * 
+     * @return bool
+     */
     // FIXME: Deprecate me!
     function close_db()
     {
@@ -118,10 +118,10 @@ class dbal_mysql extends dbal
     }
         
     /**
-    * Get error information
-    * 
-    * @return array Error information
-    */
+     * Get error information
+     * 
+     * @return array Error information
+     */
     function error()
     {
         $result['message'] = @mysql_error();
@@ -135,7 +135,7 @@ class dbal_mysql extends dbal
      * 
      * @param string $query Query string
      * @param array $params If present, replce :params in $query with the value of {@link build_query}
-     * @return mixed Query ID / Error string / Bool
+     * @return int|string|bool Query ID, Error string or false
      */
      // TODO: Split out any of the generic query code and place it in dbal.php; 
      //       replace all db-specific parts with a single _sql_query() method, called by dbal's generic query method.
@@ -195,10 +195,10 @@ class dbal_mysql extends dbal
     }
     
     /**
-    * Return the first record (single column) in a query result
-    * 
-    * @param $query Query string
-    */
+     * Return the first record (single column) in a query result
+     * 
+     * @param string $query Query string
+     */
     function query_first($query)
     {
         $this->query($query);
@@ -209,12 +209,13 @@ class dbal_mysql extends dbal
     }
     
     /**
-    * Build query
-    * Ikonboard -> phpBB -> EQdkp
-    * 
-    * @param $query
-    * @param $array Array of field => value pairs
-    */
+     * Build query
+     * Ikonboard -> phpBB -> EQdkp
+     * 
+     * @param string $query Type of query to build, either INSERT or UPDATE
+     * @param array $array Array of field => value pairs
+     * @return string
+     */
     function build_query($query, $array = false)
     {
         if ( !is_array($array) )
@@ -286,11 +287,11 @@ class dbal_mysql extends dbal
     }
     
     /**
-    * Fetch a record
-    * 
-    * @param $query_id Query ID
-    * @return mixed Record / false
-    */
+     * Fetch a record
+     * 
+     * @param int $query_id Query ID
+     * @return array|bool Record array or false
+     */
     function fetch_record($query_id = 0)
     {
         if ( !$query_id )
@@ -310,11 +311,12 @@ class dbal_mysql extends dbal
     }
     
     /**
-    * Fetch a record set
-    * 
-    * @param $query_id Query ID
-    * @return mixed Record Set / false
-    */
+     * Fetch a record set
+     * 
+     * @param int $query_id Query ID
+     * @return array|bool Record set array or false
+     */
+    // FIXME: This isn't currently used anywhere. Delete it? There's probably a few places where it may be useful
     function fetch_record_set($query_id = 0)
     {
         if ( !$query_id )
@@ -338,11 +340,11 @@ class dbal_mysql extends dbal
     }
     
     /**
-    * Find the number of returned rows
-    * 
-    * @param $query_id Query ID
-    * @return mixed Number of rows / false
-    */
+     * Find the number of returned rows
+     * 
+     * @param int $query_id Query ID
+     * @return int|bool Number of rows or false
+     */
     function num_rows($query_id = 0)
     {
         if ( !$query_id )
@@ -362,20 +364,20 @@ class dbal_mysql extends dbal
     }
     
     /**
-    * Finds out the number of rows affected by a query
-    * 
-    * @return mixed Affected Rows / false
-    */
+     * Finds the number of rows affected by a query
+     * 
+     * @return int
+     */
     function affected_rows()
     {
-        return ( $this->link_id ) ? @mysql_affected_rows($this->link_id) : false;
+        return ( $this->link_id ) ? @mysql_affected_rows($this->link_id) : 0;
     }
     
     /**
-    * Find the ID of the row that was just inserted
-    * 
-    * @return mixed Last ID / false
-    */
+     * Find the ID of the last row inserted
+     * 
+     * @return int|bool ID or false
+     */
     function insert_id()
     {
         if ( $this->link_id )
@@ -390,11 +392,11 @@ class dbal_mysql extends dbal
     }
     
     /**
-    * Free result data
-    * 
-    * @param $query_id Query ID
-    * @return bool
-    */
+     * Free result data
+     * 
+     * @param int $query_id Query ID
+     * @return bool
+     */
     function free_result($query_id = 0)
     {
         if ( !$query_id )

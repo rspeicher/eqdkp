@@ -16,9 +16,11 @@ if ( !defined('EQDKP_INC') )
 }
 
 /**
-* Database Abstraction Layer
-* @package dbal
-*/
+ * Database Abstraction Layer
+ * 
+ * @abstract
+ * @package dbal
+ */
 class dbal
 {
     var $link_id     = 0;                   // Connection link ID       @var link_id
@@ -30,20 +32,20 @@ class dbal
     var $error_die   = true;                // Die on errors?           @var error_die
 
     /**
-    * Current sql layer
-    */
+     * Current sql layer
+     */
     var $sql_layer = '';
 
     /**
-    * Wildcards for matching any (%) or exactly one (_) character within LIKE expressions
-    */
+     * Wildcards for matching any (%) or exactly one (_) character within LIKE expressions
+     */
     var $any_char;
     var $one_char;
 
 
     /**
-    * Constructor
-    */
+     * Constructor
+     */
     function dbal()
     {
         $this->query_count = 0;
@@ -58,20 +60,20 @@ class dbal
     }
 
     /**
-    * DBAL garbage collection, close sql connection
-    */
+     * DBAL garbage collection, close sql connection
+     */
     function sql_close()
     {
         return $this->_sql_close();
     }
 
     /**
-    * Remove quote escape
-    * 
-    * @param $string    The string to escape, or the implode() delimiter if $array is set
-    * @param $array     An array to pass to _implode(), escaping its values
-    * @return string
-    */
+     * Make a string (or array of strings) more secure against SQL injection
+     * 
+     * @param string $string String to escape, or the implode() delimiter if $array is set
+     * @param array $array An array to pass to _implode(), escaping its values
+     * @return string
+     */
     function escape($string, $array = null)
     {
         if ( is_array($array) )
@@ -86,6 +88,14 @@ class dbal
         return $string;
     }
     
+    /**
+     * Implode an array of strings with a given delimiter after calling {@link escape} on each element
+     *
+     * @param string $delim implode() delimiter
+     * @param array $array Array of strings to escape and join together
+     * @return array
+     * @access private
+     */
     function _implode($delim, $array)
     {
         if ( !is_array($array) || count($array) == 0 )
@@ -102,10 +112,10 @@ class dbal
     }
 
     /**
-    * Set the error_die var
-    * 
-    * @param $setting
-    */
+     * Set the error_die var
+     * 
+     * @param bool $setting
+     */
     function error_die($setting = true)
     {
         $this->error_die = $setting;
@@ -113,7 +123,5 @@ class dbal
 
 }
 
-/**
-* This variable holds the class name to use later
-*/
+// This variable holds the class name to use later
 $sql_db = 'dbal_' . $dbms;

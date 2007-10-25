@@ -183,7 +183,7 @@ function connect_check_db($error_connect, &$error, $dbms, $table_prefix, $dbhost
 	$sql_db = 'dbal_' . $dbms['DRIVER'];
 
 	$db = new $sql_db();
-	$db->sql_return_on_error(true);
+//	$db->sql_return_on_error(true);
 
 	// Check that we actually have a database name before going any further.....
 	if ($dbms['DRIVER'] != 'sqlite' && $dbms['DRIVER'] != 'oracle' && $dbname === '')

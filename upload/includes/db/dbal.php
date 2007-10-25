@@ -62,21 +62,6 @@ class dbal
 	*/
 	function sql_close()
 	{
-		if (!$this->db_connect_id)
-		{
-			return false;
-		}
-
-		if ($this->transaction)
-		{
-			$this->sql_transaction('commit');
-		}
-
-		foreach ($this->open_queries as $query_id)
-		{
-			$this->sql_freeresult($query_id);
-		}
-		
 		return $this->_sql_close();
 	}
 

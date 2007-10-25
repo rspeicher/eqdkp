@@ -518,9 +518,9 @@ function process_step3()
     //
     define('DEBUG', 2);
     include_once($dbal_file);
-	$sql_db = 'dbal_' . $dbms;
+    $sql_db = 'dbal_' . $dbms;
     $db = new $sql_db();
-	$db->sql_connect($dbhost, $dbname, $dbuser, $dbpass, false);
+    $db->sql_connect($dbhost, $dbname, $dbuser, $dbpass, false);
 
     // Check to make sure a connection was made
     if ( !is_resource($db->link_id) )

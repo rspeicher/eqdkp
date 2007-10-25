@@ -103,7 +103,7 @@ $lang = array_merge($lang, array(
     'manage_plugins'             => 'Manage Plugins',
     'manage_users'               => 'Manage Users',
     'mass_update_note'           => 'If you wish to apply changes to all of the items selected above, use these controls to change their properties and click on "Mass Update".' 
-	                                . "\n" . 'To delete the selected accounts, just click on "Mass Delete".',
+                                    . "\n" . 'To delete the selected accounts, just click on "Mass Delete".',
     'members'                    => 'Members',
     'member_rank'                => 'Member Rank',
     'message_body'               => 'Message Body',

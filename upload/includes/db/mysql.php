@@ -27,13 +27,13 @@ define('DBTYPE', 'mysql');
 class dbal_mysql extends dbal
 {
 /*
-	function dbal_mysql()
-	{
-		$this->dbal();
-	}
+    function dbal_mysql()
+    {
+        $this->dbal();
+    }
 */
-	
-	/** sql_connect 
+    
+    /** sql_connect 
     * Connects to a MySQL database
     * 
     * @param $dbhost Database server
@@ -89,18 +89,18 @@ class dbal_mysql extends dbal
         }
     }
     
-	// FIXME: Move close_db functionality into this method and dbal's sql_close() method; deprecate close_db
-	function _sql_close()
-	{
-		return $this->close_db();
-	}
+    // FIXME: Move close_db functionality into this method and dbal's sql_close() method; deprecate close_db
+    function _sql_close()
+    {
+        return $this->close_db();
+    }
 
     /**
     * Closes MySQL connection
     * 
     * @return bool
     */
-	// FIXME: Deprecate me!
+    // FIXME: Deprecate me!
     function close_db()
     {
         if ( $this->link_id )
@@ -116,7 +116,7 @@ class dbal_mysql extends dbal
             return false;
         }
     }
-    	
+        
     /**
     * Get error information
     * 
@@ -137,8 +137,8 @@ class dbal_mysql extends dbal
      * @param array $params If present, replce :params in $query with the value of {@link build_query}
      * @return mixed Query ID / Error string / Bool
      */
-	 // TODO: Split out any of the generic query code and place it in dbal.php; 
-	 //       replace all db-specific parts with a single _sql_query() method, called by dbal's generic query method.
+     // TODO: Split out any of the generic query code and place it in dbal.php; 
+     //       replace all db-specific parts with a single _sql_query() method, called by dbal's generic query method.
     function query($query, $params = null)
     {
         global $table_prefix, $debug;

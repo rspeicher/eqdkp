@@ -18,60 +18,60 @@
 */
 function get_available_dbms($dbms = false, $return_unavailable = false)
 {
-	global $lang;
+    global $lang;
 
-	$available_dbms = array(
-		'mysql'		=> array(
-			'LABEL'			=> 'MySQL',
-			'SCHEMA'		=> 'mysql',
-			'MODULE'		=> 'mysql', 
-			'DELIM'			=> ';',
-			'COMMENTS'		=> 'remove_remarks',
-			'DRIVER'		=> 'mysql',
-			'AVAILABLE'		=> true,
-		),
-	);
+    $available_dbms = array(
+        'mysql'        => array(
+            'LABEL'            => 'MySQL',
+            'SCHEMA'        => 'mysql',
+            'MODULE'        => 'mysql', 
+            'DELIM'            => ';',
+            'COMMENTS'        => 'remove_remarks',
+            'DRIVER'        => 'mysql',
+            'AVAILABLE'        => true,
+        ),
+    );
 
-	if ($dbms)
-	{
-		if (isset($available_dbms[$dbms]))
-		{
-			$available_dbms = array($dbms => $available_dbms[$dbms]);
-		}
-		else
-		{
-			return array();
-		}
-	}
+    if ($dbms)
+    {
+        if (isset($available_dbms[$dbms]))
+        {
+            $available_dbms = array($dbms => $available_dbms[$dbms]);
+        }
+        else
+        {
+            return array();
+        }
+    }
 
-	// now perform some checks whether they are really available
-	foreach ($available_dbms as $db_name => $db_ary)
-	{
-		$dll = $db_ary['MODULE'];
+    // now perform some checks whether they are really available
+    foreach ($available_dbms as $db_name => $db_ary)
+    {
+        $dll = $db_ary['MODULE'];
 
-		if (!@extension_loaded($dll))
-		{
-			if (!can_load_dll($dll))
-			{
-				if ($return_unavailable)
-				{
-					$available_dbms[$db_name]['AVAILABLE'] = false;
-				}
-				else
-				{
-					unset($available_dbms[$db_name]);
-				}
-				continue;
-			}
-		}
-		$any_db_support = true;
-	}
+        if (!@extension_loaded($dll))
+        {
+            if (!can_load_dll($dll))
+            {
+                if ($return_unavailable)
+                {
+                    $available_dbms[$db_name]['AVAILABLE'] = false;
+                }
+                else
+                {
+                    unset($available_dbms[$db_name]);
+                }
+                continue;
+            }
+        }
+        $any_db_support = true;
+    }
 
-	if ($return_unavailable)
-	{
-		$available_dbms['ANY_DB_SUPPORT'] = $any_db_support;
-	}
-	return $available_dbms;
+    if ($return_unavailable)
+    {
+        $available_dbms['ANY_DB_SUPPORT'] = $any_db_support;
+    }
+    return $available_dbms;
 }
 
 
@@ -80,16 +80,16 @@ function get_available_dbms($dbms = false, $return_unavailable = false)
 */
 function dbms_select($default = '')
 {
-	global $lang;
-	
-	$available_dbms = get_available_dbms(false, false);
-	$dbms_options = '';
-	foreach ($available_dbms as $dbms_name => $details)
-	{
-		$selected = ($dbms_name == $default) ? ' selected="selected"' : '';
-		$dbms_options .= '<option value="' . $dbms_name . '"' . $selected .'>' . $lang['DLL_' . strtoupper($dbms_name)] . '</option>';
-	}
-	return $dbms_options;
+    global $lang;
+    
+    $available_dbms = get_available_dbms(false, false);
+    $dbms_options = '';
+    foreach ($available_dbms as $dbms_name => $details)
+    {
+        $selected = ($dbms_name == $default) ? ' selected="selected"' : '';
+        $dbms_options .= '<option value="' . $dbms_name . '"' . $selected .'>' . $lang['DLL_' . strtoupper($dbms_name)] . '</option>';
+    }
+    return $dbms_options;
 }
 
 /**
@@ -97,40 +97,40 @@ function dbms_select($default = '')
 */
 function inst_language_select($default = '')
 {
-	global $eqdkp_root_path, $lang, $DEFAULTS;
+    global $eqdkp_root_path, $lang, $DEFAULTS;
 
-	$lang_options = '';
+    $lang_options = '';
 
-	$lang_path = $eqdkp_root_path . 'language/';
-	if ( $dir = @opendir($lang_path) )
-	{
-		while ( $file = @readdir($dir) )
-		{
-			if ( (!is_file($lang_path . $file)) && (!is_link($lang_path . $file)) && ($file != '.') && ($file != '..') && ($file != 'CVS') && ($file != '.svn') )
-			{
-				$selected = ( $DEFAULTS['default_lang'] == ucfirst(strtolower($file)) ) ? 'selected="selected"' : '';
-				$lang_options .= '<option value="'. $file .'" '. $selected .'>'. ucfirst(strtolower($file)) .'</option>';
-			}
-		}
-	}
+    $lang_path = $eqdkp_root_path . 'language/';
+    if ( $dir = @opendir($lang_path) )
+    {
+        while ( $file = @readdir($dir) )
+        {
+            if ( (!is_file($lang_path . $file)) && (!is_link($lang_path . $file)) && ($file != '.') && ($file != '..') && ($file != 'CVS') && ($file != '.svn') )
+            {
+                $selected = ( $DEFAULTS['default_lang'] == ucfirst(strtolower($file)) ) ? 'selected="selected"' : '';
+                $lang_options .= '<option value="'. $file .'" '. $selected .'>'. ucfirst(strtolower($file)) .'</option>';
+            }
+        }
+    }
 
-	return $lang_options;
+    return $lang_options;
 }
 
 
 function inst_locale_select($default = '')
 {
-	global $eqdkp_root_path, $lang, $LOCALES, $DEFAULTS;
+    global $eqdkp_root_path, $lang, $LOCALES, $DEFAULTS;
 
-	$locale_options = '';
+    $locale_options = '';
 
-	foreach ( $LOCALES as $locale_type => $locale_desc )
-	{
-		$selected = $DEFAULTS['default_lang'] == $locale_type ? 'selected="selected"' : '';
-		$locale_options .= '<option value="'. $locale_desc['type'] .'" '. $selected .'>'. $locale_type .'</option>';
-	}
+    foreach ( $LOCALES as $locale_type => $locale_desc )
+    {
+        $selected = $DEFAULTS['default_lang'] == $locale_type ? 'selected="selected"' : '';
+        $locale_options .= '<option value="'. $locale_desc['type'] .'" '. $selected .'>'. $locale_type .'</option>';
+    }
 
-	return $locale_options;
+    return $locale_options;
 }
 
 /**
@@ -138,130 +138,130 @@ function inst_locale_select($default = '')
 */
 function get_tables($db)
 {
-	switch ($db->sql_layer)
-	{
-		case 'mysql':
-		case 'mysql4':
-		case 'mysqli':
-			$sql = 'SHOW TABLES';
-		break;
-	}
+    switch ($db->sql_layer)
+    {
+        case 'mysql':
+        case 'mysql4':
+        case 'mysqli':
+            $sql = 'SHOW TABLES';
+        break;
+    }
 
-	$result = $db->query($sql);
+    $result = $db->query($sql);
 
-	$tables = array();
+    $tables = array();
 
-	while ($row = $db->fetch_record($result))
-	{
-		$tables[] = current($row);
-	}
+    while ($row = $db->fetch_record($result))
+    {
+        $tables[] = current($row);
+    }
 
-	$db->free_result($result);
+    $db->free_result($result);
 
-	return $tables;
+    return $tables;
 }
 
 /**
 * Used to test whether we are able to connect to the database the user has specified
 * and identify any problems (eg there are already tables with the names we want to use
-* @param	array	$dbms should be of the format of an element of the array returned by {@link get_available_dbms get_available_dbms()}
-*					necessary extensions should be loaded already
+* @param    array    $dbms should be of the format of an element of the array returned by {@link get_available_dbms get_available_dbms()}
+*                    necessary extensions should be loaded already
 */
 function connect_check_db($error_connect, &$error, $dbms, $table_prefix, $dbhost, $dbuser, $dbpasswd, $dbname, $dbport, $prefix_may_exist = false, $load_dbal = true, $unicode_check = true)
 {
-	global $eqdkp_root_path, $config, $lang;
+    global $eqdkp_root_path, $config, $lang;
 
 
-	if ($load_dbal)
-	{
-		// Include the DB layer
-		include_once($eqdkp_root_path . 'includes/db/' . $dbms['DRIVER'] . '.php');
-	}
+    if ($load_dbal)
+    {
+        // Include the DB layer
+        include_once($eqdkp_root_path . 'includes/db/' . $dbms['DRIVER'] . '.php');
+    }
 
-	// Instantiate it and set return on error true
-	// Note to self: If general dbal class made, and each subclass has prefix, add here.
-	$sql_db = 'dbal_' . $dbms['DRIVER'];
+    // Instantiate it and set return on error true
+    // Note to self: If general dbal class made, and each subclass has prefix, add here.
+    $sql_db = 'dbal_' . $dbms['DRIVER'];
 
-	$db = new $sql_db();
-//	$db->sql_return_on_error(true);
+    $db = new $sql_db();
+//    $db->sql_return_on_error(true);
 
-	// Check that we actually have a database name before going any further.....
-	if ($dbms['DRIVER'] != 'sqlite' && $dbms['DRIVER'] != 'oracle' && $dbname === '')
-	{
-		$error[] = $lang['INST_ERR_DB_NO_NAME'];
-		return false;
-	}
+    // Check that we actually have a database name before going any further.....
+    if ($dbms['DRIVER'] != 'sqlite' && $dbms['DRIVER'] != 'oracle' && $dbname === '')
+    {
+        $error[] = $lang['INST_ERR_DB_NO_NAME'];
+        return false;
+    }
 
-	// Make sure we don't have a daft user who thinks having the SQLite database in the forum directory is a good idea
-/*	if ($dbms['DRIVER'] == 'sqlite' && stripos(eqdkp_realpath($dbhost), eqdkp_realpath('../')) === 0)
-	{
-		$error[] = $lang['INST_ERR_DB_FORUM_PATH'];
-		return false;
-	}
+    // Make sure we don't have a daft user who thinks having the SQLite database in the forum directory is a good idea
+/*    if ($dbms['DRIVER'] == 'sqlite' && stripos(eqdkp_realpath($dbhost), eqdkp_realpath('../')) === 0)
+    {
+        $error[] = $lang['INST_ERR_DB_FORUM_PATH'];
+        return false;
+    }
 */
-	// Check the prefix length to ensure that index names are not too long and does not contain invalid characters
-	switch ($dbms['DRIVER'])
-	{
-		case 'mysql':
-		case 'mysqli':
-			if (strpos($table_prefix, '-') !== false || strpos($table_prefix, '.') !== false)
-			{
-				$error[] = $lang['INST_ERR_PREFIX_INVALID'];
-				return false;
-			}
+    // Check the prefix length to ensure that index names are not too long and does not contain invalid characters
+    switch ($dbms['DRIVER'])
+    {
+        case 'mysql':
+        case 'mysqli':
+            if (strpos($table_prefix, '-') !== false || strpos($table_prefix, '.') !== false)
+            {
+                $error[] = $lang['INST_ERR_PREFIX_INVALID'];
+                return false;
+            }
 
-			$prefix_length = 36;
-		break;
-	}
+            $prefix_length = 36;
+        break;
+    }
 
-	if (strlen($table_prefix) > $prefix_length)
-	{
-		$error[] = sprintf($lang['INST_ERR_PREFIX_TOO_LONG'], $prefix_length);
-		return false;
-	}
+    if (strlen($table_prefix) > $prefix_length)
+    {
+        $error[] = sprintf($lang['INST_ERR_PREFIX_TOO_LONG'], $prefix_length);
+        return false;
+    }
 
-	// Try and connect ...
-	if (is_array($db->sql_connect($dbhost, $dbname, $dbuser, $dbpasswd, false)))
-	{
-//		$db_error = $db->sql_error();
-		$error[] = $lang['INST_ERR_DB_CONNECT'] . '<br />' . (($db_error['message']) ? $db_error['message'] : $lang['INST_ERR_DB_NO_ERROR']);
-	}
-	else
-	{
-		// Likely matches for an existing eqdkp installation
-		if (!$prefix_may_exist)
-		{
-			$temp_prefix = strtolower($table_prefix);
-			$table_ary = array($temp_prefix . 'raids', $temp_prefix . 'raid_attendees', $temp_prefix . 'config', $temp_prefix . 'sessions', $temp_prefix . 'users');
+    // Try and connect ...
+    if (is_array($db->sql_connect($dbhost, $dbname, $dbuser, $dbpasswd, false)))
+    {
+//        $db_error = $db->sql_error();
+        $error[] = $lang['INST_ERR_DB_CONNECT'] . '<br />' . (($db_error['message']) ? $db_error['message'] : $lang['INST_ERR_DB_NO_ERROR']);
+    }
+    else
+    {
+        // Likely matches for an existing eqdkp installation
+        if (!$prefix_may_exist)
+        {
+            $temp_prefix = strtolower($table_prefix);
+            $table_ary = array($temp_prefix . 'raids', $temp_prefix . 'raid_attendees', $temp_prefix . 'config', $temp_prefix . 'sessions', $temp_prefix . 'users');
 
-			$tables = get_tables($db);
-			$tables = array_map('strtolower', $tables);
-			$table_intersect = array_intersect($tables, $table_ary);
+            $tables = get_tables($db);
+            $tables = array_map('strtolower', $tables);
+            $table_intersect = array_intersect($tables, $table_ary);
 
-			if (sizeof($table_intersect))
-			{
-				$error[] = $lang['INST_ERR_PREFIX'];
-			}
-		}
+            if (sizeof($table_intersect))
+            {
+                $error[] = $lang['INST_ERR_PREFIX'];
+            }
+        }
 
-		// Make sure that the user has selected a sensible DBAL for the DBMS actually installed
-		switch ($dbms['DRIVER'])
-		{
-			case 'mysqli':
-				if (version_compare(mysqli_get_server_info($db->db_connect_id), '4.1.3', '<'))
-				{
-					$error[] = $lang['INST_ERR_DB_NO_MYSQLI'];
-				}
-			break;
-		}
+        // Make sure that the user has selected a sensible DBAL for the DBMS actually installed
+        switch ($dbms['DRIVER'])
+        {
+            case 'mysqli':
+                if (version_compare(mysqli_get_server_info($db->db_connect_id), '4.1.3', '<'))
+                {
+                    $error[] = $lang['INST_ERR_DB_NO_MYSQLI'];
+                }
+            break;
+        }
 
-	}
+    }
 
-	if ($error_connect && (!isset($error) || !sizeof($error)))
-	{
-		return true;
-	}
-	return false;
+    if ($error_connect && (!isset($error) || !sizeof($error)))
+    {
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -334,32 +334,32 @@ function config_set($config_name, $config_value='', $db = null)
 */
 function set_var(&$result, $var, $type, $multibyte = false)
 {
-	settype($var, $type);
-	$result = $var;
+    settype($var, $type);
+    $result = $var;
 
-	if ($type == 'string')
-	{
-		$result = trim(htmlspecialchars(str_replace(array("\r\n", "\r"), array("\n", "\n"), $result), ENT_COMPAT, 'UTF-8'));
+    if ($type == 'string')
+    {
+        $result = trim(htmlspecialchars(str_replace(array("\r\n", "\r"), array("\n", "\n"), $result), ENT_COMPAT, 'UTF-8'));
 
-		if (!empty($result))
-		{
-			// Make sure multibyte characters are wellformed
-			if ($multibyte)
-			{
-				if (!preg_match('/^./u', $result))
-				{
-					$result = '';
-				}
-			}
-			else
-			{
-				// no multibyte, allow only ASCII (0-127)
-				$result = preg_replace('/[\x80-\xFF]/', '?', $result);
-			}
-		}
+        if (!empty($result))
+        {
+            // Make sure multibyte characters are wellformed
+            if ($multibyte)
+            {
+                if (!preg_match('/^./u', $result))
+                {
+                    $result = '';
+                }
+            }
+            else
+            {
+                // no multibyte, allow only ASCII (0-127)
+                $result = preg_replace('/[\x80-\xFF]/', '?', $result);
+            }
+        }
 
-		$result = (STRIP) ? stripslashes($result) : $result;
-	}
+        $result = (STRIP) ? stripslashes($result) : $result;
+    }
 }
 
 
@@ -370,76 +370,76 @@ function set_var(&$result, $var, $type, $multibyte = false)
 */
 function request_var($var_name, $default, $multibyte = false, $cookie = false)
 {
-	if (!$cookie && isset($_COOKIE[$var_name]))
-	{
-		if (!isset($_GET[$var_name]) && !isset($_POST[$var_name]))
-		{
-			return (is_array($default)) ? array() : $default;
-		}
-		$_REQUEST[$var_name] = isset($_POST[$var_name]) ? $_POST[$var_name] : $_GET[$var_name];
-	}
+    if (!$cookie && isset($_COOKIE[$var_name]))
+    {
+        if (!isset($_GET[$var_name]) && !isset($_POST[$var_name]))
+        {
+            return (is_array($default)) ? array() : $default;
+        }
+        $_REQUEST[$var_name] = isset($_POST[$var_name]) ? $_POST[$var_name] : $_GET[$var_name];
+    }
 
-	if (!isset($_REQUEST[$var_name]) || (is_array($_REQUEST[$var_name]) && !is_array($default)) || (is_array($default) && !is_array($_REQUEST[$var_name])))
-	{
-		return (is_array($default)) ? array() : $default;
-	}
+    if (!isset($_REQUEST[$var_name]) || (is_array($_REQUEST[$var_name]) && !is_array($default)) || (is_array($default) && !is_array($_REQUEST[$var_name])))
+    {
+        return (is_array($default)) ? array() : $default;
+    }
 
-	$var = $_REQUEST[$var_name];
-	if (!is_array($default))
-	{
-		$type = gettype($default);
-	}
-	else
-	{
-		list($key_type, $type) = each($default);
-		$type = gettype($type);
-		$key_type = gettype($key_type);
-		if ($type == 'array')
-		{
-			reset($default);
-			list($sub_key_type, $sub_type) = each(current($default));
-			$sub_type = gettype($sub_type);
-			$sub_type = ($sub_type == 'array') ? 'NULL' : $sub_type;
-			$sub_key_type = gettype($sub_key_type);
-		}
-	}
+    $var = $_REQUEST[$var_name];
+    if (!is_array($default))
+    {
+        $type = gettype($default);
+    }
+    else
+    {
+        list($key_type, $type) = each($default);
+        $type = gettype($type);
+        $key_type = gettype($key_type);
+        if ($type == 'array')
+        {
+            reset($default);
+            list($sub_key_type, $sub_type) = each(current($default));
+            $sub_type = gettype($sub_type);
+            $sub_type = ($sub_type == 'array') ? 'NULL' : $sub_type;
+            $sub_key_type = gettype($sub_key_type);
+        }
+    }
 
-	if (is_array($var))
-	{
-		$_var = $var;
-		$var = array();
+    if (is_array($var))
+    {
+        $_var = $var;
+        $var = array();
 
-		foreach ($_var as $k => $v)
-		{
-			set_var($k, $k, $key_type);
-			if ($type == 'array' && is_array($v))
-			{
-				foreach ($v as $_k => $_v)
-				{
-					if (is_array($_v))
-					{
-						$_v = null;
-					}
-					set_var($_k, $_k, $sub_key_type);
-					set_var($var[$k][$_k], $_v, $sub_type, $multibyte);
-				}
-			}
-			else
-			{
-				if ($type == 'array' || is_array($v))
-				{
-					$v = null;
-				}
-				set_var($var[$k], $v, $type, $multibyte);
-			}
-		}
-	}
-	else
-	{
-		set_var($var, $var, $type, $multibyte);
-	}
+        foreach ($_var as $k => $v)
+        {
+            set_var($k, $k, $key_type);
+            if ($type == 'array' && is_array($v))
+            {
+                foreach ($v as $_k => $_v)
+                {
+                    if (is_array($_v))
+                    {
+                        $_v = null;
+                    }
+                    set_var($_k, $_k, $sub_key_type);
+                    set_var($var[$k][$_k], $_v, $sub_type, $multibyte);
+                }
+            }
+            else
+            {
+                if ($type == 'array' || is_array($v))
+                {
+                    $v = null;
+                }
+                set_var($var[$k], $v, $type, $multibyte);
+            }
+        }
+    }
+    else
+    {
+        set_var($var, $var, $type, $multibyte);
+    }
 
-	return $var;
+    return $var;
 }
 
 
@@ -518,30 +518,30 @@ function parse_sql($sql, $delim)
 */
 function redirect($page)
 {
-	$server_name = (!empty($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : getenv('SERVER_NAME');
-	$server_port = (!empty($_SERVER['SERVER_PORT'])) ? (int) $_SERVER['SERVER_PORT'] : (int) getenv('SERVER_PORT');
-	$secure = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 1 : 0;
+    $server_name = (!empty($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : getenv('SERVER_NAME');
+    $server_port = (!empty($_SERVER['SERVER_PORT'])) ? (int) $_SERVER['SERVER_PORT'] : (int) getenv('SERVER_PORT');
+    $secure = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 1 : 0;
 
-	$script_name = (!empty($_SERVER['PHP_SELF'])) ? $_SERVER['PHP_SELF'] : getenv('PHP_SELF');
-	if (!$script_name)
-	{
-		$script_name = (!empty($_SERVER['REQUEST_URI'])) ? $_SERVER['REQUEST_URI'] : getenv('REQUEST_URI');
-	}
+    $script_name = (!empty($_SERVER['PHP_SELF'])) ? $_SERVER['PHP_SELF'] : getenv('PHP_SELF');
+    if (!$script_name)
+    {
+        $script_name = (!empty($_SERVER['REQUEST_URI'])) ? $_SERVER['REQUEST_URI'] : getenv('REQUEST_URI');
+    }
 
-	// Replace backslashes and doubled slashes (could happen on some proxy setups)
-	$script_name = str_replace(array('\\', '//'), '/', $script_name);
-	$script_path = trim(dirname($script_name));
+    // Replace backslashes and doubled slashes (could happen on some proxy setups)
+    $script_name = str_replace(array('\\', '//'), '/', $script_name);
+    $script_path = trim(dirname($script_name));
 
-	$url = (($secure) ? 'https://' : 'http://') . $server_name;
+    $url = (($secure) ? 'https://' : 'http://') . $server_name;
 
-	if ($server_port && (($secure && $server_port <> 443) || (!$secure && $server_port <> 80)))
-	{
-		$url .= ':' . $server_port;
-	}
+    if ($server_port && (($secure && $server_port <> 443) || (!$secure && $server_port <> 80)))
+    {
+        $url .= ':' . $server_port;
+    }
 
-	$url .= $script_path . '/' . $page;
-	header('Location: ' . $url);
-	exit;
+    $url .= $script_path . '/' . $page;
+    header('Location: ' . $url);
+    exit;
 }
 
 
@@ -551,61 +551,61 @@ function redirect($page)
 */
 function error($error, $line, $file, $skip = false)
 {
-	global $eqdkp_root_path, $lang, $db, $template;
+    global $eqdkp_root_path, $lang, $db, $template;
 
-	if ($skip)
-	{
-		$template->assign_block_vars('checks', array(
-			'S_LEGEND'	=> true,
-			'LEGEND'	=> $lang['INST_ERR'],
-		));
+    if ($skip)
+    {
+        $template->assign_block_vars('checks', array(
+            'S_LEGEND'    => true,
+            'LEGEND'    => $lang['INST_ERR'],
+        ));
 
-		$template->assign_block_vars('checks', array(
-			'TITLE'		=> basename($file) . ' [ ' . $line . ' ]',
-			'RESULT'	=> '<b style="color:red">' . $error . '</b>',
-		));
+        $template->assign_block_vars('checks', array(
+            'TITLE'        => basename($file) . ' [ ' . $line . ' ]',
+            'RESULT'    => '<b style="color:red">' . $error . '</b>',
+        ));
 
-		return;
-	}
+        return;
+    }
 
-	echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
-	echo '<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">';
-	echo '<head>';
-	echo '<meta http-equiv="content-type" content="text/html; charset=utf-8" />';
-	echo '<title>' . $lang['INST_ERR_FATAL'] . '</title>';
-	echo '<link href="' . $eqdkp_root_path . 'templates/install/admin.css" rel="stylesheet" type="text/css" media="screen" />';
-	echo '</head>';
-	echo '<body id="errorpage">';
-	echo '<div id="wrap">';
-	echo '	<div id="page-header">';
-	echo '	</div>';
-	echo '	<div id="page-body">';
-	echo '		<div id="acp">';
-	echo '		<div class="panel">';
-	echo '			<span class="corners-top"><span></span></span>';
-	echo '			<div id="content">';
-	echo '				<h1>' . $lang['INST_ERR_FATAL'] . '</h1>';
-	echo '		<p>' . $lang['INST_ERR_FATAL'] . "</p>\n";
-	echo '		<p>' . basename($file) . ' [ ' . $line . " ]</p>\n";
-	echo '		<p><b>' . $error . "</b></p>\n";
-	echo '			</div>';
-	echo '			<span class="corners-bottom"><span></span></span>';
-	echo '		</div>';
-	echo '		</div>';
-	echo '	</div>';
-	echo '	<div id="page-footer">';
-	echo '		Powered by phpBB &copy; 2000, 2002, 2005, 2007 <a href="http://www.phpbb.com/">phpBB Group</a>';
-	echo '	</div>';
-	echo '</div>';
-	echo '</body>';
-	echo '</html>';
+    echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
+    echo '<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">';
+    echo '<head>';
+    echo '<meta http-equiv="content-type" content="text/html; charset=utf-8" />';
+    echo '<title>' . $lang['INST_ERR_FATAL'] . '</title>';
+    echo '<link href="' . $eqdkp_root_path . 'templates/install/admin.css" rel="stylesheet" type="text/css" media="screen" />';
+    echo '</head>';
+    echo '<body id="errorpage">';
+    echo '<div id="wrap">';
+    echo '    <div id="page-header">';
+    echo '    </div>';
+    echo '    <div id="page-body">';
+    echo '        <div id="acp">';
+    echo '        <div class="panel">';
+    echo '            <span class="corners-top"><span></span></span>';
+    echo '            <div id="content">';
+    echo '                <h1>' . $lang['INST_ERR_FATAL'] . '</h1>';
+    echo '        <p>' . $lang['INST_ERR_FATAL'] . "</p>\n";
+    echo '        <p>' . basename($file) . ' [ ' . $line . " ]</p>\n";
+    echo '        <p><b>' . $error . "</b></p>\n";
+    echo '            </div>';
+    echo '            <span class="corners-bottom"><span></span></span>';
+    echo '        </div>';
+    echo '        </div>';
+    echo '    </div>';
+    echo '    <div id="page-footer">';
+    echo '        Powered by phpBB &copy; 2000, 2002, 2005, 2007 <a href="http://www.phpbb.com/">phpBB Group</a>';
+    echo '    </div>';
+    echo '</div>';
+    echo '</body>';
+    echo '</html>';
 
-	if (!empty($db) && is_object($db))
-	{
-		$db->sql_close();
-	}
+    if (!empty($db) && is_object($db))
+    {
+        $db->sql_close();
+    }
 
-	exit;
+    exit;
 }
 
 /**
@@ -614,41 +614,41 @@ function error($error, $line, $file, $skip = false)
 */
 function db_error($error, $sql, $line, $file, $skip = false)
 {
-	global $lang, $db, $template;
+    global $lang, $db, $template;
 
-	if ($skip)
-	{
-		$template->assign_block_vars('checks', array(
-			'S_LEGEND'	=> true,
-			'LEGEND'	=> $lang['INST_ERR_FATAL'],
-		));
+    if ($skip)
+    {
+        $template->assign_block_vars('checks', array(
+            'S_LEGEND'    => true,
+            'LEGEND'    => $lang['INST_ERR_FATAL'],
+        ));
 
-		$template->assign_block_vars('checks', array(
-			'TITLE'		=> basename($file) . ' [ ' . $line . ' ]',
-			'RESULT'	=> '<b style="color:red">' . $error . '</b><br />&#187; SQL:' . $sql,
-		));
+        $template->assign_block_vars('checks', array(
+            'TITLE'        => basename($file) . ' [ ' . $line . ' ]',
+            'RESULT'    => '<b style="color:red">' . $error . '</b><br />&#187; SQL:' . $sql,
+        ));
 
-		return;
-	}
+        return;
+    }
 
-	$template->set_filenames(array(
-		'body' => 'install_error.html')
-	);
-	$this->page_header();
-	$this->generate_navigation();
+    $template->set_filenames(array(
+        'body' => 'install_error.html')
+    );
+    $this->page_header();
+    $this->generate_navigation();
 
-	$template->assign_vars(array(
-		'MESSAGE_TITLE'		=> $lang['INST_ERR_FATAL_DB'],
-		'MESSAGE_TEXT'		=> '<p>' . basename($file) . ' [ ' . $line . ' ]</p><p>SQL : ' . $sql . '</p><p><b>' . $error . '</b></p>',
-	));
+    $template->assign_vars(array(
+        'MESSAGE_TITLE'        => $lang['INST_ERR_FATAL_DB'],
+        'MESSAGE_TEXT'        => '<p>' . basename($file) . ' [ ' . $line . ' ]</p><p>SQL : ' . $sql . '</p><p><b>' . $error . '</b></p>',
+    ));
 
-	// Rollback if in transaction
-	if ($db->transaction)
-	{
-//		$db->sql_transaction('rollback');
-	}
+    // Rollback if in transaction
+    if ($db->transaction)
+    {
+//        $db->sql_transaction('rollback');
+    }
 
-	$this->page_footer();
+    $this->page_footer();
 }
 
 
@@ -657,54 +657,54 @@ function db_error($error, $sql, $line, $file, $skip = false)
 */
 function input_field($name, $type, $value='', $options='')
 {
-	global $lang;
-	$tpl_type = explode(':', $type);
-	$tpl = '';
+    global $lang;
+    $tpl_type = explode(':', $type);
+    $tpl = '';
 
-	switch ($tpl_type[0])
-	{
-		case 'text':
-		case 'password':
-			$size = (int) $tpl_type[1];
-			$maxlength = (int) $tpl_type[2];
+    switch ($tpl_type[0])
+    {
+        case 'text':
+        case 'password':
+            $size = (int) $tpl_type[1];
+            $maxlength = (int) $tpl_type[2];
 
-			$tpl = '<input id="' . $name . '" type="' . $tpl_type[0] . '"' . (($size) ? ' size="' . $size . '"' : '') . ' maxlength="' . (($maxlength) ? $maxlength : 255) . '" name="' . $name . '" value="' . $value . '" />';
-		break;
+            $tpl = '<input id="' . $name . '" type="' . $tpl_type[0] . '"' . (($size) ? ' size="' . $size . '"' : '') . ' maxlength="' . (($maxlength) ? $maxlength : 255) . '" name="' . $name . '" value="' . $value . '" />';
+        break;
 
-		case 'textarea':
-			$rows = (int) $tpl_type[1];
-			$cols = (int) $tpl_type[2];
+        case 'textarea':
+            $rows = (int) $tpl_type[1];
+            $cols = (int) $tpl_type[2];
 
-			$tpl = '<textarea id="' . $name . '" name="' . $name . '" rows="' . $rows . '" cols="' . $cols . '">' . $value . '</textarea>';
-		break;
+            $tpl = '<textarea id="' . $name . '" name="' . $name . '" rows="' . $rows . '" cols="' . $cols . '">' . $value . '</textarea>';
+        break;
 
-		case 'radio':
-			$key_yes	= ($value) ? ' checked="checked" id="' . $name . '"' : '';
-			$key_no		= (!$value) ? ' checked="checked" id="' . $name . '"' : '';
+        case 'radio':
+            $key_yes    = ($value) ? ' checked="checked" id="' . $name . '"' : '';
+            $key_no        = (!$value) ? ' checked="checked" id="' . $name . '"' : '';
 
-			$tpl_type_cond = explode('_', $tpl_type[1]);
-			$type_no = ($tpl_type_cond[0] == 'disabled' || $tpl_type_cond[0] == 'enabled') ? false : true;
+            $tpl_type_cond = explode('_', $tpl_type[1]);
+            $type_no = ($tpl_type_cond[0] == 'disabled' || $tpl_type_cond[0] == 'enabled') ? false : true;
 
-			$tpl_no = '<label><input type="radio" name="' . $name . '" value="0"' . $key_no . ' class="radio" /> ' . (($type_no) ? $lang['NO'] : $lang['DISABLED']) . '</label>';
-			$tpl_yes = '<label><input type="radio" name="' . $name . '" value="1"' . $key_yes . ' class="radio" /> ' . (($type_no) ? $lang['YES'] : $lang['ENABLED']) . '</label>';
+            $tpl_no = '<label><input type="radio" name="' . $name . '" value="0"' . $key_no . ' class="radio" /> ' . (($type_no) ? $lang['NO'] : $lang['DISABLED']) . '</label>';
+            $tpl_yes = '<label><input type="radio" name="' . $name . '" value="1"' . $key_yes . ' class="radio" /> ' . (($type_no) ? $lang['YES'] : $lang['ENABLED']) . '</label>';
 
-			$tpl = ($tpl_type_cond[0] == 'yes' || $tpl_type_cond[0] == 'enabled') ? $tpl_yes . '&nbsp;&nbsp;' . $tpl_no : $tpl_no . '&nbsp;&nbsp;' . $tpl_yes;
-		break;
+            $tpl = ($tpl_type_cond[0] == 'yes' || $tpl_type_cond[0] == 'enabled') ? $tpl_yes . '&nbsp;&nbsp;' . $tpl_no : $tpl_no . '&nbsp;&nbsp;' . $tpl_yes;
+        break;
 
-		case 'select':
-			eval('$s_options = ' . str_replace('{VALUE}', $value, $options) . ';');
-			$tpl = '<select id="' . $name . '" name="' . $name . '">' . $s_options . '</select>';
-		break;
+        case 'select':
+            eval('$s_options = ' . str_replace('{VALUE}', $value, $options) . ';');
+            $tpl = '<select id="' . $name . '" name="' . $name . '">' . $s_options . '</select>';
+        break;
 
-		case 'custom':
-			eval('$tpl = ' . str_replace('{VALUE}', $value, $options) . ';');
-		break;
+        case 'custom':
+            eval('$tpl = ' . str_replace('{VALUE}', $value, $options) . ';');
+        break;
 
-		default:
-		break;
-	}
+        default:
+        break;
+    }
 
-	return $tpl;
+    return $tpl;
 }
 
 
@@ -714,27 +714,27 @@ function input_field($name, $type, $value='', $options='')
 */
 function _build_hidden_fields($key, $value, $specialchar, $stripslashes)
 {
-	$hidden_fields = '';
+    $hidden_fields = '';
 
-	if (!is_array($value))
-	{
-		$value = ($stripslashes) ? stripslashes($value) : $value;
-		$value = ($specialchar) ? htmlspecialchars($value, ENT_COMPAT, 'UTF-8') : $value;
+    if (!is_array($value))
+    {
+        $value = ($stripslashes) ? stripslashes($value) : $value;
+        $value = ($specialchar) ? htmlspecialchars($value, ENT_COMPAT, 'UTF-8') : $value;
 
-		$hidden_fields .= '<input type="hidden" name="' . $key . '" value="' . $value . '" />' . "\n";
-	}
-	else
-	{
-		foreach ($value as $_key => $_value)
-		{
-			$_key = ($stripslashes) ? stripslashes($_key) : $_key;
-			$_key = ($specialchar) ? htmlspecialchars($_key, ENT_COMPAT, 'UTF-8') : $_key;
+        $hidden_fields .= '<input type="hidden" name="' . $key . '" value="' . $value . '" />' . "\n";
+    }
+    else
+    {
+        foreach ($value as $_key => $_value)
+        {
+            $_key = ($stripslashes) ? stripslashes($_key) : $_key;
+            $_key = ($specialchar) ? htmlspecialchars($_key, ENT_COMPAT, 'UTF-8') : $_key;
 
-			$hidden_fields .= _build_hidden_fields($key . '[' . $_key . ']', $_value, $specialchar, $stripslashes);
-		}
-	}
+            $hidden_fields .= _build_hidden_fields($key . '[' . $_key . ']', $_value, $specialchar, $stripslashes);
+        }
+    }
 
-	return $hidden_fields;
+    return $hidden_fields;
 }
 
 /**
@@ -748,17 +748,17 @@ function _build_hidden_fields($key, $value, $specialchar, $stripslashes)
 */
 function build_hidden_fields($field_ary, $specialchar = false, $stripslashes = false)
 {
-	$s_hidden_fields = '';
+    $s_hidden_fields = '';
 
-	foreach ($field_ary as $name => $vars)
-	{
-		$name = ($stripslashes) ? stripslashes($name) : $name;
-		$name = ($specialchar) ? htmlspecialchars($name, ENT_COMPAT, 'UTF-8') : $name;
+    foreach ($field_ary as $name => $vars)
+    {
+        $name = ($stripslashes) ? stripslashes($name) : $name;
+        $name = ($specialchar) ? htmlspecialchars($name, ENT_COMPAT, 'UTF-8') : $name;
 
-		$s_hidden_fields .= _build_hidden_fields($name, $vars, $specialchar, $stripslashes);
-	}
+        $s_hidden_fields .= _build_hidden_fields($name, $vars, $specialchar, $stripslashes);
+    }
 
-	return $s_hidden_fields;
+    return $s_hidden_fields;
 }
 
 

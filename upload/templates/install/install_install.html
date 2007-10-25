@@ -7,36 +7,36 @@
     <th align="left" colspan="3">EQdkp</th>
   </tr>
   <tr>
-	<td class="row1">
+  <td class="row1">
 <!-- IF TITLE --><h1>{TITLE}</h1><!-- ENDIF -->
 <!-- IF BODY --><p>{BODY}</p><!-- ENDIF -->
 
-	<!-- BEGIN checks -->
-		<!-- IF checks.S_LEGEND -->
-			<!-- IF not checks.S_FIRST_ROW -->
-			</fieldset>
+  <!-- BEGIN checks -->
+    <!-- IF checks.S_LEGEND -->
+      <!-- IF not checks.S_FIRST_ROW -->
+      </fieldset>
 
-			<fieldset>
-			<!-- ENDIF -->
-				<legend>{checks.LEGEND}</legend>
-				<!-- IF checks.LEGEND_EXPLAIN --><p>{checks.LEGEND_EXPLAIN}</p><!-- ENDIF -->
-		<!-- ELSE -->
+      <fieldset>
+      <!-- ENDIF -->
+        <legend>{checks.LEGEND}</legend>
+        <!-- IF checks.LEGEND_EXPLAIN --><p>{checks.LEGEND_EXPLAIN}</p><!-- ENDIF -->
+    <!-- ELSE -->
 
-			<dl>
-				<dt>{checks.TITLE}:<!-- IF checks.S_EXPLAIN --><br /><span class="explain">{checks.TITLE_EXPLAIN}</span><!-- ENDIF --></dt>
-				<dd>{checks.RESULT}</dd>
-			</dl>
-		<!-- ENDIF -->
-	<!-- END checks -->
+      <dl>
+        <dt>{checks.TITLE}:<!-- IF checks.S_EXPLAIN --><br /><span class="explain">{checks.TITLE_EXPLAIN}</span><!-- ENDIF --></dt>
+        <dd>{checks.RESULT}</dd>
+      </dl>
+    <!-- ENDIF -->
+  <!-- END checks -->
 
 <!-- IF L_SUBMIT -->
-	<fieldset class="submit-buttons">
-		<legend>{L_SUBMIT}</legend>
-		{S_HIDDEN}
-		<!-- IF L_SUBMIT --><input class="button1" type="submit" id="submit" onclick="this.className = 'button1 disabled';" name="submit" value="{L_SUBMIT}" /><!-- ENDIF -->
-	</fieldset>
+  <fieldset class="submit-buttons">
+    <legend>{L_SUBMIT}</legend>
+    {S_HIDDEN}
+    <!-- IF L_SUBMIT --><input class="button1" type="submit" id="submit" onclick="this.className = 'button1 disabled';" name="submit" value="{L_SUBMIT}" /><!-- ENDIF -->
+  </fieldset>
 <!-- ENDIF -->
-	</td>
+  </td>
   </tr>
 </table>
 

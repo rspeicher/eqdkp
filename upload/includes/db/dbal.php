@@ -29,41 +29,41 @@ class dbal
     var $queries     = array();             // Queries                  @var queries
     var $error_die   = true;                // Die on errors?           @var error_die
 
-	/**
-	* Current sql layer
-	*/
-	var $sql_layer = '';
+    /**
+    * Current sql layer
+    */
+    var $sql_layer = '';
 
-	/**
-	* Wildcards for matching any (%) or exactly one (_) character within LIKE expressions
-	*/
-	var $any_char;
-	var $one_char;
+    /**
+    * Wildcards for matching any (%) or exactly one (_) character within LIKE expressions
+    */
+    var $any_char;
+    var $one_char;
 
 
-	/**
-	* Constructor
-	*/
-	function dbal()
-	{
-		$this->query_count = 0;
+    /**
+    * Constructor
+    */
+    function dbal()
+    {
+        $this->query_count = 0;
 
-		// Fill default sql layer based on the class being called.
-		// This can be changed by the specified layer itself later if needed.
-		$this->sql_layer = substr(get_class($this), 5);
+        // Fill default sql layer based on the class being called.
+        // This can be changed by the specified layer itself later if needed.
+        $this->sql_layer = substr(get_class($this), 5);
 
-		// Do not change this please! This variable is used to easy the use of it - and is hardcoded.
-		$this->any_char = chr(0) . '%';
-		$this->one_char = chr(0) . '_';
-	}
+        // Do not change this please! This variable is used to easy the use of it - and is hardcoded.
+        $this->any_char = chr(0) . '%';
+        $this->one_char = chr(0) . '_';
+    }
 
-	/**
-	* DBAL garbage collection, close sql connection
-	*/
-	function sql_close()
-	{
-		return $this->_sql_close();
-	}
+    /**
+    * DBAL garbage collection, close sql connection
+    */
+    function sql_close()
+    {
+        return $this->_sql_close();
+    }
 
     /**
     * Remove quote escape

@@ -127,7 +127,7 @@ class Backup extends EQdkp_Admin
           
         //Lets echo out our header
         echo "-- EQDKP SQL Dump " . "\n";
-		echo "-- version " . EQDKP_VERSION . "\n";
+        echo "-- version " . EQDKP_VERSION . "\n";
         echo "-- http://www.eqdkp.com" . "\n";
         echo "-- \n";
         echo "-- Host: " . $dbhost . "\n";

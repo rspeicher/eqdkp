@@ -6,23 +6,23 @@
 <!-- IF BODY --><p>{BODY}</p><!-- ENDIF -->
 
 <fieldset>
-	<!-- BEGIN checks -->
-		<!-- IF checks.S_LEGEND -->
-			<!-- IF checks.S_FIRST_ROW -->
-			</fieldset>
+  <!-- BEGIN checks -->
+    <!-- IF checks.S_LEGEND -->
+      <!-- IF checks.S_FIRST_ROW -->
+      </fieldset>
 
-			<fieldset>
-			<!-- ENDIF -->
-				<legend>{checks.LEGEND}</legend>
-				<!-- IF checks.LEGEND_EXPLAIN --><p>{checks.LEGEND_EXPLAIN}</p><!-- ENDIF -->
-		<!-- ELSE -->
+      <fieldset>
+      <!-- ENDIF -->
+        <legend>{checks.LEGEND}</legend>
+        <!-- IF checks.LEGEND_EXPLAIN --><p>{checks.LEGEND_EXPLAIN}</p><!-- ENDIF -->
+    <!-- ELSE -->
 
-			<dl>
-				<dt>{checks.TITLE}:<!-- IF checks.S_EXPLAIN --><br /><span class="explain">{checks.TITLE_EXPLAIN}</span><!-- ENDIF --></dt>
-				<dd>{checks.RESULT}</dd>
-			</dl>
-		<!-- ENDIF -->
-	<!-- END checks -->
+      <dl>
+        <dt>{checks.TITLE}:<!-- IF checks.S_EXPLAIN --><br /><span class="explain">{checks.TITLE_EXPLAIN}</span><!-- ENDIF --></dt>
+        <dd>{checks.RESULT}</dd>
+      </dl>
+    <!-- ENDIF -->
+  <!-- END checks -->
 </fieldset>
 
 <!-- IF MSG_TEXT != '' -->
@@ -33,11 +33,11 @@
 <!-- ENDIF -->
 
 <!-- IF L_SUBMIT -->
-	<fieldset class="submit-buttons">
-		<legend>{L_SUBMIT}</legend>
-		{S_HIDDEN}
-		<input type="submit" name="submit" id="submit" value="{L_SUBMIT}" class="button1" />
-	</fieldset>
+  <fieldset class="submit-buttons">
+    <legend>{L_SUBMIT}</legend>
+    {S_HIDDEN}
+    <input type="submit" name="submit" id="submit" value="{L_SUBMIT}" class="button1" />
+  </fieldset>
 <!-- ENDIF -->
 </form>
 

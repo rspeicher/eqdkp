@@ -29,52 +29,52 @@ $phpEx = substr(strrchr(__FILE__, '.'), 1);
 */
 function deregister_globals()
 {
-	$not_unset = array(
-		'GLOBALS' => true,
-		'_GET' => true,
-		'_POST' => true,
-		'_COOKIE' => true,
-		'_REQUEST' => true,
-		'_SERVER' => true,
-		'_SESSION' => true,
-		'_ENV' => true,
-		'_FILES' => true,
-		'phpEx' => true,
-		'eqdkp_root_path' => true
-	);
+    $not_unset = array(
+        'GLOBALS' => true,
+        '_GET' => true,
+        '_POST' => true,
+        '_COOKIE' => true,
+        '_REQUEST' => true,
+        '_SERVER' => true,
+        '_SESSION' => true,
+        '_ENV' => true,
+        '_FILES' => true,
+        'phpEx' => true,
+        'eqdkp_root_path' => true
+    );
 
-	// Not only will array_merge and array_keys give a warning if
-	// a parameter is not an array, array_merge will actually fail.
-	// So we check if _SESSION has been initialised.
-	if (!isset($_SESSION) || !is_array($_SESSION))
-	{
-		$_SESSION = array();
-	}
+    // Not only will array_merge and array_keys give a warning if
+    // a parameter is not an array, array_merge will actually fail.
+    // So we check if _SESSION has been initialised.
+    if (!isset($_SESSION) || !is_array($_SESSION))
+    {
+        $_SESSION = array();
+    }
 
-	// Merge all into one extremely huge array; unset
-	// this later
-	$input = array_merge(
-		array_keys($_GET),
-		array_keys($_POST),
-		array_keys($_COOKIE),
-		array_keys($_SERVER),
-		array_keys($_SESSION),
-		array_keys($_ENV),
-		array_keys($_FILES)
-	);
+    // Merge all into one extremely huge array; unset
+    // this later
+    $input = array_merge(
+        array_keys($_GET),
+        array_keys($_POST),
+        array_keys($_COOKIE),
+        array_keys($_SERVER),
+        array_keys($_SESSION),
+        array_keys($_ENV),
+        array_keys($_FILES)
+    );
 
-	foreach ($input as $varname)
-	{
-		if (isset($not_unset[$varname]))
-		{
-			// Hacking attempt. No point in continuing.
-			exit;
-		}
+    foreach ($input as $varname)
+    {
+        if (isset($not_unset[$varname]))
+        {
+            // Hacking attempt. No point in continuing.
+            exit;
+        }
 
-		unset($GLOBALS[$varname]);
-	}
+        unset($GLOBALS[$varname]);
+    }
 
-	unset($input);
+    unset($input);
 }
 
 set_magic_quotes_runtime(0);
@@ -82,7 +82,7 @@ set_magic_quotes_runtime(0);
 // Be paranoid with passed vars
 if (@ini_get('register_globals') == '1' || strtolower(@ini_get('register_globals')) == 'on')
 {
-	deregister_globals();
+    deregister_globals();
 }
 
 define('STRIP', (get_magic_quotes_gpc()) ? true : false);
@@ -106,29 +106,29 @@ $DBALS    = array(
     ),
 );
 $LOCALES = array(
-	'English' => array(
-		'label'	=> 'English',
-		'type'	=> 'en_US'
-		),
-	'German'  => array(
-		'label' => 'German',
-		'type'	=> 'de_DE'
-		),
-	'French'  => array(
-		'label'	=> 'French',
-		'type'	=> 'fr_FR'
-		)
-	);
+    'English' => array(
+        'label'    => 'English',
+        'type'    => 'en_US'
+        ),
+    'German'  => array(
+        'label' => 'German',
+        'type'    => 'de_DE'
+        ),
+    'French'  => array(
+        'label'    => 'French',
+        'type'    => 'fr_FR'
+        )
+    );
 
 
 // NOTE: the language includes should be changed eventually so that they can be set dynamically
 if( !include_once($eqdkp_root_path . 'language/english/lang_install.php') )
 {
-	die('Could not include the language files! Check to make sure that "' . $eqdkp_root_path . 'language/english/lang_install.php" exists!');
+    die('Could not include the language files! Check to make sure that "' . $eqdkp_root_path . 'language/english/lang_install.php" exists!');
 }
 if( !include_once($eqdkp_root_path . 'language/english/lang_main.php') )
 {
-	die('Could not include the language files! Check to make sure that "' . $eqdkp_root_path . 'language/english/lang_main.php" exists!');
+    die('Could not include the language files! Check to make sure that "' . $eqdkp_root_path . 'language/english/lang_main.php" exists!');
 }
 
 // ---------------------------------------------------------
@@ -282,41 +282,41 @@ class Template_Wrap extends Template
         exit;
     }
 
-	/**
-	* Generate the navigation tabs
-	*/
-	function generate_navigation($subs, $selected = 'intro')
-	{
-		global $lang;
-	
-		$matched = false;
-		foreach ($subs as $option)
-		{
-			$l_option = (!empty($lang['STAGE_' . $option])) ? $lang['STAGE_' . $option] : preg_replace('#_#', ' ', $option);
-			$option = strtolower($option);
-			$matched = ($selected == $option) ? true : $matched;
+    /**
+    * Generate the navigation tabs
+    */
+    function generate_navigation($subs, $selected = 'intro')
+    {
+        global $lang;
+    
+        $matched = false;
+        foreach ($subs as $option)
+        {
+            $l_option = (!empty($lang['STAGE_' . $option])) ? $lang['STAGE_' . $option] : preg_replace('#_#', ' ', $option);
+            $option = strtolower($option);
+            $matched = ($selected == $option) ? true : $matched;
 
-			$this->assign_block_vars('l_block2', array(
-				'L_TITLE'		=> $l_option,
-				'S_SELECTED'	=> ($selected == $option),
-				'S_COMPLETE'	=> !$matched,
-			));
-		}
-	}
+            $this->assign_block_vars('l_block2', array(
+                'L_TITLE'        => $l_option,
+                'S_SELECTED'    => ($selected == $option),
+                'S_COMPLETE'    => !$matched,
+            ));
+        }
+    }
 
 }
 
 // If EQdkp is already installed, don't let them install it again
 if (@file_exists($eqdkp_root_path . 'config.php') && !file_exists($eqdkp_root_path . 'templates/cache/install_lock'))
 {
-	include_once($eqdkp_root_path . 'config.php');
+    include_once($eqdkp_root_path . 'config.php');
 
-	if ( defined('EQDKP_INSTALLED') )
-	{
-		$tpl = new Template_Wrap('install_message.html');
-		$tpl->message_die('EQdkp is already installed - please remove the <b>install</b> directory.', 'Installation Error');
-		exit;
-	}
+    if ( defined('EQDKP_INSTALLED') )
+    {
+        $tpl = new Template_Wrap('install_message.html');
+        $tpl->message_die('EQdkp is already installed - please remove the <b>install</b> directory.', 'Installation Error');
+        exit;
+    }
 }
 
 include($eqdkp_root_path . 'includes/functions_install.php');

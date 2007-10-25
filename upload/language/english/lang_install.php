@@ -242,7 +242,7 @@ $lang['inst_language_configuration'] = 'Language Configuration';
 	$lang['inst_default_lang'] = 'Default Language';
 
 $lang['inst_database_configuration'] = 'Database Configuration';
-	$lang['inst_dbtype'] = 'Database Type';
+	$lang['inst_dbms'] = 'Database Type';
 	$lang['inst_dbhost'] = 'Database Host';
 		$lang['inst_default_dbhost'] = 'localhost';
 	$lang['inst_dbname'] = 'Database Name';

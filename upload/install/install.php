@@ -404,14 +404,14 @@ class installer
 		// Has the user opted to test the connection?
 		if (isset($_POST['testdb']))
 		{
-			if (!isset($available_dbms[$data['dbtype']]) || !$available_dbms[$data['dbtype']]['AVAILABLE'])
+			if (!isset($available_dbms[$data['dbms']]) || !$available_dbms[$data['dbms']]['AVAILABLE'])
 			{
 				$error['db'][] = $lang['INST_ERR_NO_DB'];
 				$connect_test = false;
 			}
 			else
 			{
-				$connect_test = connect_check_db(true, $error, $available_dbms[$data['dbtype']], $data['table_prefix'], $data['dbhost'], $data['dbuser'], $data['dbpass'], $data['dbname'], $data['dbport']);
+				$connect_test = connect_check_db(true, $error, $available_dbms[$data['dbms']], $data['table_prefix'], $data['dbhost'], $data['dbuser'], $data['dbpass'], $data['dbname'], $data['dbport']);
 			}
 
 			$tpl->assign_block_vars('checks', array(
@@ -588,7 +588,7 @@ class installer
 		// Obtain any submitted data
 		$data = $this->get_submitted_data();
 
-		if ($data['dbtype'] == '')
+		if ($data['dbms'] == '')
 		{
 			// Someone's been silly and tried calling this page direct
 			// So we send them back to the start to do it again properly
@@ -762,7 +762,7 @@ class installer
 		// Obtain any submitted data
 		$data = $this->get_submitted_data();
 
-		if ($data['dbtype'] == '')
+		if ($data['dbms'] == '')
 		{
 			// Someone's been silly and tried calling this page direct
 			// So we send them back to the start to do it again properly
@@ -786,7 +786,7 @@ class installer
 		// Write the config file information
 		$config_file  = "";
 		$config_file .= "<?php\n\n";
-		$config_file .= "\$dbtype       = '" . $data['dbtype']        . "'; \n";
+		$config_file .= "\$dbms       = '" . $data['dbms']        . "'; \n";
 		$config_file .= "\$dbhost       = '" . $data['dbhost']        . "'; \n";
 		$config_file .= "\$dbname       = '" . $data['dbname']        . "'; \n";
 		$config_file .= "\$dbuser       = '" . $data['dbuser']        . "'; \n";
@@ -911,7 +911,7 @@ class installer
 		// Obtain any submitted data
 		$data = $this->get_submitted_data();
 
-		if ($data['dbtype'] == '')
+		if ($data['dbms'] == '')
 		{
 			// Someone's been silly and tried calling this page direct
 			// So we send them back to the start to do it again properly
@@ -930,24 +930,24 @@ class installer
 		// Database population
 		//
 		// If we get here and the extension isn't loaded it should be safe to just go ahead and load it 
-		$available_dbms = get_available_dbms($data['dbtype']);
-		$dbtype = $available_dbms[$data['dbtype']]['DRIVER'];
+		$available_dbms = get_available_dbms($data['dbms']);
+		$dbms = $available_dbms[$data['dbms']]['DRIVER'];
 
-		$dbal_file = $eqdkp_root_path . 'dbal/' . $available_dbms[$data['dbtype']]['DRIVER'] . '.php';
+		$dbal_file = $eqdkp_root_path . 'includes/db/' . $available_dbms[$data['dbms']]['DRIVER'] . '.php';
 		if ( !file_exists($dbal_file) )
 		{
-			$tpl->message_die('Unable to find the database abstraction layer for <b>' . $dbtype . '</b>, check to make sure ' . $dbal_file . ' exists.');
+			$tpl->message_die('Unable to find the database abstraction layer for <b>' . $dbms . '</b>, check to make sure ' . $dbal_file . ' exists.');
 		}
 		include_once($dbal_file);
 
-		$sql_db = 'dbal_' . $available_dbms[$data['dbtype']]['DRIVER'];
+		$sql_db = 'dbal_' . $available_dbms[$data['dbms']]['DRIVER'];
 		$db = new $sql_db();
 		$db->sql_connect($data['dbhost'], $data['dbuser'], $data['dbpass'], $data['dbname'], $data['dbport'], false, false);
 		
-		$db_structure_file = $eqdkp_root_path . 'dbal/structure/' . $data['dbtype'] . '_structure.sql';
-		$db_data_file      = $eqdkp_root_path . 'dbal/structure/' . $data['dbtype'] . '_data.sql';
+		$db_structure_file = $eqdkp_root_path . 'install/schema/' . $data['dbms'] . '_structure.sql';
+		$db_data_file      = $eqdkp_root_path . 'install/schema/' . $data['dbms'] . '_data.sql';
 	
-		$remove_remarks_function = $DBALS[$data['dbtype']]['comments'];
+		$remove_remarks_function = $DBALS[$data['dbms']]['comments'];
 	
 		// I require MySQL version 4.0.4 minimum.
 		$server_version = mysql_get_server_info();
@@ -971,7 +971,7 @@ class installer
 		$sql = preg_replace('#eqdkp\_(\S+?)([\s\.,]|$)#', $data['table_prefix'] . '\\1\\2', $sql);
 	
 		$sql = $remove_remarks_function($sql);
-		$sql = parse_sql($sql, $DBALS[$data['dbtype']]['delim']);
+		$sql = parse_sql($sql, $DBALS[$data['dbms']]['delim']);
 	
 		$sql_count = count($sql);
 		$i = 0;
@@ -996,7 +996,7 @@ class installer
 		$sql = preg_replace('#eqdkp\_(\S+?)([\s\.,]|$)#', $data['table_prefix'] . '\\1\\2', $sql);
 	
 		$sql = $remove_remarks_function($sql);
-		$sql = parse_sql($sql, $DBALS[$data['dbtype']]['delim']);
+		$sql = parse_sql($sql, $DBALS[$data['dbms']]['delim']);
 	
 		$sql_count = count($sql);
 		$i = 0;
@@ -1174,7 +1174,7 @@ class installer
 		return array(
 			'language'		=> basename(request_var('language', '')),
 
-			'dbtype'		=> request_var('dbtype', ''),
+			'dbms'		=> request_var('dbms', ''),
 			'dbhost'		=> request_var('dbhost', ''),
 			'dbport'		=> request_var('dbport', ''),
 			'dbuser'		=> request_var('dbuser', ''),
@@ -1201,7 +1201,7 @@ class installer
 	* The variables that we will be passing between pages
 	* Used to retrieve data quickly on each page
 	*/
-	var $request_vars = array('language', 'dbhost', 'dbuser', 'dbpass', 'dbname', 'dbtype', 'table_prefix', 'default_lang', 'default_locale', 'admin_name', 'admin_pass1', 'admin_pass2', 'admin_email', 'server_name', 'server_port', 'server_path');	
+	var $request_vars = array('language', 'dbhost', 'dbuser', 'dbpass', 'dbname', 'dbms', 'table_prefix', 'default_lang', 'default_locale', 'admin_name', 'admin_pass1', 'admin_pass2', 'admin_email', 'server_name', 'server_port', 'server_path');	
 
     var $default_config_options = array(
 		'legend1'				=> 'DEFAULT_CONFIG',
@@ -1211,7 +1211,7 @@ class installer
 
 	var $db_config_options = array(
 		'legend1'				=> 'DB_CONFIG',
-		'dbtype'                => array('lang' => 'DB_TYPE',		'type' => 'select', 'options' => 'dbms_select(\'{VALUE}\')', 'explain' => false),
+		'dbms'                => array('lang' => 'DB_TYPE',		'type' => 'select', 'options' => 'dbms_select(\'{VALUE}\')', 'explain' => false),
 		'dbhost'				=> array('lang' => 'DB_HOST',		'type' => 'text:25:100', 'explain' => false),
 		'dbname'				=> array('lang' => 'DB_NAME',		'type' => 'text:25:100', 'explain' => false),
 		'dbuser'				=> array('lang' => 'DB_USERNAME',	'type' => 'text:25:100', 'explain' => false),

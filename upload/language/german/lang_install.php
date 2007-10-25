@@ -52,7 +52,7 @@ $lang['inst_language_configuration'] = 'Sprachkonfiguration';
 $lang['inst_default_lang'] = 'Standardsprache';
 
 $lang['inst_database_configuration'] = 'Datenbank-Konfiguration';
-$lang['inst_dbtype'] = 'Datenbankart';
+$lang['inst_dbms'] = 'Datenbankart';
 $lang['inst_dbhost'] = 'Datenbank-Host';
 $lang['inst_default_dbhost'] = 'localhost';
 $lang['inst_dbname'] = 'Datenbankname';

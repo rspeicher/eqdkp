@@ -24,7 +24,7 @@ include_once($eqdkp_root_path . 'includes/db/dbal.php');
 
 define('DBTYPE', 'mysql');
 
-class dbal_mysql // extends dbal
+class dbal_mysql extends dbal
 {
     var $link_id     = 0;                   // Connection link ID       @var link_id
     var $query_id    = 0;                   // Query ID                 @var query_id
@@ -37,10 +37,12 @@ class dbal_mysql // extends dbal
     /**
     * Constructor
     */
+/*
 	function dbal_mysql()
 	{
+		$this->dbal();
 	}
-	
+*/
 	
 	/** sql_connect 
     * Connects to a MySQL database
@@ -119,6 +121,12 @@ class dbal_mysql // extends dbal
         }
     }
     
+	// FIXME: Move close_db functionality into this method; deprecate close_db
+	function _sql_close()
+	{
+		return $this->close_db();
+	}
+	
     /**
     * Get error information
     * 
@@ -141,8 +149,10 @@ class dbal_mysql // extends dbal
      */
     function query($query, $params = null)
     {
-        global $table_prefix;
+        global $table_prefix, $debug;
         
+		define('DEBUG', $debug);
+		
         // Remove pre-existing query resources
         unset($this->query_id);
         
@@ -154,13 +164,13 @@ class dbal_mysql // extends dbal
             
             $query = str_replace(':params', $params, $query);
         }
-        
+
         if ( $query != '' )
         {
             $this->query_count++;
             $this->query_id = @mysql_query($query, $this->link_id);
         }
-        
+
         if ( !empty($this->query_id) )
         {
             if ( DEBUG == 2 )

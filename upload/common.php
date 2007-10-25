@@ -91,7 +91,7 @@ define('A_BACKUP',      36);
 
 require_once($eqdkp_root_path . 'includes/functions.php');
 require_once($eqdkp_root_path . 'includes/functions_paths.php');
-require_once($eqdkp_root_path . 'includes/db/' . $dbtype . '.php');
+require_once($eqdkp_root_path . 'includes/db/' . $dbms . '.php');
 require_once($eqdkp_root_path . 'includes/eqdkp.php');
 require_once($eqdkp_root_path . 'includes/session.php');
 require_once($eqdkp_root_path . 'includes/class_template.php');

@@ -493,7 +493,7 @@ function process_step3()
     // Get our posted data
     //
     $default_lang = post_or_db('default_lang', $DEFAULTS);
-    $dbtype       = post_or_db('dbtype');
+    $dbms       = post_or_db('dbms');
     $dbhost       = post_or_db('dbhost');
     $dbname       = post_or_db('dbname');
     $dbuser       = post_or_db('dbuser');
@@ -507,10 +507,10 @@ function process_step3()
     define('CONFIG_TABLE', $table_prefix . 'config');
     define('USERS_TABLE',  $table_prefix . 'users');
 
-    $dbal_file = $eqdkp_root_path . 'dbal/' . $dbtype . '.php';
+    $dbal_file = $eqdkp_root_path . 'dbal/' . $dbms . '.php';
     if ( !file_exists($dbal_file) )
     {
-        $tpl->message_die('Unable to find the database abstraction layer for <b>' . $dbtype . '</b>, check to make sure ' . $dbal_file . ' exists.');
+        $tpl->message_die('Unable to find the database abstraction layer for <b>' . $dbms . '</b>, check to make sure ' . $dbal_file . ' exists.');
     }
 
     //
@@ -527,10 +527,10 @@ function process_step3()
                            <br /><br /><a href="install.php">Restart Installation</a>');
     }
 
-    $db_structure_file = $eqdkp_root_path . 'dbal/structure/' . $dbtype . '_structure.sql';
-    $db_data_file      = $eqdkp_root_path . 'dbal/structure/' . $dbtype . '_data.sql';
+    $db_structure_file = $eqdkp_root_path . 'dbal/structure/' . $dbms . '_structure.sql';
+    $db_data_file      = $eqdkp_root_path . 'dbal/structure/' . $dbms . '_data.sql';
 
-    $remove_remarks_function = $DBALS[$dbtype]['comments'];
+    $remove_remarks_function = $DBALS[$dbms]['comments'];
 
     // I require MySQL version 4.0.4 minimum.
     $server_version = mysql_get_server_info();
@@ -554,7 +554,7 @@ function process_step3()
     $sql = preg_replace('#eqdkp\_(\S+?)([\s\.,]|$)#', $table_prefix . '\\1\\2', $sql);
 
     $sql = $remove_remarks_function($sql);
-    $sql = parse_sql($sql, $DBALS[$dbtype]['delim']);
+    $sql = parse_sql($sql, $DBALS[$dbms]['delim']);
 
     $sql_count = count($sql);
     $i = 0;
@@ -581,7 +581,7 @@ function process_step3()
     $sql = preg_replace('#eqdkp\_(\S+?)([\s\.,]|$)#', $table_prefix . '\\1\\2', $sql);
 
     $sql = $remove_remarks_function($sql);
-    $sql = parse_sql($sql, $DBALS[$dbtype]['delim']);
+    $sql = parse_sql($sql, $DBALS[$dbms]['delim']);
 
     $sql_count = count($sql);
     $i = 0;
@@ -620,7 +620,7 @@ function process_step3()
 
     $config_file  = "";
     $config_file .= "<?php\n\n";
-    $config_file .= "\$dbtype       = '" . $dbtype        . "'; \n";
+    $config_file .= "\$dbms       = '" . $dbms        . "'; \n";
     $config_file .= "\$dbhost       = '" . $dbhost        . "'; \n";
     $config_file .= "\$dbname       = '" . $dbname        . "'; \n";
     $config_file .= "\$dbuser       = '" . $dbuser        . "'; \n";
@@ -677,7 +677,7 @@ function process_step4()
     define('STYLES_TABLE', $table_prefix . 'styles');
 
     define('DEBUG', 0);
-    switch ( $dbtype )
+    switch ( $dbms )
     {
         case 'mysql':
             include_once($eqdkp_root_path . 'includes/db/mysql.php');

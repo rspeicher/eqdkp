@@ -1,46 +1,63 @@
 <!-- INCLUDE install_header.html -->
-<!-- IF S_SHOW_BUTTON -->
-<form method="post" action="install.php" name="post">
-<input type="hidden" name="install_step" value="4" />
+
+<form method="post" action="index.php" name="post">
+<input type="hidden" name="sub" value="{NEXT_STEP}" />
+
+<!-- IF TITLE --><h1>{TITLE}</h1><!-- ENDIF -->
+<!-- IF BODY --><p>{BODY}</p><!-- ENDIF -->
+
+<!-- IF S_CHECKS -->
+<fieldset>
+<!-- BEGIN checks -->
+    <!-- IF checks.S_LEGEND -->
+    <legend>{checks.LEGEND}</legend>
+    <!-- IF checks.LEGEND_EXPLAIN --><p>{checks.LEGEND_EXPLAIN}</p><!-- ENDIF -->
+    <!-- ELSE -->
+        <dl>
+            <dt>{checks.TITLE}:<!-- IF checks.S_EXPLAIN --><br /><span class="explain">{checks.TITLE_EXPLAIN}</span><!-- ENDIF --></dt>
+            <dd>{checks.RESULT}</dd>
+        </dl>
+    <!-- ENDIF -->
+<!-- END checks -->
+</fieldset>
 <!-- ENDIF -->
-<table width="100%" border="0" cellspacing="1" cellpadding="2">
-  <tr>
-    <th align="left" colspan="2">Administrator Account Configuration</th>
-  </tr>
-  <tr>
-    <td width="40%" class="row2" align="right">Administrator username:</td>
-    <td width="60%" class="row1" align="left"><input type="text" name="username" value="" class="input" /></td>
-  </tr>
-  <tr>
-    <td width="40%" class="row2" align="right">Administrator password:</td>
-    <td width="60%" class="row1" align="left"><input type="password" name="user_password1" value="" class="input" /></td>
-  </tr>
-  <tr>
-    <td width="40%" class="row2" align="right">Administrator password [ confirm ]:</td>
-    <td width="60%" class="row1" align="left"><input type="password" name="user_password2" value="" class="input" /></td>
-  </tr>
-  <tr>
-    <td width="40%" class="row2" align="right">Administrator e-mail:</td>
-    <td width="60%" class="row1" align="left"><input type="text" name="user_email" value="" class="input" /></td>
-  </tr>
-</table>
-<br />
+
+<!-- IF S_OPTIONS -->
+<fieldset>    
+<!-- BEGIN options -->
+    <!-- IF options.S_LEGEND -->
+        <!-- IF options.S_FIRST_ROW -->
+</fieldset>
+
+<fieldset>
+        <!-- ENDIF -->
+    <legend>{options.LEGEND}</legend>
+    <!-- ELSE -->
+
+        <dl>
+            <dt><label for="{options.KEY}">{options.TITLE}:</label><!-- IF options.S_EXPLAIN --><br /><span class="explain">{options.TITLE_EXPLAIN}</span><!-- ENDIF --></dt>
+            <dd>{options.CONTENT}</dd>
+        </dl>
+
+    <!-- ENDIF -->
+<!-- END options -->
+</fieldset>
+<!-- ENDIF -->
+
 <!-- IF MSG_TEXT != '' -->
-<table width="100%" border="0" cellspacing="1" cellpadding="2">
-  <tr>
-    <th align="left">{MSG_TITLE}</th>
-  </tr>
-  <tr>
-    <td align="left" class="row1">&nbsp;<br />{MSG_TEXT}<br />&nbsp;</td>
-  </tr>
-  <tr>
-    <th>&nbsp;</th>
-  </tr>
-</table>
-<br />
+<div class="message">
+    <!-- IF MSG_TITLE --><h2>{MSG_TITLE}</h2><!-- ENDIF -->
+    <p>{MSG_TEXT}</p>
+</div>
 <!-- ENDIF -->
-<!-- IF S_SHOW_BUTTON -->
-<div align="center"><input type="submit" name="submit" value="Proceed" class="mainoption" /></div>
+
+<!-- IF L_SUBMIT -->
+	<fieldset class="submit-buttons">
+		<legend>{L_SUBMIT}</legend>
+		{S_HIDDEN}
+		<input type="submit" name="submit" id="submit" value="{L_SUBMIT}" class="button1" />
+	</fieldset>
+<!-- ENDIF -->
 </form>
-<!-- ENDIF -->
+
 <!-- INCLUDE install_tail.html -->

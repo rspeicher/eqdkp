@@ -7,7 +7,7 @@
  * manage_users.php
  * Began: Sun December 29 2002
  *
- * $Id: manage_users.php 46 2007-06-19 07:29:11Z tsigo $
+ * $Id$
  *
  ******************************/
 

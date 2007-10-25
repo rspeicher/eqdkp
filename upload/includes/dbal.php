@@ -6,7 +6,7 @@
 * dbal.php 
 * begin: Tue December 17 2002 
 *  
-* $Id: dbal.php 46 2007-06-19 07:29:11Z tsigo $ 
+* $Id$ 
 * 
  ******************************/
 

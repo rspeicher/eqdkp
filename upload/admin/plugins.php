@@ -7,7 +7,7 @@
  * plugins.php
  * Began: Mon January 13 2003
  * 
- * $Id: plugins.php 46 2007-06-19 07:29:11Z tsigo $
+ * $Id$
  * 
  ******************************/
 

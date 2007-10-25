@@ -7,7 +7,7 @@
  * class_email.php
  * Began: Sat January 4 2003
  * 
- * $Id: class_email.php 46 2007-06-19 07:29:11Z tsigo $
+ * $Id$
  * 
  ******************************/
 

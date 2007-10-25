@@ -7,7 +7,7 @@
  * Vanguard-SoH.php
  * Began: Tues Jan 9 2007
  *
- * $Id: Vanguard-SoH.php 0.01 2007-01-09 23:29:30 Dazza $
+ * $Id$
  *
  ******************************/
 

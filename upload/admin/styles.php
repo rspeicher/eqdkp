@@ -7,7 +7,7 @@
  * styles.php
  * Began: Thu January 16 2003
  * 
- * $Id: styles.php 46 2007-06-19 07:29:11Z tsigo $
+ * $Id$
  * 
  ******************************/
  

@@ -7,7 +7,7 @@
  * mm_transfer.php
  * Began: Thu January 30 2003
  * 
- * $Id: mm_transfer.php 46 2007-06-19 07:29:11Z tsigo $
+ * $Id$
  * 
  ******************************/
 

@@ -7,7 +7,7 @@
  * addnews.php
  * Began: Wed December 25 2002
  *
- * $Id: addnews.php 46 2007-06-19 07:29:11Z tsigo $
+ * $Id$
  *
  ******************************/
 

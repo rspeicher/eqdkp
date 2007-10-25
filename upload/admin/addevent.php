@@ -7,7 +7,7 @@
  * addevent.php
  * Began: Mon December 30 2002
  * 
- * $Id: addevent.php 46 2007-06-19 07:29:11Z tsigo $
+ * $Id$
  * 
  ******************************/
  

@@ -7,7 +7,7 @@
  * Everquest2.php
  * Began: Fri May 13 2005
  *
- * $Id: Everquest2.php 6 2006-05-08 17:11:35Z tsigo $
+ * $Id$
  *
  ******************************/
 

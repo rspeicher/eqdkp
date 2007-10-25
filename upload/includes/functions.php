@@ -7,7 +7,7 @@
  * functions.php
  * begin: Tue December 17 2002
  *
- * $Id: functions.php 51 2007-06-24 09:05:13Z tsigo $
+ * $Id$
  *
  ******************************/
 

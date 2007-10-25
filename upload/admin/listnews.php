@@ -7,7 +7,7 @@
  * listnews.php
  * Began: Fri December 27 2002
  * 
- * $Id: listnews.php 46 2007-06-19 07:29:11Z tsigo $
+ * $Id$
  * 
  ******************************/
  

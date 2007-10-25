@@ -7,7 +7,7 @@
  * logs.php
  * Began: Tues December 24 2002
  *
- * $Id: logs.php 46 2007-06-19 07:29:11Z tsigo $
+ * $Id$
  *
  ******************************/
 

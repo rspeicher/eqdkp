@@ -7,7 +7,7 @@
  * eqdkp_plugins.php
  * Began: Sun Mar 15 2003
  * 
- * $Id: eqdkp_plugins.php 46 2007-06-19 07:29:11Z tsigo $
+ * $Id$
  * 
  ******************************/
 

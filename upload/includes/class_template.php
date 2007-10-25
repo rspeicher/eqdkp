@@ -7,7 +7,7 @@
  * class_template.php
  * Began: Thu December 19 2002
  * 
- * $Id: class_template.php 46 2007-06-19 07:29:11Z tsigo $
+ * $Id$
  * 
  ******************************/
 
@@ -33,7 +33,7 @@ if ( !defined('EQDKP_INC') )
  *   copyright            : (C) 2001 The phpBB Group
  *   email                : support@phpbb.com
  *
- *   $Id: class_template.php 46 2007-06-19 07:29:11Z tsigo $
+ *   $Id$
  *
  ***************************************************************************/
 

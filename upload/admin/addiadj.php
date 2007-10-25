@@ -7,7 +7,7 @@
  * addiadj.php
  * Began: Sun January 5 2003
  * 
- * $Id: addiadj.php 46 2007-06-19 07:29:11Z tsigo $
+ * $Id$
  * 
  ******************************/
  

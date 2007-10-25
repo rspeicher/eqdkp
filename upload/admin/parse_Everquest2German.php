@@ -7,7 +7,7 @@
  * parse_Everquest2.php
  * Began: Tue December 24 2002
  * 
- * $Id: parse_Everquest2German.php 46 2007-06-19 07:29:11Z tsigo $
+ * $Id$
  * 
  ******************************/
  

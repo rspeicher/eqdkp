@@ -7,7 +7,7 @@
  * parse_Everquest.php
  * Began: Sat March 05 2005
  * 
- * $Id: parse_Everquest.php 46 2007-06-19 07:29:11Z tsigo $
+ * $Id$
  * 
  ******************************/
  

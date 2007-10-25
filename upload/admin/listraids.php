@@ -7,7 +7,7 @@
  * listraids.php
  * Began: Tue December 24 2002
  * 
- * $Id: listraids.php 46 2007-06-19 07:29:11Z tsigo $
+ * $Id$
  * 
  ******************************/
 

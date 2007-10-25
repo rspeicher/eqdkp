@@ -7,7 +7,7 @@
  * addraid.php
  * Began: Mon December 23 2002
  * 
- * $Id: addraid.php 46 2007-06-19 07:29:11Z tsigo $
+ * $Id$
  * 
  ******************************/
  

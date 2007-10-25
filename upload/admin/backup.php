@@ -7,7 +7,7 @@
  * manage_members.php
  * Began: Fri March 2 2007
  * 
- * $Id: backup.php 4 2007-03-09 14:12:22 danbopes $
+ * $Id$
  * 
  ******************************/
 

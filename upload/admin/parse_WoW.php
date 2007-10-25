@@ -7,7 +7,7 @@
  * parse_WoW.php
  * Began: Sat March 05 2005
  * 
- * $Id: parse_WoW.php 46 2007-06-19 07:29:11Z tsigo $
+ * $Id$
  * 
  ******************************/
  

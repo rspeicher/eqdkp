@@ -7,7 +7,7 @@
  * upgrade.php
  * Began: Tue July 1 2003
  *
- * $Id: upgrade.php 46 2007-06-19 07:29:11Z tsigo $
+ * $Id$
  *
  ******************************/
 

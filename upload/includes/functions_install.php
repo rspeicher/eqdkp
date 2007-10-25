@@ -7,7 +7,7 @@
  * functions_install.php
  * Began: Wed August 1 2007
  * 
- * $Id: functions_install.php 1 2007-08-01 17:39:17 Dazza $
+ * $Id$
  * 
  ******************************/
 

@@ -7,7 +7,7 @@
  * parse_Everquest2.php
  * Began: Sun February 04 2007
  * 
- * $Id: parse_Vanguard-SoH.php 8 2007-02-04 16:16:20 Dazza $
+ * $Id$
  * 
  ******************************/
  

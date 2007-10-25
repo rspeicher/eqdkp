@@ -7,7 +7,7 @@
  * listadj.php
  * Began: Fri December 27 2002
  * 
- * $Id: listadj.php 46 2007-06-19 07:29:11Z tsigo $
+ * $Id$
  * 
  ******************************/
 

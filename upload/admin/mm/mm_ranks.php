@@ -7,7 +7,7 @@
  * mm_ranks.php
  * Began: Fri February 14 2003
  * 
- * $Id: mm_ranks.php 46 2007-06-19 07:29:11Z tsigo $
+ * $Id$
  * 
  ******************************/
  

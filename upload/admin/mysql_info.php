@@ -7,7 +7,7 @@
  * mysql_info.php
  * Began: Sat April 5 2003
  * 
- * $Id: mysql_info.php 46 2007-06-19 07:29:11Z tsigo $
+ * $Id$
  * 
  ******************************/
 

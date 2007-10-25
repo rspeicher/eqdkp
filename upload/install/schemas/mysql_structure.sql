@@ -1,7 +1,7 @@
 #
 # MySQL EQdkp Structure
 #
-# $Id: mysql_structure.sql,v 1.42 2003/08/03 21:46:31 tsigo Exp $
+# $Id$
 #
 # --------------------------------------------------------
 ### Configuration

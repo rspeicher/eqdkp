@@ -168,6 +168,7 @@ $lang = array_merge($lang, array(
 	'INVALID_PRIMARY_KEY'		=> 'Invalid primary key : %s',
 
 	'NEXT_STEP'					=> 'Proceed to next step',
+	'NOT_FOUND'					=> 'Not Found',
 
 	'PHP_OPTIONAL_MODULE'			=> 'Optional modules',
 	'PHP_OPTIONAL_MODULE_EXPLAIN'	=> '<strong>Optional</strong> - These modules or applications are optional. However, if they are available they will enable extra features.',

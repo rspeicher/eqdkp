@@ -21,35 +21,13 @@ if ( !defined('EQDKP_INC') )
 */
 class dbal
 {
-	var $db_connect_id;
-	var $query_result;
-	var $return_on_error = false;
-	var $transaction = false;
-	var $sql_time = 0;
-	var $num_queries = array();
-	var $open_queries = array();
-
-	var $curtime = 0;
-	var $query_hold = '';
-	var $html_hold = '';
-	var $sql_report = '';
-	
-	var $persistency = false;
-	var $user = '';
-	var $server = '';
-	var $dbname = '';
-
-	// Set to true if error triggered
-	var $sql_error_triggered = false;
-
-	// Holding the last sql query on sql error
-	var $sql_error_sql = '';
-
-	// Holding transaction count
-	var $transactions = 0;
-
-	// Supports multi inserts?
-	var $multi_insert = false;
+    var $link_id     = 0;                   // Connection link ID       @var link_id
+    var $query_id    = 0;                   // Query ID                 @var query_id
+    var $record      = array();             // Record                   @var record
+    var $record_set  = array();             // Record set               @var record_set
+    var $query_count = 0;                   // Query count              @var query_count
+    var $queries     = array();             // Queries                  @var queries
+    var $error_die   = true;                // Die on errors?           @var error_die
 
 	/**
 	* Current sql layer
@@ -62,16 +40,13 @@ class dbal
 	var $any_char;
 	var $one_char;
 
+
 	/**
 	* Constructor
 	*/
 	function dbal()
 	{
-		$this->num_queries = array(
-			'cached'		=> 0,
-			'normal'		=> 0,
-			'total'			=> 0,
-		);
+		$this->query_count = 0;
 
 		// Fill default sql layer based on the class being called.
 		// This can be changed by the specified layer itself later if needed.
@@ -80,35 +55,6 @@ class dbal
 		// Do not change this please! This variable is used to easy the use of it - and is hardcoded.
 		$this->any_char = chr(0) . '%';
 		$this->one_char = chr(0) . '_';
-	}
-
-	/**
-	* return on error or display error message
-	*/
-	function sql_return_on_error($fail = false)
-	{
-		$this->sql_error_triggered = false;
-		$this->sql_error_sql = '';
-
-		$this->return_on_error = $fail;
-	}
-
-	/**
-	* Return number of sql queries and cached sql queries used
-	*/
-	function sql_num_queries($cached = false)
-	{
-		return ($cached) ? $this->num_queries['cached'] : $this->num_queries['normal'];
-	}
-
-	/**
-	* Add to query count
-	*/
-	function sql_add_num_queries($cached = false)
-	{
-		$this->num_queries['cached'] += ($cached) ? 1 : 0;
-		$this->num_queries['normal'] += ($cached) ? 0 : 1;
-		$this->num_queries['total'] += 1;
 	}
 
 	/**
@@ -134,64 +80,51 @@ class dbal
 		return $this->_sql_close();
 	}
 
-	/**
-	* SQL Transaction
-	* @access private
-	*/
-	function sql_transaction($status = 'begin')
-	{
-		switch ($status)
-		{
-			case 'begin':
-				// If we are within a transaction we will not open another one, but enclose the current one to not loose data (prevening auto commit)
-				if ($this->transaction)
-				{
-					$this->transactions++;
-					return true;
-				}
+    /**
+    * Remove quote escape
+    * 
+    * @param $string    The string to escape, or the implode() delimiter if $array is set
+    * @param $array     An array to pass to _implode(), escaping its values
+    * @return string
+    */
+    function escape($string, $array = null)
+    {
+        if ( is_array($array) )
+        {
+            $string = $this->_implode($string, $array);
+        }
+        else
+        {
+            $string = mysql_real_escape_string($string);
+        }
+        
+        return $string;
+    }
+    
+    function _implode($delim, $array)
+    {
+        if ( !is_array($array) || count($array) == 0 )
+        {
+            return '';
+        }
+        
+        foreach ( $array as $k => $v )
+        {
+            $array[$k] = $this->escape($v);
+        }
+        
+        return implode($delim, $array);
+    }
 
-				$result = $this->_sql_transaction('begin');
-
-				if (!$result)
-				{
-					$this->sql_error();
-				}
-
-				$this->transaction = true;
-			break;
-
-			case 'commit':
-				// If there was a previously opened transaction we do not commit yet... but count back the number of inner transactions
-				if ($this->transaction && $this->transactions)
-				{
-					$this->transactions--;
-					return true;
-				}
-
-				$result = $this->_sql_transaction('commit');
-
-				if (!$result)
-				{
-					$this->sql_error();
-				}
-
-				$this->transaction = false;
-				$this->transactions = 0;
-			break;
-
-			case 'rollback':
-				$result = $this->_sql_transaction('rollback');
-				$this->transaction = false;
-				$this->transactions = 0;
-			break;
-
-			default:
-				$result = $this->_sql_transaction($status);
-			break;
-		}
-
-		return $result;
-	}
+    /**
+    * Set the error_die var
+    * 
+    * @param $setting
+    */
+    function error_die($setting = true)
+    {
+        $this->error_die = $setting;
+    }
 
 }
 

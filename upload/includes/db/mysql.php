@@ -26,17 +26,6 @@ define('DBTYPE', 'mysql');
 
 class dbal_mysql extends dbal
 {
-    var $link_id     = 0;                   // Connection link ID       @var link_id
-    var $query_id    = 0;                   // Query ID                 @var query_id
-    var $record      = array();             // Record                   @var record
-    var $record_set  = array();             // Record set               @var record_set
-    var $query_count = 0;                   // Query count              @var query_count
-    var $queries     = array();             // Queries                  @var queries
-    var $error_die   = true;                // Die on errors?           @var error_die
-    
-    /**
-    * Constructor
-    */
 /*
 	function dbal_mysql()
 	{
@@ -100,11 +89,18 @@ class dbal_mysql extends dbal
         }
     }
     
+	// FIXME: Move close_db functionality into this method and dbal's sql_close() method; deprecate close_db
+	function _sql_close()
+	{
+		return $this->close_db();
+	}
+
     /**
     * Closes MySQL connection
     * 
     * @return bool
     */
+	// FIXME: Deprecate me!
     function close_db()
     {
         if ( $this->link_id )
@@ -120,13 +116,7 @@ class dbal_mysql extends dbal
             return false;
         }
     }
-    
-	// FIXME: Move close_db functionality into this method; deprecate close_db
-	function _sql_close()
-	{
-		return $this->close_db();
-	}
-	
+    	
     /**
     * Get error information
     * 
@@ -147,6 +137,8 @@ class dbal_mysql extends dbal
      * @param array $params If present, replce :params in $query with the value of {@link build_query}
      * @return mixed Query ID / Error string / Bool
      */
+	 // TODO: Split out any of the generic query code and place it in dbal.php; 
+	 //       replace all db-specific parts with a single _sql_query() method, called by dbal's generic query method.
     function query($query, $params = null)
     {
         global $table_prefix, $debug;
@@ -419,55 +411,8 @@ class dbal_mysql extends dbal
 
             return true;
         }
-        else
-        {
-            return false;
-        }
+
+        return false;
     }
     
-    /**
-    * Remove quote escape
-    * 
-    * @param $string    The string to escape, or the implode() delimiter if $array is set
-    * @param $array     An array to pass to _implode(), escaping its values
-    * @return string
-    */
-    function escape($string, $array = null)
-    {
-        if ( is_array($array) )
-        {
-            $string = $this->_implode($string, $array);
-        }
-        else
-        {
-            $string = mysql_real_escape_string($string);
-        }
-        
-        return $string;
-    }
-    
-    function _implode($delim, $array)
-    {
-        if ( !is_array($array) || count($array) == 0 )
-        {
-            return '';
-        }
-        
-        foreach ( $array as $k => $v )
-        {
-            $array[$k] = $this->escape($v);
-        }
-        
-        return implode($delim, $array);
-    }
-    
-    /**
-    * Set the error_die var
-    * 
-    * @param $setting
-    */
-    function error_die($setting = true)
-    {
-        $this->error_die = $setting;
-    }
 }

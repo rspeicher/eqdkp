@@ -20,7 +20,7 @@ if ( !defined('IN_INSTALL') )
 class installer 
 {
 
-	var $submenu_ary = array('INTRO', 'REQUIREMENTS', 'DATABASE', 'ADMINISTRATOR', 'CONFIG_FILE', 'ADVANCED', 'CREATE_TABLE', 'FINAL');
+	var $submenu_ary = array('INTRO', 'REQUIREMENTS', 'DATABASE', 'ADMINISTRATOR', 'CONFIG_FILE', 'GAME_SETTINGS', 'CREATE_TABLE', 'FINAL');
 
 	function main($mode, $sub)
 	{	
@@ -45,6 +45,10 @@ class installer
 			case 'config_file':
 				$this->create_config_file();
 				break;
+			
+			case 'game':
+				$this->obtain_game_info();
+			break;
 			
 			case 'create_table';
 				$this->create_database_tables();
@@ -910,6 +914,10 @@ class installer
 
 	}
 
+
+	function obtain_game_info()
+	{
+	}
 	
 	function create_database_tables()
 	{

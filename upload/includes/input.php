@@ -1,4 +1,19 @@
 <?php
+/**
+ * Project:     EQdkp - Open Source Points System
+ * License:     http://eqdkp.com/?p=license
+ * -----------------------------------------------------------------------
+ * File:        input.php
+ * Began:       Fri Oct 5 2007
+ * Date:        $Date$
+ * -----------------------------------------------------------------------
+ * @author      $Author$
+ * @copyright   2002-2007 The EQdkp Project Team
+ * @link        http://eqdkp.com/
+ * @package     eqdkp
+ * @version     $Rev$
+ */
+
 if ( !defined('EQDKP_INC') )
 {
      die('Do not access this file directly.');

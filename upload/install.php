@@ -493,7 +493,7 @@ function process_step3()
     // Get our posted data
     //
     $default_lang = post_or_db('default_lang', $DEFAULTS);
-    $dbms       = post_or_db('dbms');
+    $dbms       = post_or_db('dbtype');
     $dbhost       = post_or_db('dbhost');
     $dbname       = post_or_db('dbname');
     $dbuser       = post_or_db('dbuser');
@@ -507,7 +507,7 @@ function process_step3()
     define('CONFIG_TABLE', $table_prefix . 'config');
     define('USERS_TABLE',  $table_prefix . 'users');
 
-    $dbal_file = $eqdkp_root_path . 'dbal/' . $dbms . '.php';
+    $dbal_file = $eqdkp_root_path . 'includes/db/' . $dbms . '.php';
     if ( !file_exists($dbal_file) )
     {
         $tpl->message_die('Unable to find the database abstraction layer for <b>' . $dbms . '</b>, check to make sure ' . $dbal_file . ' exists.');
@@ -518,7 +518,9 @@ function process_step3()
     //
     define('DEBUG', 2);
     include_once($dbal_file);
-    $db = new SQL_DB($dbhost, $dbname, $dbuser, $dbpass, false);
+	$sql_db = 'dbal_' . $dbms;
+    $db = new $sql_db();
+	$db->sql_connect($dbhost, $dbname, $dbuser, $dbpass, false);
 
     // Check to make sure a connection was made
     if ( !is_resource($db->link_id) )

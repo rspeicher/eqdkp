@@ -46,11 +46,11 @@ class installer
 				$this->create_config_file();
 				break;
 			
-			case 'writedata';
+			case 'create_table';
 				$this->create_database_tables();
 				break;
 			
-			case 'finalize':
+			case 'final':
 				$this->finish_install();
 				break;
 		}
@@ -82,6 +82,8 @@ class installer
 	{
 		global $eqdkp_root_path, $lang, $DEFAULTS;
 	
+		define('DEBUG', 0);
+
 		$tpl = new Template_Wrap('install_step1.html');
 	
 		$tpl->assign_vars(array(
@@ -92,7 +94,6 @@ class installer
 		));
 
 		$passed = array('php' => false, 'config' => false, 'db' => false,);
-
 
 		// Check EQdkp Information
 		$tpl->assign_block_vars('checks', array(
@@ -384,6 +385,8 @@ class installer
 	{
 		global $eqdkp_root_path, $lang, $DEFAULTS, $DBALS, $LOCALES;
 	
+		define('DEBUG', 2);
+
 		$tpl = new Template_Wrap('install_step2.html');
 
 		$tpl->assign_vars(array(
@@ -578,11 +581,15 @@ class installer
 	{
 		global $eqdkp_root_path, $lang, $DEFAULTS, $DBALS, $LOCALES;
 	
+		define('DEBUG', 2);
+
 		$tpl = new Template_Wrap('install_step3.html');
 	
 		$tpl->assign_vars(array(
 			'TITLE' 	=> '',
 			'BODY' 		=> '',
+
+			'S_CHECKS' => false,
 		));
 	
 		// Obtain any submitted data
@@ -757,6 +764,8 @@ class installer
 	{
 		global $eqdkp_root_path, $lang, $DEFAULTS;
 	
+		define('DEBUG', 2);
+
 		$tpl = new Template_Wrap('install_config.html');
 
 		// Obtain any submitted data
@@ -786,14 +795,15 @@ class installer
 		// Write the config file information
 		$config_file  = "";
 		$config_file .= "<?php\n\n";
-		$config_file .= "\$dbms       = '" . $data['dbms']        . "'; \n";
+		$config_file .= "\$dbms         = '" . $data['dbms']        . "'; \n";
 		$config_file .= "\$dbhost       = '" . $data['dbhost']        . "'; \n";
 		$config_file .= "\$dbname       = '" . $data['dbname']        . "'; \n";
 		$config_file .= "\$dbuser       = '" . $data['dbuser']        . "'; \n";
 		$config_file .= "\$dbpass       = '" . $data['dbpass']        . "'; \n";
 		$config_file .= "\$ns           = '" . $data['server_name']   . "'; \n";
-		$config_file .= "\$debug        = '0'; \n";
 		$config_file .= "\$table_prefix = '" . $data['table_prefix']  . "';\n\n";
+		$config_file .= "\$debug        = '0'; \n";
+		$config_file .= "\n" . 'define(\'EQDKP_INSTALLED\', true);' . "\n";
 		$config_file .= "?" . ">";
 	
 		
@@ -878,18 +888,19 @@ class installer
 		else
 		{
 			$tpl->assign_vars(array(
-				'TITLE' 	=> '',
-				'BODY'		=> $lang['CONFIG_FILE_WRITTEN'],
-				'L_SUBMIT'	=> $lang['NEXT_STEP'],
-				'S_HIDDEN'	=> $s_hidden_fields,
-				'S_CHECKS'  => false,
-				'S_OPTIONS' => false,
-				'NEXT_STEP' => 'writedata',
+				'TITLE' 				=> '',
+				'BODY'					=> $lang['CONFIG_FILE_WRITTEN'],
+				'L_SUBMIT'				=> $lang['NEXT_STEP'],
+				'S_HIDDEN'				=> $s_hidden_fields,
+				'S_SHOW_DOWNLOAD'		=> false,
+				'S_CHECKS'  			=> false,
+				'S_OPTIONS' 			=> false,
+				'NEXT_STEP' 			=> 'create_table',
 			));
 		}
 
 		$tpl->assign_vars(array(
-			'EQDKP_ROOT_PATH' 	=> $eqdkp_root_path,
+			'EQDKP_ROOT_PATH' 			=> $eqdkp_root_path,
 		));
 
 		$tpl->generate_navigation($this->submenu_ary, 'config_file');
@@ -902,7 +913,9 @@ class installer
 	
 	function create_database_tables()
 	{
-		global $eqdkp_root_path, $lang, $db, $DEFAULTS, $DBALS, $LOCALES;
+		global $eqdkp_root_path, $lang, $db, $DEFAULTS, $LOCALES;
+
+		define('DEBUG', 2);
 
 		$tpl = new Template_Wrap('install_config.html');
 
@@ -918,61 +931,47 @@ class installer
 			redirect("index.php");
 		}
 
-		include_once($eqdkp_root_path . 'config.php');
+		include($eqdkp_root_path . 'config.php');
+	
 
 		define('CONFIG_TABLE', $data['table_prefix'] . 'config');
 		define('USERS_TABLE',  $data['table_prefix'] . 'users');
 		define('STYLES_TABLE', $data['table_prefix'] . 'styles');
 	
-		define('DEBUG', 2);
-		
 		//
 		// Database population
 		//
 		// If we get here and the extension isn't loaded it should be safe to just go ahead and load it 
 		$available_dbms = get_available_dbms($data['dbms']);
-		$dbms = $available_dbms[$data['dbms']]['DRIVER'];
 
 		$dbal_file = $eqdkp_root_path . 'includes/db/' . $available_dbms[$data['dbms']]['DRIVER'] . '.php';
 		if ( !file_exists($dbal_file) )
 		{
-			$tpl->message_die('Unable to find the database abstraction layer for <b>' . $dbms . '</b>, check to make sure ' . $dbal_file . ' exists.');
+			$tpl->message_die('Unable to find the database abstraction layer for <b>' . $available_dbms[$data['dbms']]['DRIVER'] . '</b>, check to make sure ' . $dbal_file . ' exists.');
 		}
-		include_once($dbal_file);
+		include($dbal_file);
 
+		// Connect to our database
 		$sql_db = 'dbal_' . $available_dbms[$data['dbms']]['DRIVER'];
 		$db = new $sql_db();
-		$db->sql_connect($data['dbhost'], $data['dbuser'], $data['dbpass'], $data['dbname'], $data['dbport'], false, false);
+		$db->sql_connect($data['dbhost'], $data['dbname'], $data['dbuser'], $data['dbpass'], false);
+
+		// Set some nice names for the sql files to use to populate the database
+		$db_structure_file = 'schemas/' . $available_dbms[$data['dbms']]['SCHEMA'] . '_structure.sql';
+		$db_data_file      = 'schemas/' . $available_dbms[$data['dbms']]['SCHEMA'] . '_data.sql';
+	
+		$remove_remarks_function = $available_dbms[$data['dbms']]['COMMENTS'];
+		$delimiter = $available_dbms[$data['dbms']]['DELIM'];
 		
-		$db_structure_file = $eqdkp_root_path . 'install/schema/' . $data['dbms'] . '_structure.sql';
-		$db_data_file      = $eqdkp_root_path . 'install/schema/' . $data['dbms'] . '_data.sql';
-	
-		$remove_remarks_function = $DBALS[$data['dbms']]['comments'];
-	
-		// I require MySQL version 4.0.4 minimum.
-		$server_version = mysql_get_server_info();
-		$client_version = mysql_get_client_info();
-	
-		if ( (isset($server_version) && isset($client_version)) ) 
-		{
-			$tpl->message_append('MySQL client <b>and</b> server version 4.0.4 or higher and InnoDB table support are required for EQdkp.<br>
-								  <b><br>You are running server version <ul>' . $server_version . '</ul> and client version <ul>' . $client_version . '.</ul></b><br>
-								  MySQL versions less than 4.0.4 will not work and are not supported. Versions less than 4.0.4<br>
-								  will experience data corruption, and we will not provide support for these installations.<br><br>');
-		} 
-		else 
-		{
-			$tpl->message_die('Failed to get version information for database <b>' . $dbname . '</b> as <b>' . $dbuser . '@' . $dbhost . '</b>
-							   <br /><br /><a href="install.php">Restart Installation</a>');
-		}
-	
 		// Parse structure file and create database tables
 		$sql = @fread(@fopen($db_structure_file, 'r'), @filesize($db_structure_file));
 		$sql = preg_replace('#eqdkp\_(\S+?)([\s\.,]|$)#', $data['table_prefix'] . '\\1\\2', $sql);
-	
+
 		$sql = $remove_remarks_function($sql);
-		$sql = parse_sql($sql, $DBALS[$data['dbms']]['delim']);
+		$sql = parse_sql($sql, $available_dbms[$data['dbms']]['DELIM']);
+
 	
+		// FIXME: No way to roll back changes if any particular query fails.
 		$sql_count = count($sql);
 		$i = 0;
 		
@@ -980,7 +979,7 @@ class installer
 		{
 			if (isset($sql[$i]) && $sql[$i] != "") 
 			{
-				if ( !($db->sql_query($sql[$i]) )) 
+				if ( !($db->query($sql[$i]) )) 
 				{
 					$tpl->message_die('Failed to connect to database <b>' . $data['dbname'] . '</b> as <b>' . $data['dbuser'] . '@' . $data['dbhost'] . '</b>
 							   <br /><br /><a href="install.php">Restart Installation</a>');
@@ -996,8 +995,9 @@ class installer
 		$sql = preg_replace('#eqdkp\_(\S+?)([\s\.,]|$)#', $data['table_prefix'] . '\\1\\2', $sql);
 	
 		$sql = $remove_remarks_function($sql);
-		$sql = parse_sql($sql, $DBALS[$data['dbms']]['delim']);
+		$sql = parse_sql($sql, $available_dbms[$data['dbms']]['DELIM']);
 	
+		// FIXME: No way to roll back changes if any particular query fails.
 		$sql_count = count($sql);
 		$i = 0;
 	
@@ -1005,10 +1005,10 @@ class installer
 		{	
 			if (isset($sql[$i]) && $sql[$i] != "") 
 			{
-				if ( !($db->sql_query($sql[$i]) )) 
+				if ( !($db->query($sql[$i]) )) 
 				{
 					$tpl->message_die('Failed to connect to database <b>' . $data['dbname'] . '</b> as <b>' . $data['dbuser'] . '@' . $data['dbhost'] . '</b>
-									   <br /><br /><a href="install.php">Restart Installation</a>');	
+									   <br /><br /><a href="index.php">Restart Installation</a>');	
 				}
 			}
 	
@@ -1022,38 +1022,58 @@ class installer
 		//
 		// Update some config settings
 		//
-		$db->sql_query('UPDATE ' . CONFIG_TABLE . " SET config_name='eqdkp_start' WHERE config_name='" . $data['table_prefix'] . "start'");
-		$db->sql_query("UPDATE " . CONFIG_TABLE . " SET config_value='" . $data['server_name'] . "' WHERE config_name='server_name'");
-		$db->sql_query("UPDATE " . CONFIG_TABLE . " SET config_value='" . $data['server_port'] . "' WHERE config_name='server_port'");
-		$db->sql_query("UPDATE " . CONFIG_TABLE . " SET config_value='" . $data['server_path'] . "' WHERE config_name='server_path'");
-		$db->sql_query("UPDATE " . CONFIG_TABLE . " SET config_value='" . $data['default_lang'] . "' WHERE config_name='default_lang'");
-		$db->sql_query("UPDATE " . CONFIG_TABLE . " SET config_value='" . $data['default_locale'] . "' WHERE config_name='default_locale'");
+		$db->query('UPDATE ' . CONFIG_TABLE . " SET config_name='eqdkp_start' WHERE config_name='" . $data['table_prefix'] . "start'");
+		$db->query("UPDATE " . CONFIG_TABLE . " SET config_value='" . $data['server_name'] . "' WHERE config_name='server_name'");
+		$db->query("UPDATE " . CONFIG_TABLE . " SET config_value='" . $data['server_port'] . "' WHERE config_name='server_port'");
+		$db->query("UPDATE " . CONFIG_TABLE . " SET config_value='" . $data['server_path'] . "' WHERE config_name='server_path'");
+		$db->query("UPDATE " . CONFIG_TABLE . " SET config_value='" . $data['default_lang'] . "' WHERE config_name='default_lang'");
+		$db->query("UPDATE " . CONFIG_TABLE . " SET config_value='" . $data['default_locale'] . "' WHERE config_name='default_locale'");
 		
 		//
 		// Update admin account
 		//
-		// Note to self: add a random password generator thing.
-		$query = $db->sql_build_query('UPDATE', array(
+		
+		$admin_password = ( $data['admin_pass1'] == $data['admin_pass2'] ) ? md5($data['admin_pass1']) : md5('admin');
+		
+		// FIXME: add a random password generator thing.
+		$query = $db->build_query('UPDATE', array(
 			'username' 		=> $data['admin_name'],
-			'user_password' => ( $data['admin_pass1'] == $data['admin_pass2'] ) ? md5($data['admin_pass1']) : md5('admin'),
+			'user_password' => $admin_password,
 			'user_lang'     => $data['default_lang'],
 			'user_email' 	=> $data['admin_email1'],
 			'user_active' 	=> '1',
 		));
 
-		$db->sql_query('UPDATE ' . USERS_TABLE . ' SET ' . $query . " WHERE user_id='1'");
-		$db->sql_query("UPDATE " . CONFIG_TABLE . " SET config_value='" . $data['admin_email1'] . "' WHERE config_name='admin_email'");
+		$db->query('UPDATE ' . USERS_TABLE . ' SET ' . $query . " WHERE user_id='1'");
+		$db->query("UPDATE " . CONFIG_TABLE . " SET config_value='" . $data['admin_email1'] . "' WHERE config_name='admin_email'");
 
 
 		$submit = $lang['NEXT_STEP'];
 
+		$s_hidden_fields = build_hidden_fields($data);
+
 		$tpl->assign_vars(array(
-			'BODY'		=> $lang['STAGE_CREATE_TABLE_EXPLAIN'],
-			'L_SUBMIT'	=> $submit,
-			'S_HIDDEN'	=> build_hidden_fields($data),
-			'NEXT_STEP' => 'finalize',
-			'EQDKP_ROOT_PATH' => $eqdkp_root_path,
+			'TITLE' 				=> '',
+			'BODY'					=> $lang['STAGE_CREATE_TABLE_EXPLAIN'],
+			'L_SUBMIT'				=> $submit,
+			'S_HIDDEN'				=> $s_hidden_fields,
+			'S_SHOW_DOWNLOAD'		=> false,
+			'S_CHECKS'  			=> false,
+			'S_OPTIONS' 			=> false,
+
+			'NEXT_STEP' 			=> 'final',
+			'EQDKP_ROOT_PATH'		=> $eqdkp_root_path,
 		));
+
+		// NOTE: This shouldn't really ever happen, but just in case it does...
+		if ( $data['admin_pass1'] != $data['admin_pass2'] )
+		{
+			$tpl->message_append('<p><span style="font-weight: bold; font-size: 14px; color: #990000;">NOTICE:</span></p>
+				<p>The passwords you provided did not match, so a new password has been generated for you.<br />Your administrator account password is: <strong>' . $admin_password . '</strong>.</p>
+				<p>Please take a moment and take note of this password! You can change it later by logging in and going to your account settings.</p>');
+		}
+
+		$tpl->generate_navigation($this->submenu_ary, 'create_table');
 
 		$tpl->page_header();
 		$tpl->page_tail();		
@@ -1061,61 +1081,31 @@ class installer
 	
 	function finish_install()
 	{
-		global $eqdkp_root_path, $db, $DEFAULTS;
+		global $eqdkp_root_path, $db, $lang, $DEFAULTS;
 	
-		$tpl = new Template_Wrap('install_step4.html');
-	
-		//
-		// Get our posted data
-		//
-		foreach ($this->request_vars as $var)
-		{
-			$$var = (in_array($var, array('admin_name', 'dbpass', 'admin_pass1', 'admin_pass2'))) ? request_var($var, '', true) : request_var($var, '');
-		}
-
 		define('DEBUG', 0);
 	
-		//
-		// Rewrite the config file to its final form
-		//
-		$config_file = "";
-		$config_file  = file($eqdkp_root_path . 'config.php');
-		$config_file  = implode("\n", $config_file);
-		$config_file  = preg_replace('#(\n)\n{1,}#', '$1', $config_file);
-		$config_file  = preg_replace('#\?>$#', '', $config_file);
-		$config_file .= "\n" . 'define(\'EQDKP_INSTALLED\', true);' . "\n";
-		$config_file .= '?>';
-	
-		// Set our permissions to execute-only
-		@umask(0111);
-	
-		if ( !$fp = @fopen($eqdkp_root_path . 'config.php', 'w') )
-		{
-			$error_message  = 'The <b>config.php</b> file couldn\'t be opened for writing.  Paste the following in to config.php and save the
-							   file to continue:<br /><pre>' . htmlspecialchars($config_file) . '</pre>';
-			$tpl->error_append($error_message);
-		}
-		else
-		{
-			@fputs($fp, $config_file, strlen($config_file));
-			@fclose($fp);
-		}
-	
-		//
-		// Print out the login form
-		//
-		if ( $admin_pass1 != $admin_pass2 )
-		{
-			$tpl->message_append('<span style="font-weight: bold; font-size: 14px;" class="negative">NOTICE</span><br /><br />Your passwords did
-								  not match, so it has been reset to <b>admin</b>.  You can change it by logging in and going to your account settings.');
-		}
-	
+		$tpl = new Template_Wrap('install_step4.html');
+		
 		$tpl->message_append('Your administrator account has been created, log in above to be taken to the EQdkp configuration page.');
 	
 		$tpl->assign_vars(array(
-			'EQDKP_ROOT_PATH' => $eqdkp_root_path,
+			'TITLE' 				=> $lang['INSTALL_CONGRATS'],
+			'BODY'					=> $lang['INSTALL_CONGRATS_EXPLAIN'],
+			'L_SUBMIT'				=> $lang['INSTALL_LOGIN'],
+			'S_SHOW_DOWNLOAD'		=> false,
+			'S_CHECKS'				=> false,
+			'S_OPTIONS' 			=> false,
+
+			'EQDKP_ROOT_PATH'		=> $eqdkp_root_path,
 		));
+
+		// Remove the lock file
+		@unlink($nutron_root_path . 'templates/cache/install_lock');
+
 	
+		$tpl->generate_navigation($this->submenu_ary, 'final');
+
 		$tpl->page_header();
 		$tpl->page_tail();
 	}
@@ -1174,7 +1164,7 @@ class installer
 		return array(
 			'language'		=> basename(request_var('language', '')),
 
-			'dbms'		=> request_var('dbms', ''),
+			'dbms'			=> request_var('dbms', ''),
 			'dbhost'		=> request_var('dbhost', ''),
 			'dbport'		=> request_var('dbport', ''),
 			'dbuser'		=> request_var('dbuser', ''),
@@ -1185,15 +1175,15 @@ class installer
 			'default_lang'		=> basename(request_var('default_lang', '')),
 			'default_locale'	=> basename(request_var('default_locale', '')),
 
-			'admin_name'			=> request_var('admin_name', '', true),
-			'admin_pass1'	=> request_var('admin_pass1', '', true),
-			'admin_pass2'	=> request_var('admin_pass2', '', true),
+			'admin_name'		=> request_var('admin_name', '', true),
+			'admin_pass1'		=> request_var('admin_pass1', '', true),
+			'admin_pass2'		=> request_var('admin_pass2', '', true),
 			'admin_email1'		=> strtolower(request_var('admin_email1', '')),
 			'admin_email2'		=> strtolower(request_var('admin_email2', '')),
 			
-			'server_name'	=> request_var('server_name', ''),
-			'server_port'	=> request_var('server_port', ''),
-			'server_path'	=> request_var('server_path', ''),
+			'server_name'		=> request_var('server_name', ''),
+			'server_port'		=> request_var('server_port', ''),
+			'server_path'		=> request_var('server_path', ''),
 		);
 	} 
 
@@ -1203,15 +1193,15 @@ class installer
 	*/
 	var $request_vars = array('language', 'dbhost', 'dbuser', 'dbpass', 'dbname', 'dbms', 'table_prefix', 'default_lang', 'default_locale', 'admin_name', 'admin_pass1', 'admin_pass2', 'admin_email', 'server_name', 'server_port', 'server_path');	
 
-    var $default_config_options = array(
+	var $default_config_options = array(
 		'legend1'				=> 'DEFAULT_CONFIG',
 		'default_lang'			=> array('lang' => 'DEFAULT_LANG',		'type' => 'select', 'options' => 'inst_language_select(\'{VALUE}\')', 'explain' => false),
-		'default_locale'        => array('lang' => 'DEFAULT_LOCALE',	'type' => 'select', 'options' => 'inst_locale_select(\'{VALUE}\')', 'explain' => false),
+		'default_locale'		=> array('lang' => 'DEFAULT_LOCALE',	'type' => 'select', 'options' => 'inst_locale_select(\'{VALUE}\')', 'explain' => false),
 	);
 
 	var $db_config_options = array(
 		'legend1'				=> 'DB_CONFIG',
-		'dbms'                => array('lang' => 'DB_TYPE',		'type' => 'select', 'options' => 'dbms_select(\'{VALUE}\')', 'explain' => false),
+		'dbms'					=> array('lang' => 'DB_TYPE',		'type' => 'select', 'options' => 'dbms_select(\'{VALUE}\')', 'explain' => false),
 		'dbhost'				=> array('lang' => 'DB_HOST',		'type' => 'text:25:100', 'explain' => false),
 		'dbname'				=> array('lang' => 'DB_NAME',		'type' => 'text:25:100', 'explain' => false),
 		'dbuser'				=> array('lang' => 'DB_USERNAME',	'type' => 'text:25:100', 'explain' => false),
@@ -1228,9 +1218,9 @@ class installer
 
 	var $admin_config_options = array(
 		'legend1'				=> 'ADMIN_CONFIG',
-		'admin_name'				=> array('lang' => 'ADMIN_USERNAME',			'type' => 'text:25:100', 'explain' => false),
-		'admin_pass1'		=> array('lang' => 'ADMIN_PASSWORD',			'type' => 'password:25:100', 'explain' => false),
-		'admin_pass2'		=> array('lang' => 'ADMIN_PASSWORD_CONFIRM',	'type' => 'password:25:100', 'explain' => false),
+		'admin_name'			=> array('lang' => 'ADMIN_USERNAME',			'type' => 'text:25:100', 'explain' => false),
+		'admin_pass1'			=> array('lang' => 'ADMIN_PASSWORD',			'type' => 'password:25:100', 'explain' => false),
+		'admin_pass2'			=> array('lang' => 'ADMIN_PASSWORD_CONFIRM',	'type' => 'password:25:100', 'explain' => false),
 		'admin_email1'			=> array('lang' => 'ADMIN_EMAIL',				'type' => 'text:25:100', 'explain' => false),
 		'admin_email2'			=> array('lang' => 'ADMIN_EMAIL',				'type' => 'text:25:100', 'explain' => false),
 	);

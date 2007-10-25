@@ -111,6 +111,11 @@ $lang = array_merge($lang, array(
 	'FILES_REQUIRED_EXPLAIN'	=> '<strong>Required</strong> - In order to function correctly, EQdkp needs to be able to access or write to certain files or directories. If you see “Not Found” you need to create the relevant file or directory. If you see “Unwritable” you need to change the permissions on the file or directory to allow EQdkp to write to it.',
 	'FOUND'						=> 'Found',
 
+	'INSTALL_CONGRATS'			=> 'Congratulations!',
+	'INSTALL_CONGRATS_EXPLAIN'	=> '
+		<p>You have now successfully installed EQdkp %1$s.</p>
+		<p>Clicking the button below will take you to the Administration section of your EQdkp. For EQdkp support, you can visit the <a href="http://forums.eqdkp.com/">EQdkp forums</a> and request assistance in the appropriate forum sections.</p><p><strong>Please now delete, move or rename the install directory before you use EQdkp.</strong></p>',
+
 	'INSTALL_INTRO'				=> 'Welcome to EQdkp Installation',
 	'INSTALL_INTRO_BODY'		=> 'The following process will install EQdkp onto your server.</p>
 	<p>In order to proceed, you will need your database settings. If you do not know your database settings, please contact your host and ask for them. You will not be able to continue without them. You need:</p>
@@ -138,6 +143,7 @@ $lang = array_merge($lang, array(
 	'INSTALL_SEND_CONFIG'		=> 'Unfortunately phpBB could not write the configuration information directly to your config.php. This may be because the file does not exist or is not writable. A number of options will be listed below enabling you to complete installation of config.php.',
 	'INSTALL_START'				=> 'Start install',
 	'INSTALL_TEST'				=> 'Test again',
+
 	'INST_ERR'					=> 'Installation error',
 	'INST_ERR_DB_CONNECT'		=> 'Could not connect to the database, see error message below.',
 	'INST_ERR_DB_FORUM_PATH'	=> 'The database file specified is within your board directory tree. You should put this file in a non web-accessible location.',

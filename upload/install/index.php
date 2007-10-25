@@ -306,18 +306,17 @@ class Template_Wrap extends Template
 
 }
 
-// Get the config file
-if ( file_exists($eqdkp_root_path . 'config.php') )
-{
-    include_once($eqdkp_root_path . 'config.php');
-}
-
 // If EQdkp is already installed, don't let them install it again
-if ( defined('EQDKP_INSTALLED') )
+if (@file_exists($eqdkp_root_path . 'config.php') && !file_exists($eqdkp_root_path . 'templates/cache/install_lock'))
 {
-    $tpl = new Template_Wrap('install_message.html');
-    $tpl->message_die('EQdkp is already installed - please remove the <b>install</b> directory.', 'Installation Error');
-    exit;
+	include_once($eqdkp_root_path . 'config.php');
+
+	if ( defined('EQDKP_INSTALLED') )
+	{
+		$tpl = new Template_Wrap('install_message.html');
+		$tpl->message_die('EQdkp is already installed - please remove the <b>install</b> directory.', 'Installation Error');
+		exit;
+	}
 }
 
 // Note to self: the upgrade script can be incorporated into this installation file, if you use the method similar to that of phpbb3.

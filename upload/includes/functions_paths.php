@@ -71,30 +71,16 @@ function path_params($param_name, $param_value = '')
     {
         foreach ( $param_name as $key => $val )
         {
-            $retval .= "&{$key}=" . urlencode($val);
+            $retval .= "&amp;{$key}=" . urlencode($val);
         }
     }
     else
     {
-        $retval = "&{$param_name}=" . urlencode($param_value);
+        $retval = "&amp;{$param_name}=" . urlencode($param_value);
     }
     
     return $retval;
 }
-
-/**
- * Makes ampersand characters XHTML-safe
- *
- * @param string $path Path to escape
- * @return string
- */
-function path_escape($path)
-{
-    return str_replace('&', '&amp;', $path);
-}
-
-// TODO: These methods return paths with unescaped '&' characters, which invalidates our XHTML
-// A move to a template engine like Smarty would let the template files themselves dictate which paths need to be escaped
 
 ## ############################################################################
 ## Event Paths
@@ -109,6 +95,21 @@ function event_path($id = null)
     }
     
     return path_default('listevents.php');
+}
+
+## ############################################################################
+## Item Paths
+## ############################################################################
+
+function item_path($id = null)
+{
+    if ( !is_null($id) )
+    {
+        $id = intval($id);
+        return path_default('viewitem.php') . path_params(URI_ITEM, $id);
+    }
+    
+    return path_default('listitems.php');
 }
 
 ## ############################################################################
@@ -133,4 +134,19 @@ function edit_member_path($id = null)
     }
     
     return path_default('manage_members.php', true) . path_params('mode', 'addmember');
+}
+
+## ############################################################################
+## Raid Paths
+## ############################################################################
+
+function raid_path($id = null)
+{
+    if ( !is_null($id) )
+    {
+        $id = intval($id);
+        return path_default('viewraid.php') . path_params(URI_RAID, $id);
+    }
+    
+    return path_default('listraids.php');
 }

@@ -38,7 +38,7 @@ function page_title($title = '')
     $retval = ( $title != '' ) ? "{$title} - " : '';
     $retval .= $global_title;
     
-    return $retval;
+    return sanitize($retval, TAG);
 }
 
 /**

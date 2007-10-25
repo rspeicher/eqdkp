@@ -680,10 +680,10 @@ function process_step4()
     switch ( $dbtype )
     {
         case 'mysql':
-            include_once($eqdkp_root_path . 'dbal/mysql.php');
+            include_once($eqdkp_root_path . 'includes/db/mysql.php');
             break;
         default:
-            include_once($eqdkp_root_path . 'dbal/mysql.php');
+            include_once($eqdkp_root_path . 'includes/db/mysql.php');
             break;
     }
 

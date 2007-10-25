@@ -6,7 +6,7 @@
 * dbal.php 
 * begin: Tue December 17 2002 
 *  
-* $Id$ 
+* $Id: dbal.php 46 2007-06-19 07:29:11Z tsigo $ 
 * 
  ******************************/
 
@@ -18,15 +18,14 @@ if ( !defined('EQDKP_INC') )
 switch ( $dbtype )
 {
     case 'mysql':
-        include_once($eqdkp_root_path . 'dbal/mysql.php');
+        $dbms = 'mysql';
         break;
     default:
-        include_once($eqdkp_root_path . 'dbal/mysql.php');
+        $dbms = 'mysql';
         break;
 }
-// Instantiate the class, which connects in the constructor
-$db = new SQL_DB($dbhost, $dbname, $dbuser, $dbpass, false);
-if ( !$db->link_id )
-{
-    message_die('Could not connect to the database.');
-}
+
+/**
+* This variable holds the class name to use later
+*/
+$sql_db = 'dbal_' . $dbms;

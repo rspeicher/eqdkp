@@ -91,7 +91,7 @@ define('A_BACKUP',      36);
 
 require_once($eqdkp_root_path . 'includes/functions.php');
 require_once($eqdkp_root_path . 'includes/functions_paths.php');
-require_once($eqdkp_root_path . 'includes/dbal.php');
+require_once($eqdkp_root_path . 'includes/db/' . $dbtype . '.php');
 require_once($eqdkp_root_path . 'includes/eqdkp.php');
 require_once($eqdkp_root_path . 'includes/session.php');
 require_once($eqdkp_root_path . 'includes/class_template.php');
@@ -100,8 +100,19 @@ require_once($eqdkp_root_path . 'includes/input.php');
 
 $tpl   = new Template;
 $in    = new Input();
-$eqdkp = new EQdkp($eqdkp_root_path);
 $user  = new User;
+$db    = new $sql_db();
+
+// Connect to the database
+$db->sql_connect($dbhost, $dbname, $dbuser, $dbpass, false);
+if ( !$db->link_id )
+{
+    message_die('Could not connect to the database.');
+}
+
+// Initialize the eqdkp module
+$eqdkp = new EQdkp($eqdkp_root_path);
+
 
 // Start up the user/session management
 $user->start();

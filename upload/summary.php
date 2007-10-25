@@ -7,7 +7,7 @@
  * summary.php
  * Began: Sat December 21 2002
  * 
- * $Id: summary.php 46 2007-06-19 07:29:11Z tsigo $
+ * $Id$
  * 
  ******************************/
  

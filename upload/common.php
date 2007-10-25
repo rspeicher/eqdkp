@@ -7,7 +7,7 @@
  * common.php
  * Began: Tue December 17 2002
  *
- * $Id: common.php 50 2007-06-24 08:58:52Z tsigo $
+ * $Id$
  *
  ******************************/
 

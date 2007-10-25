@@ -7,7 +7,7 @@
  * viewraid.php
  * Began: Thu December 19 2002
  *
- * $Id: viewraid.php 46 2007-06-19 07:29:11Z tsigo $
+ * $Id$
  *
  ******************************/
 

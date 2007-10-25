@@ -7,7 +7,7 @@
  * viewitem.php
  * Began: Fri December 20 2002
  *
- * $Id: viewitem.php 46 2007-06-19 07:29:11Z tsigo $
+ * $Id$
  *
  ******************************/
 

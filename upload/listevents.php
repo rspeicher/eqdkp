@@ -7,7 +7,7 @@
  * listevents.php
  * Began: Fri December 20 2002
  *
- * $Id: listevents.php 4 2006-05-08 17:01:47Z tsigo $
+ * $Id$
  *
  ******************************/
 

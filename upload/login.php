@@ -7,7 +7,7 @@
  * login.php
  * Began: Sat December 21 2002
  * 
- * $Id: login.php 46 2007-06-19 07:29:11Z tsigo $
+ * $Id$
  * 
  ******************************/
  

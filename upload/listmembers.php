@@ -7,7 +7,7 @@
  * listmembers.php
  * begin: Wed December 18 2002
  * 
- * $Id: listmembers.php 50 2007-06-24 08:58:52Z tsigo $
+ * $Id$
  * 
  ******************************/
  

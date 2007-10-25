@@ -7,7 +7,7 @@
  * install.php
  * Began: Sun June 22 2003
  *
- * $Id: install.php 46 2007-06-19 07:29:11Z tsigo $
+ * $Id$
  *
  ******************************/
 

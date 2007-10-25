@@ -95,6 +95,7 @@ class Template {
     var $include_counter = 1;
     var $block_nesting_level = 0;
 
+
     function set_template($template = '', $root_dir = '')
     {
         global $eqdkp_root_path;
@@ -105,6 +106,7 @@ class Template {
         }
         else
         {
+            if( substr($root_dir, strlen($root_dir)-1) != '/' ) $root_dir .= '/';
             $this->root = $eqdkp_root_path . $root_dir . $template;
         }
         
@@ -195,14 +197,15 @@ class Template {
         }
 
         // If we don't have a file assigned to this handle, die.
+        // FIXME: Give a better error. Define a language string and pass it all the values that would be useful (theme name, file, handle, "using a plugin?", etc.)
         if (!isset($this->files[$handle]))
         {
-            trigger_error("Template->loadfile(): No file specified for handle $handle", E_USER_ERROR);
+            trigger_error("Template->loadfile(): No file specified for handle \"$handle\"", E_USER_ERROR);
         }
 
         if (!($fp = @fopen($this->files[$handle], 'r')))
         {
-            trigger_error("Template->loadfile(): Error - file $handle does not exist or is empty", E_USER_ERROR);
+            trigger_error("Template->loadfile(): Error - the handle \"$handle\" template file or directory does not exist or is empty", E_USER_ERROR);
         }
 
         $str = '';
@@ -364,13 +367,33 @@ class Template {
             $str .= '[\'' . $blocks[$blockcount] . '.\'][] = $vararray;';
 
             // Now we evaluate this assignment we've built up.
-            eval($str);
+            $str = eval($str);
+            
+            // FIXME: This is probably a bad way to do this, but ah well.
+            if( isset($str['S_ROW_COUNT']) )
+            {
+                unset($str['S_ROW_COUNT']);
+            }
+            $str['S_ROW_COUNT'] = sizeof($str);
+            
         }
         else
         {
             // Top-level block.
-            // Add a new iteration to this block with the variable assignments
-            // we were given.
+            $s_row_count = (isset($this->_tpldata[$blockname . '.'])) ? sizeof($this->_tpldata[$blockname . '.']) : 0;
+            $vararray['S_ROW_COUNT'] = $s_row_count;
+
+            // Assign S_FIRST_ROW
+            $s_row_count ? $vararray['S_FIRST_ROW'] = true : $vararray['S_FIRST_ROW'] = false;
+
+            // We always assign S_LAST_ROW and remove the entry before
+            $vararray['S_LAST_ROW'] = true;
+            if ($s_row_count > 0)
+            {
+                unset($this->_tpldata[$blockname . '.'][($s_row_count - 1)]['S_LAST_ROW']);
+            }
+            
+            // Add a new iteration to this block with the variable assignments we were given.
             $this->_tpldata[$blockname . '.'][] = $vararray;
         }
 
@@ -606,7 +629,7 @@ class Template {
                 default:
                     if (preg_match('#^(([a-z0-9\-_]+?\.)+?)?([A-Z]+[A-Z0-9\-_]+?)$#s', $token, $varrefs))
                     {
-                        $token = (!empty($varrefs[1])) ? $this->generate_block_data_ref(substr($varrefs[1], 0, strlen($varrefs[1]) - 1), true) . '[\'' . $varrefs[3] . '\']' : '$this->_tpldata[\'.\'][0][\'' . $varrefs[3] . '\']';
+                        $token = (!empty($varrefs[1])) ? $this->generate_block_data_ref(substr($varrefs[1], 0, -1), true) . '[\'' . $varrefs[3] . '\']' : '$this->_tpldata[\'.\'][0][\'' . $varrefs[3] . '\']';
                     }
                     break;
             }

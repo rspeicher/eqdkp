@@ -90,7 +90,7 @@ define('STRIP', (get_magic_quotes_gpc()) ? true : false);
 
 // System defaults / available database abstraction layers
 $DEFAULTS = array(
-    'version'       => '1.3.2',
+    'version'       => '1.3.3',
     'default_lang'  => 'English',
     'default_style' => '1',
     'table_prefix'  => 'eqdkp_',
@@ -103,7 +103,7 @@ $DBALS    = array(
         'comments'    => 'remove_remarks',
         'delim'       => ';',
         'delim_basic' => ';'
-    )
+    ),
 );
 $LOCALES = array(
 	'English' => array(
@@ -121,7 +121,7 @@ $LOCALES = array(
 	);
 
 
-// Note to self: the language includes should be changed eventually so that they can be set dynamically
+// NOTE: the language includes should be changed eventually so that they can be set dynamically
 if( !include_once($eqdkp_root_path . 'language/english/lang_install.php') )
 {
 	die('Could not include the language files! Check to make sure that "' . $eqdkp_root_path . 'language/english/lang_install.php" exists!');
@@ -317,16 +317,17 @@ if ( defined('EQDKP_INSTALLED') )
 {
     $tpl = new Template_Wrap('install_message.html');
     $tpl->message_die('EQdkp is already installed - please remove the <b>install</b> directory.', 'Installation Error');
-    exit();
+    exit;
 }
 
 // Note to self: the upgrade script can be incorporated into this installation file, if you use the method similar to that of phpbb3.
 // File: phpbb3/install/index.php, lines 274-282
-$mode = 'install';
-$sub = ( isset($_POST['sub']) ) ? $_POST['sub'] : 'intro';
 
 include($eqdkp_root_path . 'includes/functions_install.php');
 include($eqdkp_root_path . 'install/install.php');
+
+$mode = 'install';
+$sub = ( isset($_POST['sub']) ) ? request_var('sub','') : 'intro';
 
 $install = new installer();
 $install->main($mode, $sub);

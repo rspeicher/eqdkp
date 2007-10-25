@@ -46,7 +46,6 @@ define('DEBUG', 2);
 
 // User Levels
 define('ANONYMOUS', -1);
-define('USER',       0);
 
 // User activation
 define('USER_ACTIVATION_NONE',  0);
@@ -98,10 +97,10 @@ require_once($eqdkp_root_path . 'includes/class_template.php');
 require_once($eqdkp_root_path . 'includes/eqdkp_plugins.php');
 require_once($eqdkp_root_path . 'includes/input.php');
 
-$tpl   = new Template;
-$in    = new Input();
-$user  = new User;
-$db    = new $sql_db();
+$tpl  = new Template;
+$in   = new Input();
+$user = new User;
+$db   = new $sql_db();
 
 // Connect to the database
 $db->sql_connect($dbhost, $dbname, $dbuser, $dbpass, false);
@@ -113,12 +112,12 @@ if ( !$db->link_id )
 // Initialize the eqdkp module
 $eqdkp = new EQdkp($eqdkp_root_path);
 
-
 // Start up the user/session management
 $user->start();
 $user->setup($in->get('style', 0));
 
 // Set the locale
+// TODO: Shouldn't this be per-user? That was rhetorical. It should.
 $cur_locale = $eqdkp->config['default_locale'];
 setlocale(LC_ALL, $cur_locale);
 

@@ -43,17 +43,16 @@ if ( $in->get(URI_EVENT, 0) )
     }
     
     // Init vars used to get averages and totals
-    $total_drop_count = 0;
+    $total_drop_count      = 0;
     $total_attendees_count = 0;
-    $total_earned = 0;
+    $total_earned          = 0;
+    $total_items           = 0;
     
     // Reduce queries
     $raids     = array();
-    $raid_ids  = array('0');
+    $raid_ids  = array();
     $items     = array();
     $attendees = array();
-    
-    $unset_raid_zero = false; // Remove the '0' from $raid_ids if raids exist for this event
     
     // Find the raids for this event
     $sql = "SELECT raid_id, raid_date, raid_note, raid_value 
@@ -68,46 +67,42 @@ if ( $in->get(URI_EVENT, 0) )
             'raid_id'    => $row['raid_id'],
             'raid_date'  => $row['raid_date'],
             'raid_note'  => $row['raid_note'],
-            'raid_value' => $row['raid_value']);
-            
-        if ( $row['raid_id'] > 0 )
-        {
-            if ( !$unset_raid_zero )
-            {
-                unset($raid_ids[0]);
-                $unset_raid_zero = true;
-            }
-            
-            $raid_ids[] = $row['raid_id'];
-        }
+            'raid_value' => $row['raid_value']
+        );
+        $raid_ids[] = intval($row['raid_id']);
     }
     $db->free_result($result);
+    
+    $raid_ids_in = $db->escape(',', $raid_ids);
     
     // Find the item drops for each raid
-    $sql = "SELECT raid_id, count(item_id) AS count 
-            FROM __items
-            WHERE raid_id IN (" . implode(',', $raid_ids) . ")
-            GROUP BY raid_id";
-    $result = $db->query($sql);
-    
-    while ( $row = $db->fetch_record($result) )
+    if ( count($raid_ids) > 0 )
     {
-        $items[ $row['raid_id'] ] = $row['count'];
-    }
-    $db->free_result($result);
+        $sql = "SELECT raid_id, COUNT(item_id) AS count 
+                FROM __items
+                WHERE (raid_id IN ({$raid_ids_in}))
+                GROUP BY raid_id";
+        $result = $db->query($sql);
     
-    // Find the attendees at each raid
-    $sql = "SELECT raid_id, count(member_name) AS count 
-            FROM __raid_attendees
-            WHERE raid_id IN (" . implode(',', $raid_ids) . ")
-            GROUP BY raid_id";
-    $result = $db->query($sql);
+        while ( $row = $db->fetch_record($result) )
+        {
+            $items[ $row['raid_id'] ] = intval($row['count']);
+        }
+        $db->free_result($result);
     
-    while ( $row = $db->fetch_record($result) )
-    {
-        $attendees[ $row['raid_id'] ] = $row['count'];
+        // Find the number of attendees at each raid
+        $sql = "SELECT raid_id, COUNT(member_name) AS count 
+                FROM __raid_attendees
+                WHERE (raid_id IN ({$raid_ids_in}))
+                GROUP BY raid_id";
+        $result = $db->query($sql);
+    
+        while ( $row = $db->fetch_record($result) )
+        {
+            $attendees[ $row['raid_id'] ] = intval($row['count']);
+        }
+        $db->free_result($result);
     }
-    $db->free_result($result);
     
     // Loop through the raids for this event
     $total_raid_count = sizeof($raids);
@@ -118,18 +113,18 @@ if ( $in->get(URI_EVENT, 0) )
 
         $tpl->assign_block_vars('raids_row', array(
             'ROW_CLASS'   => $eqdkp->switch_row_class(),
-            'U_VIEW_RAID' => 'viewraid.php'.$SID.'&amp;' . URI_RAID . '='.$raid['raid_id'],
+            'U_VIEW_RAID' => raid_path($raid['raid_id']),
             'DATE'        => ( !empty($raid['raid_id']) ) ? date($user->style['date_notime_short'], $raid['raid_date']) : '&nbsp;',
             'ATTENDEES'   => $attendees_count,
             'DROPS'       => $drop_count,
             'NOTE'        => ( !empty($raid['raid_note']) ) ? sanitize($raid['raid_note']) : '&nbsp;',
-            'VALUE'       => $raid['raid_value']
+            'VALUE'       => number_format($raid['raid_value'], 2)
         ));
         
         // Add the values of this row to our totals
         $total_drop_count += $drop_count;
         $total_attendees_count += $attendees_count;
-        $total_earned += $raid['raid_value'];       
+        $total_earned += $raid['raid_value'];
     }
  
     // Prevent div by 0
@@ -139,26 +134,29 @@ if ( $in->get(URI_EVENT, 0) )
     //
     // Items
     //
-    $sql = "SELECT item_date, raid_id, item_name, item_buyer, item_id, item_value
-            FROM __items
-            WHERE raid_id IN (" . implode(',', $raid_ids) . ")
-            ORDER BY item_date DESC";
-    $result = $db->query($sql);
-    while ( $row = $db->fetch_record($result) )
+    if ( count($raid_ids) > 0 )
     {
-        $tpl->assign_block_vars('items_row', array(
-            'ROW_CLASS'     => $eqdkp->switch_row_class(),
-            'DATE'          => date($user->style['date_notime_short'], $row['item_date']),
-            'U_VIEW_RAID'   => 'viewraid.php' . $SID . '&amp;' . URI_RAID . '=' . $row['raid_id'],
-            'BUYER'         => sanitize($row['item_buyer']),
-            'U_VIEW_MEMBER' => member_path($row['item_buyer']),
-            'NAME'          => sanitize($row['item_name']),
-            'U_VIEW_ITEM'   => 'viewitem.php' . $SID . '&amp;' . URI_ITEM . '=' . $row['item_id'],
-            'SPENT'         => number_format($row['item_value'], 2)
-        ));
+        $sql = "SELECT item_date, raid_id, item_name, item_buyer, item_id, item_value
+                FROM __items
+                WHERE (raid_id IN ({$raid_ids_in}))
+                ORDER BY item_date DESC";
+        $result = $db->query($sql);
+        while ( $row = $db->fetch_record($result) )
+        {
+            $tpl->assign_block_vars('items_row', array(
+                'ROW_CLASS'     => $eqdkp->switch_row_class(),
+                'DATE'          => date($user->style['date_notime_short'], $row['item_date']),
+                'U_VIEW_RAID'   => raid_path($row['raid_id']),
+                'BUYER'         => sanitize($row['item_buyer']),
+                'U_VIEW_MEMBER' => member_path($row['item_buyer']),
+                'NAME'          => sanitize($row['item_name']),
+                'U_VIEW_ITEM'   => item_path($row['item_id']),
+                'SPENT'         => number_format($row['item_value'], 2)
+            ));
+        }
+        $total_items = $db->num_rows($result);
+        $db->free_result($result);
     }
-    $total_items = $db->num_rows($result);
-    $db->free_result($result);
     
     $tpl->assign_vars(array(
         'L_RECORDED_RAID_HISTORY' => sprintf($user->lang['recorded_raid_history'], sanitize($event['event_name'])),
@@ -182,8 +180,8 @@ if ( $in->get(URI_EVENT, 0) )
         
         'U_VIEW_EVENT' => 'viewevent.php' . $SID . '&amp;' . URI_EVENT . '=' . $in->get(URI_EVENT, 0) . '&amp;',
         
-        'EVENT_ADDED_BY'      => ( !empty($event['event_added_by']) ) ? $event['event_added_by'] : 'N/A',
-        'EVENT_UPDATED_BY'    => ( !empty($event['event_updated_by']) ) ? $event['event_updated_by'] : 'N/A',
+        'EVENT_ADDED_BY'      => ( !empty($event['event_added_by']) ) ? sanitize($event['event_added_by']) : 'N/A',
+        'EVENT_UPDATED_BY'    => ( !empty($event['event_updated_by']) ) ? sanitize($event['event_updated_by']) : 'N/A',
         'ROW_CLASS'           => $eqdkp->switch_row_class(),
         'AVERAGE_ATTENDEES'   => $average_attendees,
         'AVERAGE_DROPS'       => $average_drops,
@@ -193,7 +191,7 @@ if ( $in->get(URI_EVENT, 0) )
     );
     
     $eqdkp->set_vars(array(
-        'page_title'    => page_title(sprintf($user->lang['viewevent_title'], stripslashes($event['event_name']))),
+        'page_title'    => page_title(sprintf($user->lang['viewevent_title'], $event['event_name'])),
         'template_file' => 'viewevent.html',
         'display'       => true
     ));

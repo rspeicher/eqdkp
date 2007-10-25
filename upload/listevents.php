@@ -43,7 +43,7 @@ while ( $event = $db->fetch_record($events_result) )
         'ROW_CLASS'    => $eqdkp->switch_row_class(),
         'U_VIEW_EVENT' => event_path($event['event_id']),
         'NAME'         => sanitize($event['event_name']),
-        'VALUE'        => number_format(floatval($event['event_value']), 2)
+        'VALUE'        => number_format($event['event_value'], 2)
     ));
 }
 $db->free_result($events_result);
@@ -55,11 +55,11 @@ $tpl->assign_vars(array(
     'O_NAME'  => $current_order['uri'][0],
     'O_VALUE' => $current_order['uri'][1],
 
-    'U_LIST_EVENTS' => path_escape(event_path()),
+    'U_LIST_EVENTS' => event_path(),
 
     'START'                => $start,
     'LISTEVENTS_FOOTCOUNT' => sprintf($user->lang['listevents_footcount'], $total_events, $user->data['user_elimit']),
-    'EVENT_PAGINATION'     => generate_pagination(path_escape(event_path() . path_params(URI_ORDER, $current_order['uri']['current'])), $total_events, $user->data['user_elimit'], $start)
+    'EVENT_PAGINATION'     => generate_pagination(event_path() . path_params(URI_ORDER, $current_order['uri']['current']), $total_events, $user->data['user_elimit'], $start)
 ));
 
 $eqdkp->set_vars(array(

@@ -23,5 +23,5 @@ if ( isset($eqdkp->config['start_page']) )
 }
 else
 {
-    redirect('viewnews.php' . $SID);
+    redirect(news_path());
 }

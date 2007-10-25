@@ -86,6 +86,8 @@ $lang = array_merge($lang, array(
 	'DB_USERNAME'				=> 'Database Username',
 	'DB_PASSWORD' 				=> 'Database Password',
 	'DB_TEST'					=> 'Test connection',
+	'DB_TEST_NOTE'				=> 'Before proceeding, please verify that the database name you provided is already created and that the user you provided has permission to create tables in that database.',
+
 	'DEFAULT_CONFIG' 			=> 'Default Configuration Settings',
 	'DEFAULT_LANG'				=> 'Default Language',
 	'DEFAULT_LOCALE'			=> 'Default Locale',
@@ -110,6 +112,9 @@ $lang = array_merge($lang, array(
 	'FILES_REQUIRED'			=> 'Files and Directories',
 	'FILES_REQUIRED_EXPLAIN'	=> '<strong>Required</strong> - In order to function correctly, EQdkp needs to be able to access or write to certain files or directories. If you see “Not Found” you need to create the relevant file or directory. If you see “Unwritable” you need to change the permissions on the file or directory to allow EQdkp to write to it.',
 	'FOUND'						=> 'Found',
+
+	'GAME_SETTINGS'				=> 'Game Settings',
+	'GAME_MANAGEMENT'			=> 'Game Management',
 
 	'INSTALL_CONGRATS'			=> 'Congratulations!',
 	'INSTALL_CONGRATS_EXPLAIN'	=> '
@@ -136,11 +141,13 @@ $lang = array_merge($lang, array(
 	<p>Only those databases supported on your server will be displayed.',
 	'INSTALL_INTRO_NEXT'		=> 'To commence the installation, please press the button below.',
 	'INSTALL_LOGIN'				=> 'Login',
+	'INSTALL_MINREQ_PASS'		=> 'EQdkp has scanned your server and determined that it meets the minimum requirements in order to install.',
+	'INSTALL_MINREQ_FAIL'		=> 'Sorry, your server does not meet the minimum requirements for EQdkp.',
 	'INSTALL_NEXT'				=> 'Next stage',
 	'INSTALL_NEXT_FAIL'			=> 'Some tests failed and you should correct these problems before proceeding to the next stage. Failure to do so may result in an incomplete installation.',
 	'INSTALL_NEXT_PASS'			=> 'All the basic tests have been passed and you may proceed to the next stage of installation. If you have changed any permissions, modules, etc. and wish to re-test you can do so if you wish.',
 	'INSTALL_PANEL'				=> 'Installation Panel',
-	'INSTALL_SEND_CONFIG'		=> 'Unfortunately phpBB could not write the configuration information directly to your config.php. This may be because the file does not exist or is not writable. A number of options will be listed below enabling you to complete installation of config.php.',
+	'INSTALL_SEND_CONFIG'		=> 'Unfortunately EQdkp could not write the configuration information directly to your config.php. This may be because the file does not exist or is not writable. A number of options will be listed below enabling you to complete installation of config.php.',
 	'INSTALL_START'				=> 'Start install',
 	'INSTALL_TEST'				=> 'Test again',
 

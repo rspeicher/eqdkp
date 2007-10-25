@@ -319,16 +319,12 @@ if (@file_exists($eqdkp_root_path . 'config.php') && !file_exists($eqdkp_root_pa
 	}
 }
 
-// Note to self: the upgrade script can be incorporated into this installation file, if you use the method similar to that of phpbb3.
-// File: phpbb3/install/index.php, lines 274-282
-
 include($eqdkp_root_path . 'includes/functions_install.php');
 include($eqdkp_root_path . 'install/install.php');
 
-$mode = 'install';
-$sub = ( isset($_POST['sub']) ) ? request_var('sub','') : 'intro';
+$mode = 'install'; // NOTE: For now, there are no alternate methods of installation.
+$sub  = request_var('sub','');
 
-$install = new installer();
+$install = new installer("index.php");
 $install->main($mode, $sub);
 
-?>

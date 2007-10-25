@@ -21,68 +21,92 @@ class installer
 {
 
 	var $submenu_ary = array('INTRO', 'REQUIREMENTS', 'DATABASE', 'ADMINISTRATOR', 'CONFIG_FILE', 'GAME_SETTINGS', 'CREATE_TABLE', 'FINAL');
+	var $install_url = '';
+
+
+	function installer($url)
+	{
+		$this->install_url = $url;
+	}
 
 	function main($mode, $sub)
-	{	
+	{
+		// NOTE: If the sub isn't a valid installation step, throw them to the start page.
+		$sub = (!in_array(strtoupper($sub), $this->submenu_ary)) ? 'intro' : $sub;
+	
 		switch($sub)
 		{
 			case 'intro':
-				$this->introduction();
+				$this->introduction($mode, $sub);
 				break;
 			
 			case 'requirements':
-				$this->requirements();
+				$this->requirements($mode, $sub);
 				break;
 			
 			case 'database':
-				$this->obtain_database_settings();
+				$this->obtain_database_settings($mode, $sub);
 				break;
 			
 			case 'administrator':
-				$this->obtain_administrator_info();
+				$this->obtain_administrator_info($mode, $sub);
 				break;
 			
 			case 'config_file':
-				$this->create_config_file();
+				$this->create_config_file($mode, $sub);
 				break;
 			
-			case 'game':
-				$this->obtain_game_info();
+			case 'game_settings':
+				$this->obtain_game_info($mode, $sub);
 			break;
 			
 			case 'create_table';
-				$this->create_database_tables();
+				$this->create_database_tables($mode, $sub);
 				break;
 			
 			case 'final':
-				$this->finish_install();
+				$this->finish_install($mode, $sub);
 				break;
 		}
 	}
 
-	//
-	// The Installation Methods
-	//	
+/**
+* The Installation Methods
+*/	
 	
-	function introduction()
+	/**
+	* Introductory Step
+	*/
+	function introduction($mode, $sub)
 	{
 		global $eqdkp_root_path, $lang, $DEFAULTS;
 
-		$tpl = new Template_Wrap('install_install.html');
+		$tpl = new Template_Wrap('install_step1.html');
 		
 		
 		$tpl->assign_vars(array(
-			'TITLE'			=> $lang['INSTALL_INTRO'],
-			'BODY'			=> $lang['INSTALL_INTRO_BODY'],
-			'L_SUBMIT'		=> $lang['NEXT_STEP'],
-			'NEXT_STEP'     => 'requirements',
+			'TITLE'				=> $lang['INSTALL_INTRO'],
+			'BODY'				=> $lang['INSTALL_INTRO_BODY'],
+			
+			'EQDKP_ROOT_PATH'	=> $eqdkp_root_path,
+			
+			'L_SUBMIT'			=> $lang['NEXT_STEP'],
+			'S_CHECKS'			=> false,
+			'S_OPTIONS'			=> false,
+
+			'U_ACTION'			=> $this->install_url . "?mode=$mode&amp;sub=requirements",
 		));
+
+		$tpl->generate_navigation($this->submenu_ary, $sub);
 	
 		$tpl->page_header();
 		$tpl->page_tail();
 	}
 	
-	function requirements()
+	/**
+	* Display and Check EQdkp Requiremenets Step
+	*/
+	function requirements($mode, $sub)
 	{
 		global $eqdkp_root_path, $lang, $DEFAULTS;
 	
@@ -353,39 +377,34 @@ class installer
 			));
 		}
 
+		// Figure out where we're bound for next
+		$url     = (!in_array(false, $passed)) ? $this->install_url . "?mode=$mode&amp;sub=requirements" : $this->install_url . "?mode=$mode&amp;sub=database";
+		$submit  = (!in_array(false, $passed)) ? $lang['INSTALL_TEST'] : $lang['INSTALL_START'];
 
-		if ( !$passed['php'] || !$passed['db'] || !$passed['files'] )
-		{
-			$tpl->assign_vars(array(
-				'NEXT_STEP' 	=> 'requirements',
-				'L_SUBMIT' 		=> 'Check Requirements Again',
-			));
-			$tpl->error_append('<span style="font-weight: bold; font-size: 14px;">Sorry, your server does not meet the minimum requirements for EQdkp.</span>');
-		}
-		else
-		{
-			$tpl->assign_vars(array(
-				'NEXT_STEP' 	=> 'database',
-				'L_SUBMIT' 		=> 'Start Install',
-			));
-			$tpl->message_append('EQdkp has scanned your server and determined that it meets the minimum requirements in order to install.');
-		}
-	
+		$message = (!in_array(false, $passed)) ? $lang['INSTALL_MINREQ_FAIL'] : $lang['INSTALL_MINREQ_PASS'];
+			
 		//
 		// Output the page
 		//
 		$tpl->assign_vars(array(
-			'EQDKP_ROOT_PATH' => $eqdkp_root_path,
+			'EQDKP_ROOT_PATH'	=> $eqdkp_root_path,
+			'MESSAGE'			=> $message,
+
+			'L_SUBMIT'			=> $submit,
+			'U_ACTION'			=> $url,
 		));
 
-		$tpl->generate_navigation($this->submenu_ary, 'requirements');
+		$tpl->generate_navigation($this->submenu_ary, $sub);
 			
 		$tpl->page_header();
 		$tpl->page_tail();
 	}
 
 	
-	function obtain_database_settings()
+	/**
+	* Obtain Database Settings Step
+	*/
+	function obtain_database_settings($mode, $sub)
 	{
 		global $eqdkp_root_path, $lang, $DEFAULTS, $DBALS, $LOCALES;
 	
@@ -534,8 +553,23 @@ class installer
 			}
 		}
 
-		// Set up the next place to go
-
+		// Figure out where we're bound for next
+		if( !isset($_POST['testdb']) )
+		{
+			$url     = $this->install_url . "?mode=$mode&amp;sub=database";
+			$submit  = $lang['DB_TEST'];
+			
+			$message = $lang['DB_TEST_NOTE'];
+		}
+		else
+		{
+			$url     = (!$connect_test) ? $this->install_url . "?mode=$mode&amp;sub=database" : $this->install_url . "?mode=$mode&amp;sub=administrator";
+			$submit  = (!$connect_test) ? $lang['INSTALL_TEST'] : $lang['NEXT_STEP'];
+	
+			$message = (!$connect_test) ? $lang['INSTALL_NEXT_FAIL'] : '';
+		}
+		
+		// Create the hidden fields
 		$s_hidden_fields = '';
 		$s_hidden_fields .= '<input type="hidden" name="language" value="' . $data['language'] . '" />';
 		$s_hidden_fields .= ($connect_test) ? '' : '<input type="hidden" name="testdb" value="true" />';
@@ -552,42 +586,36 @@ class installer
 			}
 		}
 
-		if($connect_test)
-		{
-			$tpl->assign_vars(array(
-				'NEXT_STEP' 	=> 'administrator',
-				'L_SUBMIT' 		=> 'Proceed to Next Step',
-			));
-			$tpl->message_append('EQdkp has scanned your server and determined that it meets the minimum requirements in order to install.');
-		}
-		else
-		{
-			$tpl->assign_vars(array(
-				'NEXT_STEP' 	=> 'database',
-				'L_SUBMIT' 		=> 'Test Database Connection',
-			));
-			$tpl->message_append('Before proceeding, please verify that the database name you provided is already created and that the user you provided has permission to create tables in that database');
-		}
-	
+		// 
+		// Output the page
+		//
 		$tpl->assign_vars(array(
+			'EQDKP_ROOT_PATH'	=> $eqdkp_root_path,
+			'MESSAGE'			=> $message,
+
+			'L_SUBMIT'			=> $submit,
+
 			'S_HIDDEN'			=> $s_hidden_fields,
 			'S_OPTIONS' 		=> ($connect_test) ? false : true,
-			'EQDKP_ROOT_PATH' 	=> $eqdkp_root_path,
+			'U_ACTION'			=> $url,
 		));
 
-		$tpl->generate_navigation($this->submenu_ary, 'database');
+		$tpl->generate_navigation($this->submenu_ary, $sub);
 
 		$tpl->page_header();
 		$tpl->page_tail();
 	}
 	
-	function obtain_administrator_info()
+	/**
+	* Obtain Administrative Information Step
+	*/
+	function obtain_administrator_info($mode, $sub)
 	{
 		global $eqdkp_root_path, $lang, $DEFAULTS, $DBALS, $LOCALES;
 	
 		define('DEBUG', 2);
 
-		$tpl = new Template_Wrap('install_step3.html');
+		$tpl = new Template_Wrap('install_step2.html');
 	
 		$tpl->assign_vars(array(
 			'TITLE' 	=> '',
@@ -603,7 +631,7 @@ class installer
 		{
 			// Someone's been silly and tried calling this page direct
 			// So we send them back to the start to do it again properly
-			redirect("index.php");
+			redirect($this->install_url . "?mode=$mode&sub=intro");
 		}
 		
 		$passed = false;
@@ -664,7 +692,7 @@ class installer
 				'LEGEND_EXPLAIN'	=> false,
 			));
 
-			if (!sizeof($error))
+			if (!count($error))
 			{
 				$passed = true;
 				$tpl->assign_block_vars('checks', array(
@@ -691,6 +719,7 @@ class installer
 			));
 		}
 
+		// If the tests didn't pass (or haven't run yet), display the form elements for the admin details fields
 		if (!$passed)
 		{
 			foreach ($this->admin_config_options as $config_key => $vars)
@@ -723,6 +752,7 @@ class installer
 				);
 			}
 		}
+		// Otherwise, add the details as hidden fields and move on.
 		else
 		{
 			foreach ($this->admin_config_options as $config_key => $vars)
@@ -735,7 +765,15 @@ class installer
 			}
 		}
 		
-		foreach (array_merge($this->default_config_options, $this->db_config_options, $this->server_config_options) as $config_key => $vars)
+		// Figure out where we're bound for next
+		$url     = (!$passed) ? $this->install_url . "?mode=$mode&amp;sub=administrator" : $this->install_url . "?mode=$mode&amp;sub=config_file";
+		$submit  = $lang['NEXT_STEP'];
+
+		$message = (!$passed) ? $lang['INSTALL_NEXT_FAIL'] : '';
+
+		// The rest of the hidden fields
+		$config_options = array_merge($this->default_config_options, $this->db_config_options, $this->server_config_options);
+		foreach ($config_options as $config_key => $vars)
 		{
 			if (!is_array($vars))
 			{
@@ -743,28 +781,32 @@ class installer
 			}
 			$s_hidden_fields .= '<input type="hidden" name="' . $config_key . '" value="' . $data[$config_key] . '" />';
 		}
-
-		$submit = $lang['NEXT_STEP'];
-
-		$url = ($passed) ? "config_file" : "administrator";
 		$s_hidden_fields .= ($passed) ? '' : '<input type="hidden" name="check" value="true" />';
 
+		//
+		// Output the page
+		//
 		$tpl->assign_vars(array(
-			'L_SUBMIT'	=> $submit,
-			'S_HIDDEN'	=> $s_hidden_fields,
-			'S_OPTIONS' => $passed ? false : true,
-			'NEXT_STEP'	=> $url,
-			'EQDKP_ROOT_PATH' 	=> $eqdkp_root_path,
+			'EQDKP_ROOT_PATH'	=> $eqdkp_root_path,
+			'MESSAGE'			=> $message,
+
+			'L_SUBMIT'			=> $submit,
+
+			'S_HIDDEN'			=> $s_hidden_fields,
+			'S_OPTIONS' 		=> ($passed) ? false : true,
+			'U_ACTION'			=> $url,
 		));
 
-		$tpl->generate_navigation($this->submenu_ary, 'administrator');
+		$tpl->generate_navigation($this->submenu_ary, $sub);
 
 		$tpl->page_header();
 		$tpl->page_tail();
 	}
 
-	
-	function create_config_file()
+	/**
+	* Create Configuration File Step
+	*/
+	function create_config_file($mode, $sub)
 	{
 		global $eqdkp_root_path, $lang, $DEFAULTS;
 	
@@ -772,6 +814,13 @@ class installer
 
 		$tpl = new Template_Wrap('install_config.html');
 
+		$tpl->assign_vars(array(
+			'TITLE' 	=> '',
+			'BODY' 		=> '',
+
+			'S_CHECKS' => false,
+		));
+	
 		// Obtain any submitted data
 		$data = $this->get_submitted_data();
 
@@ -779,10 +828,10 @@ class installer
 		{
 			// Someone's been silly and tried calling this page direct
 			// So we send them back to the start to do it again properly
-			redirect("index.php");
+			redirect($this->install_url . "?mode=$mode&sub=intro");
 		}
 
-		$s_hidden_fields = '<input type="hidden" name="language" value="' . $data['language'] . '" />';
+		// Set a variable for the result of our attempt to create the config file
 		$written = false;
 
 		// Create a lock file to indicate that there is an install in progress
@@ -849,8 +898,10 @@ class installer
 			}
 		}
 
-		$config_options = array_merge($this->default_config_options, $this->db_config_options, $this->admin_config_options, $this->server_config_options);
+		// Build hidden fields
+		$s_hidden_fields = '';
 
+		$config_options = array_merge($this->default_config_options, $this->db_config_options, $this->admin_config_options, $this->server_config_options);
 		foreach ($config_options as $config_key => $vars)
 		{
 			if (!is_array($vars))
@@ -859,10 +910,11 @@ class installer
 			}
 			$s_hidden_fields .= '<input type="hidden" name="' . $config_key . '" value="' . $data[$config_key] . '" />';
 		}
+		$s_hidden_fields .= '<input type="hidden" name="language" value="' . $data['language'] . '" />';
 
 		if (!$written)
 		{
-			// OK, so it didn't work let's try the alternatives
+			// OK, so it didn't work. Let's try the alternatives
 
 			if (isset($_POST['dlconfig']))
 			{
@@ -877,16 +929,13 @@ class installer
 			$tpl->assign_vars(array(
 				'TITLE' 				=> '',
 				'BODY'					=> $lang['CONFIG_FILE_UNABLE_WRITE'],
+
 				'L_DL_CONFIG'			=> $lang['DL_CONFIG'],
 				'L_DL_CONFIG_EXPLAIN'	=> $lang['DL_CONFIG_EXPLAIN'],
 				'L_DL_DONE'				=> $lang['DONE'],
 				'L_DL_DOWNLOAD'			=> $lang['DL_DOWNLOAD'],
-				'S_HIDDEN'				=> $s_hidden_fields,
+
 				'S_SHOW_DOWNLOAD'		=> true,
-				'S_CHECKS'  			=> false,
-				'S_OPTIONS' 			=> false,
-				'NEXT_STEP' 			=> 'config_file',
-				'L_SUBMIT' 				=> false,
 			));
 		}
 		else
@@ -894,20 +943,30 @@ class installer
 			$tpl->assign_vars(array(
 				'TITLE' 				=> '',
 				'BODY'					=> $lang['CONFIG_FILE_WRITTEN'],
-				'L_SUBMIT'				=> $lang['NEXT_STEP'],
-				'S_HIDDEN'				=> $s_hidden_fields,
+
 				'S_SHOW_DOWNLOAD'		=> false,
-				'S_CHECKS'  			=> false,
-				'S_OPTIONS' 			=> false,
-				'NEXT_STEP' 			=> 'create_table',
 			));
 		}
 
+		// Figure out where we're bound for next
+		$url = (!$written) ? $this->install_url . "?mode=$mode&amp;sub=config_file" : $this->install_url . "?mode=$mode&amp;sub=database";
+
+		//
+		// Output the page
+		//
 		$tpl->assign_vars(array(
 			'EQDKP_ROOT_PATH' 			=> $eqdkp_root_path,
+
+			'L_SUBMIT'					=> (!$written) ? false : $lang['NEXT_STEP'],
+
+			'S_HIDDEN'					=> $s_hidden_fields,
+			'S_CHECKS'  				=> false,
+			'S_OPTIONS' 				=> false,
+
+			'U_ACTION'					=> $url,
 		));
 
-		$tpl->generate_navigation($this->submenu_ary, 'config_file');
+		$tpl->generate_navigation($this->submenu_ary, $sub);
 
 		$tpl->page_header();
 		$tpl->page_tail();
@@ -915,11 +974,17 @@ class installer
 	}
 
 
-	function obtain_game_info()
+	/**
+	* Obtain EQdkp Game Information Step
+	*/
+	function obtain_game_info($mode, $sub)
 	{
 	}
 	
-	function create_database_tables()
+	/**
+	* Create Database Tables Step
+	*/
+	function create_database_tables($mode, $sub)
 	{
 		global $eqdkp_root_path, $lang, $db, $DEFAULTS, $LOCALES;
 
@@ -927,7 +992,14 @@ class installer
 
 		$tpl = new Template_Wrap('install_config.html');
 
-		$s_hidden_fields = '';
+		$tpl->assign_vars(array(
+			'TITLE' 	=> '',
+			'BODY' 		=> '',
+
+			'S_CHECKS' => false,
+		));
+
+		$error = array();
 
 		// Obtain any submitted data
 		$data = $this->get_submitted_data();
@@ -936,7 +1008,7 @@ class installer
 		{
 			// Someone's been silly and tried calling this page direct
 			// So we send them back to the start to do it again properly
-			redirect("index.php");
+			redirect($this->install_url . "?mode=$mode&sub=intro");
 		}
 
 		include($eqdkp_root_path . 'config.php');
@@ -991,6 +1063,7 @@ class installer
 				{
 					$tpl->message_die('Failed to connect to database <b>' . $data['dbname'] . '</b> as <b>' . $data['dbuser'] . '@' . $data['dbhost'] . '</b>
 							   <br /><br /><a href="install.php">Restart Installation</a>');
+					$error[] = $sql[$i];
 				}
 			}
 
@@ -1016,7 +1089,8 @@ class installer
 				if ( !($db->query($sql[$i]) )) 
 				{
 					$tpl->message_die('Failed to connect to database <b>' . $data['dbname'] . '</b> as <b>' . $data['dbuser'] . '@' . $data['dbhost'] . '</b>
-									   <br /><br /><a href="index.php">Restart Installation</a>');	
+									   <br /><br /><a href="index.php">Restart Installation</a>');
+					$error[] = $sql[$i];
 				}
 			}
 	
@@ -1041,9 +1115,18 @@ class installer
 		// Update admin account
 		//
 		
-		$admin_password = ( $data['admin_pass1'] == $data['admin_pass2'] ) ? md5($data['admin_pass1']) : md5('admin');
+		// FIXME: This shouldn't happen by now. Remove this check + error I suppose...
+		$admin_password_check = ( $data['admin_pass1'] == $data['admin_pass2'] );
+		$admin_password = ($admin_password_check) ? md5($data['admin_pass1']) : md5('admin');
+
+		if ( !$admin_password_check )
+		{
+			$tpl->message_append('<p><span style="font-weight: bold; font-size: 14px; color:red;">NOTICE:</span></p>
+				<p>The passwords you provided did not match, so a new password has been generated for you.<br />Your administrator account password is: <strong>' . $admin_password . '</strong>.</p>
+				<p>Please take a moment and take note of this password! You can change it later by logging in and going to your account settings.</p>');
+			$error[] = $lang['INST_ERR_PASSWORD_MISMATCH'];
+		}
 		
-		// FIXME: add a random password generator thing.
 		$query = $db->build_query('UPDATE', array(
 			'username' 		=> $data['admin_name'],
 			'user_password' => $admin_password,
@@ -1055,73 +1138,88 @@ class installer
 		$db->query('UPDATE ' . USERS_TABLE . ' SET ' . $query . " WHERE user_id='1'");
 		$db->query("UPDATE " . CONFIG_TABLE . " SET config_value='" . $data['admin_email1'] . "' WHERE config_name='admin_email'");
 
+		
+		// Figure out where we're bound for next
+		$url    = (count($error)) ? $this->install_url . "?mode=$mode&amp;sub=intro" : $this->install_url . "?mode=$mode&amp;sub=final";
+		$submit = (count($error)) ? false : $lang['NEXT_STEP'];
 
-		$submit = $lang['NEXT_STEP'];
-
+		$s_hidden_fields = '';
 		$s_hidden_fields = build_hidden_fields($data);
 
+		//
+		// Output the page
+		//
 		$tpl->assign_vars(array(
-			'TITLE' 				=> '',
 			'BODY'					=> $lang['STAGE_CREATE_TABLE_EXPLAIN'],
+
+			'EQDKP_ROOT_PATH'		=> $eqdkp_root_path,
+
 			'L_SUBMIT'				=> $submit,
+
 			'S_HIDDEN'				=> $s_hidden_fields,
 			'S_SHOW_DOWNLOAD'		=> false,
 			'S_CHECKS'  			=> false,
 			'S_OPTIONS' 			=> false,
 
-			'NEXT_STEP' 			=> 'final',
-			'EQDKP_ROOT_PATH'		=> $eqdkp_root_path,
+			'U_ACTION'				=> $url,
 		));
 
-		// NOTE: This shouldn't really ever happen, but just in case it does...
-		if ( $data['admin_pass1'] != $data['admin_pass2'] )
-		{
-			$tpl->message_append('<p><span style="font-weight: bold; font-size: 14px; color: #990000;">NOTICE:</span></p>
-				<p>The passwords you provided did not match, so a new password has been generated for you.<br />Your administrator account password is: <strong>' . $admin_password . '</strong>.</p>
-				<p>Please take a moment and take note of this password! You can change it later by logging in and going to your account settings.</p>');
-		}
-
-		$tpl->generate_navigation($this->submenu_ary, 'create_table');
+		$tpl->generate_navigation($this->submenu_ary, $sub);
 
 		$tpl->page_header();
-		$tpl->page_tail();		
+		$tpl->page_tail();
 	}
 	
-	function finish_install()
+	/**
+	* Final step: Finish installation
+	*/
+	function finish_install($mode, $sub)
 	{
 		global $eqdkp_root_path, $db, $lang, $DEFAULTS;
 	
 		define('DEBUG', 0);
 	
+		// FIXME: need some way of stopping people just jumping to this step. Not that i think they will, but just for completeness' sake.
+		if (!file_exists($eqdkp_root_path . 'config.php'))
+		{
+			// Someone's been silly and tried calling this page direct
+			// So we send them back to the start to do it again properly
+			redirect($this->install_url . "?mode=$mode&sub=intro");
+		}
+
 		$tpl = new Template_Wrap('install_step4.html');
 		
-		$tpl->message_append('Your administrator account has been created, log in above to be taken to the EQdkp configuration page.');
+		// Remove the lock file
+		@unlink($nutron_root_path . 'templates/cache/install_lock');
+
+		$message = 'Your administrator account has been created, log in above to be taken to the EQdkp configuration page.';
 	
 		$tpl->assign_vars(array(
 			'TITLE' 				=> $lang['INSTALL_CONGRATS'],
 			'BODY'					=> $lang['INSTALL_CONGRATS_EXPLAIN'],
+	
+			'EQDKP_ROOT_PATH'		=> $eqdkp_root_path,
+			'MESSAGE'				=> $message,
+
 			'L_SUBMIT'				=> $lang['INSTALL_LOGIN'],
+
 			'S_SHOW_DOWNLOAD'		=> false,
 			'S_CHECKS'				=> false,
 			'S_OPTIONS' 			=> false,
 
-			'EQDKP_ROOT_PATH'		=> $eqdkp_root_path,
+			'U_ACTION'				=> $eqdkp_root_path . "login.php?redirect=" . urlencode('admin/config.php'),
 		));
-
-		// Remove the lock file
-		@unlink($nutron_root_path . 'templates/cache/install_lock');
-
 	
-		$tpl->generate_navigation($this->submenu_ary, 'final');
+		$tpl->generate_navigation($this->submenu_ary, $sub);
 
 		$tpl->page_header();
 		$tpl->page_tail();
 	}
 
 
-/*
- * Helper Functions
- */
+/**
+* Helper Functions
+*/
  
  	/**
 	* Get latest eqdkp version
@@ -1226,8 +1324,8 @@ class installer
 
 	var $admin_config_options = array(
 		'legend1'				=> 'ADMIN_CONFIG',
-		'admin_name'			=> array('lang' => 'ADMIN_USERNAME',			'type' => 'text:25:100', 'explain' => false),
-		'admin_pass1'			=> array('lang' => 'ADMIN_PASSWORD',			'type' => 'password:25:100', 'explain' => false),
+		'admin_name'			=> array('lang' => 'ADMIN_USERNAME',			'type' => 'text:25:100', 'explain' => true),
+		'admin_pass1'			=> array('lang' => 'ADMIN_PASSWORD',			'type' => 'password:25:100', 'explain' => true),
 		'admin_pass2'			=> array('lang' => 'ADMIN_PASSWORD_CONFIRM',	'type' => 'password:25:100', 'explain' => false),
 		'admin_email1'			=> array('lang' => 'ADMIN_EMAIL',				'type' => 'text:25:100', 'explain' => false),
 		'admin_email2'			=> array('lang' => 'ADMIN_EMAIL',				'type' => 'text:25:100', 'explain' => false),

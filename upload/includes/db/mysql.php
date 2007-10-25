@@ -151,8 +151,6 @@ class dbal_mysql extends dbal
     {
         global $table_prefix, $debug;
         
-		define('DEBUG', $debug);
-		
         // Remove pre-existing query resources
         unset($this->query_id);
         

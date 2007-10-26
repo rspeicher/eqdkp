@@ -88,6 +88,9 @@ define('A_PLUGINS_MAN', 32);
 define('A_STYLES_MAN',  33);
 define('A_BACKUP',      36);
 
+// Backwards compatibility for pre-1.4
+$dbms = ( !isset($dbms) && isset($dbtype) ) ? $dbtype : $dbms;
+
 require_once($eqdkp_root_path . 'includes/functions.php');
 require_once($eqdkp_root_path . 'includes/functions_paths.php');
 require_once($eqdkp_root_path . 'includes/db/' . $dbms . '.php');

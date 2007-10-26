@@ -181,9 +181,8 @@ function connect_check_db($error_connect, &$error, $dbms, $table_prefix, $dbhost
     // Instantiate it and set return on error true
     // Note to self: If general dbal class made, and each subclass has prefix, add here.
     $sql_db = 'dbal_' . $dbms['DRIVER'];
-
     $db = new $sql_db();
-//    $db->sql_return_on_error(true);
+    $db->error_die(false);
 
     // Check that we actually have a database name before going any further.....
     if ($dbms['DRIVER'] != 'sqlite' && $dbms['DRIVER'] != 'oracle' && $dbname === '')
@@ -221,9 +220,11 @@ function connect_check_db($error_connect, &$error, $dbms, $table_prefix, $dbhost
     }
 
     // Try and connect ...
-    if (is_array($db->sql_connect($dbhost, $dbname, $dbuser, $dbpasswd, false)))
+	// NOTE: EQdkp's sql_connect function returns false if the connection was invalid.
+	$connect_test = $db->sql_connect($dbhost, $dbname, $dbuser, $dbpasswd, false);
+    if ($connect_test === false || is_array($connect_test))
     {
-//        $db_error = $db->sql_error();
+        $db_error = $db->error();
         $error[] = $lang['INST_ERR_DB_CONNECT'] . '<br />' . (($db_error['message']) ? $db_error['message'] : $lang['INST_ERR_DB_NO_ERROR']);
     }
     else

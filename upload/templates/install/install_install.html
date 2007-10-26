@@ -1,45 +1,68 @@
 <!-- INCLUDE install_header.html -->
 
-<form name="post" method="post" action="index.php">
-<input type="hidden" name="sub" value="{NEXT_STEP}" />
-<table width="100%" border="0" cellspacing="1" cellpadding="2">
-  <tr>
-    <th align="left" colspan="3">EQdkp</th>
-  </tr>
-  <tr>
-  <td class="row1">
+<form name="post" method="post" action="{U_ACTION}">
+
 <!-- IF TITLE --><h1>{TITLE}</h1><!-- ENDIF -->
 <!-- IF BODY --><p>{BODY}</p><!-- ENDIF -->
 
-  <!-- BEGIN checks -->
+<!-- IF S_CHECKS -->
+<fieldset>
+<!-- BEGIN checks -->
     <!-- IF checks.S_LEGEND -->
-      <!-- IF not checks.S_FIRST_ROW -->
-      </fieldset>
+        <!-- IF not checks.S_FIRST_ROW -->
+</fieldset>
 
-      <fieldset>
-      <!-- ENDIF -->
-        <legend>{checks.LEGEND}</legend>
-        <!-- IF checks.LEGEND_EXPLAIN --><p>{checks.LEGEND_EXPLAIN}</p><!-- ENDIF -->
+<fieldset>
+        <!-- ENDIF -->
+    <legend>{checks.LEGEND}</legend>
+    <!-- IF checks.LEGEND_EXPLAIN --><p>{checks.LEGEND_EXPLAIN}</p><!-- ENDIF -->
+    <!-- ELSE -->
+        <dl>
+            <dt>{checks.TITLE}:<!-- IF checks.S_EXPLAIN --><br /><span class="explain">{checks.TITLE_EXPLAIN}</span><!-- ENDIF --></dt>
+            <dd>{checks.RESULT}</dd>
+        </dl>
+    <!-- ENDIF -->
+<!-- END checks -->
+</fieldset>
+<!-- ENDIF -->
+
+<!-- IF S_OPTIONS -->
+<fieldset>    
+<!-- BEGIN options -->
+    <!-- IF options.S_LEGEND -->
+        <!-- IF not options.S_FIRST_ROW -->
+</fieldset>
+
+<fieldset>
+        <!-- ENDIF -->
+    <legend>{options.LEGEND}</legend>
     <!-- ELSE -->
 
-      <dl>
-        <dt>{checks.TITLE}:<!-- IF checks.S_EXPLAIN --><br /><span class="explain">{checks.TITLE_EXPLAIN}</span><!-- ENDIF --></dt>
-        <dd>{checks.RESULT}</dd>
-      </dl>
+        <dl>
+            <dt><label for="{options.KEY}">{options.TITLE}:</label><!-- IF options.S_EXPLAIN --><br /><span class="explain">{options.TITLE_EXPLAIN}</span><!-- ENDIF --></dt>
+            <dd>{options.CONTENT}</dd>
+        </dl>
+
     <!-- ENDIF -->
-  <!-- END checks -->
+<!-- END options -->
+</fieldset>
+<!-- ENDIF -->
+
+<!-- IF (MSG_TEXT != '') || MESSAGE -->
+<div class="message">
+    <!-- IF MSG_TITLE --><h2>{MSG_TITLE}</h2><!-- ENDIF -->
+    <!-- IF MSG_TEXT --><p>{MSG_TEXT}</p><!-- ENDIF -->
+    <!-- IF MESSAGE --><p>{MESSAGE}</p><!-- ENDIF -->
+</div>
+<!-- ENDIF -->
 
 <!-- IF L_SUBMIT -->
   <fieldset class="submit-buttons">
     <legend>{L_SUBMIT}</legend>
     {S_HIDDEN}
-    <!-- IF L_SUBMIT --><input class="button1" type="submit" id="submit" onclick="this.className = 'button1 disabled';" name="submit" value="{L_SUBMIT}" /><!-- ENDIF -->
+    <input type="submit" name="submit" id="submit" value="{L_SUBMIT}" class="button1" />
   </fieldset>
 <!-- ENDIF -->
-  </td>
-  </tr>
-</table>
-
 </form>
 
 <!-- INCLUDE install_tail.html -->

@@ -18,7 +18,7 @@ define('EQDKP_INC', true);
 define('IN_INSTALL', true);
 
 //Report all errors
-error_reporting(E_ALL);
+error_reporting(E_ALL ^ E_NOTICE);
 
 $eqdkp_root_path = './../';
 $phpEx = substr(strrchr(__FILE__, '.'), 1);

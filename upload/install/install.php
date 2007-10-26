@@ -81,18 +81,16 @@ class installer
     {
         global $eqdkp_root_path, $lang, $DEFAULTS;
 
-        $tpl = new Template_Wrap('install_step1.html');
+        $tpl = new Template_Wrap('install_install.html');
         
         
         $tpl->assign_vars(array(
-            'TITLE'                => $lang['INSTALL_INTRO'],
+            'TITLE'               => $lang['INSTALL_INTRO'],
             'BODY'                => $lang['INSTALL_INTRO_BODY'],
             
-            'EQDKP_ROOT_PATH'    => $eqdkp_root_path,
+            'EQDKP_ROOT_PATH'     => $eqdkp_root_path,
             
             'L_SUBMIT'            => $lang['NEXT_STEP'],
-            'S_CHECKS'            => false,
-            'S_OPTIONS'            => false,
 
             'U_ACTION'            => $this->install_url . "?mode=$mode&amp;sub=requirements",
         ));
@@ -112,7 +110,7 @@ class installer
     
         define('DEBUG', 0);
 
-        $tpl = new Template_Wrap('install_step1.html');
+        $tpl = new Template_Wrap('install_install.html');
     
         $tpl->assign_vars(array(
             'TITLE'        => $lang['REQUIREMENTS_TITLE'],
@@ -410,7 +408,7 @@ class installer
     
         define('DEBUG', 2);
 
-        $tpl = new Template_Wrap('install_step2.html');
+        $tpl = new Template_Wrap('install_install.html');
 
         $tpl->assign_vars(array(
             'TITLE'     => '',
@@ -615,7 +613,7 @@ class installer
     
         define('DEBUG', 2);
 
-        $tpl = new Template_Wrap('install_step2.html');
+        $tpl = new Template_Wrap('install_install.html');
     
         $tpl->assign_vars(array(
             'TITLE'     => '',
@@ -812,7 +810,7 @@ class installer
     
         define('DEBUG', 2);
 
-        $tpl = new Template_Wrap('install_config.html');
+        $tpl = new Template_Wrap('install_install.html');
 
         $tpl->assign_vars(array(
             'TITLE'     => '',
@@ -990,7 +988,7 @@ class installer
 
         define('DEBUG', 2);
 
-        $tpl = new Template_Wrap('install_config.html');
+        $tpl = new Template_Wrap('install_install.html');
 
         $tpl->assign_vars(array(
             'TITLE'     => '',
@@ -1187,7 +1185,7 @@ class installer
             redirect($this->install_url . "?mode=$mode&sub=intro");
         }
 
-        $tpl = new Template_Wrap('install_step4.html');
+        $tpl = new Template_Wrap('install_final.html');
         
         // Remove the lock file
         @unlink($nutron_root_path . 'templates/cache/install_lock');

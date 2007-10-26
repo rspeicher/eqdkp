@@ -26,6 +26,8 @@ define('DBTYPE', 'mysql');
 
 class dbal_mysql extends dbal
 {
+	var $mysql_version;
+
 /*
     function dbal_mysql()
     {
@@ -49,45 +51,33 @@ class dbal_mysql extends dbal
         $this->dbhost = $dbhost;
         $this->dbname = $dbname;
         $this->dbuser = $dbuser;
-        $this->dbpass = $dbpass;
         
+		// FIXME: I don't think it should matter whether the password is empty or not; it has no bearing on how mysql_xconnect functions
         if ( $this->pconnect )
         {
-            if ( empty($this->dbpass) )
-            {
-                $this->link_id = @mysql_pconnect($this->dbhost, $this->dbuser);
-            }
-            else
-            {
-                $this->link_id = @mysql_pconnect($this->dbhost, $this->dbuser, $this->dbpass);
-            }
+            $this->link_id = (empty($dbpass)) ? @mysql_pconnect($this->dbhost, $this->dbuser) : @mysql_pconnect($this->dbhost, $this->dbuser, $dbpass);
         }
         else
         {
-            if ( empty($this->dbpass) )
-            {
-                $this->link_id = @mysql_connect($this->dbhost, $this->dbuser);
-            }
-            else
-            {
-                $this->link_id = @mysql_connect($this->dbhost, $this->dbuser, $this->dbpass);
-            }
+            $this->link_id = (empty($dbpass)) ? @mysql_connect($this->dbhost, $this->dbuser) : @mysql_connect($this->dbhost, $this->dbuser, $dbpass);
         }
-        
-        if ( (is_resource($this->link_id)) && (!is_null($this->link_id)) && ($this->dbname != '') )
+
+		// NOTE: It doesn't matter if it's null or not - if it's null, then it's not a resource        
+        if ( is_resource($this->link_id) && $this->dbname != '' )
         {
+			// FIXME: I don't believe that it matters if the connection is closed or not here
             if ( !@mysql_select_db($this->dbname, $this->link_id) )
             {
-                @mysql_close($this->link_id);
-                $this->link_id = false;
+//                @mysql_close($this->link_id);
+//                $this->link_id = false;
+				  return $this->error($this->link_id);
             }
             return $this->link_id;
         }
-        else
-        {
-            return false;
-        }
+
+        return false;
     }
+
     
     // FIXME: Move close_db functionality into this method and dbal's sql_close() method; deprecate close_db
     function _sql_close()
@@ -124,10 +114,18 @@ class dbal_mysql extends dbal
      */
     function error()
     {
-        $result['message'] = @mysql_error();
-        $result['code'] = @mysql_errno();
-        
-        return $result;
+		if (!$this->link_id)
+		{
+			return array(
+				'message'	=> @mysql_error(),
+				'code'		=> @mysql_errno()
+			);
+		}
+
+		return array(
+			'message'	=> @mysql_error($this->link_id),
+			'code'		=> @mysql_errno($this->link_id)
+		);
     }
     
     /**

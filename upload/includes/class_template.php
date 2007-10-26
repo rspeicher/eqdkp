@@ -347,35 +347,37 @@ class Template {
      */
     function assign_block_vars($blockname, $vararray)
     {
-        if (strstr($blockname, '.'))
+        if (strpos($blockname, '.') !== false)
         {
             // Nested block.
             $blocks = explode('.', $blockname);
             $blockcount = sizeof($blocks) - 1;
-            $str = '$this->_tpldata';
 
+            $str = &$this->_tpldata;
             for ($i = 0; $i < $blockcount; $i++)
             {
-                $str .= '[\'' . $blocks[$i] . '.\']';
-                eval('$lastiteration = sizeof(' . $str . ') - 1;');
-                $str .= '[' . $lastiteration . ']';
+                $str = &$str[$blocks[$i]];
+                $str = &$str[sizeof($str) - 1];
+            }
+
+            $s_row_count = isset($str[$blocks[$blockcount]]) ? sizeof($str[$blocks[$blockcount]]) : 0;
+            $vararray['S_ROW_COUNT'] = $s_row_count;
+
+            // Assign S_FIRST_ROW
+            $vararray['S_FIRST_ROW'] = (!$s_row_count) ? true : false;
+
+            // Now the tricky part, we always assign S_LAST_ROW and alter the entry before
+            // This is much more clever than going through the complete template data on display (phew)
+            $vararray['S_LAST_ROW'] = true;
+            if ($s_row_count > 0)
+            {
+                $str[$blocks[$blockcount]][($s_row_count - 1)]['S_LAST_ROW'] = false;
             }
 
             // Now we add the block that we're actually assigning to.
             // We're adding a new iteration to this block with the given
             // variable assignments.
-            $str .= '[\'' . $blocks[$blockcount] . '.\'][] = $vararray;';
-
-            // Now we evaluate this assignment we've built up.
-            $str = eval($str);
-            
-            // FIXME: This is probably a bad way to do this, but ah well.
-            if( isset($str['S_ROW_COUNT']) )
-            {
-                unset($str['S_ROW_COUNT']);
-            }
-            $str['S_ROW_COUNT'] = sizeof($str);
-            
+            $str[$blocks[$blockcount]][] = $vararray;
         }
         else
         {
@@ -384,13 +386,13 @@ class Template {
             $vararray['S_ROW_COUNT'] = $s_row_count;
 
             // Assign S_FIRST_ROW
-            $s_row_count ? $vararray['S_FIRST_ROW'] = true : $vararray['S_FIRST_ROW'] = false;
+            $vararray['S_FIRST_ROW'] = (!$s_row_count) ? true : false;
 
             // We always assign S_LAST_ROW and remove the entry before
             $vararray['S_LAST_ROW'] = true;
             if ($s_row_count > 0)
             {
-                unset($this->_tpldata[$blockname . '.'][($s_row_count - 1)]['S_LAST_ROW']);
+                $this->_tpldata[$blockname . '.'][($s_row_count - 1)]['S_LAST_ROW'] = false;
             }
             
             // Add a new iteration to this block with the variable assignments we were given.
@@ -555,66 +557,77 @@ class Template {
     {
         /* Tokenize args for 'if' tag. */
         preg_match_all('/(?:
-                         "[^"\\\\]*(?:\\\\.[^"\\\\]*)*"         |
-                         \'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'     |
-                         [(),]                                  |
-                         [^\s(),]+)/x', $tag_args, $match);
+            "[^"\\\\]*(?:\\\\.[^"\\\\]*)*"         |
+            \'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'     |
+            [(),]                                  |
+            [^\s(),]+)/x', $tag_args, $match);
 
         $tokens = $match[0];
         $is_arg_stack = array();
 
-        for ($i = 0; $i < count($tokens); $i++)
+        for ($i = 0, $size = count($tokens); $i < $size; $i++)
         {
             $token = &$tokens[$i];
 
             switch ($token)
             {
+                case '==':
                 case 'eq':
                     $token = '==';
-                    break;
+                break;
 
+                case '!=':
+                case '<>':
                 case 'ne':
                 case 'neq':
                     $token = '!=';
-                    break;
+                break;
 
+                case '<':
                 case 'lt':
                     $token = '<';
-                    break;
+                break;
 
+                case '<=':
                 case 'le':
                 case 'lte':
                     $token = '<=';
-                    break;
+                break;
 
+                case '>':
                 case 'gt':
                     $token = '>';
-                    break;
+                break;
 
+                case '>=':
                 case 'ge':
                 case 'gte':
                     $token = '>=';
-                    break;
+                break;
 
+                case '&&':
                 case 'and':
                     $token = '&&';
-                    break;
+                break;
 
+                case '||':
                 case 'or':
                     $token = '||';
-                    break;
+                break;
 
+                case '!':
                 case 'not':
                     $token = '!';
-                    break;
+                break;
 
+                case '%':
                 case 'mod':
                     $token = '%';
-                    break;
+                break;
 
                 case '(':
                     array_push($is_arg_stack, $i);
-                    break;
+                break;
 
                 case 'is':
                     $is_arg_start = ($tokens[$i-1] == ')') ? array_pop($is_arg_stack) : $i-1;
@@ -626,17 +639,21 @@ class Template {
 
                     $i = $is_arg_start;
 
+                // no break
+
                 default:
                     if (preg_match('#^(([a-z0-9\-_]+?\.)+?)?([A-Z]+[A-Z0-9\-_]+?)$#s', $token, $varrefs))
                     {
                         $token = (!empty($varrefs[1])) ? $this->generate_block_data_ref(substr($varrefs[1], 0, -1), true) . '[\'' . $varrefs[3] . '\']' : '$this->_tpldata[\'.\'][0][\'' . $varrefs[3] . '\']';
                     }
-                    break;
+
+                break;
             }
         }
 
-        return (($elseif) ? '} elseif (' : 'if (') . (implode(' ', $tokens) . ') { ' . "\n");
+        return (($elseif) ? '} else if (' : 'if (') . (implode(' ', $tokens) . ') { ' . "\n");
     }
+
 
     function compile_tag_include($tag_args)
     {
@@ -651,7 +668,7 @@ class Template {
     // This is from Smarty
     function _parse_is_expr($is_arg, $tokens)
     {
-        $expr_end =    0;
+        $expr_end = 0;
         $negate_expr = false;
 
         if (($first_token = array_shift($tokens)) == 'not')
@@ -670,12 +687,12 @@ class Template {
                 if (@$tokens[$expr_end] == 'by')
                 {
                     $expr_end++;
-                    $expr_arg =    $tokens[$expr_end++];
-                    $expr =    "!(($is_arg    / $expr_arg) % $expr_arg)";
+                    $expr_arg = $tokens[$expr_end++];
+                    $expr = "!(($is_arg / $expr_arg) % $expr_arg)";
                 }
                 else
                 {
-                    $expr =    "!($is_arg % 2)";
+                    $expr = "!($is_arg % 2)";
                 }
                 break;
 
@@ -683,12 +700,12 @@ class Template {
                 if (@$tokens[$expr_end] == 'by')
                 {
                     $expr_end++;
-                    $expr_arg =    $tokens[$expr_end++];
-                    $expr =    "(($is_arg / $expr_arg)    % $expr_arg)";
+                    $expr_arg = $tokens[$expr_end++];
+                    $expr = "(($is_arg / $expr_arg) % $expr_arg)";
                 }
                 else
                 {
-                    $expr =    "($is_arg %    2)";
+                    $expr = "($is_arg % 2)";
                 }
                 break;
 
@@ -696,8 +713,8 @@ class Template {
                 if (@$tokens[$expr_end] == 'by')
                 {
                     $expr_end++;
-                    $expr_arg =    $tokens[$expr_end++];
-                    $expr =    "!($is_arg % $expr_arg)";
+                    $expr_arg = $tokens[$expr_end++];
+                    $expr = "!($is_arg % $expr_arg)";
                 }
                 break;
 
@@ -707,10 +724,10 @@ class Template {
 
         if ($negate_expr)
         {
-            $expr =    "!($expr)";
+            $expr = "!($expr)";
         }
 
-        array_splice($tokens, 0, $expr_end,    $expr);
+        array_splice($tokens, 0, $expr_end, $expr);
 
         return $tokens;
     }
@@ -725,7 +742,7 @@ class Template {
     function generate_block_varref($namespace, $varname)
     {
         // Strip the trailing period.
-        $namespace = substr($namespace, 0, strlen($namespace) - 1);
+        $namespace = substr($namespace, 0, -1);
 
         // Get a reference to the data block for this namespace.
         $varref = $this->generate_block_data_ref($namespace, true);
@@ -733,11 +750,9 @@ class Template {
 
         // Append the variable reference.
         $varref .= '[\'' . $varname . '\']';
-
         $varref = '\' . ((isset(' . $varref . ')) ? ' . $varref . ' : \'\') . \'';
 
         return $varref;
-
     }
 
     /**

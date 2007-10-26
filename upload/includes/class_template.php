@@ -353,31 +353,39 @@ class Template {
             $blocks = explode('.', $blockname);
             $blockcount = sizeof($blocks) - 1;
 
-            $str = &$this->_tpldata;
+            $str = '$this->_tpldata';
             for ($i = 0; $i < $blockcount; $i++)
             {
-                $str = &$str[$blocks[$i]];
-                $str = &$str[sizeof($str) - 1];
+                $str .= '[\'' . $blocks[$i] . '.\']';
+                eval('$lastiteration = sizeof(' . $str . ') - 1;');
+                $str .= '[' . $lastiteration . ']';
             }
+
+            // Now we add the block that we're actually assigning to.
+            // We're adding a new iteration to this block with the given
+            // variable assignments.
+            $str .= '[\'' . $blocks[$blockcount] . '.\'][] = $vararray;';
+
+            // Now we evaluate this assignment we've built up.
+            $str = eval($str);
 
             $s_row_count = isset($str[$blocks[$blockcount]]) ? sizeof($str[$blocks[$blockcount]]) : 0;
             $vararray['S_ROW_COUNT'] = $s_row_count;
 
             // Assign S_FIRST_ROW
-            $vararray['S_FIRST_ROW'] = (!$s_row_count) ? true : false;
+            if( !$s_row_count )
+            {
+                $vararray['S_FIRST_ROW'] = true;
+            }
 
             // Now the tricky part, we always assign S_LAST_ROW and alter the entry before
             // This is much more clever than going through the complete template data on display (phew)
             $vararray['S_LAST_ROW'] = true;
             if ($s_row_count > 0)
             {
-                $str[$blocks[$blockcount]][($s_row_count - 1)]['S_LAST_ROW'] = false;
+                unset($this->_tpldata[$blocks[$blockcount]][($s_row_count - 1)]['S_LAST_ROW']);
             }
 
-            // Now we add the block that we're actually assigning to.
-            // We're adding a new iteration to this block with the given
-            // variable assignments.
-            $str[$blocks[$blockcount]][] = $vararray;
         }
         else
         {
@@ -386,13 +394,16 @@ class Template {
             $vararray['S_ROW_COUNT'] = $s_row_count;
 
             // Assign S_FIRST_ROW
-            $vararray['S_FIRST_ROW'] = (!$s_row_count) ? true : false;
-
+            if( !$s_row_count )
+            {
+                $vararray['S_FIRST_ROW'] = true;
+            }
+            
             // We always assign S_LAST_ROW and remove the entry before
             $vararray['S_LAST_ROW'] = true;
             if ($s_row_count > 0)
             {
-                $this->_tpldata[$blockname . '.'][($s_row_count - 1)]['S_LAST_ROW'] = false;
+                unset($this->_tpldata[$blockname . '.'][($s_row_count - 1)]['S_LAST_ROW']);
             }
             
             // Add a new iteration to this block with the variable assignments we were given.

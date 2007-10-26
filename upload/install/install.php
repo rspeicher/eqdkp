@@ -113,6 +113,8 @@ class installer
         $tpl->assign_vars(array(
             'TITLE'               => $lang['REQUIREMENTS_TITLE'],
             'BODY'                => $lang['REQUIREMENTS_EXPLAIN'],
+			
+			'S_CHECKS'            => true,
         ));
 
         $passed = array('php' => false, 'config' => false, 'db' => false,);
@@ -1163,7 +1165,7 @@ class installer
         $tpl = new Template_Wrap('install_final.html');
         
         // Remove the lock file
-        @unlink($nutron_root_path . 'templates/cache/install_lock');
+        @unlink($eqdkp_root_path . 'templates/cache/install_lock');
 
         $message = 'Your administrator account has been created, log in above to be taken to the EQdkp configuration page.';
     

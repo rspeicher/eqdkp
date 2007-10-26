@@ -55,7 +55,7 @@ $tpl->assign_vars(array(
     'O_NAME'  => $current_order['uri'][0],
     'O_VALUE' => $current_order['uri'][1],
 
-    'U_LIST_EVENTS' => event_path(),
+    'U_LIST_EVENTS' => event_path() . '&amp;',
 
     'START'                => $start,
     'LISTEVENTS_FOOTCOUNT' => sprintf($user->lang['listevents_footcount'], $total_events, $user->data['user_elimit']),

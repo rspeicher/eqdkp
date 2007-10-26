@@ -514,6 +514,7 @@ function redirect($url)
     $port = ( $eqdkp->config['server_port'] != 80 ) ? ':' . trim($eqdkp->config['server_port']) . '/' : '/';
     $script = preg_replace('/^\/?(.*?)\/?$/', '\1', trim($eqdkp->config['server_path']));
     $url = (( $script == '' ) ? '' : '/') . preg_replace('/^\/?(.*?)\/?$/', '\1', trim($url));
+    $url = str_replace('&amp;', '&', $url);
     
     $location = $protocol . $server . $port . $script . $url;
     

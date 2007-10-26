@@ -1,16 +1,19 @@
 <?php
-/******************************
- * EQdkp
- * Copyright 2002-2005
- * Licensed under the GNU GPL.  See COPYING for full terms.
- * ------------------
- * listitems.php
- * Began: Sat December 21 2002
- * 
- * $Id$
- * 
- ******************************/
- 
+/**
+ * Project:     EQdkp - Open Source Points System
+ * License:     http://eqdkp.com/?p=license
+ * -----------------------------------------------------------------------
+ * File:        listitems.php
+ * Began:       Sat Dec 21 2002
+ * Date:        $Date$
+ * -----------------------------------------------------------------------
+ * @author      $Author$
+ * @copyright   2002-2007 The EQdkp Project Team
+ * @link        http://eqdkp.com/
+ * @package     eqdkp
+ * @version     $Rev$
+ */
+
 define('EQDKP_INC', true);
 $eqdkp_root_path = './';
 include_once($eqdkp_root_path . 'common.php');
@@ -34,7 +37,7 @@ if ( $in->get(URI_PAGE, 'values') == 'values' )
 
     $current_order = switch_order($sort_order);
     
-    $u_list_items = 'listitems.php'.$SID.'&amp;';
+    $u_list_items = item_path() . '&amp;';
     
     $page_title = page_title($user->lang['listitems_title']);
     
@@ -44,7 +47,8 @@ if ( $in->get(URI_PAGE, 'values') == 'values' )
     // We don't care about history; ignore making the items unique
     $s_history = false;
 
-    $sql = "SELECT i.item_id, i.item_name, i.item_buyer, i.item_date, i.raid_id, MIN(i.item_value) AS item_value, r.raid_name
+    $sql = "SELECT i.item_id, i.item_name, i.item_buyer, i.item_date, i.raid_id, 
+                MIN(i.item_value) AS item_value, r.raid_name
             FROM __items AS i, __raids AS r
             WHERE (i.raid_id = r.raid_id)
             GROUP BY `item_name`
@@ -52,10 +56,9 @@ if ( $in->get(URI_PAGE, 'values') == 'values' )
             LIMIT {$start},{$user->data['user_ilimit']}";
     
     $listitems_footcount = sprintf($user->lang['listitems_footcount'], $total_items, $user->data['user_ilimit']);
-    $pagination = generate_pagination('listitems.php'.$SID.'&amp;o='.$current_order['uri']['current'], 
-                                       $total_items, $user->data['user_ilimit'], $start);
+    $pagination = generate_pagination(item_path() . path_params(URI_ORDER, $current_order['uri']['current']), 
+        $total_items, $user->data['user_ilimit'], $start);
 }
-
 
 //
 // Item Purchase History (all items)
@@ -72,24 +75,25 @@ elseif ( $in->get(URI_PAGE) == 'history' )
     
     $current_order = switch_order($sort_order);
 
-    $u_list_items = 'listitems.php'.$SID.'&amp;' . URI_PAGE . '=history&amp;';
+    $u_list_items = item_path() . path_params(URI_PAGE, 'history') . '&amp;';
     
     $page_title = page_title($user->lang['listpurchased_title']);
     
-    $total_items = $db->query_first("SELECT count(*) FROM __items");
+    $total_items = $db->query_first("SELECT COUNT(*) FROM __items");
     $start = $in->get('start', 0);
     
     $s_history = true;
     
-    $sql = "SELECT i.item_id, i.item_name, i.item_buyer, i.item_date, i.raid_id, i.item_value, r.raid_name
+    $sql = "SELECT i.item_id, i.item_name, i.item_buyer, i.item_date, i.raid_id, 
+                i.item_value, r.raid_name
             FROM __items AS i, __raids AS r
-            WHERE r.`raid_id` = i.`raid_id`
+            WHERE (r.`raid_id` = i.`raid_id`)
             ORDER BY {$current_order['sql']}
             LIMIT {$start},{$user->data['user_ilimit']}";
             
     $listitems_footcount = sprintf($user->lang['listpurchased_footcount'], $total_items, $user->data['user_ilimit']);
-    $pagination = generate_pagination('listitems.php'.$SID.'&amp;' . URI_PAGE . '=history&amp;o='.$current_order['uri']['current'], 
-                                       $total_items, $user->data['user_ilimit'], $start);
+    $pagination = generate_pagination(item_path() . path_params(array(URI_PAGE => 'history', URI_ORDER => $current_order['uri']['current'])),
+        $total_items, $user->data['user_ilimit'], $start);
 }
 
 // Regardless of which listitem page they're on, we're essentially 
@@ -107,10 +111,10 @@ while ( $item = $db->fetch_record($items_result) )
         'BUYER'        => ( !empty($item['item_buyer']) ) ? sanitize($item['item_buyer']) : '&lt;<i>Not Found</i>&gt;',
         'U_VIEW_BUYER' => member_path($item['item_buyer']),
         'NAME'         => sanitize($item['item_name']),
-        'U_VIEW_ITEM'  => 'viewitem.php'.$SID.'&amp;' . URI_ITEM . '='.$item['item_id'],
+        'U_VIEW_ITEM'  => item_path($item['item_id']),
         'RAID'         => ( !empty($item['raid_name']) ) ? sanitize($item['raid_name']) : '&lt;<i>Not Found</i>&gt;',
-        'U_VIEW_RAID'  => 'viewraid.php'.$SID.'&amp;' . URI_RAID . '='.$item['raid_id'],
-        'VALUE'        => floatval($item['item_value'])
+        'U_VIEW_RAID'  => raid_path($item['raid_id']),
+        'VALUE'        => number_format($item['item_value'], 2)
     ));
 }
 $db->free_result($items_result);

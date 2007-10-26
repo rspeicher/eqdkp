@@ -88,8 +88,6 @@ class installer
             'TITLE'               => $lang['INSTALL_INTRO'],
             'BODY'                => $lang['INSTALL_INTRO_BODY'],
             
-            'EQDKP_ROOT_PATH'     => $eqdkp_root_path,
-            
             'L_SUBMIT'            => $lang['NEXT_STEP'],
 
             'U_ACTION'            => $this->install_url . "?mode=$mode&amp;sub=requirements",
@@ -113,10 +111,8 @@ class installer
         $tpl = new Template_Wrap('install_install.html');
     
         $tpl->assign_vars(array(
-            'TITLE'        => $lang['REQUIREMENTS_TITLE'],
-            'BODY'        => $lang['REQUIREMENTS_EXPLAIN'],
-
-            'S_CHECKS'    => true,
+            'TITLE'               => $lang['REQUIREMENTS_TITLE'],
+            'BODY'                => $lang['REQUIREMENTS_EXPLAIN'],
         ));
 
         $passed = array('php' => false, 'config' => false, 'db' => false,);
@@ -124,17 +120,17 @@ class installer
         // Check EQdkp Information
         $tpl->assign_block_vars('checks', array(
             'S_LEGEND'            => true,
-            'LEGEND'            => $lang['EQDKP_INFO'],
-            'LEGEND_EXPLAIN'    => $lang['EQDKP_INFO_EXPLAIN'],
+            'LEGEND'              => $lang['EQDKP_INFO'],
+            'LEGEND_EXPLAIN'      => $lang['EQDKP_INFO_EXPLAIN'],
         ));
 
         // Current EQdkp version
         $tpl->assign_block_vars('checks', array(
-            'TITLE'            => $lang['EQDKP_VER_CURRENT'],
-            'RESULT'        => $DEFAULTS['version'],
+            'TITLE'               => $lang['EQDKP_VER_CURRENT'],
+            'RESULT'              => $DEFAULTS['version'],
 
-            'S_EXPLAIN'        => false,
-            'S_LEGEND'        => false,
+            'S_EXPLAIN'           => false,
+            'S_LEGEND'            => false,
         ));
 
         // get_latest_eqdkp_version();
@@ -144,8 +140,8 @@ class installer
         
         $tpl->assign_block_vars('checks', array(
             'S_LEGEND'            => true,
-            'LEGEND'            => $lang['PHP_SETTINGS'],
-            'LEGEND_EXPLAIN'    => sprintf($lang['PHP_SETTINGS_EXPLAIN'], $php_version_reqd),
+            'LEGEND'              => $lang['PHP_SETTINGS'],
+            'LEGEND_EXPLAIN'      => sprintf($lang['PHP_SETTINGS_EXPLAIN'], $php_version_reqd),
         ));
 
         // Check if the PHP version on the server is the minimum required to run EQdkp
@@ -167,11 +163,11 @@ class installer
         }
 
         $tpl->assign_block_vars('checks', array(
-            'TITLE'            => sprintf($lang['PHP_VERSION_REQD'], $php_version_reqd),
-            'RESULT'        => $result,
+            'TITLE'               => sprintf($lang['PHP_VERSION_REQD'], $php_version_reqd),
+            'RESULT'              => $result,
 
-            'S_EXPLAIN'        => false,
-            'S_LEGEND'        => false,
+            'S_EXPLAIN'           => false,
+            'S_LEGEND'            => false,
         ));
 
         // Check for register_globals being enabled
@@ -185,20 +181,20 @@ class installer
         }
 
         $tpl->assign_block_vars('checks', array(
-            'TITLE'            => $lang['PHP_REGISTER_GLOBALS'],
-            'TITLE_EXPLAIN'    => $lang['PHP_REGISTER_GLOBALS_EXPLAIN'],
-            'RESULT'        => $result,
+            'TITLE'               => $lang['PHP_REGISTER_GLOBALS'],
+            'TITLE_EXPLAIN'       => $lang['PHP_REGISTER_GLOBALS_EXPLAIN'],
+            'RESULT'              => $result,
 
-            'S_EXPLAIN'        => true,
-            'S_LEGEND'        => false,
+            'S_EXPLAIN'           => true,
+            'S_LEGEND'            => false,
         ));        
 
         
         // Check for available databases
         $tpl->assign_block_vars('checks', array(
             'S_LEGEND'            => true,
-            'LEGEND'            => $lang['PHP_SUPPORTED_DB'],
-            'LEGEND_EXPLAIN'    => $lang['PHP_SUPPORTED_DB_EXPLAIN'],
+            'LEGEND'              => $lang['PHP_SUPPORTED_DB'],
+            'LEGEND_EXPLAIN'      => $lang['PHP_SUPPORTED_DB_EXPLAIN'],
         ));
 
         // Show of support for multiple databases should be added here
@@ -211,20 +207,20 @@ class installer
             if (!$db_ary['AVAILABLE'])
             {
                 $tpl->assign_block_vars('checks', array(
-                    'TITLE'        => $lang['DLL_' . strtoupper($db_name)],
-                    'RESULT'    => '<span style="color:red">' . $lang['UNAVAILABLE'] . '</span>',
+                    'TITLE'       => $lang['DLL_' . strtoupper($db_name)],
+                    'RESULT'      => '<span style="color:red">' . $lang['UNAVAILABLE'] . '</span>',
 
-                    'S_EXPLAIN'    => false,
+                    'S_EXPLAIN'   => false,
                     'S_LEGEND'    => false,
                 ));
             }
             else
             {
                 $tpl->assign_block_vars('checks', array(
-                    'TITLE'        => $lang['DLL_' . strtoupper($db_name)],
-                    'RESULT'    => '<strong style="color:green">' . $lang['AVAILABLE'] . '</strong>',
+                    'TITLE'       => $lang['DLL_' . strtoupper($db_name)],
+                    'RESULT'      => '<strong style="color:green">' . $lang['AVAILABLE'] . '</strong>',
 
-                    'S_EXPLAIN'    => false,
+                    'S_EXPLAIN'   => false,
                     'S_LEGEND'    => false,
                 ));
             }
@@ -234,8 +230,8 @@ class installer
         // Check for other modules
         $tpl->assign_block_vars('checks', array(
             'S_LEGEND'            => true,
-            'LEGEND'            => $lang['PHP_OPTIONAL_MODULE'],
-            'LEGEND_EXPLAIN'    => $lang['PHP_OPTIONAL_MODULE_EXPLAIN'],
+            'LEGEND'              => $lang['PHP_OPTIONAL_MODULE'],
+            'LEGEND_EXPLAIN'      => $lang['PHP_OPTIONAL_MODULE_EXPLAIN'],
         ));
 
         // zLib Module
@@ -255,19 +251,19 @@ class installer
         }
 
         $tpl->assign_block_vars('checks', array(
-            'TITLE'            => $lang['PHP_URL_FOPEN_SUPPORT'],
-            'TITLE_EXPLAIN'    => $lang['PHP_URL_FOPEN_SUPPORT_EXPLAIN'],
-            'RESULT'        => $result,
+            'TITLE'               => $lang['PHP_URL_FOPEN_SUPPORT'],
+            'TITLE_EXPLAIN'       => $lang['PHP_URL_FOPEN_SUPPORT_EXPLAIN'],
+            'RESULT'              => $result,
 
-            'S_EXPLAIN'        => true,
-            'S_LEGEND'        => false,
+            'S_EXPLAIN'           => true,
+            'S_LEGEND'            => false,
         ));
 
         // Check to make sure necessary directories exist and are writeable
         $tpl->assign_block_vars('checks', array(
             'S_LEGEND'            => true,
-            'LEGEND'            => $lang['FILES_REQUIRED'],
-            'LEGEND_EXPLAIN'    => $lang['FILES_REQUIRED_EXPLAIN'],
+            'LEGEND'              => $lang['FILES_REQUIRED'],
+            'LEGEND_EXPLAIN'      => $lang['FILES_REQUIRED_EXPLAIN'],
         ));
 
 
@@ -331,19 +327,19 @@ class installer
             $write = ($write) ? ', <strong style="color:green">' . $lang['WRITABLE'] . '</strong>' : (($exists) ? ', <strong style="color:red">' . $lang['UNWRITABLE'] . '</strong>' : '');
 
             $tpl->assign_block_vars('checks', array(
-                'TITLE'        => $dir,
-                'RESULT'    => $exists . $write,
+                'TITLE'           => $dir,
+                'RESULT'          => $exists . $write,
 
-                'S_EXPLAIN'    => false,
-                'S_LEGEND'    => false,
+                'S_EXPLAIN'       => false,
+                'S_LEGEND'        => false,
             ));
         }    
 
         // Check permissions on files/directories it would be useful access to
         $tpl->assign_block_vars('checks', array(
             'S_LEGEND'            => true,
-            'LEGEND'            => $lang['FILES_OPTIONAL'],
-            'LEGEND_EXPLAIN'    => $lang['FILES_OPTIONAL_EXPLAIN'],
+            'LEGEND'              => $lang['FILES_OPTIONAL'],
+            'LEGEND_EXPLAIN'      => $lang['FILES_OPTIONAL_EXPLAIN'],
         ));
 
         $directories = array('config.php',);
@@ -367,11 +363,11 @@ class installer
             $write_str = ($write) ? ', <strong style="color:green">' . $lang['WRITABLE'] . '</strong>' : (($exists) ? ', <strong style="color:red">' . $lang['UNWRITABLE'] . '</strong>' : '');
 
             $tpl->assign_block_vars('checks', array(
-                'TITLE'        => $dir,
-                'RESULT'    => $exists_str . $write_str,
+                'TITLE'           => $dir,
+                'RESULT'          => $exists_str . $write_str,
 
-                'S_EXPLAIN'    => false,
-                'S_LEGEND'    => false,
+                'S_EXPLAIN'       => false,
+                'S_LEGEND'        => false,
             ));
         }
 
@@ -385,11 +381,10 @@ class installer
         // Output the page
         //
         $tpl->assign_vars(array(
-            'EQDKP_ROOT_PATH'    => $eqdkp_root_path,
-            'MESSAGE'            => $message,
+            'MESSAGE'         => $message,
 
-            'L_SUBMIT'            => $submit,
-            'U_ACTION'            => $url,
+            'L_SUBMIT'        => $submit,
+            'U_ACTION'        => $url,
         ));
 
         $tpl->generate_navigation($this->submenu_ary, $sub);
@@ -411,10 +406,9 @@ class installer
         $tpl = new Template_Wrap('install_install.html');
 
         $tpl->assign_vars(array(
-            'TITLE'     => '',
-            'BODY'         => '',
+            'TITLE'           => '',
+            'BODY'            => '',
             
-            'S_CHECKS'    => false,
         ));
 
         // Obtain any submitted data
@@ -440,28 +434,28 @@ class installer
 
             $tpl->assign_block_vars('checks', array(
                 'S_LEGEND'            => true,
-                'LEGEND'            => $lang['DB_CONNECTION'],
-                'LEGEND_EXPLAIN'    => false,
+                'LEGEND'              => $lang['DB_CONNECTION'],
+                'LEGEND_EXPLAIN'      => false,
             ));
 
             if ($connect_test)
             {
                 $tpl->assign_block_vars('checks', array(
-                    'TITLE'        => $lang['DB_TEST'],
-                    'RESULT'    => '<strong style="color:green">' . $lang['SUCCESSFUL_CONNECT'] . '</strong>',
+                    'TITLE'           => $lang['DB_TEST'],
+                    'RESULT'          => '<strong style="color:green">' . $lang['SUCCESSFUL_CONNECT'] . '</strong>',
 
-                    'S_EXPLAIN'    => false,
-                    'S_LEGEND'    => false,
+                    'S_EXPLAIN'       => false,
+                    'S_LEGEND'        => false,
                 ));
             }
             else
             {
                 $tpl->assign_block_vars('checks', array(
-                    'TITLE'        => $lang['DB_TEST'],
-                    'RESULT'    => '<strong style="color:red">' . implode('<br />', $error) . '</strong>',
+                    'TITLE'           => $lang['DB_TEST'],
+                    'RESULT'          => '<strong style="color:red">' . implode('<br />', $error) . '</strong>',
 
-                    'S_EXPLAIN'    => false,
-                    'S_LEGEND'    => false,
+                    'S_EXPLAIN'       => false,
+                    'S_LEGEND'        => false,
                 ));
             }
             
@@ -530,7 +524,7 @@ class installer
                     {
                         $tpl->assign_block_vars('options', array(
                             'S_LEGEND'        => true,
-                            'LEGEND'        => $lang[$vars])
+                            'LEGEND'          => $lang[$vars])
                         );
     
                         continue;
@@ -539,12 +533,12 @@ class installer
                     $options = isset($vars['options']) ? $vars['options'] : '';
     
                     $tpl->assign_block_vars('options', array(
-                        'KEY'            => $config_key,
-                        'TITLE'            => $lang[$vars['lang']],
-                        'S_EXPLAIN'        => $vars['explain'],
+                        'KEY'             => $config_key,
+                        'TITLE'           => $lang[$vars['lang']],
+                        'S_EXPLAIN'       => $vars['explain'],
                         'S_LEGEND'        => false,
-                        'TITLE_EXPLAIN'    => ($vars['explain']) ? $lang[$vars['lang'] . '_EXPLAIN'] : '',
-                        'CONTENT'        => input_field($config_key, $vars['type'], $data[$config_key], $options),
+                        'TITLE_EXPLAIN'   => ($vars['explain']) ? $lang[$vars['lang'] . '_EXPLAIN'] : '',
+                        'CONTENT'         => input_field($config_key, $vars['type'], $data[$config_key], $options),
                         )
                     );
                 }
@@ -588,14 +582,13 @@ class installer
         // Output the page
         //
         $tpl->assign_vars(array(
-            'EQDKP_ROOT_PATH'    => $eqdkp_root_path,
-            'MESSAGE'            => $message,
+            'MESSAGE'           => $message,
 
-            'L_SUBMIT'            => $submit,
+            'L_SUBMIT'          => $submit,
 
-            'S_HIDDEN'            => $s_hidden_fields,
+            'S_HIDDEN'          => $s_hidden_fields,
             'S_OPTIONS'         => ($connect_test) ? false : true,
-            'U_ACTION'            => $url,
+            'U_ACTION'          => $url,
         ));
 
         $tpl->generate_navigation($this->submenu_ary, $sub);
@@ -617,9 +610,7 @@ class installer
     
         $tpl->assign_vars(array(
             'TITLE'     => '',
-            'BODY'         => '',
-
-            'S_CHECKS' => false,
+            'BODY'      => '',
         ));
     
         // Obtain any submitted data
@@ -686,29 +677,29 @@ class installer
 
             $tpl->assign_block_vars('checks', array(
                 'S_LEGEND'            => true,
-                'LEGEND'            => $lang['STAGE_ADMINISTRATOR'],
-                'LEGEND_EXPLAIN'    => false,
+                'LEGEND'              => $lang['STAGE_ADMINISTRATOR'],
+                'LEGEND_EXPLAIN'      => false,
             ));
 
             if (!count($error))
             {
                 $passed = true;
                 $tpl->assign_block_vars('checks', array(
-                    'TITLE'        => $lang['ADMIN_TEST'],
-                    'RESULT'    => '<strong style="color:green">' . $lang['TESTS_PASSED'] . '</strong>',
+                    'TITLE'           => $lang['ADMIN_TEST'],
+                    'RESULT'          => '<strong style="color:green">' . $lang['TESTS_PASSED'] . '</strong>',
 
-                    'S_EXPLAIN'    => false,
-                    'S_LEGEND'    => false,
+                    'S_EXPLAIN'       => false,
+                    'S_LEGEND'        => false,
                 ));
             }
             else
             {
                 $tpl->assign_block_vars('checks', array(
-                    'TITLE'        => $lang['ADMIN_TEST'],
-                    'RESULT'    => '<strong style="color:red">' . implode('<br />', $error) . '</strong>',
+                    'TITLE'           => $lang['ADMIN_TEST'],
+                    'RESULT'          => '<strong style="color:red">' . implode('<br />', $error) . '</strong>',
 
-                    'S_EXPLAIN'    => false,
-                    'S_LEGEND'    => false,
+                    'S_EXPLAIN'       => false,
+                    'S_LEGEND'        => false,
                 ));
             }
             
@@ -731,7 +722,7 @@ class installer
                 {
                     $tpl->assign_block_vars('options', array(
                         'S_LEGEND'        => true,
-                        'LEGEND'        => $lang[$vars])
+                        'LEGEND'          => $lang[$vars])
                     );
 
                     continue;
@@ -740,12 +731,12 @@ class installer
                 $options = isset($vars['options']) ? $vars['options'] : '';
 
                 $tpl->assign_block_vars('options', array(
-                    'KEY'            => $config_key,
-                    'TITLE'            => $lang[$vars['lang']],
-                    'S_EXPLAIN'        => $vars['explain'],
+                    'KEY'             => $config_key,
+                    'TITLE'           => $lang[$vars['lang']],
+                    'S_EXPLAIN'       => $vars['explain'],
                     'S_LEGEND'        => false,
-                    'TITLE_EXPLAIN'    => ($vars['explain']) ? $lang[$vars['lang'] . '_EXPLAIN'] : '',
-                    'CONTENT'        => input_field($config_key, $vars['type'], $data[$config_key], $options),
+                    'TITLE_EXPLAIN'   => ($vars['explain']) ? $lang[$vars['lang'] . '_EXPLAIN'] : '',
+                    'CONTENT'         => input_field($config_key, $vars['type'], $data[$config_key], $options),
                     )
                 );
             }
@@ -785,14 +776,13 @@ class installer
         // Output the page
         //
         $tpl->assign_vars(array(
-            'EQDKP_ROOT_PATH'    => $eqdkp_root_path,
-            'MESSAGE'            => $message,
+            'MESSAGE'         => $message,
 
-            'L_SUBMIT'            => $submit,
+            'L_SUBMIT'        => $submit,
 
-            'S_HIDDEN'            => $s_hidden_fields,
-            'S_OPTIONS'         => ($passed) ? false : true,
-            'U_ACTION'            => $url,
+            'S_HIDDEN'        => $s_hidden_fields,
+            'S_OPTIONS'       => ($passed) ? false : true,
+            'U_ACTION'        => $url,
         ));
 
         $tpl->generate_navigation($this->submenu_ary, $sub);
@@ -813,10 +803,8 @@ class installer
         $tpl = new Template_Wrap('install_install.html');
 
         $tpl->assign_vars(array(
-            'TITLE'     => '',
-            'BODY'         => '',
-
-            'S_CHECKS' => false,
+            'TITLE'      => '',
+            'BODY'       => '',
         ));
     
         // Obtain any submitted data
@@ -925,13 +913,13 @@ class installer
 
             // The option to download the config file is always available, so output it here
             $tpl->assign_vars(array(
-                'TITLE'                 => '',
-                'BODY'                    => $lang['CONFIG_FILE_UNABLE_WRITE'],
+                'TITLE'                  => '',
+                'BODY'                   => $lang['CONFIG_FILE_UNABLE_WRITE'],
 
                 'L_DL_CONFIG'            => $lang['DL_CONFIG'],
                 'L_DL_CONFIG_EXPLAIN'    => $lang['DL_CONFIG_EXPLAIN'],
-                'L_DL_DONE'                => $lang['DONE'],
-                'L_DL_DOWNLOAD'            => $lang['DL_DOWNLOAD'],
+                'L_DL_DONE'              => $lang['DONE'],
+                'L_DL_DOWNLOAD'          => $lang['DL_DOWNLOAD'],
 
                 'S_SHOW_DOWNLOAD'        => true,
             ));
@@ -939,29 +927,24 @@ class installer
         else
         {
             $tpl->assign_vars(array(
-                'TITLE'                 => '',
-                'BODY'                    => $lang['CONFIG_FILE_WRITTEN'],
+                'TITLE'              => '',
+                'BODY'               => $lang['CONFIG_FILE_WRITTEN'],
 
-                'S_SHOW_DOWNLOAD'        => false,
+                'S_SHOW_DOWNLOAD'    => false,
             ));
         }
 
         // Figure out where we're bound for next
-        $url = (!$written) ? $this->install_url . "?mode=$mode&amp;sub=config_file" : $this->install_url . "?mode=$mode&amp;sub=database";
+        $url = (!$written) ? $this->install_url . "?mode=$mode&amp;sub=config_file" : $this->install_url . "?mode=$mode&amp;sub=create_table";
 
         //
         // Output the page
         //
         $tpl->assign_vars(array(
-            'EQDKP_ROOT_PATH'             => $eqdkp_root_path,
+            'L_SUBMIT'               => (!$written) ? false : $lang['NEXT_STEP'],
 
-            'L_SUBMIT'                    => (!$written) ? false : $lang['NEXT_STEP'],
-
-            'S_HIDDEN'                    => $s_hidden_fields,
-            'S_CHECKS'                  => false,
-            'S_OPTIONS'                 => false,
-
-            'U_ACTION'                    => $url,
+            'S_HIDDEN'               => $s_hidden_fields,
+            'U_ACTION'               => $url,
         ));
 
         $tpl->generate_navigation($this->submenu_ary, $sub);
@@ -992,9 +975,7 @@ class installer
 
         $tpl->assign_vars(array(
             'TITLE'     => '',
-            'BODY'         => '',
-
-            'S_CHECKS' => false,
+            'BODY'      => '',
         ));
 
         $error = array();
@@ -1102,6 +1083,7 @@ class installer
         //
         // Update some config settings
         //
+        // FIXME: No way to roll back changes if any particular query fails.
         $db->query('UPDATE ' . CONFIG_TABLE . " SET config_name='eqdkp_start' WHERE config_name='" . $data['table_prefix'] . "start'");
         $db->query("UPDATE " . CONFIG_TABLE . " SET config_value='" . $data['server_name'] . "' WHERE config_name='server_name'");
         $db->query("UPDATE " . CONFIG_TABLE . " SET config_value='" . $data['server_port'] . "' WHERE config_name='server_port'");
@@ -1112,7 +1094,6 @@ class installer
         //
         // Update admin account
         //
-        
         // FIXME: This shouldn't happen by now. Remove this check + error I suppose...
         $admin_password_check = ( $data['admin_pass1'] == $data['admin_pass2'] );
         $admin_password = ($admin_password_check) ? md5($data['admin_pass1']) : md5('admin');
@@ -1126,11 +1107,11 @@ class installer
         }
         
         $query = $db->build_query('UPDATE', array(
-            'username'         => $data['admin_name'],
-            'user_password' => $admin_password,
-            'user_lang'     => $data['default_lang'],
-            'user_email'     => $data['admin_email1'],
-            'user_active'     => '1',
+            'username'           => $data['admin_name'],
+            'user_password'      => $admin_password,
+            'user_lang'          => $data['default_lang'],
+            'user_email'         => $data['admin_email1'],
+            'user_active'        => '1',
         ));
 
         $db->query('UPDATE ' . USERS_TABLE . ' SET ' . $query . " WHERE user_id='1'");
@@ -1148,18 +1129,12 @@ class installer
         // Output the page
         //
         $tpl->assign_vars(array(
-            'BODY'                    => $lang['STAGE_CREATE_TABLE_EXPLAIN'],
+            'BODY'                   => $lang['STAGE_CREATE_TABLE_EXPLAIN'],
 
-            'EQDKP_ROOT_PATH'        => $eqdkp_root_path,
+            'L_SUBMIT'               => $submit,
 
-            'L_SUBMIT'                => $submit,
-
-            'S_HIDDEN'                => $s_hidden_fields,
-            'S_SHOW_DOWNLOAD'        => false,
-            'S_CHECKS'              => false,
-            'S_OPTIONS'             => false,
-
-            'U_ACTION'                => $url,
+            'S_HIDDEN'               => $s_hidden_fields,
+            'U_ACTION'               => $url,
         ));
 
         $tpl->generate_navigation($this->submenu_ary, $sub);
@@ -1193,19 +1168,14 @@ class installer
         $message = 'Your administrator account has been created, log in above to be taken to the EQdkp configuration page.';
     
         $tpl->assign_vars(array(
-            'TITLE'                 => $lang['INSTALL_CONGRATS'],
-            'BODY'                    => $lang['INSTALL_CONGRATS_EXPLAIN'],
+            'TITLE'                  => $lang['INSTALL_CONGRATS'],
+            'BODY'                   => $lang['INSTALL_CONGRATS_EXPLAIN'],
     
-            'EQDKP_ROOT_PATH'        => $eqdkp_root_path,
             'MESSAGE'                => $message,
 
-            'L_SUBMIT'                => $lang['INSTALL_LOGIN'],
+            'L_SUBMIT'               => $lang['INSTALL_LOGIN'],
 
-            'S_SHOW_DOWNLOAD'        => false,
-            'S_CHECKS'                => false,
-            'S_OPTIONS'             => false,
-
-            'U_ACTION'                => $eqdkp_root_path . "login.php?redirect=" . urlencode('admin/config.php'),
+            'U_ACTION'               => $eqdkp_root_path . "login.php?redirect=" . urlencode('admin/config.php'),
         ));
     
         $tpl->generate_navigation($this->submenu_ary, $sub);

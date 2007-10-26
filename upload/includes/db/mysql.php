@@ -202,7 +202,7 @@ class dbal_mysql extends dbal
     function query_first($query)
     {
         $this->query($query);
-        $record = $this->fetch_record($this->query_id);
+        $record = $this->fetch_record($this->query_id, false);
         $this->free_result($this->query_id);
         
         return $record[0];
@@ -290,18 +290,21 @@ class dbal_mysql extends dbal
      * Fetch a record
      * 
      * @param int $query_id Query ID
+     * @param int $assoc MYSQL_ASSOC if true, MYSQL_NUM if false
      * @return array|bool Record array or false
      */
-    function fetch_record($query_id = 0)
+    function fetch_record($query_id = 0, $assoc = true)
     {
         if ( !$query_id )
         {
             $query_id = $this->query_id;
         }
         
+        $result_type = ( $assoc ) ? MYSQL_ASSOC : MYSQL_NUM;
+        
         if ( $query_id )
         {
-            $this->record[$query_id] = @mysql_fetch_array($query_id);
+            $this->record[$query_id] = @mysql_fetch_array($query_id, $result_type);
             return $this->record[$query_id];
         }
         else

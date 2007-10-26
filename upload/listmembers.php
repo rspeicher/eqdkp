@@ -1,15 +1,18 @@
 <?php
-/******************************
- * EQdkp
- * Copyright 2002-2005
- * Licensed under the GNU GPL.  See COPYING for full terms.
- * ------------------
- * listmembers.php
- * begin: Wed December 18 2002
- * 
- * $Id$
- * 
- ******************************/
+/**
+ * Project:     EQdkp - Open Source Points System
+ * License:     http://eqdkp.com/?p=license
+ * -----------------------------------------------------------------------
+ * File:        listmembers.php
+ * Began:       Wed Dec 18 2002
+ * Date:        $Date$
+ * -----------------------------------------------------------------------
+ * @author      $Author$
+ * @copyright   2002-2007 The EQdkp Project Team
+ * @link        http://eqdkp.com/
+ * @package     eqdkp
+ * @version     $Rev$
+ */
  
 define('EQDKP_INC', true);
 $eqdkp_root_path = './';

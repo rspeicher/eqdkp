@@ -183,14 +183,14 @@ if ( $in->get(URI_RAID, 0) )
         'DKP_NAME'            => $eqdkp->config['dkp_name'],
         'RAID_VALUE'          => $raid['raid_value'],
         'ATTENDEES_FOOTCOUNT' => sprintf($user->lang['viewraid_attendees_footcount'], sizeof($attendees)),
-        'ITEM_FOOTCOUNT'      => sprintf($user->lang['viewraid_drops_footcount'], $db->num_rows($items_result)))
-    );
+        'ITEM_FOOTCOUNT'      => sprintf($user->lang['viewraid_drops_footcount'], $db->num_rows($items_result))
+    ));
 
     $eqdkp->set_vars(array(
         'page_title'    => page_title($user->lang['viewraid_title']),
         'template_file' => 'viewraid.html',
-        'display'       => true)
-    );
+        'display'       => true
+    ));
 }
 else
 {

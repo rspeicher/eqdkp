@@ -24,7 +24,7 @@ $mode = $in->get('mode');
 
 if ( $user->data['user_id'] == ANONYMOUS )
 {
-    header('Location: login.php'.$SID);
+    header("Location: login.php{$SID}");
 }
 
 switch ( $mode )
@@ -37,7 +37,7 @@ switch ( $mode )
         break;
 }
 
-if ( $in->get('submit', false) )
+if ( $in->exists('submit') )
 {
     $action = 'update';
     
@@ -48,7 +48,7 @@ if ( $in->get('submit', false) )
         // They changed the username. See if it's already registered
         $sql = "SELECT user_id
                 FROM __users
-                WHERE (`username` = '" . $in->get('username') . "')";
+                WHERE (`username` = '" . $db->escape($in->get('username')) . "')";
         if ( $db->num_rows($db->query($sql)) > 0 )
         {
             $fv->errors['username'] = $user->lang['fv_already_registered_username'];
@@ -69,7 +69,7 @@ if ( $in->get('submit', false) )
     {
         $sql = "SELECT user_id
                 FROM __users
-                WHERE (`user_id` = '{$user->data['user_id']}')
+                WHERE (`user_id` = '" . $db->escape($user->data['user_id']) . "')
                 AND (`user_password` = '" . User::Encrypt($in->get('user_password')) . "')";
         if ( $db->num_rows($db->query($sql)) == 0 )
         {
@@ -82,8 +82,8 @@ if ( $in->get('submit', false) )
         'user_elimit' => $user->lang['fv_number'],
         'user_ilimit' => $user->lang['fv_number'],
         'user_nlimit' => $user->lang['fv_number'],
-        'user_rlimit' => $user->lang['fv_number'])
-    );
+        'user_rlimit' => $user->lang['fv_number']
+    ));
     
     $fv->is_within_range('user_alimit', 1, 9999);
     $fv->is_within_range('user_elimit', 1, 9999);
@@ -124,17 +124,13 @@ switch ( $action )
             $update['user_password'] = User::Encrypt($in->get('new_user_password1'));
         }
         
-        $query = $db->build_query('UPDATE', $update);
-        $sql = "UPDATE __users SET {$query} WHERE (`user_id` = '{$user->data['user_id']}')";
-        
-        if ( !($result = $db->query($sql)) )
+        $sql = "UPDATE __users SET :params WHERE (`user_id` = '{$user->data['user_id']}')";
+        if ( !($result = $db->query($sql, $update)) )
         {
             message_die('Could not update user information', '', __FILE__, __LINE__, $sql);
         }
         
-        $tpl->assign_vars(array(
-            'META' => '<meta http-equiv="refresh" content="3;index.php' . $SID . '" />')
-        );
+        $tpl->assign_var('META', '<meta http-equiv="refresh" content="3;index.php' . $SID . '" />');
        
         message_die($user->lang['update_settings_success']);
         
@@ -144,7 +140,7 @@ switch ( $action )
     //
     case 'account_settings':
         $tpl->assign_vars(array(
-            'F_SETTINGS' => 'settings.php'.$SID.'&amp;mode=account',
+            'F_SETTINGS' => path_default('settings.php') . path_params('mode', 'account'),
             
             'S_CURRENT_PASSWORD' => true,
             'S_NEW_PASSWORD'     => true,
@@ -216,7 +212,7 @@ switch ( $action )
         // Build the available options
         $settings_menu = array(
             $user->lang['basic'] => array(
-                0 => '<a href="settings.php' . $SID . '&amp;mode=account">' . $user->lang['account_settings'] . '</a>'
+                0 => '<a href="' . path_default('settings.php') . path_params('mode', 'account') . '">' . $user->lang['account_settings'] . '</a>'
             )
         );
         

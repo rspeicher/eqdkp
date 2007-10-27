@@ -38,7 +38,7 @@ $sort_order = array(
 
 $current_order = switch_order($sort_order);
 
-$total_raids = $db->query_first("SELECT count(*) FROM __raids");
+$total_raids = $db->query_first("SELECT COUNT(*) FROM __raids");
 $show_all = ( $in->get('show') == 'all' ) ? true : false;
 
 // No idea if this massive query will work outside MySQL...if not, we'll have
@@ -52,15 +52,15 @@ $sql = "SELECT member_name, member_earned, member_spent, member_adjustment,
             ((member_adjustment-(member_adjustment*2))/member_earned)*100 AS lost_to_adjustment,
             (member_earned / ((({$time} - member_firstraid)+86400) / 86400) ) AS earned_per_day,
             (({$time} - member_firstraid) / 86400) AS zero_check,
-            member_spent   / ((({$time} - member_firstraid)+86400) / 86400) AS spent_per_day,
-            member_earned/member_raidcount AS earned_per_raid,
-            member_spent/member_raidcount AS spent_per_raid,
+            member_spent / ((({$time} - member_firstraid)+86400) / 86400) AS spent_per_day,
+            member_earned / member_raidcount AS earned_per_raid,
+            member_spent / member_raidcount AS spent_per_raid,
             r.rank_prefix, r.rank_suffix
         FROM __members AS m LEFT JOIN __member_ranks AS r ON m.member_rank_id = r.rank_id";
 
 if ( ($eqdkp->config['hide_inactive'] == 1) && (!$show_all) )
 {
-    $sql .= " WHERE `member_status` = '1'";
+    $sql .= " WHERE (`member_status` = '1')";
 }
 $sql .= " ORDER BY {$current_order['sql']}";
 
@@ -72,12 +72,18 @@ while ( $row = $db->fetch_record($members_result) )
 {
     // Default the values of these in case they have no earned or spent or
     // adjustment
-    $row['earned_per_day'] = ( ( (!empty($row['earned_per_day']) ) && ( $row['zero_check'] > '0.01') )) ? $row['earned_per_day'] : '0.00';
-    $row['earned_per_raid'] = (!empty($row['earned_per_raid'])) ? $row['earned_per_raid'] : '0.00';
-    $row['spent_per_day'] = ( ( (!empty($row['spent_per_day']) ) && ($row['zero_check'] > '0.01') )) ? $row['spent_per_day'] : '0.00';
-    $row['spent_per_raid'] = (!empty($row['spent_per_raid'])) ? $row['spent_per_raid'] : '0';
-    $row['lost_to_adjustment'] = (!empty($row['lost_to_adjustment'])) ? $row['lost_to_adjustment'] : '0.00';
-    $row['lost_to_spent'] = (!empty($row['lost_to_spent'])) ? $row['lost_to_spent'] : '0.00';
+    $row['earned_per_day']     = ( !empty($row['earned_per_day']) && $row['zero_check'] > '0.01' )
+        ? $row['earned_per_day']     : 0.00;
+    $row['earned_per_raid']    = ( !empty($row['earned_per_raid']) ) 
+        ? $row['earned_per_raid']    : 0.00;
+    $row['spent_per_day']      = ( !empty($row['spent_per_day'])  && $row['zero_check'] > '0.01' )
+        ? $row['spent_per_day']      : 0.00;
+    $row['spent_per_raid']     = ( !empty($row['spent_per_raid']) )
+        ? $row['spent_per_raid']     : 0.00;
+    $row['lost_to_adjustment'] = ( !empty($row['lost_to_adjustment']) )
+        ? $row['lost_to_adjustment'] : 0.00;
+    $row['lost_to_spent']      = ( !empty($row['lost_to_spent']) )
+        ? $row['lost_to_spent']      : 0.00;
 
     // Find out how many days it's been since their first raid
     $days_since_start = 0;
@@ -89,20 +95,20 @@ while ( $row = $db->fetch_record($members_result) )
     $tpl->assign_block_vars('stats_row', array(
         'ROW_CLASS'          => $eqdkp->switch_row_class(),
         'U_VIEW_MEMBER'      => member_path($row['member_name']),
-        'NAME'               => $row['rank_prefix'] . $row['member_name'] . $row['rank_suffix'],
+        'NAME'               => $row['rank_prefix'] . sanitize($row['member_name']) . $row['rank_suffix'],
         'FIRST_RAID'         => ( !empty($row['member_firstraid']) ) ? date($user->style['date_notime_short'], $row['member_firstraid']) : '&nbsp;',
         'LAST_RAID'          => ( !empty($row['member_lastraid']) ) ? date($user->style['date_notime_short'], $row['member_lastraid']) : '&nbsp;',
-        'ATTENDED_COUNT'     => $row['member_raidcount'],
+        'ATTENDED_COUNT'     => intval($row['member_raidcount']),
         'C_ATTENDED_PERCENT' => color_item($attended_percent, true),
         'ATTENDED_PERCENT'   => $attended_percent,
-        'EARNED_TOTAL'       => $row['member_earned'],
-        'EARNED_PER_DAY'     => sprintf("%.2f", $row['earned_per_day']),
-        'EARNED_PER_RAID'    => sprintf("%.2f", $row['earned_per_raid']),
-        'SPENT_TOTAL'        => $row['member_spent'],
-        'SPENT_PER_DAY'      => sprintf("%.2f", $row['spent_per_day']),
-        'SPENT_PER_RAID'     => sprintf("%.2f", $row['spent_per_raid']),
-        'LOST_TO_ADJUSTMENT' => sprintf("%.2f", $row['lost_to_adjustment']),
-        'LOST_TO_SPENT'      => sprintf("%.2f", $row['lost_to_spent']),
+        'EARNED_TOTAL'       => number_format($row['member_earned'], 2),
+        'EARNED_PER_DAY'     => number_format($row['earned_per_day'], 2),
+        'EARNED_PER_RAID'    => number_format($row['earned_per_raid'], 2),
+        'SPENT_TOTAL'        => number_format($row['member_spent'], 2),
+        'SPENT_PER_DAY'      => number_format($row['spent_per_day'], 2),
+        'SPENT_PER_RAID'     => number_format($row['spent_per_raid'], 2),
+        'LOST_TO_ADJUSTMENT' => number_format($row['lost_to_adjustment'], 2),
+        'LOST_TO_SPENT'      => number_format($row['lost_to_spent'], 2),
         'C_CURRENT'          => color_item($row['member_current']),
         'CURRENT'            => number_format($row['member_current'], 2),
     ));
@@ -110,13 +116,16 @@ while ( $row = $db->fetch_record($members_result) )
 
 if ( ($eqdkp->config['hide_inactive'] == 1) && (!$show_all) )
 {
+    $path = path_default('stats.php') . path_params(array(URI_ORDER => $current_order['uri']['current'], 'show' => 'all'));
     $footcount_text = sprintf($user->lang['stats_active_footcount'], $db->num_rows($members_result),
-                              '<a href="stats.php'.$SID.'&amp;o='.$current_order['uri']['current'].'&amp;show=all" class="rowfoot">');
+                              '<a href="' . $path . '" class="rowfoot">');
 }
 else
 {
     $footcount_text = sprintf($user->lang['stats_footcount'], $db->num_rows($members_result));
 }
+
+// TOOD: BEGIN 1.3 garbage fixup ----------------------------------------------
 
 // Class Statistics
 // Class Summary
@@ -125,22 +134,24 @@ else
 // Otherwise it contains an array with the SQL data
 // New for 1.3 - grab class info from database
 
-    $eq_classes = array();
+// TODO: Fixup after Game Manager
+
+$eq_classes = array();
 
 // Find the total members existing with a class
-$sql = "SELECT count(member_id)
+$sql = "SELECT COUNT(member_id)
         FROM __members" ;
 $total_members = $db->query_first($sql);
 
 // Find the total priced items
-$sql = "SELECT count(item_id)
+$sql = "SELECT COUNT(item_id)
         FROM __items
-        WHERE `item_value` != 0.00";
+        WHERE (`item_value` != 0.00)";
 $total_drops = $db->query_first($sql);
 
 // Find out how many members of each class exist
 $class_counts = array();
-$sql = "SELECT member_class_id, count(member_id) AS class_count
+$sql = "SELECT member_class_id, COUNT(member_id) AS class_count
         FROM __members
         GROUP BY `member_class_id`";
 $result = $db->query($sql);
@@ -151,93 +162,81 @@ while ( $row = $db->fetch_record($result) )
 }
 $db->free_result($result);
 
-
 // Query finds all items purchased by each class
 // Will not find items that are unpriced
-$sql = "SELECT c.class_name, c.class_id, count(i.item_id) AS class_drops
+$sql = "SELECT c.class_name, c.class_id, COUNT(i.item_id) AS class_drops
         FROM __items AS i, __classes AS c, __members AS m
         WHERE (m.`member_name` = i.`item_buyer`)
         AND (i.`item_value` != 0.00)
         AND (m.`member_class_id` = c.`class_id`)
         GROUP BY c.`class_name`";
-
 $result = $db->query($sql);
 
 while ( $row = $db->fetch_record($result) )
 {
-    $class = $row['class_name'];
-    $class_id = $row['class_id'];
-    
-    $class_drops = $row['class_drops'];
+    $class          = $row['class_name'];
+    $class_id       = $row['class_id'];
+    $class_drops    = $row['class_drops'];
     $class_drop_pct = ( $total_drops > 0 ) ? round(($class_drops / $total_drops) * 100) : 0;
-
-    $class_members = ( isset($class_counts[$class_id]) ) ? $class_counts[$class_id] : 0;
-
-    $class_factor = ( $class_members > 0 ) ? round(($class_drops / $class_members) * 100) : 0;
+    $class_members  = ( isset($class_counts[$class_id]) ) ? $class_counts[$class_id] : 0;
+    $class_factor   = ( $class_members > 0 ) ? round(($class_drops / $class_members) * 100) : 0;
 
     $eq_classes[$class] = array(
-         'drops' => $class_drops,
-         'drop_pct' => $class_drop_pct,
+         'drops'       => $class_drops,
+         'drop_pct'    => $class_drop_pct,
          'class_count' => $class_members,
-         'class_pct' => ( $total_members > 0 ) ? round(($class_members / $total_members) * 100) : 0,
-         'factor' => $class_factor);
-
+         'class_pct'   => ( $total_members > 0 ) ? round(($class_members / $total_members) * 100) : 0,
+         'factor'      => $class_factor
+    );
 }
 $db->free_result($result);
 
-
+/*
 // Query finds all items purchased by each armor type
 // Will not find items that are unpriced
 // Check out them longass var names! :-)
-$sql = "SELECT c.class_armor_type, count(i.item_id) AS armor_type_drops
+$sql = "SELECT c.class_armor_type, COUNT(i.item_id) AS armor_type_drops
         FROM __items AS i, __classes AS c, __members AS m
         WHERE (m.`member_name` = i.`item_buyer`)
         AND (i.`item_value` != 0.00)
         AND (m.`member_class_id` = c.`class_id`)
         GROUP BY c.`class_armor_type`";
-
 $result = $db->query($sql);
 
 while ( $row = $db->fetch_record($result) )
 {
-    $armor = $row['class_armor_type'];
-
-    $sql = "SELECT count(*)
+    $sql = "SELECT COUNT(*)
             FROM __classes AS c, __members AS m
-            WHERE c.`class_armor_type` = '{$armor}'
-            AND m.`member_class_id` = c.`class_id`";
-    $number_of_armor_type_members = $db->query_first($sql);
-
-    $number_of_armor_type_drops = $row['armor_type_drops'];
+            WHERE (c.`class_armor_type` = '" . $db->escape($row['class_armor_type']) . "')
+            AND (m.`member_class_id` = c.`class_id`)";
+    $number_of_armor_type_members     = $db->query_first($sql);
+    $number_of_armor_type_drops       = $row['armor_type_drops'];
     $pct_of_armor_type_to_all_members = ( $total_members > 0 ) ? round(($number_of_armor_type_members / $total_members) * 100) : 0;
-    $type_of_armor_drop_pct = ( $total_drops > 0 ) ? round(($number_of_armor_type_drops / $total_drops) * 100) : 0;
-    $pct_drops_per_armor_type = ( $number_of_armor_type_members > 0 ) ? round(($number_of_armor_type_drops / $number_of_armor_type_members) * 100) : 0;
-    $row_class = $eqdkp->switch_row_class();
-    $loot_factor = ( $number_of_armor_type_members > 0 ) ? round((($number_of_armor_type_members / $type_of_armor_drop_pct) - 1) * 100) : '0';
+    $type_of_armor_drop_pct           = ( $total_drops > 0 ) ? round(($number_of_armor_type_drops / $total_drops) * 100) : 0;
+    $pct_drops_per_armor_type         = ( $number_of_armor_type_members > 0 ) ? round(($number_of_armor_type_drops / $number_of_armor_type_members) * 100) : 0;
+    $loot_factor                      = ( $number_of_armor_type_members > 0 ) ? round((($number_of_armor_type_members / $type_of_armor_drop_pct) - 1) * 100) : '0';
 
     $tpl->assign_block_vars('type_row', array(
-        'ROW_TYPE' => $row_class,
-        'LINK_TYPE' => ( $row_class == 'rowhead' ) ? 'header' : '',
-        'U_LIST_MEMBERS' => 'listmembers.php' . $SID . '&amp;filter=ARMOR_' .strtolower($armor),
-        //'U_LIST_MEMBERS' => 'listmembers.php' . $SID . '&amp;filter=' . strtolower($armor),
-        'TYPE' => $armor,
-        'LOOT_COUNT' => $number_of_armor_type_drops,
-        'LOOT_PCT' => sprintf("%d%%", $type_of_armor_drop_pct),
-        'TYPE_COUNT' => $number_of_armor_type_members,
-        'TYPE_PCT' => sprintf("%d%%", $pct_of_armor_type_to_all_members),
-        'LOOT_FACTOR' => sprintf("%d%%", $loot_factor),
-        'T_LOOT_FACTOR' => color_item($loot_factor))
-    );
-
-
-
+        'ROW_TYPE'         => $eqdkp->switch_row_class(),
+        'LINK_TYPE'        => '',
+        'U_LIST_MEMBERS'   => member_path() . path_params('filter', 'armor_' . strtolower($row['class_armor_type'])),
+        'TYPE'             => sanitize($row['class_armor_type']),
+        'LOOT_COUNT'       => $number_of_armor_type_drops,
+        'LOOT_PCT'         => sprintf("%d%%", $type_of_armor_drop_pct),
+        'TYPE_COUNT'       => $number_of_armor_type_members,
+        'TYPE_PCT'         => sprintf("%d%%", $pct_of_armor_type_to_all_members),
+        'LOOT_FACTOR'      => sprintf("%d%%", $loot_factor),
+        'T_LOOT_FACTOR'    => color_item($loot_factor)
+    ));
 }
 $db->free_result($result);
+*/
 
 // We still need to find out how many of the class exist
-$sql = "SELECT c.class_name, count(m.member_id) as class_count
+$sql = "SELECT c.class_name, COUNT(m.member_id) as class_count
         FROM __members AS m, __classes AS c
-        WHERE m.`member_class_id` = c.`class_id`
+        WHERE (m.`member_class_id` = c.`class_id`)
+        AND (c.`class_name` IS NOT NULL)
         GROUP BY m.`member_class_id`";
 $result = $db->query($sql);
 
@@ -246,13 +245,8 @@ while ( $row = $db->fetch_record($result) )
     $class = $row['class_name'];
     $class_count = $row['class_count'];
 
-    if( (empty($class)) || ($class == 'NULL') )
-    {
-        continue;
-    }
-
     // if this isn't an array, define blank values
-    if ( !is_array($eq_classes[$class]) )
+    if ( !isset($eq_classes[$class]) || !is_array($eq_classes[$class]) )
     {
         $v = array(
             'drops'       => 0,
@@ -283,6 +277,8 @@ while ( $row = $db->fetch_record($result) )
         'C_LOOT_FACTOR'  => color_item($loot_factor))
     );
 }
+
+// END 1.3 garbage ----------------------------------------------------
 
 $tpl->assign_vars(array(
     'L_NAME'               => $user->lang['name'],
@@ -317,15 +313,15 @@ $tpl->assign_vars(array(
     'O_LOST_TO_SPENT'      => $current_order['uri'][11],
     'O_CURRENT'            => $current_order['uri'][12],
 
-    'U_STATS' => "stats.php{$SID}&amp;",
+    'U_STATS' => path_default('stats.php') . '&amp;',
 
     'SHOW' => ( $show_all ) ? 'all' : '',
 
-    'STATS_FOOTCOUNT' => $footcount_text)
-);
+    'STATS_FOOTCOUNT' => $footcount_text
+));
 
 $eqdkp->set_vars(array(
     'page_title'    => page_title(sprintf($user->lang['stats_title'], $eqdkp->config['dkp_name'])),
     'template_file' => 'stats.html',
-    'display'       => true)
-);
+    'display'       => true
+));

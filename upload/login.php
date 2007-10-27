@@ -20,19 +20,20 @@ include_once($eqdkp_root_path . 'common.php');
 
 $redirect = '';
 
-if ( $in->get('logout', false) && $user->data['user_id'] != ANONYMOUS )
+if ( $in->exists('logout') && $user->data['user_id'] != ANONYMOUS )
 {
     $redirect = $in->get('redirect', $eqdkp->config['start_page']);
     
     $user->destroy();
 }
-elseif ( $in->get('login', false) && $user->data['user_id'] <= 0 )
+elseif ( $in->exists('login') && $user->data['user_id'] <= 0 )
 {
     $redirect = $in->get('redirect', $eqdkp->config['start_page']);
+    $redirect_path = path_default('login.php') . path_params('redirect', $redirect);
     
     if ( !$user->login($in->get('username'), $in->get('password'), $in->get('auto_login', 0)) )
     {
-        $tpl->assign_var('META', '<meta http-equiv="refresh" content="3;url=login.php' . $SID . '&amp;redirect=' . $redirect . '">');
+        $tpl->assign_var('META', '<meta http-equiv="refresh" content="3;url=' . $redirect_path . '" />');
         
         message_die($user->lang['invalid_login'], $user->lang['error']);
     }
@@ -43,15 +44,14 @@ if ( $redirect != '' )
     redirect(preg_replace('/^.*?redirect=(.+?)&(.+?)$/', "\\1{$SID}&\\2", $redirect));
 }
 
-//
-// Lost Password Form
-//
 $eqdkp->set_vars(array(
     'page_title'    => page_title($user->lang['login_title']),
-    'template_file' => 'login.html')
-);
-if ( $in->get('lost_password', false) )
+    'template_file' => 'login.html'
+));
+
+if ( $in->exists('lost_password') )
 {
+    // Lost password form
     $tpl->assign_vars(array(
         'S_LOGIN' => false,
         
@@ -59,21 +59,18 @@ if ( $in->get('lost_password', false) )
         'L_USERNAME'         => $user->lang['username'],
         'L_EMAIL'            => $user->lang['email'],
         'L_SUBMIT'           => $user->lang['submit'],
-        'L_RESET'            => $user->lang['reset'])
-    );
+        'L_RESET'            => $user->lang['reset']
+    ));
     
     $eqdkp->display();
 }
-
-//
-// Login form
-//
 elseif ( $user->data['user_id'] <= 0 )
 {
+    // Login form
     $tpl->assign_vars(array(
         'S_LOGIN' => true,
         
-        'FORM_ACTION' => "login.php{$SID}&amp;redirect=" . $in->get('redirect', $eqdkp->config['start_page']),
+        'FORM_ACTION' => path_default('login.php') . path_params('redirect', $in->get('redirect', $eqdkp->config['start_page'])),
         
         'L_LOGIN'             => $user->lang['login'],
         'L_USERNAME'          => $user->lang['username'],
@@ -82,12 +79,12 @@ elseif ( $user->data['user_id'] <= 0 )
         'L_LOGIN'             => $user->lang['login'],
         'L_LOST_PASSWORD'     => $user->lang['lost_password'],
         
-        'ONLOAD' => ' onload="javascript:document.post.username.focus()"')
-    );
+        'ONLOAD' => ' onload="javascript:document.post.username.focus()"'
+    ));
     
     $eqdkp->display();
 }
 else
 {
-    redirect('index.php'.$SID);
+    redirect("index.php{$SID}");
 }

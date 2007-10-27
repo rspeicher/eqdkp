@@ -1,15 +1,18 @@
 <?php
-/******************************
- * EQdkp
- * Copyright 2002-2003
- * Licensed under the GNU GPL.  See COPYING for full terms.
- * ------------------
- * manage_members.php
- * Began: Sun January 5 2003
- * 
- * $Id$
- * 
- ******************************/
+/**
+ * Project:     EQdkp - Open Source Points System
+ * License:     http://eqdkp.com/?p=license
+ * -----------------------------------------------------------------------
+ * File:        manage_members.php
+ * Began:       Sun Jan 5 2003
+ * Date:        $Date$
+ * -----------------------------------------------------------------------
+ * @author      $Author$
+ * @copyright   2002-2007 The EQdkp Project Team
+ * @link        http://eqdkp.com/
+ * @package     eqdkp
+ * @version     $Rev$
+ */
 
 // Notice: Since 'Manage Members' function as a whole handles a lot of form and 
 // processing code, this script will serve only as a framework for other processing

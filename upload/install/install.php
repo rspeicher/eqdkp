@@ -1,15 +1,18 @@
 <?php
-/******************************
- * EQdkp
- * Copyright 2002-2007
- * Licensed under the GNU GPL.  See COPYING for full terms.
- * ------------------
- * install.php
- * Began: Wed August 1 2007
- * 
- * $Id: install.php 1 2007-08-01 17:36:22 Dazza $
- * 
- ******************************/
+/**
+ * Project:     EQdkp - Open Source Points System
+ * License:     http://eqdkp.com/?p=license
+ * -----------------------------------------------------------------------
+ * File:        install.php
+ * Began:       Wed Aug 1 2007
+ * Date:        $Date: 2007-08-01 17:36:22 +1000 (D, d m Y) $
+ * -----------------------------------------------------------------------
+ * @author      $Author: Dazza $
+ * @copyright   2002-2007 The EQdkp Project Team
+ * @link        http://eqdkp.com/
+ * @package     eqdkp
+ * @version     $Rev: 1 $
+ */
 
 if ( !defined('IN_INSTALL') )
 {

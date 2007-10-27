@@ -12,8 +12,8 @@
 * Chinese - Converted by zoof@263.net using http://pt.chinaeq.com
 ******************************/
 
-if( !defined('EQDKP_INC') )
-{ // Do not access this file directly.
+if ( !defined('EQDKP_INC') )
+{
     header('HTTP/1.0 404 Not Found');
     exit;
 }

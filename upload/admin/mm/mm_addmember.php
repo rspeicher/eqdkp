@@ -1,22 +1,25 @@
 <?php
-/******************************
- * EQdkp
- * Copyright 2002-2003
- * Licensed under the GNU GPL.  See COPYING for full terms.
- * ------------------
- * mm_addmember.php
- * Began: Thu January 30 2003
- *
- * $Id$
- *
- ******************************/
+/**
+ * Project:     EQdkp - Open Source Points System
+ * License:     http://eqdkp.com/?p=license
+ * -----------------------------------------------------------------------
+ * File:        mm_addmember.php
+ * Began:       Thu Jan 30 2003
+ * Date:        $Date$
+ * -----------------------------------------------------------------------
+ * @author      $Author$
+ * @copyright   2002-2007 The EQdkp Project Team
+ * @link        http://eqdkp.com/
+ * @package     eqdkp
+ * @version     $Rev$
+ */
 
 // This script handles adding, updating or deleting a member.
 // NOTE: This script will also process deleting multiple members through the
 // mm_listmembers interface
 
-if( !defined('EQDKP_INC') )
-{ // Hacking attempt
+if ( !defined('EQDKP_INC') )
+{
     header('HTTP/1.0 404 Not Found');
     exit;
 }

@@ -11,8 +11,8 @@
  *
  ******************************/
 
-if( !defined('EQDKP_INC') )
-{ // Hacking attempt
+if ( !defined('EQDKP_INC') )
+{
     header('HTTP/1.0 404 Not Found');
     exit;
 }

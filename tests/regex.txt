@@ -1,0 +1,36 @@
+Old header style:
+
+Find: (Windows CRLF)
+\/(?:\*)+(?:.|\r|\n)*?EQdkp\r\n.*?Copyright (.*?)\r\n.*?\r\n.*?\r\n.*?\r\n \* Began\: ([A-Za-z]{3}) ([A-Za-z]{3})\w* (\d+) (\d+)\r\n.*?\r\n \* \$Id\: (.*?) (.*?) (\d+\-\d+\-\d+) (\d+\:\d+\:\d+)\w? (.*?) \$\r\n.*?\r\n.*?\*\/
+or: (Any OS)
+\/(?:\*)+(?:.|\r|\n)*?EQdkp(?:\r|\n)+.*?Copyright (.*?)(?:\r|\n)+.*?(?:\r|\n)+.*?(?:\r|\n)+.*?(?:\r|\n)+ \* Began\: ([A-Za-z]{3}) ([A-Za-z]{3})\w* (\d+) (\d+)(?:\r|\n)+.*?(?:\r|\n)+ \* \$Id\: (.*?) (.*?) (\d+\-\d+\-\d+) (\d+\:\d+\:\d+)\w? (.*?) \$(?:\r|\n)+.*?(?:\r|\n)+.*?\*\/
+
+Matches:
+1 - Copyright years
+
+2 - Began Weekday
+3 - Began Month
+4 - Began Date
+5 - Began Year
+
+6 - Filename
+7 - Revision
+8 - Y-m-d
+9 - H:i:s
+10 - author
+
+Replace With:
+/**
+ * Project:     EQdkp - Open Source Points System
+ * License:     http://eqdkp.com/?p=license
+ * -----------------------------------------------------------------------
+ * File:        $6
+ * Began:       $2 $3 $4 $5
+ * Date:        $Date: $8 $9 +1000 (D, d m Y) $
+ * -----------------------------------------------------------------------
+ * @author      $Author: $10 $
+ * @copyright   2002-2007 The EQdkp Project Team
+ * @link        http://eqdkp.com/
+ * @package     eqdkp
+ * @version     $Rev: $7 $
+ */

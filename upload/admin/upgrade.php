@@ -1,15 +1,18 @@
 <?php
-/******************************
- * EQdkp
- * Copyright 2002-2005
- * Licensed under the GNU GPL.  See COPYING for full terms.
- * ------------------
- * upgrade.php
- * Began: Tue July 1 2003
- *
- * $Id$
- *
- ******************************/
+/**
+ * Project:     EQdkp - Open Source Points System
+ * License:     http://eqdkp.com/?p=license
+ * -----------------------------------------------------------------------
+ * File:        upgrade.php
+ * Began:       Tue Jul 1 2003
+ * Date:        $Date$
+ * -----------------------------------------------------------------------
+ * @author      $Author$
+ * @copyright   2002-2007 The EQdkp Project Team
+ * @link        http://eqdkp.com/
+ * @package     eqdkp
+ * @version     $Rev$
+ */
 
 define('EQDKP_INC', true);
 define('IN_ADMIN', true);

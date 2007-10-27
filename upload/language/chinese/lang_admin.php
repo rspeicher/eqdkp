@@ -1,18 +1,21 @@
 <?php
-/******************************
- * EQdkp
- * Copyright 2002-2003
- * Licensed under the GNU GPL.  See COPYING for full terms.
- * ------------------
- * lang_admin.php
- * Began: Fri January 3 2003
- * 
- * $Id: lang_admin.php 46 2007-06-19 07:29:11Z tsigo $
- * Chinese Simp  converted by  Aoiete     aoiete@gmail.com    WWW.Replays.Net 
- ******************************/
+/**
+ * Project:     EQdkp - Open Source Points System
+ * License:     http://eqdkp.com/?p=license
+ * -----------------------------------------------------------------------
+ * File:        lang_admin.php
+ * Began:       Fri Jan 3 2003
+ * Date:        $Date: 2007-06-19 07:29:11 +1000 (D, d m Y) $
+ * -----------------------------------------------------------------------
+ * @author      $Author: tsigo $
+ * @copyright   2002-2007 The EQdkp Project Team
+ * @link        http://eqdkp.com/
+ * @package     eqdkp
+ * @version     $Rev: 46 $
+ */
 
-if( !defined('EQDKP_INC') )
-{ // Do not access this file directly.
+if ( !defined('EQDKP_INC') )
+{
     header('HTTP/1.0 404 Not Found');
     exit;
 }

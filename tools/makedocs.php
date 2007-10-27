@@ -11,5 +11,5 @@ $PACKAGE  = "eqdkp";
 $TEMPLATE = "HTML:frames:earthli";
 $IGNORE   = "*templates/*";
 
-shell_exec("${PHPDOC_PATH} -i ${IGNORE} -q on -d ${INPUT_PATH} -t ${OUTPUT_PATH} -ti \"${TITLE}\" -dn ${PACKAGE}-o ${TEMPLATE} -pp off");
+shell_exec("${PHPDOC_PATH} -i ${IGNORE} -q on -d ${INPUT_PATH} -t ${OUTPUT_PATH} -ti \"${TITLE}\" -dn ${PACKAGE} -o ${TEMPLATE} -pp off");
 ?>

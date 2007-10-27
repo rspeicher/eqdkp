@@ -1,15 +1,18 @@
 <?php
-/******************************
- * EQdkp
- * Copyright 2002-2003
- * Licensed under the GNU GPL.  See COPYING for full terms.
- * ------------------
- * mysql.php
- * begin: Tue December 17 2002
- * 
- * $Id: mysql.php 46 2007-06-19 07:29:11Z tsigo $
- * 
- ******************************/
+/**
+ * Project:     EQdkp - Open Source Points System
+ * License:     http://eqdkp.com/?p=license
+ * -----------------------------------------------------------------------
+ * File:        mysql.php
+ * Began:       Tue Dec 17 2002
+ * Date:        $Date: 2007-06-19 07:29:11 +1000 (D, d m Y) $
+ * -----------------------------------------------------------------------
+ * @author      $Author: tsigo $
+ * @copyright   2002-2007 The EQdkp Project Team
+ * @link        http://eqdkp.com/
+ * @package     eqdkp
+ * @version     $Rev: 46 $
+ */
 
 if ( !defined('EQDKP_INC') )
 {

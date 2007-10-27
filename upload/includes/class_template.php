@@ -11,9 +11,10 @@
  * 
  ******************************/
 
-if ( !defined('EQDKP_INC') )
-{
-     die('Do not access this file directly.');
+if( !defined('EQDKP_INC') )
+{ // Do not access this file directly.
+    header('HTTP/1.0 404 Not Found');
+    exit;
 }
  
 /**
@@ -33,7 +34,7 @@ if ( !defined('EQDKP_INC') )
  *   copyright            : (C) 2001 The phpBB Group
  *   email                : support@phpbb.com
  *
- *   $Id$
+ *   Id: template.php,v 1.21 2002/12/03 13:46:33 psotfx Exp
  *
  ***************************************************************************/
 

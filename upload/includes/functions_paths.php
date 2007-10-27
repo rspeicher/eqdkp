@@ -14,9 +14,10 @@
  * @version     $Rev$
  */
 
-if ( !defined('EQDKP_INC') )
-{
-     die('Do not access this file directly.');
+if( !defined('EQDKP_INC') )
+{ // Do not access this file directly.
+    header('HTTP/1.0 404 Not Found');
+    exit;
 }
 
 // URI Parameters

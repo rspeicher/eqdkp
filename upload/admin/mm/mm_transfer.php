@@ -14,9 +14,10 @@
 // This script handles processing of a member history transfer
 // Also displays the form to do so
 
-if ( !defined('EQDKP_INC') )
-{
-    die('Hacking attempt');
+if( !defined('EQDKP_INC') )
+{ // Hacking attempt
+    header('HTTP/1.0 404 Not Found');
+    exit;
 }
 
 class MM_Transfer extends EQdkp_Admin

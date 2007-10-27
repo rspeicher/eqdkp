@@ -14,9 +14,10 @@
 // Shows a list of members, basically just an admin-themed version of
 // /listmembers.php
 
-if ( !defined('EQDKP_INC') )
-{
-    die('Hacking attempt');
+if( !defined('EQDKP_INC') )
+{ // Hacking attempt
+    header('HTTP/1.0 404 Not Found');
+    exit;
 }
 
 $sort_order = array(

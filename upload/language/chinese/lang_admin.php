@@ -11,9 +11,10 @@
  * Chinese Simp  converted by  Aoiete     aoiete@gmail.com    WWW.Replays.Net 
  ******************************/
 
-if ( !defined('EQDKP_INC') )
-{
-     die('Do not access this file directly.');
+if( !defined('EQDKP_INC') )
+{ // Do not access this file directly.
+    header('HTTP/1.0 404 Not Found');
+    exit;
 }
  
 // %1\$<type> prevents a possible error in strings caused

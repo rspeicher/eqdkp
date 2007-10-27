@@ -12,9 +12,10 @@
  ******************************/
  
 // This script handles editing membership ranks
-if ( !defined('EQDKP_INC') )
-{
-    die('Hacking attempt');
+if( !defined('EQDKP_INC') )
+{ // Hacking attempt
+    header('HTTP/1.0 404 Not Found');
+    exit;
 }
 
 class MM_Ranks extends EQdkp_Admin

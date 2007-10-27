@@ -15,9 +15,10 @@
 // NOTE: This script will also process deleting multiple members through the
 // mm_listmembers interface
 
-if ( !defined('EQDKP_INC') )
-{
-    die('Hacking attempt');
+if( !defined('EQDKP_INC') )
+{ // Hacking attempt
+    header('HTTP/1.0 404 Not Found');
+    exit;
 }
 
 class MM_Addmember extends EQdkp_Admin

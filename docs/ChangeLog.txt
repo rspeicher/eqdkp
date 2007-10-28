@@ -15,9 +15,10 @@ Version 1.4 - MMM DD, YYYY
 [ ] Changed the language file format. The language array is now constructed using the following format:
     $lang = array_merge($lang, array( ... 'key' => 'value', ... ));
 [ ] Moved install.php to install/index.php. The installation can be run by navgating to your eqdkp/install/ directory.
-[ ] Moved includes/dbal.php to includes/db/dbal.php
-[ ] Moved dbal/mysql.php to includes/db/mysql.php
-[ ] Moved database schema files from dbal/structure to install/schema
+[ ] Altered dbal.php and mysql.php structure, including method names, functions and instantiation.
+[ ] All database-related methods are now prefixed with sql_. All old method names are marked for deprecation.
+[+] Added a new sql_error method, which governs the way in which database errors are handled. Plugin authors should use this method to handle all database error management instead of error().
+[ ] Moved database schema files to the install/schema directory.
 [+] Added implicit template variables S_FIRST_ROW and S_LAST_ROW for all block variables.
 
 Version 1.3.2 - March 9, 2007

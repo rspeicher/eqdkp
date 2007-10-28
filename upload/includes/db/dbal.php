@@ -1,14 +1,19 @@
 <?php
-/****************************** 
-* EQdkp * Copyright 2002-2003 
-* Licensed under the GNU GPL.  See COPYING for full terms. 
-* ------------------ 
-* dbal.php 
-* begin: Tue December 17 2002 
-*  
-* $Id: dbal.php 46 2007-06-19 07:29:11Z tsigo $ 
-* 
- ******************************/
+/**
+ * Project:     EQdkp - Open Source Points System
+ * License:     http://eqdkp.com/?p=license
+ * -----------------------------------------------------------------------
+ * File:        dbal.php
+ * Began:       Tue Dec 17 2002
+ * Date:        $Date: 2007-06-19 07:29:11 +1000 (D, d m Y) $
+ * -----------------------------------------------------------------------
+ * @author      $Author: tsigo $
+ * @copyright   2002-2007 The EQdkp Project Team
+ * @link        http://eqdkp.com/
+ * @package     eqdkp
+ * @version     $Rev: 46 $
+ */
+
 
 if ( !defined('EQDKP_INC') )
 {
@@ -24,13 +29,13 @@ if ( !defined('EQDKP_INC') )
  */
 class dbal
 {
-    var $link_id     = 0;                   // Connection link ID       @var link_id
-    var $query_id    = 0;                   // Query ID                 @var query_id
-    var $record      = array();             // Record                   @var record
-    var $record_set  = array();             // Record set               @var record_set
-    var $query_count = 0;                   // Query count              @var query_count
-    var $queries     = array();             // Queries                  @var queries
-    var $error_die   = true;                // Die on errors?           @var error_die
+    var $link_id     = 0;                   // @var    int        $link_id         connection link ID for a database connection resource
+    var $query_id    = 0;                   // @var    int        $query_id        query ID
+    var $record      = array();             // @var    array      $record          Record
+    var $record_set  = array();             // @var    array      $record_set      Record set
+    var $query_count = 0;                   // @var    int        $query_count     the number of queries executed for the page
+    var $queries     = array();             // @var    array      $queries         the result of all queries run
+    var $error_die   = true;                // @var    bool       $error_die       die on errors (true) or allow the script to run (false)?
 
     /**
      * Current sql layer
@@ -61,6 +66,14 @@ class dbal
     }
 
     /**
+     * Determine whether execution should halt on an error (true) or continue (false)
+     */
+    function error_die($setting = true)
+    {
+        $this->error_die = $setting;
+    }
+
+    /**
      * DBAL garbage collection, close sql connection
      */
     function sql_close()
@@ -69,33 +82,119 @@ class dbal
     }
 
     /**
-     * Make a string (or array of strings) more secure against SQL injection
+     * Build query
+     * Ikonboard -> phpBB -> EQdkp
      * 
-     * @param string $string String to escape, or the implode() delimiter if $array is set
-     * @param array $array An array to pass to _implode(), escaping its values
-     * @return string
+     * @param     string     $query        Type of query to build, either INSERT or UPDATE
+     * @param     array      $array        Array of field => value pairs
+     * @return    string
      */
-    function escape($string, $array = null)
+    function sql_build_query($query, $array = false)
     {
-        if ( is_array($array) )
+        if ( !(is_array($array) && count($array) > 0) )
         {
-            $string = $this->_implode($string, $array);
-        }
-        else
-        {
-            $string = mysql_real_escape_string($string);
+            return false;
         }
         
-        return $string;
+        $fields = array();
+        $values = array();
+        
+        switch ($query)
+        {
+            case 'INSERT':
+                foreach ( $array as $field => $value )
+                {
+                    // Hack to prevent assigning $array directly from a fetch_record call
+                    // injecting number-based indices into the built query
+                    if ( is_numeric($field) )
+                    {
+                        continue;
+                    }
+                    
+                    $fields[] = $field;
+                    
+                    if ( is_null($value) )
+                    {
+                        $values[] = 'NULL';
+                    }
+                    elseif ( is_string($value) )
+                    {
+                        $values[] = "'" . $this->sql_escape($value) . "'";
+                    }
+                    else
+                    {
+                        $values[] = "'" . (( is_bool($value) ) ? intval($value) : $value) . "'";
+                    }
+                }
+            
+                $query = ' (' . implode(', ', $fields) . ') VALUES (' . implode(', ', $values) . ')';
+            
+            break;
+
+            case 'UPDATE':
+                foreach ( $array as $field => $value )
+                {
+                    // Hack to prevent assigning $array directly from a fetch_record call
+                    // injecting number-based indices into the built query
+                    if ( is_numeric($field) )
+                    {
+                        continue;
+                    }
+                    
+                    if ( is_null($value) )
+                    {
+                        $values[] = "$field = NULL";
+                    }
+                    elseif ( is_string($value) )
+                    {
+                        $values[] = "$field = '" . $this->sql_escape($value) . "'";
+                    }
+                    else
+                    {
+                        $values[] = ( is_bool($value) ) ? "$field = '" . intval($value) . "'" : "{$field} = '{$value}'";
+                    }
+                }
+                
+                $query = implode(', ', $values);
+            break;
+            
+            default:
+                return false;
+            break;
+        }
+        
+        return $query;
     }
-    
+
+
+     /**
+     * display sql error page
+     */
+    function sql_error($sql = '')
+    {
+        $error = $this->_sql_error();
+        
+        if ($this->error_die)
+        {
+            $message  = 'SQL ERROR<br /><br />';
+            $message .= 'Query: '   . (($sql) ? $sql : 'null') . '<br />';
+            $message .= 'Message: ' . $error['message'] . '<br />';
+            $message .= 'Code: '    . $error['code'] . '<br />';
+
+            die($message);
+        }
+        
+        return $error;
+    }
+
+
     /**
      * Implode an array of strings with a given delimiter after calling {@link escape} on each element
      *
-     * @param string $delim implode() delimiter
-     * @param array $array Array of strings to escape and join together
-     * @return array
-     * @access private
+     * @param     string     $delim        the delimiter to call implode() with
+     * @param     array      $array        Array of strings to escape and join together
+     * @return    array
+     * @access    private
      */
     function _implode($delim, $array)
     {
@@ -106,22 +205,24 @@ class dbal
         
         foreach ( $array as $k => $v )
         {
-            $array[$k] = $this->escape($v);
+            $array[$k] = $this->sql_escape($v);
         }
         
         return implode($delim, $array);
     }
 
-    /**
-     * Set the error_die var
-     * 
-     * @param bool $setting
-     */
-    function error_die($setting = true)
-    {
-        $this->error_die = $setting;
-    }
 
+/*
+ * Deprecated Methods.
+ *
+ * These methods will disappear in a few versions' time. Please ensure your code uses the new method names!
+ */
+
+    // sql_build_query
+    function build_query($query, $array = false)
+    {
+        return $this->sql_build_query($query, $array);
+    }
 }
 
 // This variable holds the class name to use later

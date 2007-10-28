@@ -111,10 +111,7 @@ $db   = new $sql_db();
 
 // Connect to the database
 $db->sql_connect($dbhost, $dbname, $dbuser, $dbpass, false);
-if ( !$db->link_id )
-{
-    message_die('Could not connect to the database.');
-}
+
 
 // Initialize the eqdkp module
 $eqdkp = new EQdkp($eqdkp_root_path);

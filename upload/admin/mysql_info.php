@@ -36,7 +36,7 @@ class MySQL_Info extends EQdkp_Admin
         $this->assoc_buttons(array(
             'form' => array(
                 'name'    => '',
-                'process' => 'display_form',
+                'process' => 'display_info',
                 'check'   => 'a_'
             )
         ));
@@ -51,7 +51,7 @@ class MySQL_Info extends EQdkp_Admin
     // ---------------------------------------------------------
     // Display form
     // ---------------------------------------------------------
-    function display_form()
+    function display_info()
     {
         global $db, $eqdkp, $user, $tpl, $pm;
         global $SID, $dbname, $table_prefix;

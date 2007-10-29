@@ -376,11 +376,9 @@ class Register extends EQdkp_Admin
                 }
                 else
                 {
-                    $tpl->assign_vars(array(
-                        'META' => '<meta http-equiv="refresh" content="3;login.php' . $SID . '">')
-                    );
-                    
-                    $success_message = sprintf($user->lang['account_activated_user'], '<a href="login.php' . $SID . '">', '</a>');
+					$url = 'login.php' . $SID;
+					meta_refresh(3, $url);
+                    $success_message = sprintf($user->lang['account_activated_user'], '<a href="' . $url . '">', '</a>');
                 }
                 
                 message_die($success_message);

@@ -130,7 +130,7 @@ switch ( $action )
             message_die('Could not update user information', '', __FILE__, __LINE__, $sql);
         }
         
-        $tpl->assign_var('META', '<meta http-equiv="refresh" content="3;index.php' . $SID . '" />');
+        meta_refresh(3, 'index.php' . $SID);
        
         message_die($user->lang['update_settings_success']);
         

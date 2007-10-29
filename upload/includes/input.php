@@ -31,6 +31,12 @@ class Input
      */
     var $_cache = array();
     
+    /**
+     * Determines whether or not to cache fetched values.
+     *
+     * @var bool
+     * @access private
+     */
     var $_caching = true;
     
     /**
@@ -68,13 +74,15 @@ class Input
      * type-specifc method based on the variable type of $default
      * 
      * Note that our most-used, and default type, is a string.
-     * 
      * <code>
-     * <?php
-     * $in->get('id', 0); // Return _cleanInt($_GET['id']) or return 0 if not set
-     * $in->get('id', false); // Return true if id is set, false otherwise
-     * $in->get('name'); // Return _cleanString($_GET['name']) or return '' if not set
-     * ?>
+     * // Return a cleaned integer value for the input variable 'id', or 0 if not set
+     * $in->get('id', 0);
+     * 
+     * // Return true if the input variable 'id' is set, or false if not set
+     * $in->get('id', false);
+     * 
+     * // Return a cleaned string value for the input variable 'name', or '' if not set
+     * $in->get('name');
      * </code>
      * 
      * @param string $key Input key
@@ -98,7 +106,7 @@ class Input
     
     /**
      * Clean and fetch an input variable that is an array, for example an array
-     * of checkbox IDs. Depending on $type, the appropriate _clean method will be
+     * of checkbox IDs. Depending on $type, the appropriate cleaning method will be
      * called on each element.
      * 
      * @param string $key Input key
@@ -165,7 +173,7 @@ class Input
     }
     
     /**
-     * Alias to {@link float}, see http://us2.php.net/manual/en/function.gettype.php
+     * Alias to {@link float}, see {@link http://us2.php.net/manual/en/function.gettype.php}
      * 
      * @see float
      */
@@ -288,6 +296,15 @@ class Input
         return $retval;
     }
     
+    /**
+     * Fail-safe method to prevent a user passing a null type as a default value
+     * to {@link get}, which may produce unexpected results.
+     *
+     * @param string $key Input key
+     * @param null $default Ignored
+     * @return void
+     * @ignore
+     */
     function NULL($key, $default = null)
     {
         trigger_error("Tried to get a null variable type for <b>{$key}</b>", E_USER_NOTICE);

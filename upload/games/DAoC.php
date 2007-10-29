@@ -10,7 +10,7 @@
  * @author      $Author$
  * @copyright   2002-2007 The EQdkp Project Team
  * @link        http://eqdkp.com/
- * @package     eqdkp
+ * @package     games
  * @version     $Rev$
  */
 

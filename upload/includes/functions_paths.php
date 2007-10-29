@@ -43,12 +43,12 @@ function path_default($path, $admin = false)
 {
     global $eqdkp_root_path, $SID;
     
-    if ( !defined('IN_ADMIN') && $admin == true )
+    if ( $admin === true )
     {
         // Path is an admin page but we're not already in the admin folder, prefix it to the path
         $path = 'admin/' . $path;
     }
-    elseif ( defined('IN_ADMIN') && $admin == false )
+    elseif ( defined('IN_ADMIN') && $admin === false )
     {
         // We're in the admin folder but linking to a non-admin path, prefix the root traversal to the path
         $path = $eqdkp_root_path . $path;

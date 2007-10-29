@@ -550,56 +550,56 @@ else
     $admin_menu = array(
         'events' => array(
             0 => $user->lang['events'],
-            1 => array('link' => 'admin/addevent.php' . $SID,   'text' => $user->lang['add'],  'check' => 'a_event_add'),
-            2 => array('link' => 'admin/listevents.php' . $SID, 'text' => $user->lang['list'], 'check' => 'a_event_')
+            1 => array('link' => path_default('addevent.php', true),   'text' => $user->lang['add'],  'check' => 'a_event_add'),
+            2 => array('link' => path_default('listevents.php', true), 'text' => $user->lang['list'], 'check' => 'a_event_')
         ),
         'groupadj' => array(
             0 => $user->lang['group_adjustments'],
-            1 => array('link' => 'admin/addadj.php' . $SID,  'text' => $user->lang['add'],  'check' => 'a_groupadj_add'),
-            2 => array('link' => 'admin/listadj.php' . $SID, 'text' => $user->lang['list'], 'check' => 'a_groupadj_')
+            1 => array('link' => path_default('addadj.php', true),  'text' => $user->lang['add'],  'check' => 'a_groupadj_add'),
+            2 => array('link' => path_default('listadj.php', true), 'text' => $user->lang['list'], 'check' => 'a_groupadj_')
         ),
         'indivadj' => array(
             0 => $user->lang['individual_adjustments'],
-            1 => array('link' => 'admin/addiadj.php' . $SID,                                      'text' => $user->lang['add'],  'check' => 'a_indivadj_add'),
-            2 => array('link' => 'admin/listadj.php' . $SID . '&amp;' . URI_PAGE . '=individual', 'text' => $user->lang['list'], 'check' => 'a_indivadj_')
+            1 => array('link' => path_default('addiadj.php', true),                                       'text' => $user->lang['add'],  'check' => 'a_indivadj_add'),
+            2 => array('link' => path_default('listadj.php', true) . path_params(URI_PAGE, 'individual'), 'text' => $user->lang['list'], 'check' => 'a_indivadj_')
         ),
         'items' => array(
             0 => $user->lang['items'],
-            1 => array('link' => 'admin/additem.php' . $SID,   'text' => $user->lang['add'],  'check' => 'a_item_add'),
-            2 => array('link' => 'admin/listitems.php' . $SID, 'text' => $user->lang['list'], 'check' => 'a_item_')
+            1 => array('link' => path_default('additem.php', true),   'text' => $user->lang['add'],  'check' => 'a_item_add'),
+            2 => array('link' => path_default('listitems.php', true), 'text' => $user->lang['list'], 'check' => 'a_item_')
         ),
         'mysql' => array(
             0 => $user->lang['mysql'],
-            1 => array('link' => 'admin/mysql_info.php' . $SID, 'text' => $user->lang['mysql_info'], 'check' => ''),
-            2 => array('link' => 'admin/backup.php' . $SID, 'text' => $user->lang['backup'], 'check' => 'a_backup')
+            1 => array('link' => path_default('mysql_info.php', true), 'text' => $user->lang['mysql_info'], 'check' => ''),
+            2 => array('link' => path_default('backup.php', true),     'text' => $user->lang['backup'],     'check' => 'a_backup')
         ),
         'news' => array(
             0 => $user->lang['news'],
-            1 => array('link' => 'admin/addnews.php' . $SID,  'text' => $user->lang['add'],  'check' => 'a_news_add'),
-            2 => array('link' => 'admin/listnews.php' . $SID, 'text' => $user->lang['list'], 'check' => 'a_news_')
+            1 => array('link' => path_default('addnews.php', true),  'text' => $user->lang['add'],  'check' => 'a_news_add'),
+            2 => array('link' => path_default('listnews.php', true), 'text' => $user->lang['list'], 'check' => 'a_news_')
         ),
         'raids' => array(
             0 => $user->lang['raids'],
-            1 => array('link' => 'admin/addraid.php' . $SID,   'text' => $user->lang['add'],  'check' => 'a_raid_add'),
-            2 => array('link' => 'admin/listraids.php' . $SID, 'text' => $user->lang['list'], 'check' => 'a_raid_'),
-            3 => array('link' => 'admin/parse_log.php' . $SID, 'text' => 'Parse Log (DEBUG)', 'check' => 'a_raid_'),
+            1 => array('link' => path_default('addraid.php', true),   'text' => $user->lang['add'],  'check' => 'a_raid_add'),
+            2 => array('link' => path_default('listraids.php', true), 'text' => $user->lang['list'], 'check' => 'a_raid_'),
+            3 => array('link' => path_default('parse_log.php', true), 'text' => 'Parse Log (DEBUG)', 'check' => 'a_raid_'),
         ),
         'turnin' => array(
             0 => $user->lang['turn_ins'],
-            1 => array('link' => 'admin/addturnin.php' . $SID, 'text' => $user->lang['add'], 'check' => 'a_turnin_add')
+            1 => array('link' => path_default('addturnin.php', true), 'text' => $user->lang['add'], 'check' => 'a_turnin_add')
         ),
         'general' => array(
             0 => $user->lang['general_admin'],
-            1 => array('link' => 'admin/config.php' . $SID,         'text' => $user->lang['configuration'],  'check' => 'a_config_man'),
-            2 => array('link' => 'admin/manage_members.php' . $SID, 'text' => $user->lang['manage_members'], 'check' => 'a_members_man'),
-            3 => array('link' => 'admin/plugins.php' . $SID,        'text' => $user->lang['manage_plugins'], 'check' => 'a_plugins_man'),
-            4 => array('link' => 'admin/manage_users.php' . $SID,   'text' => $user->lang['manage_users'],   'check' => 'a_users_man'),
-            5 => array('link' => 'admin/logs.php' . $SID,           'text' => $user->lang['view_logs'],      'check' => 'a_logs_view')
+            1 => array('link' => path_default('settings.php', true),       'text' => $user->lang['configuration'],  'check' => 'a_config_man'),
+            2 => array('link' => path_default('manage_members.php', true), 'text' => $user->lang['manage_members'], 'check' => 'a_members_man'),
+            3 => array('link' => path_default('plugins.php', true),        'text' => $user->lang['manage_plugins'], 'check' => 'a_plugins_man'),
+            4 => array('link' => path_default('manage_users.php', true),   'text' => $user->lang['manage_users'],   'check' => 'a_users_man'),
+            5 => array('link' => path_default('logs.php', true),           'text' => $user->lang['view_logs'],      'check' => 'a_logs_view')
         ),
         'styles' => array(
             0 => $user->lang['styles'],
-            1 => array('link' => 'admin/styles.php' . $SID . '&amp;mode=create', 'text' => $user->lang['create'], 'check' => 'a_styles_man'),
-            2 => array('link' => 'admin/styles.php' . $SID,                      'text' => $user->lang['manage'], 'check' => 'a_styles_man')
+            1 => array('link' => path_default('styles.php', true) . path_params('mode', 'create'), 'text' => $user->lang['create'], 'check' => 'a_styles_man'),
+            2 => array('link' => path_default('styles.php', true),                                 'text' => $user->lang['manage'], 'check' => 'a_styles_man')
         )
     );
 

@@ -5,13 +5,13 @@
  * -----------------------------------------------------------------------
  * File:        dbal.php
  * Began:       Tue Dec 17 2002
- * Date:        $Date: 2007-06-19 07:29:11 +1000 (D, d m Y) $
+ * Date:        $Date$
  * -----------------------------------------------------------------------
- * @author      $Author: tsigo $
+ * @author      $Author$
  * @copyright   2002-2007 The EQdkp Project Team
  * @link        http://eqdkp.com/
  * @package     eqdkp
- * @version     $Rev: 46 $
+ * @version     $Rev$
  */
 
 

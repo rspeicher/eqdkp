@@ -37,8 +37,9 @@ class MySQL_Info extends EQdkp_Admin
             'form' => array(
                 'name'    => '',
                 'process' => 'display_form',
-                'check'   => 'a_'))
-        );
+                'check'   => 'a_'
+            )
+        ));
         
         $result = $db->query('SELECT VERSION() AS mysql_version');
         if ( $row = $db->fetch_record($result) )
@@ -87,7 +88,7 @@ class MySQL_Info extends EQdkp_Admin
 				}
 				
 				// Current row is an EQdkp table, get info for it
-				if ( strstr($row['Name'], $table_prefix) )
+				if ( preg_match('/^' . $table_prefix . '.+/', $row['Name']) )
 				{
 					$tpl->assign_block_vars('table_row', array(
 						'ROW_CLASS'  => $eqdkp->switch_row_class(),
@@ -109,7 +110,6 @@ class MySQL_Info extends EQdkp_Admin
 		{
             $db_name = "`$dbname`";
             $dbsize = 0;
-            
 			
             // Get table status
             $sql = 'SHOW TABLE STATUS
@@ -118,20 +118,15 @@ class MySQL_Info extends EQdkp_Admin
 
             while ( $row = $db->fetch_record($result) )
             {
-                if ( isset($row['Engine']) && $row['Engine'] == 'MRG_MyISAM' )
+                if ( (isset($row['Engine']) && $row['Engine'] == 'MRG_MyISAM') || empty($table_prefix) )
                 {
-					continue;
-				}
-
-				if ( empty($table_prefix) )
-				{
 					continue;
 				}
 				
 				$total_rows = number_format($row['Rows'], ',');
 				
 				// Current row is an EQdkp table, get info for it
-				if ( strstr($row['Name'], $table_prefix) )
+				if ( preg_match('/^' . $table_prefix . '.+/', $row['Name']) )
 				{
 					$tpl->assign_block_vars('table_row', array(
 						'ROW_CLASS'  => $eqdkp->switch_row_class(),
@@ -150,24 +145,25 @@ class MySQL_Info extends EQdkp_Admin
 
 		// Output the page
 		$tpl->assign_vars(array(
-			'DBNAME'           => $db_name,
-			'DBVERSION'        => $this->mysql_version,
+			'DBNAME'    => str_replace('`', '', $db_name),
+			'DBVERSION' => $this->mysql_version,
 			
 			'NUM_TABLES'       => sprintf($user->lang['num_tables'], $this->num_tables),
 			'TOTAL_TABLE_SIZE' => db_size($this->table_size),
 			'TOTAL_INDEX_SIZE' => db_size($this->index_size),
 			'TOTAL_SIZE'       => db_size($this->table_size + $this->index_size),
 			
-			'L_DATABASE_INFO'       => $user->lang['database_info'],
-			'L_DATABASE_VERSION'    => $user->lang['database_version'],
-			'L_DATABASE_NAME'       => $user->lang['database_name'],
+			'L_DATABASE_INFO'    => $user->lang['database_info'],
+			'L_DATABASE_VERSION' => $user->lang['database_version'],
+			'L_DATABASE_NAME'    => $user->lang['database_name'],
+			'L_DATABASE_SIZE'    => $user->lang['database_size'],
 			
-			'L_EQDKP_TABLES'   => $user->lang['eqdkp_tables'],
-			'L_TABLE_NAME'     => $user->lang['table_name'],
-			'L_ROWS'           => $user->lang['rows'],
-			'L_TABLE_SIZE'     => $user->lang['table_size'],
-			'L_INDEX_SIZE'     => $user->lang['index_size'],
-			'L_TOTALS'         => $user->lang['totals']
+			'L_EQDKP_TABLES' => $user->lang['eqdkp_tables'],
+			'L_TABLE_NAME'   => $user->lang['table_name'],
+			'L_ROWS'         => $user->lang['rows'],
+			'L_TABLE_SIZE'   => $user->lang['table_size'],
+			'L_INDEX_SIZE'   => $user->lang['index_size'],
+			'L_TOTALS'       => $user->lang['totals']
 		));
 		
 		$eqdkp->set_vars(array(

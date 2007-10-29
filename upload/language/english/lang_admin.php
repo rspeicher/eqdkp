@@ -463,14 +463,17 @@ $lang = array_merge($lang, array(
     'transfer_history'     => 'Transfer Member History',
     
     // MySQL info
-    'mysql'        => 'MySQL',
-    'mysql_info'   => 'MySQL Info',
-    'eqdkp_tables' => 'EQdkp Tables',
-    'table_name'   => 'Table Name',
-    'rows'         => 'Rows',
-    'table_size'   => 'Table Size',
-    'index_size'   => 'Index Size',
-    'num_tables'   => "%d tables",
+    'mysql'             => 'MySQL',
+    'mysql_info'        => 'MySQL Info',
+	'database_info'     => 'Database Information',
+	'database_name'     => 'Database Name',
+	'database_version'  => 'Version',
+    'eqdkp_tables'      => 'EQdkp Tables',
+    'table_name'        => 'Table Name',
+    'rows'              => 'Rows',
+    'table_size'        => 'Table Size',
+    'index_size'        => 'Index Size',
+    'num_tables'        => "%d tables",
     
     //Backup
     'backup'            => 'Backup',

@@ -27,8 +27,8 @@ if ( !defined('EQDKP_INC') )
 /**
  * Keep a consistent page title across the entire application
  *
- * @param string $title The dynamic part of the page title, appears before " - Guild Name DKP"
- * @return string
+ * @param     string     $title            The dynamic part of the page title, appears before " - Guild Name DKP"
+ * @return    string
  */
 function page_title($title = '')
 {
@@ -46,10 +46,8 @@ function page_title($title = '')
 }
 
 /**
+ * Option Checked value method
  * Returns ' selected="selected"' for use in <option> tags if $condition is true
- *
- * @param boolean $condition 
- * @return string
  */
 function option_checked($condition)
 {
@@ -57,10 +55,8 @@ function option_checked($condition)
 }
 
 /**
+ * Option Selected value method
  * Returns ' checked="checked"' for use in checkbox/radio <input> tags if $condition is true
- *
- * @param boolean $condition 
- * @return string
  */
 function option_selected($condition)
 {
@@ -70,8 +66,8 @@ function option_selected($condition)
 /**
  * Returns an array of valid Style ID options for use in populating a <select> tag
  *
- * @param mixed $comparison Used with {@link option_selected} to determine the selected row in the drop-down
- * @return array
+ * @param     mixed      $comparison       Used with {@link option_selected} to determine the selected row in the drop-down
+ * @return    array
  */
 function select_style($comparison)
 {
@@ -99,8 +95,8 @@ function select_style($comparison)
 /**
  * Returns an array of valid template folder names for use in populating a <select> tag
  *
- * @param mixed $comparison Used with {@link option_selected} to determine the selected row in the drop-down
- * @return array
+ * @param     mixed      $comparison       Used with {@link option_selected} to determine the selected row in the drop-down
+ * @return    array
  */
 function select_template($comparison)
 {
@@ -128,8 +124,8 @@ function select_template($comparison)
 /**
  * Returns an array of valid language folders for use in populating a <select> tag
  *
- * @param mixed $comparison Used with {@link option_selected} to determine the selected row in the drop-down
- * @return array
+ * @param     mixed      $comparison       Used with {@link option_selected} to determine the selected row in the drop-down
+ * @return    array
  */
 function select_language($comparison)
 {
@@ -157,8 +153,8 @@ function select_language($comparison)
 /**
  * Determines if a folder path is valid. Ignores .svn, CVS, cache, etc.
  *
- * @param string $path Path to check
- * @return boolean
+ * @param     string     $path             Path to check
+ * @return    boolean
  */
 function valid_folder($path)
 {
@@ -179,9 +175,9 @@ define('TAG', 2); // Strip HTML tags
  * Translate qoute characters to their HTML entities, and strip HTML tags. Calls
  * stripslashes() if magic quotes are enabled.
  * 
- * @param string $input Input to sanitize
- * @param int $options ENT | TAG
- * @return string
+ * @param     string     $input            Input to sanitize
+ * @param     int        $options          ENT | TAG
+ * @return    string
  */
 function sanitize($input, $options = 3, $ignore = null)
 {
@@ -200,8 +196,8 @@ function sanitize($input, $options = 3, $ignore = null)
 /**
  * Reverse the effects of htmlspecialchars()
  *
- * @param string $input Input to reverse
- * @return string
+ * @param     string     $input            Input to reverse
+ * @return    string
  */
 function unsanitize($input)
 {
@@ -220,9 +216,9 @@ function unsanitize($input)
 /**
  * Create a CSS bar graph
  * 
- * @param int $width Width of the bar
- * @param string $text Text to show
- * @return string
+ * @param     int        $width            Width of the bar
+ * @param     string     $text             Text to show
+ * @return    string
  */
 function create_bar($width, $text = '')
 {
@@ -248,11 +244,11 @@ function create_bar($width, $text = '')
  * Outputs a message with debugging info if needed and ends output.  
  * Clean replacement for die()
  *
- * @param string $text Message text
- * @param string $title Message title
- * @param string $file File name
- * @param int $line File line
- * @param string $sql SQL code
+ * @param     string     $text             Message text
+ * @param     string     $title            Message title
+ * @param     string     $file             File name
+ * @param     int        $line             File line
+ * @param     string     $sql              SQL code
  */
 function message_die($text = '', $title = '', $file = '', $line = '', $sql = '')
 {
@@ -334,9 +330,9 @@ function message_die($text = '', $title = '', $file = '', $line = '', $sql = '')
 /**
  * Returns the appropriate CSS class to use based on a number's range
  *
- * @param string $item The number
- * @param boolean $percentage Treat the number like a percentage?
- * @return mixed CSS Class / false
+ * @param     string     $item             The number
+ * @param     boolean    $percentage       Treat the number like a percentage?
+ * @return    mixed                        CSS Class / false
  */
 function color_item($item, $percentage = false)
 {
@@ -393,8 +389,8 @@ function color_item($item, $percentage = false)
  * Also contains checks to make sure the first element is not larger than the
  * sort_order array and that the second selement is either 0 or 1
  *
- * @param array $sort_order Sorting order array
- * @return array
+ * @param     array      $sort_order       Sorting order array
+ * @return    array
  */
 function switch_order($sort_order)
 {
@@ -437,12 +433,12 @@ function switch_order($sort_order)
 /**
  * Returns a string with a list of available pages
  *
- * @param string $base_url The starting URL for each page link
- * @param int $num_items The number of items we're paging through
- * @param int $per_page How many items to display per page
- * @param int $start_item Which number are we starting on
- * @param string $start_variable In case you need to call your _GET var something other than 'start'
- * @return string
+ * @param     string     $base_url         The starting URL for each page link
+ * @param     int        $num_items        The number of items we're paging through
+ * @param     int        $per_page         How many items to display per page
+ * @param     int        $start_item       Which number are we starting on
+ * @param     string     $start_variable   In case you need to call your _GET var something other than 'start'
+ * @return    string
  */
 function generate_pagination($base_url, $num_items, $per_page, $start_item, $start_variable='start')
 {
@@ -507,26 +503,45 @@ function generate_pagination($base_url, $num_items, $per_page, $start_item, $sta
 /**
  * Redirects the user to another page and exits cleanly
  *
- * @param $url URL to redirect to
+ * @param     string     $url          URL to redirect to
+ * @param     bool       $return       Whether to return the generated redirect url (true) or just redirect to the page (false)
+ * @return    mixed                    null, else the parsed redirect url if return is true.
  */
-function redirect($url)
+function redirect($url, $return = false)
 {
     global $db, $eqdkp, $user;
 
     $protocol = 'http://';
-    $server = preg_replace('/^\/?(.*?)\/?$/', '\1', trim($eqdkp->config['server_name']));
-    $port = ( $eqdkp->config['server_port'] != 80 ) ? ':' . trim($eqdkp->config['server_port']) . '/' : '/';
-    $script = preg_replace('/^\/?(.*?)\/?$/', '\1', trim($eqdkp->config['server_path']));
-    $url = (( $script == '' ) ? '' : '/') . preg_replace('/^\/?(.*?)\/?$/', '\1', trim($url));
-    $url = str_replace('&amp;', '&', $url);
-    
-    $location = $protocol . $server . $port . $script . $url;
+    $server   = preg_replace('/^\/?(.*?)\/?$/', '\1', trim($eqdkp->config['server_name']));
+    $port     = ($eqdkp->config['server_port'] != 80) ? trim($eqdkp->config['server_port']) : '';
+    $script   = preg_replace('/^\/?(.*?)\/?$/', '\1', trim($eqdkp->config['server_path']));
+
+    $url      = preg_replace('/^\/?(.*?)\/?$/', '\1', trim($url));
+	$url      = str_replace('&amp;', '&', $url);
+
+	if( $return )
+	{
+		return $url;
+	}
+
+    $location = $protocol . $server . $port . '/' . (!empty($script) ? $script . '/' : '') . $url;
     
     if ( @preg_match('/Microsoft|WebSTAR|Xitami/', getenv('SERVER_SOFTWARE')) )
     {
         header('Refresh: 0; URL=' . $location);
-        echo '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html><head><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"><meta http-equiv="refresh" content="0; url=' . $location .'"><title>Redirect</title></head>';
-        echo '<body><div align="center">If your browser does not support meta redirection, please click <a href="' . $location . '">here</a> to be redirected</div></body></html>';
+		
+        echo '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">';
+		echo '<html>';
+		echo '<head>';
+		echo '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">';
+		echo '<meta http-equiv="refresh" content="0; url=' . str_replace('&', '&amp;', $location) .'">';
+		echo '<title>Redirect</title>';
+		echo '</head>';
+        echo '<body>';
+		echo '<div align="center">If your browser does not support meta redirection, please click <a href="' . str_replace('&', '&amp;', $location) . '">here</a> to be redirected</div>';
+		echo '</body>';
+		echo '</html>';
+		
         exit;
     }
     
@@ -539,6 +554,23 @@ function redirect($url)
     exit;
 }
 
+
+/**
+* Meta refresh assignment
+*/
+function meta_refresh($time, $url)
+{
+	global $tpl;
+
+//	$url = redirect($url, true);
+
+	// For XHTML compatibility we change back & to &amp;
+	$tpl->assign_vars(array(
+		'META' => '<meta http-equiv="refresh" content="' . $time . ';url=' . str_replace('&', '&amp;', $url) . '" />'
+	));
+}
+
+
 // -----------------------------------------
 // Deprecated
 // -----------------------------------------
@@ -548,10 +580,10 @@ function redirect($url)
  * If it does, we use that one, otherwise we use the optional database field value,
  * or return a null string if $db_row contains no data
  *
- * @param    string  $post_field POST field name
- * @param    array   $db_row     Array of DB values
- * @param    string  $db_field   DB field name
- * @return   string
+ * @param     string     $post_field       POST field name
+ * @param     array      $db_row           Array of DB values
+ * @param     string     $db_field         DB field name
+ * @return    string
  */
 function post_or_db($post_field, $db_row = array(), $db_field = '')
 {

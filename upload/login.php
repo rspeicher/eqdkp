@@ -40,7 +40,7 @@ switch ($mode)
 			if ( !$user->login($in->get('username'), $in->get('password'), $in->get('auto_login', 0)) )
 			{
 				// Invalid login attempt. Trigger error + redirect back to login page
-				$tpl->assign_var('META', '<meta http-equiv="refresh" content="3;url=' . $redirect_path . '" />');
+				meta_refresh(3, $redirect_path);
 				message_die($user->lang['invalid_login'], $user->lang['error']);
 			}
 			else

@@ -130,16 +130,23 @@ function get_database_size()
 			{
 				$version = $row['mysql_version'];
 
-				if (preg_match('#(3\.23|[45]\.)#', $version))
+				// Convert $version into a PHP comparable version
+				$matches = array();
+				if (preg_match('#[^\d\.]#', $version, $matches) > 0)
 				{
-					$db_name = (preg_match('#^(?:3\.23\.(?:[6-9]|[1-9]{2}))|[45]\.#', $version)) ? "`{$dbname}`" : $dbname;
+					$version = substr($version, 0, strpos($version, $matches[0]));
+				}
+
+				if (version_compare($version, '3.23', '>='))
+				{
+					$db_name = (version_compare($version, '3.23.6', '>=')) ? "`{$dbname}`" : $dbname;
 
 					$sql = 'SHOW TABLE STATUS
 						FROM ' . $db_name;
 					$result = $db->sql_query($sql);
 
 					// For versions < 4.1.2, the db engine type has the column name 'Type' instead of 'Engine'
-					$engine = (preg_match('#^(?:3\.23\.(?:[6-9]|[1-9]{2}))|(?:4\.0)|(?:4\.1\.[01])#', $version)) ? 'Type' : 'Engine';
+					$engine = (version_compare($version, '4.1.2', '<')) ? 'Type' : 'Engine';
 
 					$database_size = 0;
 					while ($row = $db->sql_fetchrow($result))

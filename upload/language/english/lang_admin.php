@@ -49,6 +49,13 @@ $lang = array_merge($lang, array(
     'styles_title'         => 'Manage Styles',
     'viewlogs_title'       => 'Log Viewer',
     
+	// Common
+    'GB'                   => 'GB',
+    'MB'                   => 'MB',
+	'KB'                   => 'KB',
+    'BYTES'                => 'B',
+
+	
     // Page Foot Counts
     'listusers_footcount'             => "... found %1\$d user(s) / %2\$d per page",
     'manage_members_footcount'        => "... found %1\$d member(s)",

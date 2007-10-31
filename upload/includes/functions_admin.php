@@ -100,3 +100,91 @@ function generate_permission_boxes()
     
     return $retval;
 }
+
+
+
+
+/**
+* Get database size
+* Currently only mysql is supported
+*/
+function get_database_size()
+{
+	global $db, $dbname, $user, $table_prefix;
+
+	$database_size = false;
+
+	// This code is influenced in part by phpBB3, and also in part by phpMyAdmin 2.11
+	switch($db->sql_layer)
+	{
+		case 'mysql':
+		case 'mysql4':
+		case 'mysqli':
+
+			$sql = 'SELECT VERSION() AS mysql_version';
+			$result = $db->sql_query($sql);
+			$row = $db->sql_fetchrow($result);
+			$db->sql_freeresult($result);
+
+			if ($row)
+			{
+				$version = $row['mysql_version'];
+
+				if (preg_match('#(3\.23|[45]\.)#', $version))
+				{
+					$db_name = (preg_match('#^(?:3\.23\.(?:[6-9]|[1-9]{2}))|[45]\.#', $version)) ? "`{$dbname}`" : $dbname;
+
+					$sql = 'SHOW TABLE STATUS
+						FROM ' . $db_name;
+					$result = $db->sql_query($sql);
+
+					// For versions < 4.1.2, the db engine type has the column name 'Type' instead of 'Engine'
+					$engine = (preg_match('#^(?:3\.23\.(?:[6-9]|[1-9]{2}))|(?:4\.0)|(?:4\.1\.[01])#', $version)) ? 'Type' : 'Engine';
+
+					$database_size = 0;
+					while ($row = $db->sql_fetchrow($result))
+					{
+						switch($row[$engine])
+						{
+							case 'MRG_MyISAM':
+								// Do Nothing
+							break;
+							
+							case 'MyISAM':
+							case 'InnoDB':
+							default:
+								
+								if ($table_prefix != '')
+								{
+									if (strpos($row['Name'], $table_prefix) !== false)
+									{
+										$database_size += $row['Data_length'] + $row['Index_length'];
+									}
+								}
+								// If we dont have a table prefix, we're just gonna lump every table in the database into this calculation.
+								else
+								{
+									$database_size += $row['Data_length'] + $row['Index_length'];
+								}
+								
+							break;
+						}
+					}
+					$db->sql_freeresult($result);
+				}
+			}
+		break;
+	}
+
+	if ($database_size !== false)
+	{
+		$database_size = ($database_size >= 1048576) ? sprintf('%.2f ' . $user->lang['MB'], ($database_size / 1048576)) : (($database_size >= 1024) ? sprintf('%.2f ' . $user->lang['KB'], ($database_size / 1024)) : sprintf('%.2f ' . $user->lang['BYTES'], $database_size));
+	}
+	else
+	{
+		$database_size = $user->lang['not_available'];
+	}
+
+	return $database_size;
+
+}

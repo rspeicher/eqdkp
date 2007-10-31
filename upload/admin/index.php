@@ -309,61 +309,8 @@ if ( !defined('IN_ADMIN') )
         $items_per_day = $total_items;
     }
 
-    // DB Size - MySQL Only
-    if ( DBTYPE == 'mysql' )
-    {
-        $result = $db->query('SELECT VERSION() AS mysql_version');
-
-        if ( $row = $db->fetch_record($result) )
-        {
-            $version = $row['mysql_version'];
-
-            if ( preg_match('/^(3\.23|4\.)/', $version) )
-            {
-                $db_name = ( preg_match('/^(3\.23\.[6-9])|(3\.23\.[1-9][1-9])|(4\.)/', $version) ) ? "`$dbname`" : $dbname;
-
-                $sql = 'SHOW TABLE STATUS
-                        FROM ' . $db_name;
-                $result = $db->query($sql);
-
-                $dbsize = 0;
-                while ( $row = $db->fetch_record($result) )
-                {
-                    if ( !isset($row['Type']) || $row['Type'] != 'MRG_MyISAM' )
-                    {
-                        if ( $table_prefix != '' )
-                        {
-                            if ( strstr($row['Name'], $table_prefix) )
-                            {
-                                $dbsize += $row['Data_length'] + $row['Index_length'];
-                            }
-                        }
-                        else
-                        {
-                            $dbsize += $row['Data_length'] + $row['Index_length'];
-                        }
-                    }
-                }
-            }
-            else
-            {
-                $dbsize = $user->lang['not_available'];
-            }
-        }
-        else
-        {
-            $dbsize = $user->lang['not_available'];
-        }
-    }
-    else
-    {
-        $dbsize = $user->lang['not_available'];
-    }
-
-    if ( is_int($dbsize) )
-    {
-        $dbsize = ( $dbsize >= 1048576 ) ? sprintf('%.2f MB', ($dbsize / 1048576)) : (($dbsize >= 1024) ? sprintf('%.2f KB', ($dbsize / 1024)) : sprintf('%.2f Bytes', $dbsize));
-    }
+    // DB Size
+    $dbsize = get_database_size();
 
     //
     // Who's Online

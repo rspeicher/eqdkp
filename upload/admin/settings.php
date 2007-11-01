@@ -3,7 +3,7 @@
  * Project:     EQdkp - Open Source Points System
  * License:     http://eqdkp.com/?p=license
  * -----------------------------------------------------------------------
- * File:        config.php
+ * File:        settings.php
  * Began:       Sat Dec 28 2002
  * Date:        $Date$
  * -----------------------------------------------------------------------
@@ -131,7 +131,7 @@ class EQdkp_Config extends EQdkp_Admin
             $this->update_auth_default($row['auth_value'], $auth_default);
         }
 
-        header('Location: config.php' . $SID);
+        header('Location: settings.php' . $SID);
     }
     
     // ---------------------------------------------------------

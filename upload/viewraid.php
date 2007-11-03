@@ -147,7 +147,7 @@ if ( $in->get(URI_RAID, 0) )
     unset($classes);
 
     $tpl->assign_vars(array(
-        'L_MEMBERS_PRESENT_AT' => sprintf($user->lang['members_present_at'], stripslashes($raid['raid_name']),
+        'L_MEMBERS_PRESENT_AT' => sprintf($user->lang['members_present_at'], sanitize($raid['raid_name']),
                                   date($user->style['date_notime_long'], $raid['raid_date'])),
         'L_ADDED_BY'           => $user->lang['added_by'],
         'L_UPDATED_BY'         => $user->lang['updated_by'],

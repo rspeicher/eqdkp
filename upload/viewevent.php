@@ -16,7 +16,7 @@
 
 define('EQDKP_INC', true);
 $eqdkp_root_path = './';
-include_once($eqdkp_root_path . 'common.php');
+require_once($eqdkp_root_path . 'common.php');
 
 $user->check_auth('u_event_view');
 

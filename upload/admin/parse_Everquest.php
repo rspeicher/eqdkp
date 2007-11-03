@@ -17,7 +17,7 @@
 define('EQDKP_INC', true);
 define('IN_ADMIN', true);
 $eqdkp_root_path = './../';
-include_once($eqdkp_root_path . 'common.php');
+require_once($eqdkp_root_path . 'common.php');
 
 class Parse_Log extends EQdkp_Admin
 {

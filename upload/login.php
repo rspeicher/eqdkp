@@ -16,7 +16,7 @@
  
 define('EQDKP_INC', true);
 $eqdkp_root_path = './';
-include_once($eqdkp_root_path . 'common.php');
+require_once($eqdkp_root_path . 'common.php');
 
 // Get some page variables
 // FIXME: These actions are mutually exclusive. Alamgamate them into a single 'mode' variable.

@@ -22,7 +22,8 @@ $user->check_auth('u_raid_view');
 
 if ( $in->get(URI_RAID, 0) )
 {
-    $sql = "SELECT raid_id, raid_name, raid_date, raid_note, raid_value, raid_added_by, raid_updated_by
+    $sql = "SELECT raid_id, raid_name, raid_date, raid_note, raid_value, 
+                raid_added_by, raid_updated_by
             FROM __raids
             WHERE (`raid_id` = '" . $in->get(URI_RAID, 0) . "')";
     if ( !($raid_result = $db->query($sql)) )
@@ -118,10 +119,10 @@ if ( $in->get(URI_RAID, 0) )
     {
         $tpl->assign_block_vars('items_row', array(
             'ROW_CLASS'    => $eqdkp->switch_row_class(),
-            'BUYER'        => $item['item_buyer'],
+            'BUYER'        => sanitize($item['item_buyer']),
             'U_VIEW_BUYER' => member_path($item['item_buyer']),
             'NAME'         => sanitize($item['item_name']),
-            'U_VIEW_ITEM'  => 'viewitem.php' . $SID . '&amp;' . URI_ITEM . '='.$item['item_id'],
+            'U_VIEW_ITEM'  => item_path($item['item_id']),
             'VALUE'        => number_format($item['item_value'], 2)
         ));
     }
@@ -132,15 +133,15 @@ if ( $in->get(URI_RAID, 0) )
     ksort($classes);
     foreach ( $classes as $class => $members )
     {
-        // TODO: We're potentially calling count() multiple times on the same class type, but it shouldn't be much overhead
+        // NOTE: We're potentially calling count() multiple times on the same class type, but it shouldn't be much overhead
         $class_count = count($classes[$class]);
         $percentage =  ( $total_attendees > 0 ) ? round(($class_count / $total_attendees) * 100) : 0;
 
         $tpl->assign_block_vars('class_row', array(
             'ROW_CLASS' => $eqdkp->switch_row_class(),
-            'CLASS'     => $class,
-            'BAR'       => create_bar($percentage, $class_count . ' (' . $percentage . '%)'),
-            'ATTENDEES' => implode(', ', $members)
+            'CLASS'     => sanitize($class),
+            'BAR'       => create_bar($percentage),
+            'ATTENDEES' => implode(', ', $members) // Each member name has already been sanitize()'d
         ));
     }
     unset($classes);
@@ -163,25 +164,25 @@ if ( $in->get(URI_RAID, 0) )
         'L_RANK_DISTRIBUTION'  => $user->lang['rank_distribution'],
         'L_RANK'               => $user->lang['rank'],
 
-        'S_COLUMN0' => ( isset($s_column0) ) ? true : false,
-        'S_COLUMN1' => ( isset($s_column1) ) ? true : false,
-        'S_COLUMN2' => ( isset($s_column2) ) ? true : false,
-        'S_COLUMN3' => ( isset($s_column3) ) ? true : false,
-        'S_COLUMN4' => ( isset($s_column4) ) ? true : false,
-        'S_COLUMN5' => ( isset($s_column5) ) ? true : false,
-        'S_COLUMN6' => ( isset($s_column6) ) ? true : false,
-        'S_COLUMN7' => ( isset($s_column7) ) ? true : false,
-        'S_COLUMN8' => ( isset($s_column8) ) ? true : false,
-        'S_COLUMN9' => ( isset($s_column9) ) ? true : false,
+        'S_COLUMN0' => isset($s_column0),
+        'S_COLUMN1' => isset($s_column1),
+        'S_COLUMN2' => isset($s_column2),
+        'S_COLUMN3' => isset($s_column3),
+        'S_COLUMN4' => isset($s_column4),
+        'S_COLUMN5' => isset($s_column5),
+        'S_COLUMN6' => isset($s_column6),
+        'S_COLUMN7' => isset($s_column7),
+        'S_COLUMN8' => isset($s_column8),
+        'S_COLUMN9' => isset($s_column9),
 
         'COLUMN_WIDTH' => ( isset($column_width) ) ? $column_width : 0,
         'COLSPAN'      => $user->style['attendees_columns'],
 
-        'RAID_ADDED_BY'       => ( !empty($raid['raid_added_by']) ) ? stripslashes($raid['raid_added_by']) : 'N/A',
-        'RAID_UPDATED_BY'     => ( !empty($raid['raid_updated_by']) ) ? stripslashes($raid['raid_updated_by']) : 'N/A',
-        'RAID_NOTE'           => ( !empty($raid['raid_note']) ) ? stripslashes($raid['raid_note']) : '&nbsp;',
+        'RAID_ADDED_BY'       => ( !empty($raid['raid_added_by']) ) ? sanitize($raid['raid_added_by']) : 'N/A',
+        'RAID_UPDATED_BY'     => ( !empty($raid['raid_updated_by']) ) ? sanitize($raid['raid_updated_by']) : 'N/A',
+        'RAID_NOTE'           => ( !empty($raid['raid_note']) ) ? sanitize($raid['raid_note']) : '&nbsp;',
         'DKP_NAME'            => $eqdkp->config['dkp_name'],
-        'RAID_VALUE'          => $raid['raid_value'],
+        'RAID_VALUE'          => number_format($raid['raid_value'], 2),
         'ATTENDEES_FOOTCOUNT' => sprintf($user->lang['viewraid_attendees_footcount'], sizeof($attendees)),
         'ITEM_FOOTCOUNT'      => sprintf($user->lang['viewraid_drops_footcount'], $db->num_rows($items_result))
     ));

@@ -261,8 +261,8 @@ elseif ( preg_match('/^\d{2,4}-\d{1,2}-\d{1,2}$/', $in->get('from'))
             
             'TOTAL_RAIDS'  => intval($raids['total_raids']),
             'TOTAL_ITEMS'  => intval($drops['total_drops']),
-            'TOTAL_EARNED' => intval($raids['total_earned']),
-            'TOTAL_SPENT'  => intval($drops['total_spent']),
+            'TOTAL_EARNED' => number_format($raids['total_earned'], 2),
+            'TOTAL_SPENT'  => number_format($drops['total_spent'], 2),
         ));
     }
     else

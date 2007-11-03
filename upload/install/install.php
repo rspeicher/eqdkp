@@ -116,8 +116,8 @@ class installer
         $tpl->assign_vars(array(
             'TITLE'               => $lang['REQUIREMENTS_TITLE'],
             'BODY'                => $lang['REQUIREMENTS_EXPLAIN'],
-			
-			'S_CHECKS'            => true,
+            
+            'S_CHECKS'            => true,
         ));
 
         $passed = array('php' => false, 'config' => false, 'db' => false,);

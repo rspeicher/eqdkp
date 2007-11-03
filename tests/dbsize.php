@@ -14,97 +14,95 @@ include($eqdkp_root_path . 'common.php');
 
 function new_get_database_size($row = false)
 {
-	global $db, $dbname, $user, $lang, $table_prefix;
+    global $db, $dbname, $user, $lang, $table_prefix;
 
-	$database_size = false;
+    $database_size = false;
 
-	// This code is influenced in part by phpBB3, and also in part by phpMyAdmin 2.11
-	switch($db->sql_layer)
-	{
-		case 'mysql':
-		case 'mysql4':
-		case 'mysqli':
+    // This code is influenced in part by phpBB3, and also in part by phpMyAdmin 2.11
+    switch($db->sql_layer)
+    {
+        case 'mysql':
+        case 'mysql4':
+        case 'mysqli':
+            if ($row)
+            {
+                $version = $row['mysql_version'];
 
-			if ($row)
-			{
-				$version = $row['mysql_version'];
+                // Convert $version into a PHP comparable version
+                $matches = array();
+                if (preg_match('#[^\d\.]#', $version, $matches) > 0)
+                {
+                    $version = substr($version, 0, strpos($version, $matches[0]));
+                }
 
-				// Convert $version into a PHP comparable version
-				$matches = array();
-				if (preg_match('#[^\d\.]#', $version, $matches) > 0)
-				{
-					$version = substr($version, 0, strpos($version, $matches[0]));
-				}
-
-				if (version_compare($version, '3.23', '>='))
-				{
-					$db_name = (version_compare($version, '3.23.6', '>=')) ? "`{$dbname}`" : $dbname;
+                if (version_compare($version, '3.23', '>='))
+                {
+                    $db_name = (version_compare($version, '3.23.6', '>=')) ? "`{$dbname}`" : $dbname;
 
 
-					// For versions < 4.1.2, the db engine type has the column name 'Type' instead of 'Engine'
-					$engine = (version_compare($version, '4.1.2', '<')) ? 'Type' : 'Engine';
+                    // For versions < 4.1.2, the db engine type has the column name 'Type' instead of 'Engine'
+                    $engine = (version_compare($version, '4.1.2', '<')) ? 'Type' : 'Engine';
 
-					$database_size = 0;
-				}
-			}
-		break;
-	}
+                    $database_size = 0;
+                }
+            }
+        break;
+    }
 
-	if ($database_size !== false)
-	{
-		$database_size = ($database_size >= 1048576) ? sprintf('%.2f ' . $user->lang['MB'], ($database_size / 1048576)) : (($database_size >= 1024) ? sprintf('%.2f ' . $user->lang['KB'], ($database_size / 1024)) : sprintf('%.2f ' . $user->lang['BYTES'], $database_size));
-	}
-	else
-	{
-		$database_size = $user->lang['not_available'];
-	}
+    if ($database_size !== false)
+    {
+        $database_size = ($database_size >= 1048576) ? sprintf('%.2f ' . $user->lang['MB'], ($database_size / 1048576)) : (($database_size >= 1024) ? sprintf('%.2f ' . $user->lang['KB'], ($database_size / 1024)) : sprintf('%.2f ' . $user->lang['BYTES'], $database_size));
+    }
+    else
+    {
+        $database_size = $user->lang['not_available'];
+    }
 
-	return $database_size;
+    return $database_size;
 
 }
 
 
 function old_get_database_size($row = false)
 {
-	global $db, $dbname, $user, $lang, $table_prefix;
+    global $db, $dbname, $user, $lang, $table_prefix;
 
-	$database_size = false;
+    $database_size = false;
 
-	// This code is influenced in part by phpBB3, and also in part by phpMyAdmin 2.11
-	switch($db->sql_layer)
-	{
-		case 'mysql':
-		case 'mysql4':
-		case 'mysqli':
+    // This code is influenced in part by phpBB3, and also in part by phpMyAdmin 2.11
+    switch($db->sql_layer)
+    {
+        case 'mysql':
+        case 'mysql4':
+        case 'mysqli':
+            if ($row)
+            {
+                $version = $row['mysql_version'];
 
-			if ($row)
-			{
-				$version = $row['mysql_version'];
-
-				if (preg_match('#(3\.23|[45]\.)#', $version))
-				{
-					$db_name = (preg_match('#^(?:3\.23\.(?:[6-9]|[1-9]{2}))|[45]\.#', $version)) ? "`{$dbname}`" : $dbname;
+                if (preg_match('#(3\.23|[45]\.)#', $version))
+                {
+                    $db_name = (preg_match('#^(?:3\.23\.(?:[6-9]|[1-9]{2}))|[45]\.#', $version)) ? "`{$dbname}`" : $dbname;
 
 
-					// For versions < 4.1.2, the db engine type has the column name 'Type' instead of 'Engine'
-					$engine = (preg_match('#^(?:3\.23\.(?:[6-9]|[1-9]{2}))|(?:4\.0)|(?:4\.1\.[01])#', $version)) ? 'Type' : 'Engine';
+                    // For versions < 4.1.2, the db engine type has the column name 'Type' instead of 'Engine'
+                    $engine = (preg_match('#^(?:3\.23\.(?:[6-9]|[1-9]{2}))|(?:4\.0)|(?:4\.1\.[01])#', $version)) ? 'Type' : 'Engine';
 
-					$database_size = 0;
-				}
-			}
-		break;
-	}
+                    $database_size = 0;
+                }
+            }
+        break;
+    }
 
-	if ($database_size !== false)
-	{
-		$database_size = ($database_size >= 1048576) ? sprintf('%.2f ' . $user->lang['MB'], ($database_size / 1048576)) : (($database_size >= 1024) ? sprintf('%.2f ' . $user->lang['KB'], ($database_size / 1024)) : sprintf('%.2f ' . $user->lang['BYTES'], $database_size));
-	}
-	else
-	{
-		$database_size = $user->lang['not_available'];
-	}
+    if ($database_size !== false)
+    {
+        $database_size = ($database_size >= 1048576) ? sprintf('%.2f ' . $user->lang['MB'], ($database_size / 1048576)) : (($database_size >= 1024) ? sprintf('%.2f ' . $user->lang['KB'], ($database_size / 1024)) : sprintf('%.2f ' . $user->lang['BYTES'], $database_size));
+    }
+    else
+    {
+        $database_size = $user->lang['not_available'];
+    }
 
-	return $database_size;
+    return $database_size;
 
 }
 

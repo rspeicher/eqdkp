@@ -517,31 +517,31 @@ function redirect($url, $return = false)
     $script   = preg_replace('/^\/?(.*?)\/?$/', '\1', trim($eqdkp->config['server_path']));
 
     $url      = preg_replace('/^\/?(.*?)\/?$/', '\1', trim($url));
-	$url      = str_replace('&amp;', '&', $url);
+    $url      = str_replace('&amp;', '&', $url);
 
-	if( $return )
-	{
-		return $url;
-	}
+    if( $return )
+    {
+        return $url;
+    }
 
     $location = $protocol . $server . $port . '/' . (!empty($script) ? $script . '/' : '') . $url;
     
     if ( @preg_match('/Microsoft|WebSTAR|Xitami/', getenv('SERVER_SOFTWARE')) )
     {
         header('Refresh: 0; URL=' . $location);
-		
+        
         echo '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">';
-		echo '<html>';
-		echo '<head>';
-		echo '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">';
-		echo '<meta http-equiv="refresh" content="0; url=' . str_replace('&', '&amp;', $location) .'">';
-		echo '<title>Redirect</title>';
-		echo '</head>';
+        echo '<html>';
+        echo '<head>';
+        echo '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">';
+        echo '<meta http-equiv="refresh" content="0; url=' . str_replace('&', '&amp;', $location) .'">';
+        echo '<title>Redirect</title>';
+        echo '</head>';
         echo '<body>';
-		echo '<div align="center">If your browser does not support meta redirection, please click <a href="' . str_replace('&', '&amp;', $location) . '">here</a> to be redirected</div>';
-		echo '</body>';
-		echo '</html>';
-		
+        echo '<div align="center">If your browser does not support meta redirection, please click <a href="' . str_replace('&', '&amp;', $location) . '">here</a> to be redirected</div>';
+        echo '</body>';
+        echo '</html>';
+        
         exit;
     }
     
@@ -560,14 +560,14 @@ function redirect($url, $return = false)
 */
 function meta_refresh($time, $url)
 {
-	global $tpl;
+    global $tpl;
 
-//	$url = redirect($url, true);
+//    $url = redirect($url, true);
 
-	// For XHTML compatibility we change back & to &amp;
-	$tpl->assign_vars(array(
-		'META' => '<meta http-equiv="refresh" content="' . $time . ';url=' . str_replace('&', '&amp;', $url) . '" />'
-	));
+    // For XHTML compatibility we change back & to &amp;
+    $tpl->assign_vars(array(
+        'META' => '<meta http-equiv="refresh" content="' . $time . ';url=' . str_replace('&', '&amp;', $url) . '" />'
+    ));
 }
 
 

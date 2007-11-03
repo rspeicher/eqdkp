@@ -376,8 +376,8 @@ class Register extends EQdkp_Admin
                 }
                 else
                 {
-					$url = 'login.php' . $SID;
-					meta_refresh(3, $url);
+                    $url = 'login.php' . $SID;
+                    meta_refresh(3, $url);
                     $success_message = sprintf($user->lang['account_activated_user'], '<a href="' . $url . '">', '</a>');
                 }
                 

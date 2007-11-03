@@ -109,7 +109,6 @@ $db   = new $sql_db();
 // Connect to the database
 $db->sql_connect($dbhost, $dbname, $dbuser, $dbpass, false);
 
-
 // Initialize the eqdkp module
 $eqdkp = new EQdkp($eqdkp_root_path);
 

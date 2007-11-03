@@ -223,8 +223,8 @@ function connect_check_db($error_connect, &$error, $dbms, $table_prefix, $dbhost
     }
 
     // Try and connect ...
-	// NOTE: EQdkp's sql_connect function returns false if the connection was invalid.
-	$connect_test = $db->sql_connect($dbhost, $dbname, $dbuser, $dbpasswd, false);
+    // NOTE: EQdkp's sql_connect function returns false if the connection was invalid.
+    $connect_test = $db->sql_connect($dbhost, $dbname, $dbuser, $dbpasswd, false);
     if ($connect_test === false || is_array($connect_test))
     {
         $db_error = $db->error();

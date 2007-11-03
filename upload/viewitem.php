@@ -43,8 +43,8 @@ if ( $in->get(URI_ITEM, 0) )
 
     $sql = "SELECT i.item_id, i.item_name, i.item_value, i.item_date, i.raid_id, i.item_buyer, r.raid_name
             FROM __items AS i, __raids AS r
-            WHERE r.`raid_id` = i.`raid_id`
-            AND i.`item_name` = '" . $db->escape($item_name) . "'
+            WHERE (r.`raid_id` = i.`raid_id`)
+            AND (i.`item_name` = '" . $db->escape($item_name) . "')
             ORDER BY {$current_order['sql']}";
     if ( !($items_result = $db->query($sql)) )
     {
@@ -55,28 +55,28 @@ if ( $in->get(URI_ITEM, 0) )
         $tpl->assign_block_vars('items_row', array(
             'ROW_CLASS'    => $eqdkp->switch_row_class(),
             'DATE'         => ( !empty($item['item_date']) ) ? date($user->style['date_notime_short'], $item['item_date']) : '&nbsp;',
-            'BUYER'        => ( !empty($item['item_buyer']) ) ? $item['item_buyer'] : '&nbsp;',
+            'BUYER'        => ( !empty($item['item_buyer']) ) ? sanitize($item['item_buyer']) : '&nbsp;',
             'U_VIEW_BUYER' => member_path($item['item_buyer']),
-            'U_VIEW_RAID'  => 'viewraid.php'.$SID.'&amp;' . URI_RAID . '='.$item['raid_id'],
-            'RAID'         => ( !empty($item['raid_name']) ) ? stripslashes($item['raid_name']) : '&lt;<i>Not Found</i>&gt;',
-            'VALUE'        => $item['item_value']
+            'U_VIEW_RAID'  => raid_path($item['raid_id']),
+            'RAID'         => ( !empty($item['raid_name']) ) ? sanitize($item['raid_name']) : '&lt;<i>Not Found</i>&gt;',
+            'VALUE'        => number_format($item['item_value'], 2)
         ));
     }
 
     $tpl->assign_vars(array(
         'S_STATS' => $show_stats,
 
-        'L_PURCHASE_HISTORY_FOR' => sprintf($user->lang['purchase_history_for'], stripslashes($item_name)),
-        'L_DATE' => $user->lang['date'],
-        'L_BUYER' => $user->lang['buyer'],
-        'L_RAID' => $user->lang['raid'],
-        'L_VALUE' => $user->lang['value'],
+        'L_PURCHASE_HISTORY_FOR' => sprintf($user->lang['purchase_history_for'], sanitize($item_name)),
+        'L_DATE'                 => $user->lang['date'],
+        'L_BUYER'                => $user->lang['buyer'],
+        'L_RAID'                 => $user->lang['raid'],
+        'L_VALUE'                => $user->lang['value'],
 
-        'O_DATE' => $current_order['uri'][0],
+        'O_DATE'  => $current_order['uri'][0],
         'O_BUYER' => $current_order['uri'][1],
         'O_VALUE' => $current_order['uri'][2],
 
-        'U_VIEW_ITEM' => 'viewitem.php'.$SID.'&amp;' . URI_ITEM . '=' . $in->get(URI_ITEM, 0) . '&amp;',
+        'U_VIEW_ITEM'  => item_path($in->get(URI_ITEM, 0)) . '&amp;',
         'U_VIEW_STATS' => $u_view_stats,
 
         'VIEWITEM_FOOTCOUNT' => sprintf($user->lang['viewitem_footcount'], $db->num_rows($items_result)))
@@ -85,10 +85,10 @@ if ( $in->get(URI_ITEM, 0) )
     $pm->do_hooks('/viewitem.php');
 
     $eqdkp->set_vars(array(
-        'page_title'    => page_title(sprintf($user->lang['viewitem_title'], stripslashes($item_name))),
+        'page_title'    => page_title(sprintf($user->lang['viewitem_title'], sanitize($item_name))),
         'template_file' => 'viewitem.html',
-        'display'       => true)
-    );
+        'display'       => true
+    ));
 }
 else
 {

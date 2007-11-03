@@ -18,7 +18,7 @@ define('EQDKP_INC', true);
 $eqdkp_root_path = './';
 require_once($eqdkp_root_path . 'common.php');
 
-$total_news = $db->query_first("SELECT count(*) FROM __news");
+$total_news = $db->query_first("SELECT COUNT(*) FROM __news");
 $start = $in->get('start', 0);
 
 $previous_date = 0;
@@ -48,7 +48,7 @@ while ( $news = $db->fetch_record($result) )
     
     $message = sanitize($news['news_message']);
     $message = nl2br($message);
-    news_parse($message);
+    $message = news_parse($message);
     $message = preg_replace('#(\&amp;){2,}#', '&amp;', $message);
     
     $tpl->assign_block_vars('date_row.news_row', array(
@@ -61,68 +61,65 @@ while ( $news = $db->fetch_record($result) )
 }
 $db->free_result($result);
 
-$tpl->assign_vars(array(
-    'NEWS_PAGINATION' => generate_pagination('viewnews.php' . $SID, $total_news, $user->data['user_nlimit'], $start))
-);
+$tpl->assign_var('NEWS_PAGINATION', generate_pagination(news_path(), $total_news, $user->data['user_nlimit'], $start));
 
 $eqdkp->set_vars(array(
-    'page_title'    => sprintf($user->lang['title_prefix'], $eqdkp->config['guildtag'], $eqdkp->config['dkp_name']),
+    'page_title'    => page_title(),
     'template_file' => 'viewnews.html',
-    'display'       => true)
-);
+    'display'       => true
+));
 
 /**
 * Parses a news post containing BBCode and replaces the code with HTML
 *
-* @param $message Text message to parse
-* @param $parse_quotes Whether or not to parse quote tags
+* @param string $message Text message to parse
+* @param bool $parse_quotes Whether or not to parse quote tags
 */
-function news_parse(&$message, $parse_quotes = true)
+function news_parse($message, $parse_quotes = true)
 {
-    global $user, $eqdkp, $SID, $pm;
-    global $eqdkp_hooks;
+    global $user, $eqdkp, $pm;
 
     // Figure out which quote class to use
     $quote_class = ( $eqdkp->switch_row_class(false) == 'row1' ) ? '1' : '2';
 
     // Pad message with a space so we can match things at the start of the first line
     $message = ' ' . $message;
-    news_make_clickable($message);
+    $message = news_make_clickable($message);
     $message = preg_replace("#(\\\){1,}(\"|\'|\&quot;|\&\#039)#", "\"", $message);
 
-    $quote_open = '<table width="90%" border="0" cellspacing="0" cellpadding="3" align="center"><tr><td class="quote'.$quote_class.'"><b>'.$user->lang['quote'].':</b></td></tr><tr><td class="quote'.$quote_class.'">';
+    $quote_open  = '<table width="90%" border="0" cellspacing="0" cellpadding="3" align="center"><tr><td class="quote'.$quote_class.'"><b>'.$user->lang['quote'].':</b></td></tr><tr><td class="quote'.$quote_class.'">';
     $quote_close = '</td></tr></table>';
 
     // Patterns and replacements
-    $patterns = array();
+    $patterns     = array();
     $replacements = array();
 
     // [img]image_url[/img]
-    $patterns[0] = "#\[img\](.*?)\[/img\]#si";
+    $patterns[0]     = "#\[img\](.*?)\[/img\]#si";
     $replacements[0] = "<img src=\"\\1\" alt=\"User-posted image\" />";
 
     // [url]xxxx://www.example.com[/url]
-    $patterns[1] = "#\[url\]([a-z]+?://){1}([a-z0-9\-\.,\?!%\*_\#:;~\\&$@\/=\+]+)\[/url\]#si";
+    $patterns[1]     = "#\[url\]([a-z]+?://){1}([a-z0-9\-\.,\?!%\*_\#:;~\\&$@\/=\+]+)\[/url\]#si";
     $replacements[1] = "<a href=\"\\1\\2\">\\1\\2</a>";
 
     // [url]www.example.com[/url]
-    $patterns[2] = "#\[url\]([a-z0-9\-\.,\?!%\*_\#:;~\\&$@\/=\+]+)\[/url\]#si";
+    $patterns[2]     = "#\[url\]([a-z0-9\-\.,\?!%\*_\#:;~\\&$@\/=\+]+)\[/url\]#si";
     $replacements[2] = "<a href=\"http://\\1\">\\1</a>";
 
     // [url=xxxx://www.example.com]Example[/url]
-    $patterns[3] = "#\[url=([a-z]+?://){1}([a-z0-9\-\.,\?!%\*_\#:;~\\&$@\/=\+]+)\](.*?)\[/url\]#si";
+    $patterns[3]     = "#\[url=([a-z]+?://){1}([a-z0-9\-\.,\?!%\*_\#:;~\\&$@\/=\+]+)\](.*?)\[/url\]#si";
     $replacements[3] = "<a href=\"\\1\\2\">\\3</a>";
 
     // [url=www.example.com]Example[/url]
-    $patterns[4] = "#\[url=([a-z0-9\-\.,\?!%\*_\#:;~\\&$@\/=\+]+)\](.*?)\[/url\]#si";
+    $patterns[4]     = "#\[url=([a-z0-9\-\.,\?!%\*_\#:;~\\&$@\/=\+]+)\](.*?)\[/url\]#si";
     $replacements[4] = "<a href=\"http://\\1\">\\2</a>";
 
     // [url=mailto:user@example.com]E-Mail[/url]
-    $patterns[5] = "#\[url=mailto:([a-zA-Z0-9]+[\.a-zA-Z0-9_-]*@[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\](.*?)\[/url\]#si";
+    $patterns[5]     = "#\[url=mailto:([a-zA-Z0-9]+[\.a-zA-Z0-9_-]*@[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\](.*?)\[/url\]#si";
     $replacements[5] = "<a href=\"mailto:\\1\">\\2</a>";
 
     // [item]name[/item]
-    $patterns[6] = "#\[item\](.*?)\[/item\]#si";
+    $patterns[6]     = "#\[item\](.*?)\[/item\]#si";
     $replacements[6] = "<iframe name=\"item_stats\" src=\"http://www.crusadersvalorous.org/items/index.php?linked=1&amp;news=true&amp;item=\\1\" width=\"450\" height=\"260\" scrolling=\"no\" frameborder=\"0\" marginheight=\"0\" marginwidth=\"0\"></iframe>";
 
     $count = sizeof($patterns);
@@ -145,16 +142,16 @@ function news_parse(&$message, $parse_quotes = true)
 
     $message = preg_replace($patterns, $replacements, $message);
 
-    $message = str_replace('[b]', '<b>', $message);
+    $message = str_replace('[b]',  '<b>',  $message);
     $message = str_replace('[/b]', '</b>', $message);
 
-    $message = str_replace('[i]', '<i>', $message);
+    $message = str_replace('[i]',  '<i>',  $message);
     $message = str_replace('[/i]', '</i>', $message);
 
-    $message = str_replace('[u]', '<u>', $message);
+    $message = str_replace('[u]',  '<u>',  $message);
     $message = str_replace('[/u]', '</u>', $message);
     
-    $message = str_replace('[center]', '<center>', $message);
+    $message = str_replace('[center]',  '<center>',  $message);
     $message = str_replace('[/center]', '</center>', $message);
 
     if ( $parse_quotes )
@@ -172,36 +169,39 @@ function news_parse(&$message, $parse_quotes = true)
 /**
 * Replace "magic URLs" of form http://xxx.example.com, www.example.com, user@example.com
 *
-* @param $message Message to parse
+* @param string $message Message to parse
+* @return string
 */
-function news_make_clickable(&$message)
+function news_make_clickable($message)
 {
     global $eqdkp;
     
-    $patterns = array();
+    $patterns     = array();
     $replacements = array();
     
     $server_protocol = 'https://';
     $server_port = ( $eqdkp->config['server_port'] != 80 ) ? ':' . trim($eqdkp->config['server_port']) . '/' : '/';
 
-    $match = array();
+    $match   = array();
     $replace = array();
 
-    // relative urls for this board
-    $match[] = '#' . $server_protocol . trim($eqdkp->config['server_name']) . $server_port . preg_replace('/^\/?(.*?)(\/)?$/', '\1', trim($eqdkp->config['server_path'])) . '/([^\t\n\r <"\']+)#i';
+    // relative urls
+    $match[]   = '#' . $server_protocol . trim($eqdkp->config['server_name']) . $server_port . preg_replace('/^\/?(.*?)(\/)?$/', '\1', trim($eqdkp->config['server_path'])) . '/([^\t\n\r <"\']+)#i';
     $replace[] = '<!-- l --><a href="\1" target="_blank">\1</a><!-- l -->';
 
     // matches a xxxx://aaaaa.bbb.cccc. ...
-    $match[] = '#(^|[\n ])([\w]+?://.*?[^\t\n\r<"]*)#ie';
+    $match[]   = '#(^|[\n ])([\w]+?://.*?[^\s<"]*)#ie';
     $replace[] = "'\\1<!-- m --><a href=\"\\2\" target=\"_blank\">' . ( ( strlen(str_replace(' ', '%20', '\\2')) > 55 ) ?substr(str_replace(' ', '%20', '\\2'), 0, 39) . ' ... ' . substr(str_replace(' ', '%20', '\\2'), -10) : str_replace(' ', '%20', '\\2') ) . '</a><!-- m -->'";
 
     // matches a "www.xxxx.yyyy[/zzzz]" kinda lazy URL thing
-    $match[] = '#(^|[\n ])(www\.[\w\-]+\.[\w\-.\~]+(?:/[^\t\n\r<"]*)?)#ie';
+    $match[]   = '#(^|[\n ])(www\.[\w\-]+\.[\w\-.\~]+(?:/[^\s<"]*)?)#ie';
     $replace[] = "'\\1<!-- w --><a href=\"http://\\2\" target=\"_blank\">' . ( ( strlen(str_replace(' ', '%20', '\\2')) > 55 ) ? substr(str_replace(' ', '%20', '\\2'), 0, 39) . ' ... ' . substr(str_replace(' ', '%20', '\\2'), -10) : str_replace(' ', '%20', '\\2') ) . '</a><!-- w -->'";
 
     // matches an email@domain type address at the start of a line, or after a space.
-    $match[] = '#(^|[\n ])([a-z0-9\-_.]+?@[\w\-]+\.([\w\-\.]+\.)?[\w]+)#ie';
+    $match[]   = '#(^|[\n ])([a-z0-9\-_.]+?@[\w\-]+\.([\w\-\.]+\.)?[\w]+)#ie';
     $replace[] = "'\\1<!-- e --><a href=\"mailto:\\2\">' . ( ( strlen('\\2') > 55 ) ?substr('\\2', 0, 39) . ' ... ' . substr('\\2', -10) : '\\2' ) . '</a><!-- e -->'";
 
     $message = preg_replace($match, $replace, $message);
+    
+    return $message;
 }

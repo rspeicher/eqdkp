@@ -25,10 +25,7 @@ error_reporting (E_ALL);
 
 // Default the site-wide variables
 $gen_simple_header = false;
-if ( !isset($eqdkp_root_path) )
-{
-    $eqdkp_root_path = './';
-}
+$eqdkp_root_path   = ( isset($eqdkp_root_path) ) ? preg_replace('/[^\.\/]/', '', $eqdkp_root_path) : './';
 
 if ( !is_file($eqdkp_root_path . 'config.php') )
 {

@@ -48,9 +48,9 @@ if ( $in->get(URI_NAME) != '' )
 
     // Find the percent of raids they've attended in the last 30, 60 and 90 days
     $percent_of_raids = array(
-        '30'       => raid_count(mktime(0, 0, 0, date('m'), date('d')-30, date('Y')), time(), $member['member_name']),
-        '60'       => raid_count(mktime(0, 0, 0, date('m'), date('d')-60, date('Y')), time(), $member['member_name']),
-        '90'       => raid_count(mktime(0, 0, 0, date('m'), date('d')-90, date('Y')), time(), $member['member_name']),
+        '30'       => raid_count(strtotime(date('Y-m-d', time() - 60*60*24*30)), time(), $member['member_name']),
+        '60'       => raid_count(strtotime(date('Y-m-d', time() - 60*60*24*60)), time(), $member['member_name']),
+        '90'       => raid_count(strtotime(date('Y-m-d', time() - 60*60*24*90)), time(), $member['member_name']),
         'lifetime' => raid_count($member['member_firstraid'], $member['member_lastraid'], $member['member_name'])
     );
 
@@ -71,7 +71,7 @@ if ( $in->get(URI_NAME) != '' )
         $sql = "SELECT raid_value
                 FROM __raids AS r, __raid_attendees AS ra
                 WHERE (ra.raid_id = r.raid_id)
-                AND (ra.`member_name` = '{$member['member_name']}')
+                AND (ra.`member_name` = '" . $db->escape($member['member_name']) . "')
                 ORDER BY r.raid_date DESC
                 LIMIT {$rstart}";
         if ( !($earned_result = $db->query($sql)) )
@@ -88,7 +88,7 @@ if ( $in->get(URI_NAME) != '' )
     $sql = "SELECT r.raid_id, r.raid_name, r.raid_date, r.raid_note, r.raid_value
             FROM __raids AS r, __raid_attendees AS ra
             WHERE (ra.raid_id = r.raid_id)
-            AND (ra.`member_name` = '{$member['member_name']}')
+            AND (ra.`member_name` = '" . $db->escape($member['member_name']) . "')
             ORDER BY r.raid_date DESC
             LIMIT {$rstart},{$user->data['user_rlimit']}";
     if ( !($raids_result = $db->query($sql)) )
@@ -100,19 +100,19 @@ if ( $in->get(URI_NAME) != '' )
         $tpl->assign_block_vars('raids_row', array(
             'ROW_CLASS'      => $eqdkp->switch_row_class(),
             'DATE'           => ( !empty($raid['raid_date']) ) ? date($user->style['date_notime_short'], $raid['raid_date']) : '&nbsp;',
-            'U_VIEW_RAID'    => 'viewraid.php'.$SID.'&amp;' . URI_RAID . '='.$raid['raid_id'],
+            'U_VIEW_RAID'    => raid_path($raid['raid_id']),
             'NAME'           => ( !empty($raid['raid_name']) ) ? sanitize($raid['raid_name']) : '&lt;<i>Not Found</i>&gt;',
             'NOTE'           => ( !empty($raid['raid_note']) ) ? sanitize($raid['raid_note']) : '&nbsp;',
-            'EARNED'         => $raid['raid_value'],
-            'CURRENT_EARNED' => sprintf("%.2f", $current_earned)
+            'EARNED'         => number_format($raid['raid_value'], 2),
+            'CURRENT_EARNED' => number_format($current_earned, 2)
         ));
         $current_earned -= $raid['raid_value'];
     }
     $db->free_result($raids_result);
-    $sql = "SELECT count(*)
+    $sql = "SELECT COUNT(*)
             FROM __raids AS r, __raid_attendees AS ra
             WHERE (ra.raid_id = r.raid_id)
-            AND (ra.`member_name` = '{$member['member_name']}')";
+            AND (ra.`member_name` = '" . $db->escape($member['member_name']) . "')";
     $total_attended_raids = $db->query_first($sql);
 
     //
@@ -129,7 +129,7 @@ if ( $in->get(URI_NAME) != '' )
         $current_spent = $member['member_spent'];
         $sql = "SELECT item_value
                 FROM __items
-                WHERE (`item_buyer` = '{$member['member_name']}')
+                WHERE (`item_buyer` = '" . $db->escape($member['member_name']) . "')
                 ORDER BY item_date DESC
                 LIMIT {$istart}";
         if ( !($spent_result = $db->query($sql)) )
@@ -145,7 +145,7 @@ if ( $in->get(URI_NAME) != '' )
 
     $sql = "SELECT i.item_id, i.item_name, i.item_value, i.item_date, i.raid_id, r.raid_name
             FROM __items AS i LEFT JOIN __raids AS r ON r.raid_id = i.raid_id
-            WHERE (i.`item_buyer` = '{$member['member_name']}')
+            WHERE (i.`item_buyer` = '" . $db->escape($member['member_name']) . "')
             ORDER BY i.item_date DESC
             LIMIT {$istart},{$user->data['user_ilimit']}";
     if ( !($items_result = $db->query($sql)) )
@@ -157,8 +157,8 @@ if ( $in->get(URI_NAME) != '' )
         $tpl->assign_block_vars('items_row', array(
             'ROW_CLASS'     => $eqdkp->switch_row_class(),
             'DATE'          => ( !empty($item['item_date']) ) ? date($user->style['date_notime_short'], $item['item_date']) : '&nbsp;',
-            'U_VIEW_ITEM'   => 'viewitem.php'.$SID.'&amp;' . URI_ITEM . '=' . $item['item_id'],
-            'U_VIEW_RAID'   => 'viewraid.php'.$SID.'&amp;' . URI_RAID . '=' . $item['raid_id'],
+            'U_VIEW_ITEM'   => item_path($item['item_id']),
+            'U_VIEW_RAID'   => raid_path($item['raid_id']),
             'NAME'          => sanitize($item['item_name']),
             'RAID'          => ( !empty($item['raid_name']) ) ? sanitize($item['raid_name']) : '&lt;<i>Not Found</i>&gt;',
             'SPENT'         => number_format($item['item_value'], 2),
@@ -168,15 +168,16 @@ if ( $in->get(URI_NAME) != '' )
     }
     $db->free_result($items_result);
 
-    $total_purchased_items = $db->query_first("SELECT count(*) FROM __items WHERE (`item_buyer` = '{$member['member_name']}') ORDER BY item_date DESC");
+    $total_purchased_items = $db->query_first("SELECT COUNT(*) FROM __items WHERE (`item_buyer` = '" . $db->escape($member['member_name']) . "') ORDER BY item_date DESC");
 
     //
     // Adjustment History
     //
+    $adjustment_addon = ( $member['member_firstraid'] > 0 ) ? "OR (member_name IS NULL AND adjustment_date >= {$member['member_firstraid']})" : '';
     $sql = "SELECT adjustment_value, adjustment_date, adjustment_reason, member_name
             FROM __adjustments
-            WHERE (`member_name` = '{$member['member_name']}')
-            OR (member_name IS NULL AND adjustment_date >= {$member['member_firstraid']})
+            WHERE (`member_name` = '" . $db->escape($member['member_name']) . "')
+            {$adjustment_addon}
             ORDER BY adjustment_date DESC";
     if ( !($adjustments_result = $db->query($sql)) )
     {
@@ -194,6 +195,7 @@ if ( $in->get(URI_NAME) != '' )
             'INDIVIDUAL_ADJUSTMENT'   => sanitize($adjustment['adjustment_value'])
         ));
     }
+    $total_adjustments = $db->num_rows($adjustments_result);
 
     //
     // Attendance by Event
@@ -201,11 +203,11 @@ if ( $in->get(URI_NAME) != '' )
     $raid_counts = array();
 
     // Find the count for each event for this member
-    $sql = "SELECT e.event_id, r.raid_name, count(ra.raid_id) AS raid_count
+    $sql = "SELECT e.event_id, r.raid_name, COUNT(ra.raid_id) AS raid_count
             FROM __events AS e, __raid_attendees AS ra, __raids AS r
             WHERE (e.event_name = r.raid_name)
             AND (r.raid_id = ra.raid_id)
-            AND (ra.`member_name` = '{$member['member_name']}')
+            AND (ra.`member_name` = '" . $db->escape($member['member_name']) . "')
             AND (r.`raid_date` >= {$member['member_firstraid']})
             GROUP BY ra.member_name, r.raid_name";
     $result = $db->query($sql);
@@ -213,13 +215,12 @@ if ( $in->get(URI_NAME) != '' )
     {
         // The count now becomes the percent
         $raid_counts[ $row['raid_name'] ] = $row['raid_count'];
-
         $event_ids[ $row['raid_name'] ] = $row['event_id'];
     }
     $db->free_result($result);
 
     // Find the count for reach raid
-    $sql = "SELECT raid_name, count(raid_id) AS raid_count
+    $sql = "SELECT raid_name, COUNT(raid_id) AS raid_count
             FROM __raids
             WHERE (`raid_date` >= {$member['member_firstraid']})
             GROUP BY raid_name";
@@ -261,14 +262,14 @@ if ( $in->get(URI_NAME) != '' )
     {
         $tpl->assign_block_vars('event_row', array(
             'EVENT'        => sanitize($event),
-            'U_VIEW_EVENT' => 'viewevent.php' . $SID . '&' . URI_EVENT . '=' . $event_ids[$event],
+            'U_VIEW_EVENT' => event_path($event_ids[$event]),
             'BAR'          => create_bar($data['percent'], $data['count'] . ' (' . $data['percent'] . '%)')
         ));
     }
     unset($raid_counts, $event_ids);
 
     $tpl->assign_vars(array(
-        'GUILDTAG' => $eqdkp->config['guildtag'],
+        'GUILDTAG' => sanitize($eqdkp->config['guildtag']),
         'NAME'     => sanitize($member['member_name']),
 
         'L_EARNED'                        => $user->lang['earned'],
@@ -299,9 +300,9 @@ if ( $in->get(URI_NAME) != '' )
         'O_EVENT'   => $current_order['uri'][0],
         'O_PERCENT' => $current_order['uri'][1],
 
-        'EARNED'         => $member['member_earned'],
-        'SPENT'          => $member['member_spent'],
-        'ADJUSTMENT'     => $member['member_adjustment'],
+        'EARNED'         => number_format($member['member_earned'], 2),
+        'SPENT'          => number_format($member['member_spent'], 2),
+        'ADJUSTMENT'     => number_format($member['member_adjustment'], 2),
         'CURRENT'        => number_format($member['member_current'], 2),
         'RAIDS_30_DAYS'  => sprintf($user->lang['of_raids'], $percent_of_raids['30']),
         'RAIDS_60_DAYS'  => sprintf($user->lang['of_raids'], $percent_of_raids['60']),
@@ -316,13 +317,13 @@ if ( $in->get(URI_NAME) != '' )
         'C_RAIDS_LIFETIME' => color_item($percent_of_raids['lifetime'], true),
 
         'RAID_FOOTCOUNT'       => sprintf($user->lang['viewmember_raid_footcount'], $total_attended_raids, $user->data['user_rlimit']),
-        'RAID_PAGINATION'      => generate_pagination('viewmember.php'.$SID.'&amp;name='.$member['member_name'].'&amp;istart='.$istart, $total_attended_raids, $user->data['user_rlimit'], $rstart, 'rstart'),
         'ITEM_FOOTCOUNT'       => sprintf($user->lang['viewmember_item_footcount'], $total_purchased_items, $user->data['user_ilimit']),
-        'ITEM_PAGINATION'      => generate_pagination('viewmember.php'.$SID.'&amp;name='.$member['member_name'].'&amp;rstart='.$rstart, $total_purchased_items, $user->data['user_ilimit'], $istart, 'istart'),
-        'ADJUSTMENT_FOOTCOUNT' => sprintf($user->lang['viewmember_adjustment_footcount'], $db->num_rows($adjustments_result)),
+        'ADJUSTMENT_FOOTCOUNT' => sprintf($user->lang['viewmember_adjustment_footcount'], $total_adjustments),
+        'RAID_PAGINATION'      => generate_pagination(member_path($member['member_name']) . path_params('istart', $istart), $total_attended_raids, $user->data['user_rlimit'], $rstart, 'rstart'),
+        'ITEM_PAGINATION'      => generate_pagination(member_path($member['member_name']) . path_params('rstart', $rstart), $total_purchased_items, $user->data['user_ilimit'], $istart, 'istart'),
 
-        'U_VIEW_MEMBER' => 'viewmember.php' . $SID . '&amp;' . URI_NAME . '=' . $member['member_name'] . '&amp;')
-    );
+        'U_VIEW_MEMBER' => member_path($member['member_name']) . '&amp;'
+    ));
 
     $db->free_result($adjustments_result);
 
@@ -347,12 +348,12 @@ function raid_count($start_date, $end_date, $member_name)
     $start_date  = intval($start_date);
     $end_date    = intval($end_date);
 
-    $raid_count = $db->query_first("SELECT count(*) FROM __raids WHERE (raid_date BETWEEN {$start_date} AND {$end_date})");
+    $raid_count = $db->query_first("SELECT COUNT(*) FROM __raids WHERE (raid_date BETWEEN {$start_date} AND {$end_date})");
 
-    $sql = "SELECT count(*)
+    $sql = "SELECT COUNT(*)
             FROM __raids AS r, __raid_attendees AS ra
             WHERE (ra.`raid_id` = r.`raid_id`)
-            AND (ra.`member_name` = '{$member_name}')
+            AND (ra.`member_name` = '" . $db->escape($member_name) . "')
             AND (r.`raid_date` BETWEEN {$start_date} AND {$end_date})";
     $individual_raid_count = $db->query_first($sql);
 

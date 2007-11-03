@@ -87,6 +87,12 @@ function path_params($param_name, $param_value = '')
 ## Event Paths
 ## ############################################################################
 
+/**
+ * Return the appropriate path to an event or list of events.
+ *
+ * @param int $id If present, returns the path to a specific event
+ * @return string
+ */
 function event_path($id = null)
 {
     if ( !is_null($id) )
@@ -102,6 +108,12 @@ function event_path($id = null)
 ## Item Paths
 ## ############################################################################
 
+/**
+ * Return the appropriate path to an item or list of items.
+ *
+ * @param int $id If present, returns the path to a specific item
+ * @return string
+ */
 function item_path($id = null)
 {
     if ( !is_null($id) )
@@ -117,6 +129,12 @@ function item_path($id = null)
 ## Member Paths
 ## ############################################################################
 
+/**
+ * Return the appropriate path to a member or list of members.
+ *
+ * @param string $id If present, returns the path to a specific member
+ * @return string
+ */
 function member_path($id = null)
 {
     if ( !is_null($id) )
@@ -127,6 +145,12 @@ function member_path($id = null)
     return path_default('listmembers.php');
 }
 
+/**
+ * Return the appropriate path to add or edit a member.
+ *
+ * @param string $id If present, returns the path to edit a specific member
+ * @return string
+ */
 function edit_member_path($id = null)
 {
     if ( !is_null($id) )
@@ -141,6 +165,11 @@ function edit_member_path($id = null)
 ## News Paths
 ## ############################################################################
 
+/**
+ * Return the appropriate path to a list of news items.
+ *
+ * @return string
+ */
 function news_path()
 {
     return path_default('viewnews.php');
@@ -150,6 +179,12 @@ function news_path()
 ## Raid Paths
 ## ############################################################################
 
+/**
+ * Return the appropriate path to a raid or list of raids.
+ *
+ * @param int $id If present, returns the path to a specific raid
+ * @return string
+ */
 function raid_path($id = null)
 {
     if ( !is_null($id) )

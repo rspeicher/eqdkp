@@ -142,7 +142,7 @@ function get_database_size()
                     $db_name = (version_compare($version, '3.23.6', '>=')) ? "`{$dbname}`" : $dbname;
 
                     $sql = 'SHOW TABLE STATUS
-                        FROM ' . $db_name;
+                            FROM ' . $db_name;
                     $result = $db->sql_query($sql);
 
                     // For versions < 4.1.2, the db engine type has the column name 'Type' instead of 'Engine'

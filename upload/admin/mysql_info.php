@@ -25,11 +25,11 @@ class MySQL_Info extends EQdkp_Admin
     var $table_size    = 0;
     var $index_size    = 0;
     var $num_tables    = 0;
+    var $num_rows      = 0;
     
     function mysql_info()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
-        global $SID;
+        global $db;
         
         parent::eqdkp_admin();
         
@@ -53,69 +53,37 @@ class MySQL_Info extends EQdkp_Admin
     // ---------------------------------------------------------
     function display_info()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
-        global $SID, $dbname, $table_prefix;
+        global $db, $eqdkp, $tpl, $user;
+        global $dbname, $table_prefix;
         
 //        $mysql_version = preg_replace('/^((?:\d+\.?)+?)[^\d]*?$/', '\1', $mysql_version);
 
         // Get ourselves a comparable database version number
-        $ver = $this->mysql_version;
-        if (strpos($ver, 'community') !== false)
-        {
-            $ver = substr($ver, 0, strpos($ver, '-'));
-        }
+        $ver     = preg_replace('/[^0-9\.]/', '', $this->mysql_version);
+        $db_name = ( version_compare($ver, '3.23.6', '>=') ) ? "`$dbname`" : $dbname;
+        $dbsize  = 0;
+        
+        // Get table status
+        $sql = 'SHOW TABLE STATUS
+                FROM ' . $db_name;
+        $result = $db->query($sql);
         
         if ( version_compare($ver, '4.1.3', '<') )
         {
-            $db_name = ( version_compare($ver, '3.23.6', '>=') ) ? "`$dbname`" : $dbname;
-            $dbsize = 0;
-            
-            // Get table status
-            $sql = 'SHOW TABLE STATUS
-                    FROM ' . $db_name;
-            $result = $db->query($sql);
-                
             while ( $row = $db->fetch_record($result) )
             {
-/*                if ( isset($row['Type']) && $row['Type'] == 'MRG_MyISAM' )
-                {
-                    continue;
-                }
-*/
+                // FIXME: When would this ever happen?
                 if ( empty($table_prefix) )
                 {
                     continue;
                 }
                 
-                // Current row is an EQdkp table, get info for it
-                if ( preg_match('/^' . $table_prefix . '.+/', $row['Name']) )
-                {
-                    $tpl->assign_block_vars('table_row', array(
-                        'ROW_CLASS'  => $eqdkp->switch_row_class(),
-                        'TABLE_NAME' => $row['Name'],
-                        'ROWS'       => number_format($row['Rows'], ','),
-                        'TABLE_SIZE' => db_size($row['Data_length']),
-                        'INDEX_SIZE' => db_size($row['Index_length'])
-                    ));
-                    
-                    $this->num_tables++;
-                    $this->table_size += $row['Data_length'];
-                    $this->index_size += $row['Index_length'];
-                } // name match
-
-            } // while
+                $this->table_row($row);
+            }
         }
         // MySQL >= 4.1.3
         else
         {
-            $db_name = "`$dbname`";
-            $dbsize = 0;
-            
-            // Get table status
-            $sql = 'SHOW TABLE STATUS
-                    FROM ' . $db_name;
-            $result = $db->query($sql);
-
             while ( $row = $db->fetch_record($result) )
             {
                 if ( (isset($row['Engine']) && $row['Engine'] == 'MRG_MyISAM') || empty($table_prefix) )
@@ -123,23 +91,7 @@ class MySQL_Info extends EQdkp_Admin
                     continue;
                 }
                 
-                $total_rows = number_format($row['Rows'], ',');
-                
-                // Current row is an EQdkp table, get info for it
-                if ( preg_match('/^' . $table_prefix . '.+/', $row['Name']) )
-                {
-                    $tpl->assign_block_vars('table_row', array(
-                        'ROW_CLASS'  => $eqdkp->switch_row_class(),
-                        'TABLE_NAME' => $row['Name'],
-                        'ROWS'       => $total_rows,
-                        'TABLE_SIZE' => db_size($row['Data_length']),
-                        'INDEX_SIZE' => db_size($row['Index_length'])
-                    ));
-                    
-                    $this->num_tables++;
-                    $this->table_size += $row['Data_length'];
-                    $this->index_size += $row['Index_length'];
-                } // name match
+                $this->table_row($row);
             }
         }
 
@@ -149,9 +101,10 @@ class MySQL_Info extends EQdkp_Admin
             'DBVERSION' => $this->mysql_version,
             
             'NUM_TABLES'       => sprintf($user->lang['num_tables'], $this->num_tables),
-            'TOTAL_TABLE_SIZE' => db_size($this->table_size),
-            'TOTAL_INDEX_SIZE' => db_size($this->index_size),
-            'TOTAL_SIZE'       => db_size($this->table_size + $this->index_size),
+            'TOTAL_ROWS'       => number_format($this->num_rows),
+            'TOTAL_TABLE_SIZE' => $this->db_size($this->table_size),
+            'TOTAL_INDEX_SIZE' => $this->db_size($this->index_size),
+            'TOTAL_SIZE'       => $this->db_size($this->table_size + $this->index_size),
             
             'L_DATABASE_INFO'    => $user->lang['database_info'],
             'L_DATABASE_VERSION' => $user->lang['database_version'],
@@ -171,30 +124,63 @@ class MySQL_Info extends EQdkp_Admin
             'template_file' => 'admin/mysql_info.html',
             'display'       => true
         ));
-
     }
     
+    ## ########################################################################
+    ## Helper Methods
+    ## ########################################################################
+    
+    /**
+     * Format a number into an appropriate byte size
+     *
+     * @param string $size Number to format
+     * @return string
+     */
+    function db_size($size)
+    {
+        if ( $size >= 1048576 )
+        {
+            return sprintf('%.2f MB', ($size / 1048576));
+        }
+        elseif ( $size >= 1024 )
+        {
+            return sprintf('%.2f KB', ($size / 1024));
+        }
+        else
+        {
+            return sprintf('%.2f B', $size);
+        }
+    }
+    
+    /**
+     * Append a table data row for output
+     *
+     * @param string $row 
+     * @return void
+     */
+    function table_row($row)
+    {
+        global $eqdkp, $tpl;
+        global $table_prefix;
+        
+        if ( preg_match('/^' . $table_prefix . '.+/', $row['Name']) )
+        {
+            // Current row is an EQdkp table, get info for it
+            $tpl->assign_block_vars('table_row', array(
+                'ROW_CLASS'  => $eqdkp->switch_row_class(),
+                'TABLE_NAME' => $row['Name'],
+                'ROWS'       => number_format($row['Rows']),
+                'TABLE_SIZE' => $this->db_size($row['Data_length']),
+                'INDEX_SIZE' => $this->db_size($row['Index_length'])
+            ));
+            
+            $this->num_tables++;
+            $this->table_size += $row['Data_length'];
+            $this->index_size += $row['Index_length'];
+            $this->num_rows   += $row['Rows'];
+        }
+    }
 }
 
 $info = new MySQL_Info;
 $info->process();
-
-/*
- * Helper function 
- * db_size
- */
-function db_size($size)
-{
-    if ( $size >= 1048576 )
-    {
-        return sprintf('%.2f MB', ($size / 1048576));
-    }
-    elseif ( $size >= 1024 )
-    {
-        return sprintf('%.2f KB', ($size / 1024));
-    }
-    else
-    {
-        return sprintf('%.2f B', $size);
-    }
-}

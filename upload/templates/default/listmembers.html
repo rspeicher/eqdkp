@@ -51,10 +51,10 @@
 </table>
 </form>
 <!-- ENDIF -->
-<form method="post" action="{F_MEMBERS}" name="post">
+<form method="post" action="{F_MEMBERS}" name="post" id="listmembers">
 <table width="100%" border="0" cellspacing="1" cellpadding="2">
   <tr>
-    <th align="center" width="20" nowrap="nowrap">&nbsp;</th>
+    <th align="center" width="20" nowrap="nowrap"><input type="checkbox" id="checkall" onclick="checkAll('listmembers', this, 'compare_id')" /></th>
     <th align="left" width="35" nowrap="nowrap">&nbsp;</th>
     <th align="left" width="100%"><a href="{U_LIST_MEMBERS}o={O_NAME}{URI_ADDON}">{L_NAME}</a></th>
     <th align="left" width="100"><a href="{U_LIST_MEMBERS}o={O_RANK}{URI_ADDON}">{L_RANK}</a></th>

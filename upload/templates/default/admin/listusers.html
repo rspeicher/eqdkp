@@ -1,5 +1,5 @@
 <!-- INCLUDE page_header.html -->
-<form method="post" action="{F_MASS_UPDATE}" name="post">
+<form method="post" action="{F_MASS_UPDATE}" name="post" id="listusers">
 <table width="100%" border="0" cellspacing="1" cellpadding="2" class="borderless">
   <tr>
     <td align="center" class="menu">{USER_PAGINATION}</td>
@@ -10,7 +10,7 @@
     <th align="center" colspan="6">{L_MANAGE_USERS}</th>
   </tr>
   <tr>
-    <th align="center" width="25" nowrap="nowrap">&nbsp;</th>
+    <th align="center" width="25" nowrap="nowrap"><input type="checkbox" id="checkall" onclick="checkAll('listusers', this, 'user_id')" /></th>
     <th align="left" width="50%"><a href="{U_MANAGE_USERS}o={O_USERNAME}&amp;start={START}">{L_USERNAME}</a></th>
     <th align="left" width="50%"><a href="{U_MANAGE_USERS}o={O_EMAIL}&amp;start={START}">{L_EMAIL}</a></th>
     <th align="left" width="150" nowrap="nowrap"><a href="{U_MANAGE_USERS}o={O_LAST_VISIT}&amp;start={START}">{L_LAST_VISIT}</a></th>

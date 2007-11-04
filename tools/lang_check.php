@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  NOTICE -----------------------------------------------------------------------
  Because certain language keys are never used directly, but rather created 
  dynamically - 'noauth_u_event_list', for example - this list of unused keys 

@@ -39,6 +39,8 @@ if ( !defined('IN_ADMIN') )
             // See if we recognize the page/script we're on
             switch ( $matches[0] )
             {
+                // FIXME: A few more hardcoded paths
+                
                 // ---------------------------------------------------------
                 // Admin
                 // ---------------------------------------------------------
@@ -187,8 +189,7 @@ if ( !defined('IN_ADMIN') )
                     if ( !empty($matches[1]) )
                     {
                         preg_match('/^' . URI_EVENT . '=([0-9]{1,})/', $matches[1], $event_id);
-                        $event_name = get_object_name('event', $event_id[1]);
-                        $page .= '<a href="../viewevent.php' . $SID . '&amp;' . URI_EVENT . '=' . $event_id[1] . '" target="_top">' . $event_name . '</a>';
+                        $page .= '<a href="' . event_path($event_id[1]) . '" target="_top">' . get_object_name('event', $event_id[1]) . '</a>';
                     }
                     break;
                 // ---------------------------------------------------------
@@ -197,8 +198,7 @@ if ( !defined('IN_ADMIN') )
                     if ( !empty($matches[1]) )
                     {
                         preg_match('/^' . URI_ITEM . '=([0-9]{1,})/', $matches[1], $item_id);
-                        $item_name = get_object_name('item', $item_id[1]);
-                        $page .= '<a href="../viewitem.php' . $SID . '&amp;' . URI_ITEM . '=' . $item_id[1] . '" target="_top">' . $item_name . '</a>';
+                        $page .= '<a href="' . item_path($item_id[1]) . '" target="_top">' . get_object_name('item', $item_id[1]) . '</a>';
                     }
                     break;
                 // ---------------------------------------------------------
@@ -211,7 +211,7 @@ if ( !defined('IN_ADMIN') )
                     if ( !empty($matches[1]) )
                     {
                         preg_match('/^' . URI_NAME . '=([A-Za-z]{1,})/', $matches[1], $member_name);
-                        $page .= '<a href="../viewmember.php' . $SID . '&amp;' . URI_NAME . '=' . $member_name[1] . '" target="_top">' . $member_name[1] . '</a>';
+                        $page .= '<a href="' . member_path($member_name[1]) . '" target="_top">' . $member_name[1] . '</a>';
                     }
                     break;
                 // ---------------------------------------------------------
@@ -220,8 +220,7 @@ if ( !defined('IN_ADMIN') )
                     if ( !empty($matches[1]) )
                     {
                         preg_match('/^' . URI_RAID . '=([0-9]{1,})/', $matches[1], $raid_id);
-                        $raid_name = get_object_name('raid', $raid_id[1]);
-                        $page .= '<a href="../viewraid.php' . $SID . '&amp;' . URI_RAID . '=' . $raid_id[1] . '" target="_top">' . $raid_name . '</a>';
+                        $page .= '<a href="' . raid_path($raid_id[1]) . '" target="_top">' . get_object_name('raid', $raid_id[1]) . '</a>';
                     }
                     break;
             }
@@ -288,17 +287,17 @@ if ( !defined('IN_ADMIN') )
 
     $days = ((time() - $eqdkp->config['eqdkp_start']) / 86400);
 
-    $total_members_inactive = $db->query_first("SELECT count(*) FROM __members where `member_status` = '0'");
-    $total_members_active = $db->query_first("SELECT count(*) FROM __members where `member_status` = '1'");
+    $total_members_inactive = $db->query_first("SELECT COUNT(*) FROM __members WHERE (`member_status` = '0')");
+    $total_members_active = $db->query_first("SELECT COUNT(*) FROM __members WHERE (`member_status` = '1')");
     $total_members = $total_members_active . ' / ' . $total_members_inactive;
 
-    $total_raids = $db->query_first("SELECT count(*) FROM __raids");
+    $total_raids   = $db->query_first("SELECT COUNT(*) FROM __raids");
     $raids_per_day = sprintf("%.2f", ($total_raids / $days));
 
-    $total_items = $db->query_first("SELECT count(*) FROM __items");
+    $total_items   = $db->query_first("SELECT COUNT(*) FROM __items");
     $items_per_day = sprintf("%.2f", ($total_items / $days));
 
-    $total_logs = $db->query_first("SELECT count(*) FROM __logs");
+    $total_logs    = $db->query_first("SELECT COUNT(*) FROM __logs");
 
     if ( $raids_per_day > $total_raids )
     {
@@ -330,8 +329,8 @@ if ( !defined('IN_ADMIN') )
             'LOGIN'       => date($user->style['date_time'], $row['session_start']),
             'LAST_UPDATE' => date($user->style['date_time'], $row['session_current']),
             'LOCATION'    => $session_page,
-            'IP_ADDRESS'  => $row['session_ip'])
-        );
+            'IP_ADDRESS'  => preg_replace('/[^0-9\.]/', '', $row['session_ip'])
+        ));
     }
     $online_count = $db->num_rows($result);
 
@@ -343,7 +342,7 @@ if ( !defined('IN_ADMIN') )
         {
             $sql = "SELECT l.*, u.username
                     FROM __logs AS l, __users AS u
-                    WHERE u.`user_id` = l.`admin_id`
+                    WHERE (u.`user_id` = l.`admin_id`)
                     ORDER BY l.`log_date` DESC
                     LIMIT 10";
             $result = $db->query($sql);
@@ -430,7 +429,7 @@ if ( !defined('IN_ADMIN') )
                 {
                     $tpl->assign_block_vars('actions_row', array(
                         'ROW_CLASS'  => $eqdkp->switch_row_class(),
-                        'U_VIEW_LOG' => 'logs.php?' . URI_LOG . '='.$row['log_id'],
+                        'U_VIEW_LOG' => log_path($row['log_id']),
                         'ACTION'     => sanitize($logline)
                     ));
                 }
@@ -484,8 +483,8 @@ if ( !defined('IN_ADMIN') )
     $eqdkp->set_vars(array(
         'page_title'    => $user->lang['admin_index_title'],
         'template_file' => 'admin/admin_index.html',
-        'display'       => true)
-    );
+        'display'       => true
+    ));
 }
 // IN_ADMIN already defined, just output the menu
 else
@@ -570,8 +569,8 @@ else
 
         // Set the header with the first element
         $tpl->assign_block_vars('header_row', array(
-            'HEADER' => $v[0])
-        );
+            'HEADER' => $v[0]
+        ));
 
         foreach ( $v as $k2 => $row )
         {
@@ -586,8 +585,8 @@ else
             {
                 $tpl->assign_block_vars('header_row.menu_row', array(
                     'ROW_CLASS' => $eqdkp->switch_row_class(),
-                    'LINK'      => '<a href="' . $eqdkp_root_path . $row['link'] . '">' . $row['text'] . '</a>')
-                );
+                    'LINK'      => '<a href="' . $row['link'] . '">' . $row['text'] . '</a>'
+                ));
             }
         }
     }

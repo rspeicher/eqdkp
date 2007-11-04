@@ -43,7 +43,7 @@ function path_default($path, $admin = false)
 {
     global $eqdkp_root_path, $SID;
     
-    if ( $admin === true )
+    if ( !defined('IN_ADMIN') && $admin === true )
     {
         // Path is an admin page but we're not already in the admin folder, prefix it to the path
         $path = 'admin/' . $path;
@@ -123,6 +123,21 @@ function item_path($id = null)
     }
     
     return path_default('listitems.php');
+}
+
+## ############################################################################
+## Log Paths
+## ############################################################################
+
+function log_path($id = null)
+{
+    if ( !is_null($id) )
+    {
+        $id = intval($id);
+        return path_default('logs.php', true) . path_params(URI_LOG, $id);
+    }
+    
+    return path_default('logs.php', true);
 }
 
 ## ############################################################################

@@ -257,7 +257,7 @@ class Template {
             $this->compiled_code[$handle] = $this->compile($this->uncompiled_code[$handle]);
             $this->compile_write($handle, $this->compiled_code[$handle]);
 
-            eval($this->compiled_code[$handle]);
+            @eval($this->compiled_code[$handle]);
         }
 
         return true;

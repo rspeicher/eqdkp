@@ -103,7 +103,7 @@ function edit_adjustment_path($id = null)
         return path_default('addadj.php', true) . path_params(URI_ADJUSTMENT, $id);
     }
     
-    return path_default('addadj', true);
+    return path_default('addadj.php', true);
 }
 
 function edit_iadjustment_path($id = null)
@@ -113,12 +113,22 @@ function edit_iadjustment_path($id = null)
         return path_default('addiadj.php', true) . path_params(URI_ADJUSTMENT, $id);
     }
     
-    return path_default('addiadj', true);
+    return path_default('addiadj.php', true);
 }
 
 ## ############################################################################
 ## Event Paths
 ## ############################################################################
+
+function edit_event_path($id = null)
+{
+    if ( !is_null($id) )
+    {
+        return path_default('addevent.php', true) . path_params(URI_EVENT, $id);
+    }
+    
+    return path_default('addevent.php', true);
+}
 
 /**
  * Return the appropriate path to an event or list of events.
@@ -226,6 +236,16 @@ function news_path()
 ## ############################################################################
 ## Raid Paths
 ## ############################################################################
+
+function edit_raid_path($id = null)
+{
+    if ( !is_null($id) )
+    {
+        return path_default('addraid.php', true) . path_params(URI_RAID, $id);
+    }
+    
+    return path_default('addraid.php', true);
+}
 
 /**
  * Return the appropriate path to a raid or list of raids.

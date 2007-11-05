@@ -39,8 +39,8 @@ class Add_Event extends EQdkp_Admin
         // Vars used to confirm deletion
         $this->set_vars(array(
             'confirm_text'  => $user->lang['confirm_delete_event'],
-            'uri_parameter' => URI_EVENT)
-        );
+            'uri_parameter' => URI_EVENT
+        ));
         
         $this->assoc_buttons(array(
             'add' => array(
@@ -136,17 +136,18 @@ class Add_Event extends EQdkp_Admin
             '{L_ADDED_BY}' => $this->admin_user);
         $this->log_insert(array(
             'log_type'   => $log_action['header'],
-            'log_action' => $log_action)
-        );
+            'log_action' => $log_action
+        ));
         
         //
         // Success message
         //
         $success_message = sprintf($user->lang['admin_add_event_success'], $in->get('event_value', 0.00), sanitize($in->get('event_name')));
         $link_list = array(
-            $user->lang['list_events'] => 'listevents.php' . $SID,
-            $user->lang['add_event']   => 'addevent.php' . $SID,
-            $user->lang['add_raid']    => 'addraid.php' . $SID);
+            $user->lang['list_events'] => event_path(),
+            $user->lang['add_event']   => edit_event_path(),
+            $user->lang['add_raid']    => edit_raid_path()
+        );
         $this->admin_die($success_message, $link_list);
     }
     
@@ -172,7 +173,7 @@ class Add_Event extends EQdkp_Admin
         {
             $sql = "UPDATE __raids
                     SET `raid_name` = '" . $db->escape($event_name) . "'
-                    WHERE (`raid_name` = '{$this->old_event['event_name']}')";
+                    WHERE (`raid_name` = '" . $db->escape($this->old_event['event_name']) . "')";
             $db->query($sql);
         }
         
@@ -213,9 +214,10 @@ class Add_Event extends EQdkp_Admin
         //
         $success_message = sprintf($user->lang['admin_update_event_success'], $in->get('event_value', 0.00), sanitize($event_name));
         $link_list = array(
-            $user->lang['list_events'] => 'listevents.php' . $SID,
-            $user->lang['add_event']   => 'addevent.php' . $SID,
-            $user->lang['add_raid']    => 'addraid.php' . $SID);
+            $user->lang['list_events'] => event_path(),
+            $user->lang['add_event']   => edit_event_path(),
+            $user->lang['add_raid']    => edit_raid_path()
+        );
         $this->admin_die($success_message, $link_list);
     }
     
@@ -258,9 +260,9 @@ class Add_Event extends EQdkp_Admin
         //
         $success_message = sprintf($user->lang['admin_delete_event_success'], $this->old_event['event_value'], sanitize($this->old_event['event_name']));
         $link_list = array(
-            $user->lang['list_events'] => 'listevents.php' . $SID,
-            $user->lang['add_event']   => 'addevent.php' . $SID,
-            $user->lang['add_raid']    => 'addraid.php' . $SID
+            $user->lang['list_events'] => event_path(),
+            $user->lang['add_event']   => edit_event_path(),
+            $user->lang['add_raid']    => edit_raid_path()
         );
         $this->admin_die($success_message, $link_list);
     }
@@ -280,7 +282,7 @@ class Add_Event extends EQdkp_Admin
         {
             $this->old_event = array(
                 'event_name'  => $row['event_name'],
-                'event_value' => $row['event_value']
+                'event_value' => floatval($row['event_value'])
             );
         }
         $db->free_result($result);
@@ -300,8 +302,8 @@ class Add_Event extends EQdkp_Admin
             'EVENT_ID'    => $this->url_id,
             
             // Form values
-            'EVENT_NAME'  => stripslashes($this->event['event_name']),
-            'EVENT_VALUE' => stripslashes($this->event['event_value']),
+            'EVENT_NAME'  => sanitize($this->event['event_name'], ENT),
+            'EVENT_VALUE' => sanitize($this->event['event_value'], ENT),
             
             // Language
             'L_ADD_EVENT_TITLE' => $user->lang['addevent_title'],
@@ -321,8 +323,8 @@ class Add_Event extends EQdkp_Admin
             'MSG_VALUE_EMPTY' => $user->lang['fv_required_value'],
             
             // Buttons
-            'S_ADD' => ( !$this->url_id ) ? true : false)
-        );
+            'S_ADD' => ( !$this->url_id ) ? true : false
+        ));
         
         $eqdkp->set_vars(array(
             'page_title'    => page_title($user->lang['addevent_title']),

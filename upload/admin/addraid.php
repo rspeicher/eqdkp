@@ -1096,8 +1096,6 @@ class Add_Raid extends EQdkp_Admin
         //
         // Build member drop-down
         //
-        $js_members = array();
-        
         $sql = "SELECT member_name
                 FROM __members
                 ORDER BY member_name";
@@ -1108,12 +1106,8 @@ class Add_Raid extends EQdkp_Admin
                 'VALUE'  => sanitize($row['member_name'], ENT),
                 'OPTION' => $row['member_name'])
             );
-            
-            $js_members[] = "'" . sanitize($row['member_name']) . "'";
         }
         $db->free_result($result);
-        
-        $tpl->assign_var('JS_MEMBERS', '[' . implode(', ', $js_members) . ']');
         
         //
         // Build event drop-down

@@ -1,7 +1,4 @@
 <!-- INCLUDE page_header.html -->
-<script src="{EQDKP_ROOT_PATH}js/Autocomplete/Observer.js" type="text/javascript" charset="utf-8"></script>
-<script src="{EQDKP_ROOT_PATH}js/Autocomplete/Autocompleter.js" type="text/javascript" charset="utf-8"></script>
-<script src="{EQDKP_ROOT_PATH}js/Autocomplete/Autocompleter.Local.js" type="text/javascript" charset="utf-8"></script>
 <script language="JavaScript" type="text/javascript">
 function check_form()
 {
@@ -92,96 +89,6 @@ function addMember( newMember )
     return false;
 }
 </script>
-<script type="text/javascript">
-  //<![CDATA[
-  window.addEvent('domready', function(){
-  	var tokens = {JS_MEMBERS};
-
-  	var completer1 = new Autocompleter.Local($('ac_members'), tokens, {
-  		'delay': 50,
-  		'filterTokens': function() {
-  		  if ( this.queryValue != '' )
-  		  {
-    			var regex = new RegExp('^' + this.queryValue.escapeRegExp(), 'i');
-    			return this.tokens.filter(function(token){
-    				return regex.test(token);
-    			});
-			  }
-  		},
-  		'injectChoice': function(choice) {
-  			var el = new Element('li')
-  				.setHTML(this.markQueryValue(choice));
-  			el.inputValue = choice;
-  			this.addChoiceEvents(el).injectInside(this.choices);
-  		},
-  		'onSelect': function(choice) {
-  		  $('attendees').value += choice.value + "\n"
-  		  $('ac_members').value = ""
-		  }
-  	});
-  });
-  //]]>
-</script>
-<style type="text/css" media="screen">
-div.autocompleter-loading
-{
-	float:					left;
-	clear:					right;
-	background:			#fff url(http://www.cnet.com/html/rb/assets/global/autocompleter/images/spinner.gif) no-repeat center;
-	width:					20px;
-	height:					16px;
-}
-
-ul.autocompleter-choices
-{
-	position:				absolute;
-	margin:					0;
-	padding:				0;
-	list-style:				none;
-	border:					1px solid #eee;
-	background-color:		white;
-	border-right-color:		#ddd;
-	border-bottom-color:	#ddd;
-	text-align:				left;
-	font-family:			Verdana, Geneva, Arial, Helvetica, sans-serif;
-	z-index:				50;
-}
-
-ul.autocompleter-choices li
-{
-	position:				relative;
-	padding:				0.1em 1.5em 0.1em 1em;
-	cursor:					pointer;
-	font-weight:			normal;
-	font-size:				1em;
-}
-
-ul.autocompleter-choices li.autocompleter-selected
-{
-	background-color:		#444;
-	color:					#fff;
-}
-
-ul.autocompleter-choices span.autocompleter-queried
-{
-	font-weight:			bold;
-}
-
-ul.autocompleter-choices li.autocompleter-selected span.autocompleter-queried
-{
-	color:					#9FCFFF;
-}
-
-ul.autocompleter-choices span.example-info
-{
-	position:			absolute;
-	top:				2px;
-	right:				4px;
-	padding:			1px 2px;
-	font-size:			0.9em;
-	color:				#888;
-}
-</style>
 
 <form method="post" action="{F_ADD_RAID}" name="post" onsubmit="return check_form(this)">
 <input type="hidden" name="{URI_RAID}" value="{RAID_ID}" />
@@ -197,7 +104,7 @@ ul.autocompleter-choices span.example-info
       
       <table width="100%" border="0" cellpadding="3" cellspacing="0" class="borderless">
         <tr>
-          <td colspan="3">{L_SEARCH_MEMBERS}: <input type="text" name="ac_members" id="ac_members" size="35" class="input" /><br /></td>
+          <td colspan="3">{L_SEARCH_MEMBERS}: <input type="text" name="memberSearch" size="35" maxlength="255" value="" class="input" onkeyup="fnSearch(this.name, 'member_name')" /></td>
         </tr>
         <tr>
           <td>

@@ -349,7 +349,7 @@ class Upgrade
         /*
         NOTE: Haven't decided if we're going to upgrade upgrade.php for this release.
         
-        While we decided, these are just queries that need to be run - this method won't actually run them (yet).
+        While we decide, these are just queries that need to be run - this method won't actually run them (yet).
         
         -- These are necessary because we changed to a REPLACE INTO syntax
         ALTER TABLE __auth_users DROP INDEX `user_id`;
@@ -361,6 +361,15 @@ class Upgrade
         ALTER TABLE __raid_attendees DROP INDEX `member_name`;
         -- Before next query is run, we might need to remove possible duplicates, so it doesn't error out
         ALTER TABLE __raid_attendees ADD UNIQUE `raid_member` ( `raid_id` , `member_name` );
+        
+        -- Update all FLOAT values to larger DOUBLEs
+        ALTER TABLE __adjustments CHANGE `adjustment_value` `adjustment_value` DOUBLE( 11, 2 ) NOT NULL DEFAULT '0.00'
+        ALTER TABLE __events CHANGE `event_value` `event_value` DOUBLE( 11, 2 ) NOT NULL DEFAULT '0.00'
+        ALTER TABLE __items CHANGE `item_value` `item_value` DOUBLE( 11, 2 ) NOT NULL DEFAULT '0.00'
+        ALTER TABLE __members CHANGE `member_earned` `member_earned` DOUBLE( 11, 2 ) NOT NULL DEFAULT '0.00'
+        ALTER TABLE __members CHANGE `member_spent` `member_spent` DOUBLE( 11, 2 ) NOT NULL DEFAULT '0.00'
+        ALTER TABLE __members CHANGE `member_adjustment` `member_adjustment` DOUBLE( 11, 2 ) NOT NULL DEFAULT '0.00'
+        ALTER TABLE __raids CHANGE `raid_value` `raid_value` DOUBLE( 11, 2 ) NOT NULL DEFAULT '0.00'
         */
     }
 

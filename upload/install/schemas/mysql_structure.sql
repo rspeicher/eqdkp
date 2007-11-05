@@ -80,7 +80,7 @@ CREATE TABLE eqdkp_member_user (
 DROP TABLE IF EXISTS eqdkp_adjustments;
 CREATE TABLE `eqdkp_adjustments` (
   `adjustment_id` mediumint(8) unsigned NOT NULL auto_increment,
-  `adjustment_value` float(11,2) default NULL,
+  `adjustment_value` double(11,2) NOT NULL default '0.00',
   `adjustment_date` int(11) NOT NULL default '0',
   `member_name` varchar(30) default NULL,
   `adjustment_reason` varchar(255) default NULL,
@@ -94,7 +94,7 @@ DROP TABLE IF EXISTS eqdkp_events;
 CREATE TABLE `eqdkp_events` (
   `event_id` smallint(5) unsigned NOT NULL auto_increment,
   `event_name` varchar(255) default NULL,
-  `event_value` float(6,2) default NULL,
+  `event_value` double(11,2) NOT NULL default '0.00',
   `event_added_by` varchar(30) NOT NULL,
   `event_updated_by` varchar(30),
   PRIMARY KEY (`event_id`)
@@ -106,7 +106,7 @@ CREATE TABLE `eqdkp_items` (
   `item_name` varchar(255) default NULL,
   `item_buyer` varchar(50) default NULL,
   `raid_id` int(10) unsigned NOT NULL default '0',
-  `item_value` float(6,2) default NULL,
+  `item_value` double(11,2) NOT NULL default '0.00',
   `item_date` int(11) NOT NULL default '0',
   `item_added_by` varchar(30) NOT NULL,
   `item_updated_by` varchar(30),
@@ -118,9 +118,9 @@ DROP TABLE IF EXISTS eqdkp_members;
 CREATE TABLE `eqdkp_members` (
   `member_id` smallint(5) unsigned NOT NULL auto_increment,
   `member_name` varchar(30) NOT NULL UNIQUE,
-  `member_earned` float(11,2) NOT NULL default '0.00',
-  `member_spent` float(11,2) NOT NULL default '0.00',
-  `member_adjustment` float(11,2) NOT NULL default '0.00',
+  `member_earned` double(11,2) NOT NULL default '0.00',
+  `member_spent` double(11,2) NOT NULL default '0.00',
+  `member_adjustment` double(11,2) NOT NULL default '0.00',
   `member_status` ENUM('0','1') NOT NULL default '1',
   `member_firstraid` int(11) NOT NULL default '0',
   `member_lastraid` int(11) NOT NULL default '0',
@@ -188,7 +188,7 @@ CREATE TABLE `eqdkp_raids` (
   `raid_name` varchar(255) default NULL,
   `raid_date` int(11) NOT NULL default '0',
   `raid_note` varchar(255) default NULL,
-  `raid_value` float(6,2) NOT NULL default '0.00',
+  `raid_value` double(11,2) NOT NULL default '0.00',
   `raid_added_by` varchar(30) NOT NULL,
   `raid_updated_by` varchar(30),
   PRIMARY KEY  (`raid_id`)

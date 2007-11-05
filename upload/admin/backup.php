@@ -52,7 +52,7 @@ class Backup extends EQdkp_Admin
     // ---------------------------------------------------------
     function display_menu()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
+        global $db, $eqdkp, $user, $tpl, $pm, $table_prefix;
         global $SID;
 		
 		// 'Dynamic' offering of backup format types
@@ -74,16 +74,27 @@ class Backup extends EQdkp_Admin
 			'TYPE'	=> 'text'
 		));
 
+		// Check if the tables have a prefix. This will affect how plugin tables are backed up.
+		if( empty($table_prefix) )
+		{
+			$tp_warning = $user->lang['backup_no_table_prefix'];
+		}
+		else
+		{
+			$tp_warning = false;
+		}
+
 		// Assign the rest of the variables.
         $tpl->assign_vars(array(
-            'F_BACKUP'            => 'backup.php' . $SID,
-            'L_BACKUP_DATABASE'   => $user->lang['backup_database'],
-            'L_BACKUP_TITLE'      => $user->lang['backup_title'],
-            'L_BACKUP_TYPE'       => $user->lang['backup_type'],
-            'L_CREATE_TABLE'      => $user->lang['create_table'],
-            'L_SKIP_NONESSENTIAL' => $user->lang['skip_nonessential'],
-            'L_YES'               => $user->lang['yes'],
-            'L_NO'                => $user->lang['no']
+            'F_BACKUP'             => 'backup.php' . $SID,
+            'L_BACKUP_DATABASE'    => $user->lang['backup_database'],
+            'L_BACKUP_TITLE'       => $user->lang['backup_title'],
+            'L_BACKUP_TYPE'        => $user->lang['backup_type'],
+            'L_CREATE_TABLE'       => $user->lang['create_table'],
+            'L_SKIP_NONESSENTIAL'  => $user->lang['skip_nonessential'],
+			'TABLE_PREFIX_WARNING' => $tp_warning,
+            'L_YES'                => $user->lang['yes'],
+            'L_NO'                 => $user->lang['no']
         ));
         
         $eqdkp->set_vars(array(
@@ -98,33 +109,59 @@ class Backup extends EQdkp_Admin
     // ---------------------------------------------------------
     function do_backup()
     {
-        global $db, $eqdkp, $user, $tpl, $pm, $dbhost, $in;
+		global $eqdkp, $user, $tpl, $pm, $in;
+        global $db, $dbhost, $table_prefix;
         global $SID;
-        
-        $tables = array(
-            '__adjustments',
-            '__auth_options',
-            '__auth_users',
-            '__config',
-            '__events',
-            '__items',
-            '__logs',
-            '__members',
-            '__member_ranks',
-            '__member_user',
-            '__news',
-            '__plugins',
-            '__raids',
-            '__raid_attendees',
-            '__sessions',
-            '__styles',
-            '__style_config',
-            '__users',
-            // Game-specific tables
-            '__classes',
-            '__races',
-            '__factions',
-        );
+
+        $tables = array();
+
+		// Attempt to find all the tables associated with this installation of EQdkp
+		if( !empty($table_prefix) )
+		{
+			$all_tables = get_tables();
+			
+			// Only add the tables for EQdkp
+			foreach( $all_tables as $tablename )
+			{
+				if( strpos($tablename, $table_prefix) !== false )
+				{
+					$tables[] = $tablename;
+				}
+			}
+		}
+		else
+		{
+			// In this case, plugin tables won't be discovered and backed up.
+			$tables = array(
+				'__adjustments',
+				'__auth_options',
+				'__auth_users',
+				'__config',
+				'__events',
+				'__items',
+				'__logs',
+				'__members',
+				'__member_ranks',
+				'__member_user',
+				'__news',
+				'__plugins',
+				'__raids',
+				'__raid_attendees',
+				'__sessions',
+				'__styles',
+				'__style_config',
+				'__users',
+				// Game-specific tables
+				'__classes',
+				'__races',
+				'__factions',
+			);
+			
+			foreach( $tables as $key => $table )
+			{
+				$tables[$key] = $this->_generate_table_name($table);
+			}
+		}
           
 		$time = time();
 		$run_comp = false;
@@ -196,7 +233,7 @@ class Backup extends EQdkp_Admin
         
         foreach ( $tables as $table )
         {
-            $tablename        = $this->_generate_table_name($table);
+            $tablename        = $table;
             $table_sql_string = $this->_create_table_sql_string($tablename);
             $data_sql_string  = $this->_create_data_sql_string($tablename);
         

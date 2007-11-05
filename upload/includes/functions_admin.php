@@ -195,3 +195,35 @@ function get_database_size()
     return $database_size;
 
 }
+
+
+/**
+* Get tables of a database
+*/
+function get_tables()
+{
+	global $db;
+
+    switch ($db->sql_layer)
+    {
+        case 'mysql':
+        case 'mysql4':
+        case 'mysqli':
+            $sql = 'SHOW TABLES';
+        break;
+    }
+
+    $result = $db->query($sql);
+
+    $tables = array();
+
+    while ($row = $db->fetch_record($result))
+    {
+        $tables[] = current($row);
+    }
+
+    $db->free_result($result);
+
+    return $tables;
+}
+

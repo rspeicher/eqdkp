@@ -4,11 +4,15 @@
   <tr>
     <th align="center" colspan="6">{L_BACKUP_TITLE}</th>
   </tr>
+  <!-- IF TABLE_PREFIX_WARNING -->
+  <tr>
+    <td colspan="2" class="row2">{TABLE_PREFIX_WARNING}</td>
+  </tr>
+  <!-- ENDIF -->
   <tr>
     <td width="100" nowrap="nowrap" class="row1">{L_CREATE_TABLE}</td>
-    <td width="50%" nowrap="nowrap" class="row2">{L_YES}<input type="radio" name="create_table" value="Y" checked/> {L_NO}<input type="radio" name="create_table" value="N" /></td>
+    <td width="50%" nowrap="nowrap" class="row2"><input type="radio" name="create_table" value="Y" checked/>{L_YES} &nbsp;<input type="radio" name="create_table" value="N" />{L_NO}</td>
   </tr>
-  <tr> 
   <tr>
     <td width="100" nowrap="nowrap" class="row1">{L_BACKUP_TYPE}</td>
     <td width="50%" nowrap="nowrap" class="row2">

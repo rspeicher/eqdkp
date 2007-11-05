@@ -84,6 +84,39 @@ function path_params($param_name, $param_value = '')
 }
 
 ## ############################################################################
+## Adjustment Paths
+## ############################################################################
+
+function adjustment_path($id = null)
+{
+    if ( !is_null($id) )
+    {
+    }
+    
+    return path_default('listadj.php', true);
+}
+
+function edit_adjustment_path($id = null)
+{
+    if ( !is_null($id) )
+    {
+        return path_default('addadj.php', true) . path_params(URI_ADJUSTMENT, $id);
+    }
+    
+    return path_default('addadj', true);
+}
+
+function edit_iadjustment_path($id = null)
+{
+    if ( !is_null($id) )
+    {
+        return path_default('addiadj.php', true) . path_params(URI_ADJUSTMENT, $id);
+    }
+    
+    return path_default('addiadj', true);
+}
+
+## ############################################################################
 ## Event Paths
 ## ############################################################################
 

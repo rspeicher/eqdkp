@@ -10,8 +10,12 @@
   </tr>
   <tr> 
   <tr>
-    <td width="100" nowrap="nowrap" class="row1">{L_GZIP_CONTENT}</td>
-    <td width="50%" nowrap="nowrap" class="row2">{L_YES}<input type="radio" name="gzip" value="Y" /> {L_NO}<input type="radio" name="gzip" value="N" checked/></td>
+    <td width="100" nowrap="nowrap" class="row1">{L_BACKUP_TYPE}</td>
+    <td width="50%" nowrap="nowrap" class="row2">
+    <!-- BEGIN methods -->
+    <label><!-- IF methods.S_LAST_ROW --><input name="method" id="method" checked="checked"<!-- ELSE --><input name="method"<!-- ENDIF --> type="radio" class="radio" value="{methods.TYPE}" /> {methods.TYPE}</label>&nbsp;
+    <!-- END methods -->
+    </td>
   </tr>
   <tr>
     <th align="center" colspan="6">

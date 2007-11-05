@@ -492,4 +492,9 @@ $lang = array_merge($lang, array(
     
     // Form validation
     'fv_turnin_noitems' => "%1\$s has no purchased items to transfer.",
+    
+    // Upgrade
+    'upgrade_complete'    => "No upgrade necessary.",
+    'upgrade_continue'    => "Continuing in %d seconds...",
+    'upgrade_instruction' => "You are currently running EQdkp <b>%1\$s</b>. Click 'Upgrade' below to upgrade to <b>%2\$s</b>.",
 ));

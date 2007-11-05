@@ -566,7 +566,7 @@ function meta_refresh($time, $url)
 
     // For XHTML compatibility we change back & to &amp;
     $tpl->assign_vars(array(
-        'META' => '<meta http-equiv="refresh" content="' . $time . ';url=' . str_replace('&', '&amp;', $url) . '" />'
+        'META' => '<meta http-equiv="refresh" content="' . $time . ';url=' . $url . '" />'
     ));
 }
 

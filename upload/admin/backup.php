@@ -298,7 +298,7 @@ class Backup extends EQdkp_Admin
 			$search         = array("\\", "'", "\x00", "\x0a", "\x0d", "\x1a", '"');
 			$replace        = array("\\\\", "\\'", '\0', '\n', '\r', '\Z', '\\"');
 			$fields         = implode(', ', $field_set);
-			$field_string   = 'INSERT INTO ' . $tablename . ' (' . $fields . ') VALUES ';
+			$field_string   = 'INSERT INTO `' . $tablename . '` (' . $fields . ') VALUES ';
 
 			// Generate the data for the table. 
 			// Note that the data dump is done without multi-values.
@@ -325,7 +325,7 @@ class Backup extends EQdkp_Admin
 				}
 				$query .= implode(', ', $values) . ')';
 
-				$sql_string .= $field_string . $query . ";\n";
+				$sql_string .= $query . ";\n";
 			}
 			mysql_free_result($result);
 		}

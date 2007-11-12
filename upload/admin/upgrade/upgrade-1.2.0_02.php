@@ -25,15 +25,5 @@ $VERSION = '1.2.0B2';
 if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
 {
     Upgrade::set_version($VERSION);
-    Upgrade::progress("Completed upgrade to $VERSION.");
+    Upgrade::progress($VERSION);
 }
-
-$queries = array(
-    "ALTER TABLE __users ADD user_lastpage varchar(100) default '' AFTER user_lastvisit;",
-    "ALTER TABLE __plugins ADD plugin_version varchar(7);",
-    "CREATE TABLE IF NOT EXISTS __member_user (
-       member_id smallint(5) unsigned NOT NULL,
-       user_id smallint(5) unsigned NOT NULL,
-       KEY member_id (member_id),
-       KEY user_id (user_id));",
-);

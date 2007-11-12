@@ -23,25 +23,23 @@ $user->check_auth('a_');
 
 // I require MySQL version 4.0.4 minimum.
 // TODO: ^ You do? for what?
-$version = mysql_get_server_info();
-if ( version_compare($version, '4.0', '<') )
+$mysql_version = mysql_get_server_info();
+if ( version_compare($mysql_version, '4.0', '<') )
 {
-    message_die("MySQL version 4.0 or above is required for EQdkp. You are currently running {$version}.");
+    message_die("MySQL version 4.0 or above is required for EQdkp. You are currently running {$mysql_version}.");
 }
+unset($mysql_version);
 
-// As of 1.4.0a, we're checking against an eqdkp_version config value to
-// determine what we need to upgrade. So if that doesn't exist, set it here
-if ( !isset($eqdkp->config['eqdkp_version']) )
-{
-    $eqdkp->config_set('eqdkp_version', EQDKP_VERSION);
-}
-elseif ( EQDKP_VERSION == $eqdkp->config['eqdkp_version'] )
+// If our database version is already at the script version, bounce them back 
+// to the entrance with a notification
+if ( isset($eqdkp->config['eqdkp_version']) && EQDKP_VERSION == $eqdkp->config['eqdkp_version'] )
 {
     if ( $in->exists('run') )
     {
         header('Location: ' . path_default('upgrade.php', true));
+        exit;
     }
-    message_die($user->lang['upgrade_complete']);
+    message_die(sprintf($user->lang['upgrade_complete'], EQDKP_VERSION));
 }
 
 class Upgrade extends EQdkp_Admin
@@ -69,20 +67,29 @@ class Upgrade extends EQdkp_Admin
                 'check'   => 'a_'
             ),
         ));
-
-        $db->error_die(false);
     }
     
     function upgrade_run()
     {
-        global $eqdkp;
+        global $eqdkp, $in, $user;
         
-        $upgrade_files = $this->find_upgrade_files();
-        
-        foreach ( $upgrade_files as $file )
+        if ( $in->exists('eqdkp_version') )
         {
-            unset($VERSION);
-            include_once("upgrade/{$file}");
+            // We're coming from the version selection drop-down
+            // Set the database value to the input value and run as normal
+            $version = preg_replace('/[^\w\.]/', '', $in->get('eqdkp_version'));
+            Upgrade::set_version($version);
+            Upgrade::progress(sprintf($user->lang['upgrade_started'], $version));
+        }
+        else
+        {
+            $upgrade_files = $this->_find_upgrade_files();
+        
+            foreach ( $upgrade_files as $file )
+            {
+                unset($VERSION);
+                include_once("upgrade/{$file}");
+            }
         }
     }
 
@@ -90,10 +97,35 @@ class Upgrade extends EQdkp_Admin
     {
         global $db, $eqdkp, $user, $tpl, $pm;
         global $SID;
-
+        
+        if ( !isset($eqdkp->config['eqdkp_version']) )
+        {
+            // No version configuration variable, meaning we're 1.3.2 or lower
+            // So have the user select their version, just this once
+            $tpl->assign_var('S_SELECTVERSION', true);
+            
+            // We can hard-code these version numbers because they'll never change
+            $versions = array(
+                '1.3.2', '1.3.1', '1.3.0', '1.2.0', '1.2.0RC2', '1.2.0RC1', 
+                '1.2.0B2', '1.2.0B1', '1.1.0', '1.0.0'
+            );
+            foreach ( $versions as $version )
+            {
+                $tpl->assign_block_vars('version_row', array(
+                    'VERSION' => $version
+                ));
+            }
+            
+            $instructions = $user->lang['upgrade_selversion'];
+        }
+        else
+        {
+            $instructions = sprintf($user->lang['upgrade_instruction'], $eqdkp->config['eqdkp_version'], EQDKP_VERSION);
+        }
+        
         $tpl->assign_vars(array(
             'L_EQDKP_UPGRADE'       => $user->lang['eqdkp_upgrade'],
-            'L_UPGRADE_INSTRUCTION' => sprintf($user->lang['upgrade_instruction'], $eqdkp->config['eqdkp_version'], EQDKP_VERSION),
+            'L_UPGRADE_INSTRUCTION' => $instructions,
             'L_UPGRADE'             => $user->lang['upgrade'],
         ));
 
@@ -104,11 +136,17 @@ class Upgrade extends EQdkp_Admin
         ));
     }
     
-    ## ############################################################################
+    ## ########################################################################
     ## Helper methods
-    ## ############################################################################
+    ## ########################################################################
     
-    function find_upgrade_files()
+    /**
+     * Get an array of valid upgrade scripts.
+     *
+     * @return array
+     * @access private
+     */
+    function _find_upgrade_files()
     {
         $retval = array();
         
@@ -128,8 +166,33 @@ class Upgrade extends EQdkp_Admin
         return $retval;
     }
     
+    ## ########################################################################
+    ## Static helper methods
+    ## ########################################################################
+    
     /**
-     * Display a progress report message to the user before redirecting them to upgrade.php to run the next process
+     * Execute an array of query strings
+     *
+     * @param array $queries Array of SQL queries
+     * @return void
+     * @static
+     */
+    function execute($queries)
+    {
+        global $db;
+        
+        foreach ( $queries as $sql )
+        {
+            $db->query($sql);
+        }
+    }
+    
+    /**
+     * Display a progress report message to the user before redirecting them to 
+     * upgrade.php to run the next process
+     * 
+     * Note: If $message is nothing but a version string, it will automatically 
+     * become "Completed upgrade to $VERSION."
      *
      * @param string $message Message to display
      * @return void
@@ -139,12 +202,18 @@ class Upgrade extends EQdkp_Admin
     {
         global $user;
         
-        meta_refresh(3, path_default('upgrade.php', true) . path_params('run'));
-        message_die($message . "<br /><br />" . sprintf($user->lang['upgrade_continue'], 3));
+        if ( preg_match('/^[\w\.]+$/', $message) )
+        {
+            $message = sprintf($user->lang['upgrade_progress'], $message);
+        }
+        
+        $delay = 2;
+        meta_refresh($delay, path_default('upgrade.php', true) . path_params('run'));
+        message_die($message . "<br /><br />" . sprintf($user->lang['upgrade_continue'], $delay));
     }
     
     /**
-     * Updates the database version to $version
+     * Updates the version configuration variable to $version
      *
      * @param string $version Version string
      * @return void
@@ -166,6 +235,14 @@ class Upgrade extends EQdkp_Admin
     function should_run($version)
     {
         global $eqdkp, $in;
+        
+        if ( !isset($eqdkp->config['eqdkp_version']) )
+        {
+            // If we included an upgrade file and we don't have a prior version set,
+            // something went wrong. Bounce them back to the selection page.
+            header('Location: ' . path_default('upgrade.php', true));
+            exit;
+        }
         
         if ( $in->exists('run') && isset($version) && version_compare($eqdkp->config['eqdkp_version'], $version, '<') )
         {

@@ -24,10 +24,10 @@ $VERSION = '1.2.0RC1';
 
 if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
 {
+    Upgrade::execute(array(
+        "ALTER TABLE __config ADD PRIMARY KEY(config_name)"
+    ));
+    
     Upgrade::set_version($VERSION);
-    Upgrade::progress("Completed upgrade to $VERSION.");
+    Upgrade::progress($VERSION);
 }
-
-$queries = array(
-    "ALTER TABLE __config ADD PRIMARY KEY(config_name);"
-);

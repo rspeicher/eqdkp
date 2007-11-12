@@ -24,30 +24,21 @@ $VERSION = '1.3.2';
 
 if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
 {
-    Upgrade::set_version($VERSION);
-    Upgrade::progress("Completed upgrade to $VERSION.");
-}
-
-/*
-$sql = "SELECT config_value FROM __config WHERE config_name = 'default_game'";
-$result = $db->query_first($sql);
-
-$sql = array();
-
-if ( $result == "WoW" )
-{
-    $sql[] = "INSERT IGNORE INTO __races (race_id, race_name) VALUES (9, 'Draenei')";
-    $sql[] = "INSERT IGNORE INTO __races (race_id, race_name) VALUES (10, 'Blood Elf')";
-    $sql[] = "UPDATE __classes SET class_max_level = 70 WHERE class_max_level = 60";
-}
-
-$sql[] = "UPDATE __auth_options SET auth_value = 'a_backup' WHERE (auth_id = '36')";
-
-if ( count($sql) > 0 ) 
-{
-    foreach ( $sql as $query )
+    global $eqdkp;
+    
+    $queries = array();
+    
+    if ( isset($eqdkp->config['default_game']) && $eqdkp->config['default_game'] == 'WoW' )
     {
-        $db->query($query);
+        $queries[] = "INSERT IGNORE INTO __races (race_id, race_name) VALUES (9, 'Draenei')";
+        $queries[] = "INSERT IGNORE INTO __races (race_id, race_name) VALUES (10, 'Blood Elf')";
+        $queries[] = "UPDATE __classes SET class_max_level = 70 WHERE class_max_level = 60";
     }
+    
+    $queries[] = "UPDATE __auth_options SET auth_value = 'a_backup' WHERE (auth_id = '36')";
+    
+    Upgrade::execute($queries);
+    
+    Upgrade::set_version($VERSION);
+    Upgrade::progress($VERSION);
 }
-*/

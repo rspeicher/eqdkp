@@ -25,7 +25,5 @@ $VERSION = '1.2.0';
 if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
 {
     Upgrade::set_version($VERSION);
-    Upgrade::progress("Completed upgrade to $VERSION.");
+    Upgrade::progress($VERSION);
 }
-
-// No changes required!

@@ -6,7 +6,16 @@
   </tr>
   <tr>
     <td class="row1" align="center">
+    <!-- IF S_SELECTVERSION -->
+    <select name="eqdkp_version">
       <br />{L_UPGRADE_INSTRUCTION}<br /><br />
+      <!-- BEGIN version_row -->
+      <option value="{version_row.VERSION}">{version_row.VERSION}</option>
+      <!-- END version_row -->
+    </select><br /><br />
+    <!-- ELSE -->
+      <br />{L_UPGRADE_INSTRUCTION}<br /><br />
+    <!-- ENDIF -->
     </td>
   </tr>
   <tr>

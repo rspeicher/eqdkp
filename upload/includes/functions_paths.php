@@ -212,7 +212,7 @@ function member_path($id = null)
 {
     if ( !is_null($id) )
     {
-        $id = intval($id);
+        $id = sanitize($id, ENT);
         return path_default('viewmember.php') . path_params(URI_NAME, $id);
     }
     
@@ -229,7 +229,7 @@ function edit_member_path($id = null)
 {
     if ( !is_null($id) )
     {
-        $id = intval($id);
+        $id = sanitize($id, ENT);
         return path_default('manage_members.php', true) . path_params(array('mode' => 'addmember', URI_NAME => $id));
     }
     

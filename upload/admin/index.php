@@ -39,8 +39,6 @@ if ( !defined('IN_ADMIN') )
             // See if we recognize the page/script we're on
             switch ( $matches[0] )
             {
-                // FIXME: A few more hardcoded paths
-                
                 // ---------------------------------------------------------
                 // Admin
                 // ---------------------------------------------------------
@@ -49,7 +47,7 @@ if ( !defined('IN_ADMIN') )
                     if ( (!empty($matches[1])) && (preg_match('/^' . URI_ADJUSTMENT . '=([0-9]{1,})/', $matches[1], $adjustment_id)) )
                     {
                         $page  = $user->lang['editing_groupadj'] . ': ';
-                        $page .= '<a href="addadj.php' . $SID . '&amp;' . URI_ADJUSTMENT . '=' . $adjustment_id[1] . '">' . $adjustment_id[1] . '</a>';
+                        $page .= '<a href="' . edit_adjustment_path($adjustment_id[1]) . '">' . $adjustment_id[1] . '</a>';
                     }
                     break;
                 // ---------------------------------------------------------
@@ -58,7 +56,7 @@ if ( !defined('IN_ADMIN') )
                     if ( (!empty($matches[1])) && (preg_match('/^' . URI_ADJUSTMENT . '=([0-9]{1,})/', $matches[1], $adjustment_id)) )
                     {
                         $page  = $user->lang['editing_indivadj'] . ': ';
-                        $page .= '<a href="addiadj.php' . $SID . '&amp;' . URI_ADJUSTMENT . '=' . $adjustment_id[1] . '">' . $adjustment_id[1] . '</a>';
+                        $page .= '<a href="' . edit_iadjustment_path($adjustment_id[1]) . '">' . $adjustment_id[1] . '</a>';
                     }
                     break;
                 // ---------------------------------------------------------
@@ -68,7 +66,7 @@ if ( !defined('IN_ADMIN') )
                     {
                         $item_name = get_object_name('item', $item_id[1]);
                         $page  = $user->lang['editing_item'] . ': ';
-                        $page .= '<a href="additem.php' . $SID . '&amp;' . URI_ITEM . '=' . $item_id[1] . '">' . $item_name . '</a>';
+                        $page .= '<a href="' . edit_item_path($item_id[1]) . '">' . $item_name . '</a>';
                     }
                     break;
                 // ---------------------------------------------------------
@@ -78,7 +76,7 @@ if ( !defined('IN_ADMIN') )
                     {
                         $news_name = get_object_name('news', $news_id[1]);
                         $page  = $user->lang['editing_item'] . ': ';
-                        $page .= '<a href="addnews.php' . $SID . '&amp;' . URI_NEWS . '=' . $news_id[1] . '">' . $news_name . '</a>';
+                        $page .= '<a href="' . edit_news_path($news_id[1]) . '">' . $news_name . '</a>';
                     }
                     break;
                 // ---------------------------------------------------------
@@ -89,7 +87,7 @@ if ( !defined('IN_ADMIN') )
                     {
                         $raid_name = get_object_name('raid', $raid_id[1]);
                         $page  = $user->lang['editing_raid'] . ': ';
-                        $page .= '<a href="addraid.php' . $SID . '&amp;' . URI_RAID . '=' . $raid_id[1] . '">' . $raid_name . '</a>';
+                        $page .= '<a href="' . edit_raid_path($raid_id[1]) . '">' . $raid_name . '</a>';
                     }
                     break;
                 // ---------------------------------------------------------

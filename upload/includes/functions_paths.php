@@ -232,14 +232,30 @@ function edit_member_path($id = null)
 ## News Paths
 ## ############################################################################
 
+function edit_news_path($id = null)
+{
+    if ( !is_null($id) )
+    {
+        return path_default('addnews.php', true) . path_params(URI_NEWS, $id);
+    }
+    
+    return path_default('addnews.php', true);
+}
+
 /**
  * Return the appropriate path to a list of news items.
  *
+ * @param bool $admin If true, returns the path to a list of news entries for editing
  * @return string
  */
-function news_path()
+function news_path($admin = false)
 {
-    return path_default('viewnews.php');
+    if ( $admin )
+    {
+        return path_default('listnews.php', true);
+    }
+    
+    return path_default('viewnews.php', false);
 }
 
 ## ############################################################################

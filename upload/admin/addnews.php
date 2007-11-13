@@ -93,8 +93,8 @@ class Add_News extends EQdkp_Admin
 
         $this->fv->is_filled(array(
             'news_headline' => $user->lang['fv_required_headline'],
-            'news_message'  => $user->lang['fv_required_message'])
-        );
+            'news_message'  => $user->lang['fv_required_message']
+        ));
 
         return $this->fv->is_error();
     }
@@ -138,8 +138,8 @@ class Add_News extends EQdkp_Admin
         //
         $success_message = $user->lang['admin_add_news_success'];
         $link_list = array(
-            $user->lang['add_news']  => 'addnews.php' . $SID,
-            $user->lang['list_news'] => 'listnews.php' . $SID
+            $user->lang['add_news']  => edit_news_path(),
+            $user->lang['list_news'] => news_path(true)
         );
         $this->admin_die($success_message, $link_list);
     }
@@ -199,8 +199,8 @@ class Add_News extends EQdkp_Admin
         //
         $success_message = $user->lang['admin_update_news_success'];
         $link_list = array(
-            $user->lang['add_news']  => 'addnews.php' . $SID,
-            $user->lang['list_news'] => 'listnews.php' . $SID
+            $user->lang['add_news']  => edit_news_path(),
+            $user->lang['list_news'] => news_path(true)
         );
         $this->admin_die($success_message, $link_list);
     }
@@ -244,8 +244,8 @@ class Add_News extends EQdkp_Admin
         //
         $success_message = $user->lang['admin_delete_news_success'];
         $link_list = array(
-            $user->lang['add_news']  => 'addnews.php' . $SID,
-            $user->lang['list_news'] => 'listnews.php' . $SID
+            $user->lang['add_news']  => edit_news_path(),
+            $user->lang['list_news'] => news_path(true)
         );
         $this->admin_die($success_message, $link_list);
     }
@@ -281,7 +281,7 @@ class Add_News extends EQdkp_Admin
 
         $tpl->assign_vars(array(
             // Form vars
-            'F_ADD_NEWS' => 'addnews.php' . $SID,
+            'F_ADD_NEWS' => edit_news_path(),
             'NEWS_ID'    => $this->url_id,
             'S_UPDATE'   => ( $this->url_id ) ? true : false,
 

@@ -21,11 +21,10 @@ if ( !defined('EQDKP_INC') )
 }
 
 /**
-* EQdkp foundation class
-* Common page functionality
-* Available to all pages as $eqdkp
-*/
-
+ * EQdkp foundation class
+ * Common page functionality
+ * Available to all pages as $eqdkp
+ */
 class EQdkp
 {
     // General vars
@@ -102,7 +101,7 @@ class EQdkp
             else
             {
                 $sql = "REPLACE INTO __config (config_name, config_value)
-                        VALUES ('{$config_name}','" . $db->escape($config_value) . "')";
+                        VALUES ('" . $db->escape($config_name) . "','" . $db->escape($config_value) . "')";
                 $db->query($sql);
                 
                 return true;
@@ -125,14 +124,14 @@ class EQdkp
     }
 
     /**
-    * Set object variables
-    * NOTE: If the last var is 'display' and the val is TRUE, EQdkp::display() is called
-    *   automatically
-    * 
-    * @var $var Var to set
-    * @var $val Value for Var
-    * @return bool
-    */
+     * Set object variables
+     * NOTE: If the last var is 'display' and the val is TRUE, EQdkp::display() is called
+     *   automatically
+     * 
+     * @var $var Var to set
+     * @var $val Value for Var
+     * @return bool
+     */
     function set_vars($var, $val = '', $append = false)
     {
         if ( is_array($var) )
@@ -229,8 +228,8 @@ class EQdkp
             'MAIN_TITLE'      => sanitize($this->config['main_title']),
             'SUB_TITLE'       => sanitize($this->config['sub_title']),
             'EQDKP_ROOT_PATH' => $this->root_path,
-            'TEMPLATE_PATH'   => $this->root_path . 'templates/' . $user->style['template_path'])
-        );
+            'TEMPLATE_PATH'   => $this->root_path . 'templates/' . $user->style['template_path']
+        ));
         
         $s_in_admin = ( defined('IN_ADMIN') ) ? IN_ADMIN : false;
         $s_in_admin = ( ($s_in_admin) && ($user->check_auth('a_', false)) ) ? true : false;
@@ -303,13 +302,13 @@ class EQdkp
                 if ( (empty($menu['check'])) || ($user->check_auth($menu['check'], false)) )
                 {
                     $var = 'main_' . $number;
-                    ${$var} .= '<a href="' . $this->root_path . $menu['link'] . '" class="copy" target="_top">' . $menu['text'] . '</a> | ';
+                    ${$var} .= '<a href="' . $this->root_path . $menu['link'] . '" class="copy" target="_top">' . $menu['text'] . '</a> &middot; ';
                 }
             }
         }
         // Remove the trailing ' | ' from menus
-        $main_menu1 = preg_replace('# \| $#', '', $main_menu1);
-        $main_menu2 = preg_replace('# \| $#', '', $main_menu2);
+        $main_menu1 = preg_replace('# \&middot; $#', '', $main_menu1);
+        $main_menu2 = preg_replace('# \&middot; $#', '', $main_menu2);
 
         if ( !$this->gen_simple_header )
         {
@@ -317,31 +316,31 @@ class EQdkp
                 'LOGO_PATH' => $user->style['logo_path'],
                 
                 'S_NORMAL_HEADER' => true,
-                'S_LOGGED_IN' => ( $user->data['user_id'] != ANONYMOUS ) ? true : false,
+                'S_LOGGED_IN'     => ( $user->data['user_id'] != ANONYMOUS ) ? true : false,
         
                 // Menu
                 'MAIN_MENU1' => $main_menu1,
-                'MAIN_MENU2' => $main_menu2)
-            );
+                'MAIN_MENU2' => $main_menu2
+            ));
         }
     }
     
     function gen_menus()
     {
-        global $user, $pm, $SID;
+        global $user, $pm;
         
         //
         // Menu 1
         //
         $main_menu1 = array(
-            array('link' => 'viewnews.php' .    $SID,                                   'text' => $user->lang['menu_news'],      'check' => ''),
-            array('link' => 'listmembers.php' . $SID,                                   'text' => $user->lang['menu_standings'], 'check' => 'u_member_list'),
-            array('link' => 'listraids.php' .   $SID,                                   'text' => $user->lang['menu_raids'],     'check' => 'u_raid_list'),
-            array('link' => 'listevents.php' .  $SID,                                   'text' => $user->lang['menu_events'],    'check' => 'u_event_list'),
-            array('link' => 'listitems.php' .   $SID,                                   'text' => $user->lang['menu_itemval'],   'check' => 'u_item_list'),
-            array('link' => 'listitems.php' .   $SID . '&amp;' . URI_PAGE . '=history', 'text' => $user->lang['menu_itemhist'],  'check' => 'u_item_list'),
-            array('link' => 'summary.php' .     $SID,                                   'text' => $user->lang['menu_summary'],   'check' => 'u_raid_list'),
-            array('link' => 'stats.php' .       $SID,                                   'text' => $user->lang['menu_stats'],     'check' => 'u_member_list')
+            array('link' => news_path(),                                    'text' => $user->lang['menu_news'],      'check' => ''),
+            array('link' => member_path(),                                  'text' => $user->lang['menu_standings'], 'check' => 'u_member_list'),
+            array('link' => raid_path(),                                    'text' => $user->lang['menu_raids'],     'check' => 'u_raid_list'),
+            array('link' => event_path(),                                   'text' => $user->lang['menu_events'],    'check' => 'u_event_list'),
+            array('link' => item_path(),                                    'text' => $user->lang['menu_itemval'],   'check' => 'u_item_list'),
+            array('link' => item_path() . path_params(URI_PAGE, 'history'), 'text' => $user->lang['menu_itemhist'],  'check' => 'u_item_list'),
+            array('link' => path_default('summary.php'),                    'text' => $user->lang['menu_summary'],   'check' => 'u_raid_list'),
+            array('link' => path_default('stats.php'),                      'text' => $user->lang['menu_stats'],     'check' => 'u_member_list')
         );
         
         $main_menu1 = (is_array($pm->get_menus('main_menu1'))) ? array_merge($main_menu1, $pm->get_menus('main_menu1')) : $main_menu1;
@@ -352,33 +351,34 @@ class EQdkp
         $main_menu2 = array();
         if ( $user->data['user_id'] != ANONYMOUS )
         {
-            $main_menu2[] = array('link' => 'settings.php' . $SID, 'text' => $user->lang['menu_settings']);
+            $main_menu2[] = array('link' => path_default('settings.php'), 'text' => $user->lang['menu_settings']);
         }
         else
         {
-            $main_menu2[] = array('link' => 'register.php' . $SID, 'text' => $user->lang['menu_register']);
+            $main_menu2[] = array('link' => path_default('register.php'), 'text' => $user->lang['menu_register']);
         }
         
         if ( $user->check_auth('a_', false) )
         {
-            $main_menu2[] = array('link' => 'admin/index.php' . $SID, 'text' => $user->lang['menu_admin_panel']);
+            $main_menu2[] = array('link' => path_default('index.php', true), 'text' => $user->lang['menu_admin_panel']);
         }
         
         // Switch login/logout link
         if ( $user->data['user_id'] != ANONYMOUS )
         {
-            $main_menu2[] = array('link' => 'login.php' . $SID . '&amp;logout=true', 'text' => $user->lang['logout'] . ' [ ' . sanitize($user->data['username']) . ' ]');
+            $main_menu2[] = array('link' => path_default('login.php') . path_params('logout', 'true'), 'text' => $user->lang['logout'] . ' [ ' . sanitize($user->data['username']) . ' ]');
         }
         else
         {
-            $main_menu2[] = array('link' => 'login.php' . $SID, 'text' => $user->lang['login']);
+            $main_menu2[] = array('link' => path_default('login.php'), 'text' => $user->lang['login']);
         }
         
         $main_menu2 = (is_array($pm->get_menus('main_menu2'))) ? array_merge($main_menu2, $pm->get_menus('main_menu2')) : $main_menu2;
         
         $menus = array(
             'menu1' => $main_menu1,
-            'menu2' => $main_menu2);
+            'menu2' => $main_menu2
+        );
         
         return $menus;
     }
@@ -386,7 +386,6 @@ class EQdkp
     function page_tail()
     {
         global $db, $user, $tpl, $pm;
-        global $SID;
         
         if ( !empty($this->template_path) )
         {
@@ -400,16 +399,16 @@ class EQdkp
         }
         
         $tpl->set_filenames(array(
-            'body' => $this->template_file)
-        );
+            'body' => $this->template_file
+        ));
         
         // Hiding the copyright/debug info if gen_simple_header is set
         if ( !$this->gen_simple_header )
         {
             $tpl->assign_vars(array(
                 'S_NORMAL_FOOTER' => true,
-                'L_POWERED_BY' => $user->lang['powered_by'],
-                'EQDKP_VERSION' => EQDKP_VERSION
+                'L_POWERED_BY'    => $user->lang['powered_by'],
+                'EQDKP_VERSION'   => EQDKP_VERSION
             ));
         
             if ( DEBUG )
@@ -421,8 +420,8 @@ class EQdkp
                 $s_show_queries = ( DEBUG == 2 ) ? true : false;
                 
                 $tpl->assign_vars(array(
-                    'S_SHOW_DEBUG' => true,
-                    'S_SHOW_QUERIES' => $s_show_queries,
+                    'S_SHOW_DEBUG'     => true,
+                    'S_SHOW_QUERIES'   => $s_show_queries,
                     'EQDKP_RENDERTIME' => substr($this->timer_end - $this->timer_start, 0, 5),
                     'EQDKP_QUERYCOUNT' => $db->query_count
                 ));
@@ -433,7 +432,7 @@ class EQdkp
                     {
                         $tpl->assign_block_vars('query_row', array(
                             'ROW_CLASS' => $this->switch_row_class(),
-                            'QUERY' => $this->sql_highlight($query)
+                            'QUERY'     => $this->sql_highlight($query)
                         ));
                     }
                 }
@@ -441,7 +440,7 @@ class EQdkp
             else
             {
                 $tpl->assign_vars(array(
-                    'S_SHOW_DEBUG' => false,
+                    'S_SHOW_DEBUG'   => false,
                     'S_SHOW_QUERIES' => false
                 ));
             }
@@ -464,11 +463,11 @@ class EQdkp
     }
     
     /**
-    * Highlight certain keywords in a SQL query
-    * 
-    * @param $sql Query string
-    * @return string Highlighted string
-    */ 
+     * Highlight certain keywords in a SQL query
+     * 
+     * @param $sql Query string
+     * @return string Highlighted string
+     */ 
     function sql_highlight($sql)
     {
         global $table_prefix;
@@ -494,10 +493,9 @@ class EQdkp
 }
 
 /**
-* EQdkp admin page foundation
-* Extended by admin page classes only
-*/
-
+ * EQdkp admin page foundation
+ * Extended by admin page classes only
+ */
 class EQdkp_Admin
 {
     // General vars
@@ -537,18 +535,19 @@ class EQdkp_Admin
             'log_ipaddress' => $user->ip_address,
             'log_sid'       => $user->sid,
             'log_result'    => '{L_SUCCESS}',
-            'admin_id'      => $user->data['user_id']);
+            'admin_id'      => $user->data['user_id']
+        );
             
         $this->admin_user = ( $user->data['user_id'] != ANONYMOUS ) ? $user->data['username'] : '';
         $this->time = time();
     }
     
     /**
-    * Build the $buttons array
-    * 
-    * @param $buttons Array of button => name/process/auth_check values
-    * @return bool
-    */
+     * Build the $buttons array
+     * 
+     * @param $buttons Array of button => name/process/auth_check values
+     * @return bool
+     */
     function assoc_buttons($buttons)
     {
         if ( !is_array($buttons) )
@@ -748,12 +747,12 @@ class EQdkp_Admin
     }
     
     /**
-    * Set object variables
-    * 
-    * @var $var Var to set
-    * @var $val Value for Var
-    * @return bool
-    */
+     * Set object variables
+     * 
+     * @var $var Var to set
+     * @var $val Value for Var
+     * @return bool
+     */
     function set_vars($var, $val = '')
     {
         global $in;
@@ -797,8 +796,6 @@ class EQdkp_Admin
                 break;
                 
                 default:
-                    // FIXME: Any pages that use a string-based uri parameter need to SQL_DB::escape this when using it for queries
-                    // Anything with members, maybe users
                     $this->url_id = $in->get($this->uri_parameter, '');
                 break;                    
             }
@@ -816,7 +813,7 @@ class EQdkp_Admin
         {
             $str_action .= "'" . $k . "' => '" . $db->escape($v) . "',";
         }
-        $action = substr($str_action, 0, strlen($str_action)- 1) . ");";
+        $action = substr($str_action, 0, strlen($str_action) - 1) . ");";
         
         // Remove excessive spacing
         $action = preg_replace("/\s+/", ' ', $action);
@@ -840,11 +837,8 @@ class EQdkp_Admin
                     $values[$field] = $this->make_log_action($values[$field]);
                 }
             }
-            
-            $query = $db->build_query('INSERT', $values);
-            $sql = "INSERT INTO __logs {$query}";
 
-            $db->query($sql);
+            $db->query("INSERT INTO __logs :params", $values);
 
             return true;
         }
@@ -852,13 +846,13 @@ class EQdkp_Admin
     }
     
     /**
-    * Takes two variables of the same type and compares them, marking in red
-    * any items that the two don't have in common
-    *
-    * @param $value1 The first, or 'old' value
-    * @param $value2 The second, or 'new' value
-    * @param $return_var Which of the two to return
-    */
+     * Takes two variables of the same type and compares them, marking in red
+     * any items that the two don't have in common
+     *
+     * @param $value1 The first, or 'old' value
+     * @param $value2 The second, or 'new' value
+     * @param $return_var Which of the two to return
+     */
     function find_difference($value1, $value2, $return_var = 2)
     {
         if ( ($return_var != 1) && ($return_var != 2) )
@@ -921,12 +915,12 @@ class EQdkp_Admin
     }
     
     /**
-    * Returns a bulleted list of links to display after an admin event
-    * has been completed
-    *
-    * @param $links Array of links
-    * @return string Link list
-    */
+     * Returns a bulleted list of links to display after an admin event
+     * has been completed
+     *
+     * @param $links Array of links
+     * @return string Link list
+     */
     function generate_link_list($links)
     {
         $link_list = '<ul>';
@@ -963,13 +957,13 @@ class EQdkp_Admin
     }
     
     /**
-    * Outputs a message asking the user if they're sure they want to delete something
-    *
-    * @param $confirm_text Confirm message
-    * @param $uri_parameter URI_RAID, URI_NAME, etc.
-    * @param $parameter_value Value of the parameter
-    * @param $action Form action
-    */
+     * Outputs a message asking the user if they're sure they want to delete something
+     *
+     * @param $confirm_text Confirm message
+     * @param $uri_parameter URI_RAID, URI_NAME, etc.
+     * @param $parameter_value Value of the parameter
+     * @param $action Form action
+     */
     function _confirmDelete($confirm_text, $uri_parameter, $parameter_value, $action = '')
     {
         global $eqdkp, $tpl, $user;
@@ -1005,49 +999,49 @@ class EQdkp_Admin
 }
 
 /**
-* Form Validate Class
-* Validates various elements of a form and types of data
-* Available through admin extensions as fv
-*/
+ * Form Validate Class
+ * Validates various elements of a form and types of data
+ * Available through admin extensions as fv
+ */
 class Form_Validate
 {
     var $errors = array();          // Error messages       @var errors
 
     /**
-    * Constructor
-    *
-    * Initiates the error list
-    */
+     * Constructor
+     *
+     * Initiates the error list
+     */
     function form_validate()
     {
         $this->_reset_error_list();
     }
 
     /**
-    * Resets the error list
-    *
-    * @access private
-    */
+     * Resets the error list
+     *
+     * @access private
+     */
     function _reset_error_list()
     {
         $this->errors = array();
     }
 
     /**
-    * Returns the array of errors
-    *
-    * @return array Errors
-    */
+     * Returns the array of errors
+     *
+     * @return array Errors
+     */
     function get_errors()
     {
         return $this->errors;
     }
 
     /**
-    * Checks if errors exist
-    *
-    * @return bool
-    */
+     * Checks if errors exist
+     *
+     * @return bool
+     */
     function is_error()
     {
         if ( @sizeof($this->errors) > 0 )
@@ -1059,11 +1053,11 @@ class Form_Validate
     }
 
     /**
-    * Returns a string with the appropriate error message
-    *
-    * @param $field Field to generate an error for
-    * @return string Error string
-    */
+     * Returns a string with the appropriate error message
+     *
+     * @param $field Field to generate an error for
+     * @return string Error string
+     */
     function generate_error($field)
     {
         global $eqdkp_root_path;
@@ -1087,12 +1081,12 @@ class Form_Validate
     }
 
     /**
-    * Returns the value of a variable in _POST or _GET
-    *
-    * @access private
-    * @param $field_name Field name
-    * @return mixed Value of the field_name
-    */
+     * Returns the value of a variable in _POST or _GET
+     *
+     * @access private
+     * @param $field_name Field name
+     * @return mixed Value of the field_name
+     */
     function _get_value($field_name)
     {
         global $in;
@@ -1110,12 +1104,12 @@ class Form_Validate
     // If an array if used for validation, the method will always return true
 
     /**
-    * Checks if a field is filled out
-    *
-    * @param $field Field name to check
-    * @param $message Error message to insert
-    * @return bool
-    */
+     * Checks if a field is filled out
+     *
+     * @param $field Field name to check
+     * @param $message Error message to insert
+     * @return bool
+     */
     function is_filled($field, $message = '')
     {
         if ( is_array($field) )
@@ -1139,12 +1133,12 @@ class Form_Validate
     }
 
     /**
-    * Checks if a field is numeric
-    *
-    * @param $field Field name to check
-    * @param $message Error message to insert
-    * @return bool
-    */
+     * Checks if a field is numeric
+     *
+     * @param $field Field name to check
+     * @param $message Error message to insert
+     * @return bool
+     */
     function is_number($field, $message = '')
     {
         if ( is_array($field) )
@@ -1168,12 +1162,12 @@ class Form_Validate
     }
 
     /**
-    * Checks if a field is alphabetic
-    *
-    * @param $field Field name to check
-    * @param $message Error message to insert
-    * @return bool
-    */
+     * Checks if a field is alphabetic
+     *
+     * @param $field Field name to check
+     * @param $message Error message to insert
+     * @return bool
+     */
     function is_alpha($field, $message = '')
     {
         if ( is_array($field) )
@@ -1197,12 +1191,12 @@ class Form_Validate
     }
 
     /**
-    * Checks if a field is a valid hexadecimal color code (#FFFFFF)
-    *
-    * @param $field Field name to check
-    * @param $message Error message to insert
-    * @return bool
-    */
+     * Checks if a field is a valid hexadecimal color code (#FFFFFF)
+     *
+     * @param $field Field name to check
+     * @param $message Error message to insert
+     * @return bool
+     */
     function is_hex_code($field, $message = '')
     {
         if ( is_array($field) )
@@ -1226,15 +1220,15 @@ class Form_Validate
     }
 
     /**
-    * Checks if a field is within a minimum and maximum range
-    * NOTE: Will NOT accept an array of fields
-    *
-    * @param $field Field name to check
-    * @param $min Minimum value
-    * @param $max Maximum value
-    * @param $message Error message to insert
-    * @return bool
-    */
+     * Checks if a field is within a minimum and maximum range
+     * Note: Will NOT accept an array of fields
+     *
+     * @param $field Field name to check
+     * @param $min Minimum value
+     * @param $max Maximum value
+     * @param $message Error message to insert
+     * @return bool
+     */
     function is_within_range($field, $min, $max, $message = '')
     {
         $value = $this->_get_value($field);
@@ -1247,12 +1241,12 @@ class Form_Validate
     }
 
     /**
-    * Checks if a field has a valid e-mail address pattern
-    *
-    * @param $field Field name to check
-    * @param $message Error message to insert
-    * @return bool
-    */
+     * Checks if a field has a valid e-mail address pattern
+     *
+     * @param $field Field name to check
+     * @param $message Error message to insert
+     * @return bool
+     */
     function is_email_address($field, $message = '')
     {
         if ( is_array($field) )
@@ -1276,12 +1270,12 @@ class Form_Validate
     }
 
     /**
-    *  Checks if a field has a valid IP address pattern
-    *
-    * @param $field Field name to check
-    * @param $message Error message to insert
-    * @return bool
-    */
+     *  Checks if a field has a valid IP address pattern
+     *
+     * @param $field Field name to check
+     * @param $message Error message to insert
+     * @return bool
+     */
     function is_ip_address($field, $message = '')
     {
         if ( is_array($field) )
@@ -1295,7 +1289,7 @@ class Form_Validate
         else
         {
             $value = $this->_get_value($field);
-            if ( !preg_match("/([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})/", $value) )
+            if ( !preg_match("/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/", $value) )
             {
                 $this->errors[$field] = $v;
                 return false;
@@ -1305,13 +1299,13 @@ class Form_Validate
     }
 
     /**
-    * Checks if two fields match eachother exactly
-    * Used to verify the password/confirm password fields
-    *
-    * @param $field Field name to check
-    * @param $message Error message to insert
-    * @return bool
-    */
+     * Checks if two fields match eachother exactly
+     * Used to verify the password/confirm password fields
+     *
+     * @param $field Field name to check
+     * @param $message Error message to insert
+     * @return bool
+     */
     function matching_passwords($field1, $field2, $message = '')
     {
         $value1 = $this->_get_value($field1);

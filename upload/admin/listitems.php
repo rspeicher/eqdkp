@@ -60,7 +60,7 @@ while ( $item = $db->fetch_record($items_result) )
         'U_VIEW_ITEM'  => edit_item_path($item['item_id']),
         'RAID'         => ( !empty($item['raid_name']) ) ? sanitize($item['raid_name']) : '&lt;<i>Not Found</i>&gt;',
         'U_VIEW_RAID'  => ( !empty($item['raid_name']) ) ? edit_raid_path($item['raid_id']) : '',
-        'VALUE'        => number_format(floatval($item['item_value']), 2)
+        'VALUE'        => number_format($item['item_value'], 2)
     ));
 }
 $db->free_result($items_result);

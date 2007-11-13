@@ -205,7 +205,7 @@ class EQdkp_Config extends EQdkp_Admin
         
         $tpl->assign_vars(array(
             // Form vars
-            'F_CONFIG' => 'settings.php' . $SID,
+            'F_CONFIG' => path_default('settings.php', true),
             
             // Form values
             'GUILDTAG'                  => sanitize($eqdkp->config['guildtag'], ENT),

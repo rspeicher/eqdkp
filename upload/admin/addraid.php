@@ -1151,7 +1151,7 @@ class Add_Raid extends EQdkp_Admin
             
             // Form values
             'RAID_ATTENDEES' => $this->raid['raid_attendees'],
-            'RAID_VALUE'     => ( is_numeric($raid_value) ) ? number_format(floatval($raid_value), 2) : '',
+            'RAID_VALUE'     => ( is_numeric($raid_value) ) ? number_format($raid_value, 2) : '',
             'RAID_NOTE'      => sanitize($this->raid['raid_note'], ENT),
             'MO'             => date('m', $this->time),
             'D'              => date('d', $this->time),

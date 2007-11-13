@@ -305,7 +305,7 @@ class Add_GroupAdj extends EQdkp_Admin
             'ADJUSTMENT_ID'    => $this->url_id,
             
             // Form values
-            'ADJUSTMENT' => number_format(floatval($this->adjustment['adjustment_value']), 2),
+            'ADJUSTMENT' => number_format($this->adjustment['adjustment_value'], 2),
             
             // Language
             'L_ADD_ADJ_TITLE'         => $user->lang['addadj_title'],

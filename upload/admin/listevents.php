@@ -47,7 +47,7 @@ while ( $event = $db->fetch_record($events_result) )
         'ROW_CLASS'    => $eqdkp->switch_row_class(),
         'U_VIEW_EVENT' => edit_event_path($event['event_id']),
         'NAME'         => sanitize($event['event_name']),
-        'VALUE'        => number_format(floatval($event['event_value']), 2)
+        'VALUE'        => number_format($event['event_value'], 2)
     ));
 }
 $db->free_result($events_result);

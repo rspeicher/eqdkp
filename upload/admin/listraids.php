@@ -51,7 +51,7 @@ while ( $row = $db->fetch_record($raids_result) )
         'U_VIEW_RAID' => edit_raid_path($row['raid_id']),
         'NAME'        => sanitize($row['raid_name']),
         'NOTE'        => ( !empty($row['raid_note']) ) ? sanitize($row['raid_note']) : '&nbsp;',
-        'VALUE'       => number_format(floatval($row['raid_value']), 2)
+        'VALUE'       => number_format($row['raid_value'], 2)
     ));
 }
 

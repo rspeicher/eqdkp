@@ -98,7 +98,7 @@ while ( $adj = $db->fetch_record($adj_result) )
         'U_VIEW_MEMBER'    => ( isset($adj['member_name']) ) ? member_path($adj['member_name']) : '',
         'MEMBER'           => ( isset($adj['member_name']) ) ? sanitize($adj['member_name']) : '',
         'REASON'           => ( isset($adj['adjustment_reason']) ) ? sanitize($adj['adjustment_reason'])  : '',
-        'ADJUSTMENT'       => number_format(floatval($adj['adjustment_value']), 2),
+        'ADJUSTMENT'       => number_format($adj['adjustment_value'], 2),
         'C_ADJUSTMENT'     => color_item($adj['adjustment_value']),
         'ADDED_BY'         => ( isset($adj['adjustment_added_by']) ) ? sanitize($adj['adjustment_added_by']) : ''
     ));

@@ -493,7 +493,7 @@ class Add_Item extends EQdkp_Admin
 
             // Form values
             'ITEM_NAME'  => sanitize($this->item['item_name'], ENT),
-            'ITEM_VALUE' => number_format(floatval($this->item['item_value']), 2),
+            'ITEM_VALUE' => number_format($this->item['item_value'], 2),
 
             // Language
             'L_ADD_ITEM_TITLE'      => $user->lang['additem_title'],

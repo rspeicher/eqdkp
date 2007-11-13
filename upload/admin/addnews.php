@@ -27,7 +27,6 @@ class Add_News extends EQdkp_Admin
     function add_news()
     {
         global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $SID;
 
         parent::eqdkp_admin();
 
@@ -105,7 +104,6 @@ class Add_News extends EQdkp_Admin
     function process_add()
     {
         global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $SID;
 
         //
         // Insert the news
@@ -150,7 +148,6 @@ class Add_News extends EQdkp_Admin
     function process_update()
     {
         global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $SID;
 
         //
         // Get the old data
@@ -211,7 +208,6 @@ class Add_News extends EQdkp_Admin
     function process_confirm()
     {
         global $db, $eqdkp, $user, $tpl, $pm;
-        global $SID;
 
         //
         // Get the old data
@@ -277,7 +273,6 @@ class Add_News extends EQdkp_Admin
     function display_form()
     {
         global $db, $eqdkp, $user, $tpl, $pm;
-        global $SID;
 
         $tpl->assign_vars(array(
             // Form vars

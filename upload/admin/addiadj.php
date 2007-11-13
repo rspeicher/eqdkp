@@ -27,7 +27,6 @@ class Add_IndivAdj extends EQdkp_Admin
     function add_indivadj()
     {
         global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $eqdkp_root_path, $SID;
         
         parent::eqdkp_admin();
         
@@ -136,7 +135,6 @@ class Add_IndivAdj extends EQdkp_Admin
     function process_add()
     {
         global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $eqdkp_root_path, $SID;
         
         //
         // Generate our group key
@@ -351,7 +349,6 @@ class Add_IndivAdj extends EQdkp_Admin
     function display_form()
     {
         global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $eqdkp_root_path, $SID;
         
         //
         // Build member drop-down
@@ -385,7 +382,7 @@ class Add_IndivAdj extends EQdkp_Admin
             'ADJUSTMENT_ID'    => $this->url_id,
             
             // Form values
-            'ADJUSTMENT_VALUE'  => sanitize($this->adjustment['adjustment_value'], ENT),
+            'ADJUSTMENT_VALUE'  => number_format(sanitize($this->adjustment['adjustment_value'], ENT), 2),
             'ADJUSTMENT_REASON' => sanitize($this->adjustment['adjustment_reason'], ENT),
             'MO'                => date('m', $this->time),
             'D'                 => date('d', $this->time),

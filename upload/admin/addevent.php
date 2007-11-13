@@ -27,7 +27,6 @@ class Add_Event extends EQdkp_Admin
     function add_event()
     {
         global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $eqdkp_root_path;
         
         parent::eqdkp_admin();
         
@@ -94,8 +93,8 @@ class Add_Event extends EQdkp_Admin
         
         $this->fv->is_filled(array(
             'event_name'  => $user->lang['fv_required_name'],
-            'event_value' => $user->lang['fv_required_value'])
-        );
+            'event_value' => $user->lang['fv_required_value']
+        ));
         
         return $this->fv->is_error();
     }
@@ -106,7 +105,6 @@ class Add_Event extends EQdkp_Admin
     function process_add()
     {
         global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $eqdkp_root_path, $SID;
         
         //
         // Insert event
@@ -157,7 +155,6 @@ class Add_Event extends EQdkp_Admin
     function process_update()
     {
         global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $eqdkp_root_path, $SID;
         
         //
         // Get the old data
@@ -227,7 +224,6 @@ class Add_Event extends EQdkp_Admin
     function process_confirm()
     {
         global $db, $eqdkp, $user, $tpl, $pm;
-        global $eqdkp_root_path, $SID;
         
         //
         // Get the old data
@@ -294,16 +290,15 @@ class Add_Event extends EQdkp_Admin
     function display_form()
     {
         global $db, $eqdkp, $user, $tpl, $pm;
-        global $eqdkp_root_path, $SID;
         
         $tpl->assign_vars(array(
             // Form vars
-            'F_ADD_EVENT' => 'addevent.php' . $SID,
+            'F_ADD_EVENT' => edit_event_path(),
             'EVENT_ID'    => $this->url_id,
             
             // Form values
             'EVENT_NAME'  => sanitize($this->event['event_name'], ENT),
-            'EVENT_VALUE' => sanitize($this->event['event_value'], ENT),
+            'EVENT_VALUE' => number_format(sanitize($this->event['event_value'], ENT), 2),
             
             // Language
             'L_ADD_EVENT_TITLE' => $user->lang['addevent_title'],

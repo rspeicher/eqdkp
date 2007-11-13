@@ -27,7 +27,6 @@ class Add_GroupAdj extends EQdkp_Admin
     function add_groupadj()
     {
         global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $eqdkp_root_path;
         
         parent::eqdkp_admin();
         
@@ -109,7 +108,6 @@ class Add_GroupAdj extends EQdkp_Admin
     function process_add()
     {
         global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $eqdkp_root_path, $SID;
         
         //
         // Change member's adjustment column
@@ -160,7 +158,6 @@ class Add_GroupAdj extends EQdkp_Admin
     function process_update()
     {
         global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $eqdkp_root_path, $SID;
         
         //
         // Get the old data
@@ -227,7 +224,6 @@ class Add_GroupAdj extends EQdkp_Admin
     function process_confirm()
     {
         global $db, $eqdkp, $user, $tpl, $pm;
-        global $eqdkp_root_path, $SID;
         
         //
         // Get the old data
@@ -302,7 +298,6 @@ class Add_GroupAdj extends EQdkp_Admin
     function display_form()
     {
         global $db, $eqdkp, $user, $tpl, $pm;
-        global $eqdkp_root_path, $SID;
         
         $tpl->assign_vars(array(
             // Form vars
@@ -310,7 +305,7 @@ class Add_GroupAdj extends EQdkp_Admin
             'ADJUSTMENT_ID'    => $this->url_id,
             
             // Form values
-            'ADJUSTMENT' => floatval($this->adjustment['adjustment_value']),
+            'ADJUSTMENT' => number_format(floatval($this->adjustment['adjustment_value']), 2),
             
             // Language
             'L_ADD_ADJ_TITLE'         => $user->lang['addadj_title'],

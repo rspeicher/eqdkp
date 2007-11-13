@@ -87,21 +87,13 @@ function path_params($param_name, $param_value = '')
 ## Adjustment Paths
 ## ############################################################################
 
-function adjustment_path($id = null)
+function adjustment_path()
 {
-    if ( !is_null($id) )
-    {
-    }
-    
     return path_default('listadj.php', true);
 }
 
-function iadjustment_path($id = null)
+function iadjustment_path()
 {
-    if ( !is_null($id) )
-    {
-    }
-    
     return path_default('listadj.php', true) . path_params(URI_PAGE, 'individual');
 }
 
@@ -109,6 +101,7 @@ function edit_adjustment_path($id = null)
 {
     if ( !is_null($id) )
     {
+        $id = intval($id);
         return path_default('addadj.php', true) . path_params(URI_ADJUSTMENT, $id);
     }
     
@@ -119,6 +112,7 @@ function edit_iadjustment_path($id = null)
 {
     if ( !is_null($id) )
     {
+        $id = intval($id);
         return path_default('addiadj.php', true) . path_params(URI_ADJUSTMENT, $id);
     }
     
@@ -133,6 +127,7 @@ function edit_event_path($id = null)
 {
     if ( !is_null($id) )
     {
+        $id = intval($id);
         return path_default('addevent.php', true) . path_params(URI_EVENT, $id);
     }
     
@@ -159,6 +154,17 @@ function event_path($id = null)
 ## ############################################################################
 ## Item Paths
 ## ############################################################################
+
+function edit_item_path($id = null)
+{
+    if ( !is_null($id) && $id > 0 )
+    {
+        $id = intval($id);
+        return path_default('additem.php', true) . path_params(URI_ITEM, $id);
+    }
+    
+    return path_default('additem.php', true);
+}
 
 /**
  * Return the appropriate path to an item or list of items.
@@ -206,6 +212,7 @@ function member_path($id = null)
 {
     if ( !is_null($id) )
     {
+        $id = intval($id);
         return path_default('viewmember.php') . path_params(URI_NAME, $id);
     }
     
@@ -222,6 +229,7 @@ function edit_member_path($id = null)
 {
     if ( !is_null($id) )
     {
+        $id = intval($id);
         return path_default('manage_members.php', true) . path_params(array('mode' => 'addmember', URI_NAME => $id));
     }
     

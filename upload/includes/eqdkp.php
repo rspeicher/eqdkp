@@ -302,7 +302,7 @@ class EQdkp
                 if ( (empty($menu['check'])) || ($user->check_auth($menu['check'], false)) )
                 {
                     $var = 'main_' . $number;
-                    ${$var} .= '<a href="' . $this->root_path . $menu['link'] . '" class="copy" target="_top">' . $menu['text'] . '</a> &middot; ';
+                    ${$var} .= '<a href="' . $menu['link'] . '" class="copy" target="_top">' . $menu['text'] . '</a> &middot; ';
                 }
             }
         }
@@ -333,12 +333,12 @@ class EQdkp
         // Menu 1
         //
         $main_menu1 = array(
-            array('link' => news_path(),                                    'text' => $user->lang['menu_news'],      'check' => ''),
-            array('link' => member_path(),                                  'text' => $user->lang['menu_standings'], 'check' => 'u_member_list'),
-            array('link' => raid_path(),                                    'text' => $user->lang['menu_raids'],     'check' => 'u_raid_list'),
-            array('link' => event_path(),                                   'text' => $user->lang['menu_events'],    'check' => 'u_event_list'),
-            array('link' => item_path(),                                    'text' => $user->lang['menu_itemval'],   'check' => 'u_item_list'),
-            array('link' => item_path() . path_params(URI_PAGE, 'history'), 'text' => $user->lang['menu_itemhist'],  'check' => 'u_item_list'),
+            array('link' => path_default('viewnews.php'),            'text' => $user->lang['menu_news'],      'check' => ''),
+            array('link' => path_default('listmembers.php'),         'text' => $user->lang['menu_standings'], 'check' => 'u_member_list'),
+            array('link' => path_default('listraids.php'),           'text' => $user->lang['menu_raids'],     'check' => 'u_raid_list'),
+            array('link' => path_default('listevents.php'),          'text' => $user->lang['menu_events'],    'check' => 'u_event_list'),
+            array('link' => path_default('listitems.php'),           'text' => $user->lang['menu_itemval'],   'check' => 'u_item_list'),
+            array('link' => path_default('listitems.php') . path_params(URI_PAGE, 'history'), 'text' => $user->lang['menu_itemhist'],  'check' => 'u_item_list'),
             array('link' => path_default('summary.php'),                    'text' => $user->lang['menu_summary'],   'check' => 'u_raid_list'),
             array('link' => path_default('stats.php'),                      'text' => $user->lang['menu_stats'],     'check' => 'u_member_list')
         );

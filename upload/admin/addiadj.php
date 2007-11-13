@@ -70,7 +70,8 @@ class Add_IndivAdj extends EQdkp_Admin
         // -----------------------------------------------------
         if ( $this->url_id )
         {
-            $sql = "SELECT adjustment_value, adjustment_date, adjustment_reason, member_name, adjustment_group_key
+            $sql = "SELECT adjustment_value, adjustment_date, adjustment_reason, 
+                        member_name, adjustment_group_key
                     FROM __adjustments
                     WHERE (`adjustment_id` = '" . $db->escape($this->url_id) . "')";
             $result = $db->query($sql);
@@ -83,7 +84,7 @@ class Add_IndivAdj extends EQdkp_Admin
             // If member name isn't set, it's a group adjustment - put them back on that script
             if ( !isset($row['member_name']) )
             {
-                redirect('addadj.php' . $SID . '&' . URI_ADJUSTMENT . '='.$adjustment_id);
+                redirect(edit_iadjustment_path());
             }
             
             $this->time = $row['adjustment_date'];
@@ -95,7 +96,7 @@ class Add_IndivAdj extends EQdkp_Admin
             $members = $in->getArray('member_names', 'string');
             $sql = "SELECT member_name
                     FROM __adjustments
-                    WHERE (`adjustment_group_key` = '{$row['adjustment_group_key']}')";
+                    WHERE (`adjustment_group_key` = '" . $db->escape($row['adjustment_group_key']) . "')";
             $result = $db->query($sql);
             while ( $row = $db->fetch_record($result) )
             {
@@ -171,8 +172,8 @@ class Add_IndivAdj extends EQdkp_Admin
         //
         $success_message = sprintf($user->lang['admin_add_iadj_success'], $eqdkp->config['dkp_name'], sanitize($in->get('adjustment_value', 0.00)), sanitize(implode(', ', $member_names)));
         $link_list = array(
-            $user->lang['list_indivadj'] => 'listadj.php' . $SID . '&amp;' . URI_PAGE . '=individual',
-            $user->lang['list_members']  => $eqdkp_root_path . 'listmembers.php' . $SID
+            $user->lang['list_indivadj'] => iadjustment_path(),
+            $user->lang['list_members']  => member_path()
         );
         $this->admin_die($success_message, $link_list);
     }
@@ -183,7 +184,6 @@ class Add_IndivAdj extends EQdkp_Admin
     function process_update()
     {
         global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $eqdkp_root_path, $SID;
         
         //
         // Remove the old adjustment from members that received it
@@ -229,8 +229,8 @@ class Add_IndivAdj extends EQdkp_Admin
         //
         $success_message = sprintf($user->lang['admin_update_iadj_success'], $eqdkp->config['dkp_name'], sanitize($in->get('adjustment_value', 0.00)), sanitize(implode(', ', $member_names)));
         $link_list = array(
-            $user->lang['list_indivadj'] => 'listadj.php' . $SID . '&amp;' . URI_PAGE . '=individual',
-            $user->lang['list_members']  => $eqdkp_root_path . 'listmembers.php' . $SID
+            $user->lang['list_indivadj'] => iadjustment_path(),
+            $user->lang['list_members']  => member_path()
         );
         $this->admin_die($success_message, $link_list);
     }
@@ -241,7 +241,6 @@ class Add_IndivAdj extends EQdkp_Admin
     function process_confirm()
     {
         global $db, $eqdkp, $user, $tpl, $pm;
-        global $eqdkp_root_path, $SID;
         
         //
         // Remove the old adjustment from members that received it
@@ -269,8 +268,8 @@ class Add_IndivAdj extends EQdkp_Admin
         //
         $success_message = sprintf($user->lang['admin_delete_iadj_success'], $eqdkp->config['dkp_name'], sanitize($this->old_adjustment['adjustment_value']), sanitize(implode(', ', $this->old_adjustment['member_names'])));
         $link_list = array(
-            $user->lang['list_indivadj'] => 'listadj.php' . $SID . '&amp;' . URI_PAGE . '=individual',
-            $user->lang['list_members']  => $eqdkp_root_path . 'listmembers.php' . $SID
+            $user->lang['list_indivadj'] => iadjustment_path(),
+            $user->lang['list_members']  => member_path()
         );
         $this->admin_die($success_message, $link_list);
     }
@@ -294,12 +293,12 @@ class Add_IndivAdj extends EQdkp_Admin
         {
             $adjustment_ids[] = intval($row['adjustment_id']);
 
-            $old_members[] = addslashes($row['member_name']);
+            $old_members[] = $row['member_name'];
             $this->old_adjustment = array(
-                'adjustment_value'  => addslashes($row['adjustment_value']),
-                'adjustment_date'   => addslashes($row['adjustment_date']),
+                'adjustment_value'  => floatval($row['adjustment_value']),
+                'adjustment_date'   => intval($row['adjustment_date']),
                 'member_names'      => $old_members,
-                'adjustment_reason' => addslashes($row['adjustment_reason'])
+                'adjustment_reason' => $row['adjustment_reason']
             );
         }
         
@@ -307,7 +306,7 @@ class Add_IndivAdj extends EQdkp_Admin
         // Remove the adjustment value from adjustments table
         //
         $sql = "DELETE FROM __adjustments
-                WHERE (`adjustment_id` IN (" . implode(',', $adjustment_ids) . "))";
+                WHERE (`adjustment_id` IN (" . $db->escape(',', $adjustment_ids) . "))";
         $db->query($sql);
         
         //
@@ -375,14 +374,14 @@ class Add_IndivAdj extends EQdkp_Admin
             $tpl->assign_block_vars('members_row', array(
                 'VALUE'    => sanitize($row['member_name'], ENT),
                 'SELECTED' => $selected,
-                'OPTION'   => $row['member_name']
+                'OPTION'   => sanitize($row['member_name'], ENT),
             ));
         }
         $db->free_result($result);
         
         $tpl->assign_vars(array(
             // Form vars
-            'F_ADD_ADJUSTMENT' => 'addiadj.php' . $SID,
+            'F_ADD_ADJUSTMENT' => edit_iadjustment_path(),
             'ADJUSTMENT_ID'    => $this->url_id,
             
             // Form values
@@ -419,8 +418,8 @@ class Add_IndivAdj extends EQdkp_Admin
             'MSG_VALUE_EMPTY' => $user->lang['fv_required_adjustment'],
             
             // Buttons
-            'S_ADD' => ( !$this->url_id ) ? true : false)
-        );
+            'S_ADD' => ( !$this->url_id ) ? true : false
+        ));
         
         $eqdkp->set_vars(array(
             'page_title'    => page_title($user->lang['addiadj_title']),

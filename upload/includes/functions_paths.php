@@ -96,6 +96,15 @@ function adjustment_path($id = null)
     return path_default('listadj.php', true);
 }
 
+function iadjustment_path($id = null)
+{
+    if ( !is_null($id) )
+    {
+    }
+    
+    return path_default('listadj.php', true) . path_params(URI_PAGE, 'individual');
+}
+
 function edit_adjustment_path($id = null)
 {
     if ( !is_null($id) )

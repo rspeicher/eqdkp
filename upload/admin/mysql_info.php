@@ -55,8 +55,6 @@ class MySQL_Info extends EQdkp_Admin
     {
         global $db, $eqdkp, $tpl, $user;
         global $dbname, $table_prefix;
-        
-//        $mysql_version = preg_replace('/^((?:\d+\.?)+?)[^\d]*?$/', '\1', $mysql_version);
 
         // Get ourselves a comparable database version number
         $ver     = preg_replace('/[^0-9\.]/', '', $this->mysql_version);
@@ -64,15 +62,14 @@ class MySQL_Info extends EQdkp_Admin
         $dbsize  = 0;
         
         // Get table status
-        $sql = 'SHOW TABLE STATUS
-                FROM ' . $db_name;
+        $sql = "SHOW TABLE STATUS
+                FROM {$db_name}";
         $result = $db->query($sql);
         
         if ( version_compare($ver, '4.1.3', '<') )
         {
             while ( $row = $db->fetch_record($result) )
             {
-                // FIXME: When would this ever happen?
                 if ( empty($table_prefix) )
                 {
                     continue;
@@ -101,7 +98,7 @@ class MySQL_Info extends EQdkp_Admin
             'DBVERSION' => $this->mysql_version,
             
             'NUM_TABLES'       => sprintf($user->lang['num_tables'], $this->num_tables),
-            'TOTAL_ROWS'       => number_format($this->num_rows),
+            'TOTAL_ROWS'       => number_format($this->num_rows, 0),
             'TOTAL_TABLE_SIZE' => $this->db_size($this->table_size),
             'TOTAL_INDEX_SIZE' => $this->db_size($this->index_size),
             'TOTAL_SIZE'       => $this->db_size($this->table_size + $this->index_size),
@@ -169,7 +166,7 @@ class MySQL_Info extends EQdkp_Admin
             $tpl->assign_block_vars('table_row', array(
                 'ROW_CLASS'  => $eqdkp->switch_row_class(),
                 'TABLE_NAME' => $row['Name'],
-                'ROWS'       => number_format($row['Rows']),
+                'ROWS'       => number_format($row['Rows'], 0),
                 'TABLE_SIZE' => $this->db_size($row['Data_length']),
                 'INDEX_SIZE' => $this->db_size($row['Index_length'])
             ));

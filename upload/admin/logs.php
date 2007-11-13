@@ -90,7 +90,7 @@ switch ( $action )
 
                 $tpl->assign_block_vars('log_row', array(
                     'ROW_CLASS' => $eqdkp->switch_row_class(),
-                    'KEY'       => sanitize($k).':',
+                    'KEY'       => sanitize($k) . ':',
                     'VALUE'     => nl2br(sanitize($v))
                 ));
             }
@@ -106,7 +106,7 @@ switch ( $action )
             'L_SESSION_ID' => $user->lang['session_id'],
 
             'LOG_DATE'       => ( !empty($log['log_date']) ) ? date($user->style['date_time'], $log['log_date']) : '&nbsp;',
-            'LOG_USERNAME'   => ( !empty($log['username']) ) ? $log['username'] : '&nbsp;',
+            'LOG_USERNAME'   => ( !empty($log['username']) ) ? sanitize($log['username']) : '&nbsp;',
             'LOG_IP_ADDRESS' => sanitize($log['log_ipaddress']),
             'LOG_SESSION_ID' => sanitize($log['log_sid']),
             'LOG_ACTION'     => ( !empty($log_header) ) ? sanitize($log_header) : '&nbsp;')
@@ -119,8 +119,8 @@ switch ( $action )
         $addon_sql = '';
         $search_term = '';
 
-        // If they're looking for something specific, we have to
-        // figure out what that is
+        // If they're looking for something specific, we have to figure out 
+        // what that is
         $search_term = $in->get('search');
         if ( $search_term != '' )
         {
@@ -135,7 +135,7 @@ switch ( $action )
                     }
                 }
             }
-            // Check it's an IP
+            // Check if it's an IP
             elseif ( preg_match("/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/", $search_term) )
             {
                 $addon_sql = " WHERE (l.`log_ipaddress` = '" . $db->escape($search_term) . "')";
@@ -147,7 +147,7 @@ switch ( $action )
             }
         }
 
-        $total_sql = "SELECT count(*)
+        $total_sql = "SELECT COUNT(*)
                       FROM __logs AS l LEFT JOIN __users AS u ON u.`user_id` = l.`admin_id`";
         $total_logs = $db->query_first($total_sql . $addon_sql);
 
@@ -163,7 +163,7 @@ switch ( $action )
                 'ROW_CLASS'    => $eqdkp->switch_row_class(),
                 'DATE'         => ( !empty($log['log_date']) ) ? date($user->style['date_time'], $log['log_date']) : '&nbsp;',
                 'TYPE'         => ( !empty($log['log_type']) ) ? $log['log_type'] : '&nbsp;',
-                'U_VIEW_LOG'   => 'logs.php?' . URI_LOG . '='.$log['log_id'],
+                'U_VIEW_LOG'   => log_path($log['log_id']),
                 'USER'         => sanitize($log['username']),
                 'IP'           => sanitize($log['log_ipaddress']),
                 'RESULT'       => sanitize($log['log_result']),
@@ -191,15 +191,15 @@ switch ( $action )
             'O_IP'          => $current_order['uri'][3],
             'O_RESULT'      => $current_order['uri'][4],
 
-            'U_LOGS'        => 'logs.php'.$SID.'&amp;search='.$search_term.'&amp;start='.$start.'&amp;',
-            'U_LOGS_SEARCH' => 'logs.php'.$SID.'&amp;',
+            'U_LOGS'        => path_default('logs.php', true) . path_params(array('search' => $search_term, 'start' => $start)) .'&amp;',
+            'U_LOGS_SEARCH' => path_default('logs.php', true) . '&amp;',
 
             'CURRENT_ORDER'       => $current_order['uri']['current'],
             'START'               => $start,
             'VIEWLOGS_FOOTCOUNT'  => sprintf($user->lang['viewlogs_footcount'], $total_logs, 100),
-            'VIEWLOGS_PAGINATION' => generate_pagination('logs.php'.$SID.'&amp;search='.$search_term.'&amp;o='.$current_order['uri']['current'],
-                                     $total_logs, '100', $start))
-        );
+            'VIEWLOGS_PAGINATION' => generate_pagination(path_default('logs.php', true) . path_params(array('search' => $search_term, URI_ORDER, $current_order['uri']['current'])),
+                                     $total_logs, '100', $start)
+        ));
         break;
 }
 

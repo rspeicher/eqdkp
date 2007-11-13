@@ -26,7 +26,6 @@ class Manage_Styles extends EQdkp_Admin
     function manage_styles()
     {
         global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $SID;
         
         parent::eqdkp_admin();
         
@@ -81,8 +80,8 @@ class Manage_Styles extends EQdkp_Admin
         // Vars used to confirm deletion
         $this->set_vars(array(
             'confirm_text'  => $user->lang['confirm_delete_style'],
-            'uri_parameter' => 'styleid')
-        );
+            'uri_parameter' => 'styleid'
+        ));
         
         $this->assoc_buttons(array(
             'add' => array(
@@ -189,8 +188,6 @@ class Manage_Styles extends EQdkp_Admin
     function process_add()
     {
         global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $SID;
-        
 
         $query = $db->build_query('INSERT', array(
             'style_name'         => $in->get('style_name'),
@@ -248,7 +245,6 @@ class Manage_Styles extends EQdkp_Admin
     function process_update()
     {
         global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $SID;
         
         $query = $db->build_query('UPDATE', array(
             'style_name'         => $in->get('style_name'),
@@ -304,7 +300,6 @@ class Manage_Styles extends EQdkp_Admin
     function process_confirm()
     {
         global $db, $eqdkp, $user, $tpl, $pm;
-        global $SID;
         
         $db->query("DELETE FROM __styles       WHERE (`style_id` = '{$this->url_id}')");
         $db->query("DELETE FROM __style_config WHERE (`style_id` = '{$this->url_id}')");
@@ -322,7 +317,6 @@ class Manage_Styles extends EQdkp_Admin
     function display_list()
     {
         global $db, $eqdkp, $user, $tpl, $pm;
-        global $SID;
         
         $sql = "SELECT style_id, style_name, template_path, COUNT(u.user_id) AS users
                 FROM __styles AS s LEFT JOIN __users AS u ON u.`user_style` = s.`style_id`
@@ -333,11 +327,11 @@ class Manage_Styles extends EQdkp_Admin
         {
             $tpl->assign_block_vars('styles_row', array(
                 'ROW_CLASS'    => $eqdkp->switch_row_class(),
-                'U_EDIT_STYLE' => 'styles.php' . $SID . '&amp;styleid=' . $row['style_id'],
+                'U_EDIT_STYLE' => path_default('styles.php', true) . path_params('styleid', $row['style_id']),
                 'NAME'         => sanitize($row['style_name']),
                 'TEMPLATE'     => sanitize($row['template_path']),
                 'USERS'        => intval($row['users']),
-                'U_PREVIEW'    => 'styles.php' . $SID . '&amp;style=' . $row['style_id']
+                'U_PREVIEW'    => path_default('styles.php', true) . path_params('style', $row['style_id'])
             ));
         }
         $db->free_result($result);
@@ -359,7 +353,6 @@ class Manage_Styles extends EQdkp_Admin
     function display_form()
     {
         global $db, $eqdkp, $user, $tpl, $pm;
-        global $SID;
         
         $text_decoration = array(
             'none',
@@ -435,7 +428,7 @@ class Manage_Styles extends EQdkp_Admin
         
         $tpl->assign_vars(array(
             // Form vars
-            'F_ADD_STYLE' => 'styles.php' . $SID,
+            'F_ADD_STYLE' => path_default('styles.php', true),
             'STYLE_ID'    => $this->url_id,
             
             // Form Values

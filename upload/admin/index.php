@@ -30,7 +30,7 @@ if ( !defined('IN_ADMIN') )
     */
     function resolve_eqdkp_page($page)
     {
-        global $db, $eqdkp, $user, $SID;
+        global $db, $eqdkp, $user;
 
         $matches = explode('&', $page);
 
@@ -290,10 +290,10 @@ if ( !defined('IN_ADMIN') )
     $total_members = $total_members_active . ' / ' . $total_members_inactive;
 
     $total_raids   = $db->query_first("SELECT COUNT(*) FROM __raids");
-    $raids_per_day = sprintf("%.2f", ($total_raids / $days));
+    $raids_per_day = number_format($total_raids / $days, 2);
 
     $total_items   = $db->query_first("SELECT COUNT(*) FROM __items");
-    $items_per_day = sprintf("%.2f", ($total_items / $days));
+    $items_per_day = number_format($total_items / $days, 2);
 
     $total_logs    = $db->query_first("SELECT COUNT(*) FROM __logs");
 
@@ -439,6 +439,7 @@ if ( !defined('IN_ADMIN') )
         }
     }
 
+    // FIXME: Imrpove and re-enable version check?
     $eqdkp_com_version = EQDKP_VERSION;
 
     $tpl->assign_vars(array(
@@ -475,8 +476,8 @@ if ( !defined('IN_ADMIN') )
 
         'L_NEW_ACTIONS' => $user->lang['new_actions'],
 
-        'ONLINE_FOOTCOUNT' => sprintf($user->lang['online_footcount'], $online_count))
-    );
+        'ONLINE_FOOTCOUNT' => sprintf($user->lang['online_footcount'], $online_count)
+    ));
 
     $eqdkp->set_vars(array(
         'page_title'    => $user->lang['admin_index_title'],

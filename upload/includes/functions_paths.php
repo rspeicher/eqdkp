@@ -244,6 +244,7 @@ function edit_news_path($id = null)
 {
     if ( !is_null($id) )
     {
+        $id = intval($id);
         return path_default('addnews.php', true) . path_params(URI_NEWS, $id);
     }
     
@@ -274,6 +275,7 @@ function edit_raid_path($id = null)
 {
     if ( !is_null($id) )
     {
+        $id = intval($id);
         return path_default('addraid.php', true) . path_params(URI_RAID, $id);
     }
     

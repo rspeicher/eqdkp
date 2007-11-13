@@ -36,11 +36,11 @@ if ( $in->get(URI_PAGE, 'group') == 'group' )
 {
     $user->check_auth('a_groupadj_');
     
-    $u_list_adjustments = 'listadj.php'.$SID.'&amp;';
+    $u_list_adjustments = adjustment_path() . '&amp;';
     
     $page_title = page_title($user->lang['listadj_title']);
     
-    $total_adjustments = $db->query_first("SELECT count(*) FROM __adjustments WHERE (member_name IS NULL)");
+    $total_adjustments = $db->query_first("SELECT COUNT(*) FROM __adjustments WHERE (member_name IS NULL)");
     $start = $in->get('start', 0);
     
     $s_group_adj = true;
@@ -52,8 +52,8 @@ if ( $in->get(URI_PAGE, 'group') == 'group' )
             LIMIT {$start},{$user->data['user_alimit']}";
     
     $listadj_footcount = sprintf($user->lang['listadj_footcount'], $total_adjustments, $user->data['user_alimit']);
-    $pagination = generate_pagination('listadj.php'.$SID.'&amp;o='.$current_order['uri']['current'],
-                                       $total_adjustments, $user->data['user_alimit'], $start);
+    $pagination = generate_pagination(adjustment_path() . path_params(URI_ORDER, $current_order['uri']['current']),
+                                      $total_adjustments, $user->data['user_alimit'], $start);
 }
 
 //
@@ -63,24 +63,25 @@ elseif ( $in->get(URI_PAGE) == 'individual' )
 {
     $user->check_auth('a_indivadj_');
     
-    $u_list_adjustments = 'listadj.php'.$SID.'&amp;' . URI_PAGE . '=individual&amp;';
+    $u_list_adjustments = iadjustment_path() . '&amp;';
     
     $page_title = page_title($user->lang['listiadj_title']);
     
-    $total_adjustments = $db->query_first("SELECT count(*) FROM __adjustments WHERE (member_name IS NOT NULL)");
+    $total_adjustments = $db->query_first("SELECT COUNT(*) FROM __adjustments WHERE (member_name IS NOT NULL)");
     $start = $in->get('start', 0);
     
     $s_group_adj = false;
     
-    $sql = "SELECT adjustment_id, adjustment_value, member_name, adjustment_reason, adjustment_date, adjustment_added_by
+    $sql = "SELECT adjustment_id, adjustment_value, member_name, 
+                adjustment_reason, adjustment_date, adjustment_added_by
             FROM __adjustments
             WHERE (member_name IS NOT NULL)
             ORDER BY {$current_order['sql']}
             LIMIT {$start},{$user->data['user_alimit']}";
     
     $listadj_footcount = sprintf($user->lang['listiadj_footcount'], $total_adjustments, $user->data['user_alimit']);
-    $pagination = generate_pagination('listadj.php'.$SID.'&amp;' . URI_PAGE . '=individual&amp;o='.$current_order['uri']['current'],
-                                       $total_adjustments, $user->data['user_alimit'], $start);
+    $pagination = generate_pagination(iadjustment_path() . path_params(URI_ORDER, $current_order['uri']['current']),
+                                      $total_adjustments, $user->data['user_alimit'], $start);
 }
 
 if ( !($adj_result = $db->query($sql)) )
@@ -92,12 +93,12 @@ while ( $adj = $db->fetch_record($adj_result) )
 {
     $tpl->assign_block_vars('adjustments_row', array(
         'ROW_CLASS'        => $eqdkp->switch_row_class(),
-        'U_ADD_ADJUSTMENT' => (( $s_group_adj ) ? 'addadj.php' : 'addiadj.php') . $SID.'&amp;' . URI_ADJUSTMENT . '='.$adj['adjustment_id'],
+        'U_ADD_ADJUSTMENT' => ( $s_group_adj ) ? adjustment_path($adj['adjustment_id']) : iadjustment_path($adj['adjustment_id']),
         'DATE'             => date($user->style['date_notime_short'], $adj['adjustment_date']),
-        'U_VIEW_MEMBER'    => ( isset($adj['member_name']) ) ? $eqdkp_root_path.'viewmember.php'.$SID.'&amp;' . URI_NAME . '='.$adj['member_name'] : '',
+        'U_VIEW_MEMBER'    => ( isset($adj['member_name']) ) ? member_path($adj['member_name']) : '',
         'MEMBER'           => ( isset($adj['member_name']) ) ? sanitize($adj['member_name']) : '',
         'REASON'           => ( isset($adj['adjustment_reason']) ) ? sanitize($adj['adjustment_reason'])  : '',
-        'ADJUSTMENT'       => sanitize($adj['adjustment_value']),
+        'ADJUSTMENT'       => number_format(floatval($adj['adjustment_value']), 2),
         'C_ADJUSTMENT'     => color_item($adj['adjustment_value']),
         'ADDED_BY'         => ( isset($adj['adjustment_added_by']) ) ? sanitize($adj['adjustment_added_by']) : ''
     ));

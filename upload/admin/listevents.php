@@ -28,7 +28,7 @@ $sort_order = array(
  
 $current_order = switch_order($sort_order);
 
-$total_events = $db->query_first("SELECT count(*) FROM __events");
+$total_events = $db->query_first("SELECT COUNT(*) FROM __events");
 
 $start = $in->get('start', 0);
 
@@ -45,9 +45,9 @@ while ( $event = $db->fetch_record($events_result) )
 {
     $tpl->assign_block_vars('events_row', array(
         'ROW_CLASS'    => $eqdkp->switch_row_class(),
-        'U_VIEW_EVENT' => 'addevent.php'.$SID . '&amp;' . URI_EVENT . '='.$event['event_id'],
+        'U_VIEW_EVENT' => edit_event_path($event['event_id']),
         'NAME'         => sanitize($event['event_name']),
-        'VALUE'        => $event['event_value']
+        'VALUE'        => number_format(floatval($event['event_value']), 2)
     ));
 }
 $db->free_result($events_result);
@@ -59,11 +59,12 @@ $tpl->assign_vars(array(
     'O_NAME'  => $current_order['uri'][0],
     'O_VALUE' => $current_order['uri'][1],
     
-    'U_LIST_EVENTS' => 'listevents.php'.$SID.'&amp;',
+    'U_LIST_EVENTS' => event_path() . '&amp;',
     
     'START'                => $start,    
     'LISTEVENTS_FOOTCOUNT' => sprintf($user->lang['listevents_footcount'], $total_events, $user->data['user_elimit']),
-    'EVENT_PAGINATION'     => generate_pagination('listevents.php'.$SID.'&amp;o='.$current_order['uri']['current'], $total_events, $user->data['user_elimit'], $start)
+    'EVENT_PAGINATION'     => generate_pagination(event_path() . path_params(URI_ORDER, $current_order['uri']['current']), 
+                                $total_events, $user->data['user_elimit'], $start)
 ));
 
 $eqdkp->set_vars(array(

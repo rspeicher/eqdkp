@@ -30,7 +30,7 @@ $sort_order = array(
  
 $current_order = switch_order($sort_order);
 
-$total_raids = $db->query_first("SELECT count(*) FROM __raids");
+$total_raids = $db->query_first("SELECT COUNT(*) FROM __raids");
 
 $start = $in->get('start', 0);
 
@@ -48,10 +48,10 @@ while ( $row = $db->fetch_record($raids_result) )
     $tpl->assign_block_vars('raids_row', array(
         'ROW_CLASS'   => $eqdkp->switch_row_class(),
         'DATE'        => ( !empty($row['raid_date']) ) ? date($user->style['date_notime_short'], $row['raid_date']) : '&nbsp;',
-        'U_VIEW_RAID' => 'addraid.php'.$SID.'&amp;' . URI_RAID . '='.$row['raid_id'],
+        'U_VIEW_RAID' => edit_raid_path($row['raid_id']),
         'NAME'        => sanitize($row['raid_name']),
         'NOTE'        => ( !empty($row['raid_note']) ) ? sanitize($row['raid_note']) : '&nbsp;',
-        'VALUE'       => $row['raid_value']
+        'VALUE'       => number_format(floatval($row['raid_value']), 2)
     ));
 }
 
@@ -66,15 +66,15 @@ $tpl->assign_vars(array(
     'O_NOTE' => $current_order['uri'][2],
     'O_VALUE' => $current_order['uri'][3],
     
-    'U_LIST_RAIDS' => 'listraids.php'.$SID.'&amp;',
+    'U_LIST_RAIDS' => raid_path() . '&amp;',
     
     'START' => $start,
     'LISTRAIDS_FOOTCOUNT' => sprintf($user->lang['listraids_footcount'], $total_raids, $user->data['user_rlimit']),
-    'RAID_PAGINATION' => generate_pagination('listraids.php'.$SID.'&amp;o='.$current_order['uri']['current'], $total_raids, $user->data['user_rlimit'], $start))
+    'RAID_PAGINATION' => generate_pagination(raid_path() . path_params(URI_ORDER, $current_order['uri']['current']), $total_raids, $user->data['user_rlimit'], $start))
 );
 
 $eqdkp->set_vars(array(
     'page_title'    => page_title($user->lang['listraids_title']),
     'template_file' => 'listraids.html',
-    'display'       => true)
-);
+    'display'       => true
+));

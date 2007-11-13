@@ -29,7 +29,7 @@ $sort_order = array(
 
 $current_order = switch_order($sort_order);
 
-$total_news = $db->query_first("SELECT count(*) FROM __news");
+$total_news = $db->query_first("SELECT COUNT(*) FROM __news");
 $start = $in->get('start', 0);
 
 $sql = "SELECT n.news_id, n.news_date, n.news_headline, n.news_message, u.username
@@ -45,11 +45,11 @@ if ( !($result = $db->query($sql)) )
 while ( $news = $db->fetch_record($result) )
 {
     $tpl->assign_block_vars('news_row', array(
-        'ROW_CLASS' => $eqdkp->switch_row_class(),
-        'DATE' => date($user->style['date_time'], $news['news_date']),
-        'USERNAME' => sanitize($news['username']),
-        'U_VIEW_NEWS' => 'addnews.php'.$SID.'&amp;' . URI_NEWS . '='.$news['news_id'],
-        'HEADLINE' => sanitize($news['news_headline'])
+        'ROW_CLASS'   => $eqdkp->switch_row_class(),
+        'DATE'        => date($user->style['date_time'], $news['news_date']),
+        'USERNAME'    => sanitize($news['username']),
+        'U_VIEW_NEWS' => edit_news_path($news['news_id']),
+        'HEADLINE'    => sanitize($news['news_headline'])
     ));
 }
 
@@ -62,15 +62,15 @@ $tpl->assign_vars(array(
     'O_USERNAME' => $current_order['uri'][2],
     'O_HEADLINE' => $current_order['uri'][1],
     
-    'U_LIST_NEWS' => 'listnews.php'.$SID,
+    'U_LIST_NEWS' => news_path(true),
     
     'START' => $start,
     'LISTNEWS_FOOTCOUNT' => sprintf($user->lang['listnews_footcount'], $total_news, 50),
-    'NEWS_PAGINATION' => generate_pagination('listnews.php'.$SID.'&amp;o='.$current_order['uri']['current'], $total_news, 50, $start))
+    'NEWS_PAGINATION' => generate_pagination(news_path(true) . path_params(URI_ORDER, $current_order['uri']['current']), $total_news, 50, $start))
 );
 
 $eqdkp->set_vars(array(
     'page_title'    => page_title($user->lang['listnews_title']),
     'template_file' => 'admin/listnews.html',
-    'display'       => true)
-);
+    'display'       => true
+));

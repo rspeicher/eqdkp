@@ -148,7 +148,7 @@ function event_path($id = null)
         return path_default('viewevent.php') . path_params(URI_EVENT, $id);
     }
     
-    return path_default('listevents.php');
+    return path_default('listevents.php', defined('IN_ADMIN'));
 }
 
 ## ############################################################################
@@ -180,7 +180,7 @@ function item_path($id = null)
         return path_default('viewitem.php') . path_params(URI_ITEM, $id);
     }
     
-    return path_default('listitems.php');
+    return path_default('listitems.php', defined('IN_ADMIN'));
 }
 
 ## ############################################################################
@@ -294,5 +294,5 @@ function raid_path($id = null)
         return path_default('viewraid.php') . path_params(URI_RAID, $id);
     }
     
-    return path_default('listraids.php');
+    return path_default('listraids.php', defined('IN_ADMIN'));
 }

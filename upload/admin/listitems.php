@@ -31,17 +31,18 @@ $sort_order = array(
 
 $current_order = switch_order($sort_order);
 
-$total_items = $db->query_first("SELECT count(*) FROM __items");
+$total_items = $db->query_first("SELECT COUNT(*) FROM __items");
 $start = $in->get('start', 0);
 
-$sql = "SELECT i.item_id, i.item_name, i.item_buyer, i.item_date, i.raid_id, i.item_value, r.raid_name
+$sql = "SELECT i.item_id, i.item_name, i.item_buyer, i.item_date, i.raid_id, 
+            i.item_value, r.raid_name
         FROM __items AS i, __raids AS r
         WHERE (r.raid_id = i.raid_id)
         ORDER BY {$current_order['sql']}
         LIMIT {$start},{$user->data['user_ilimit']}";
 
 $listitems_footcount = sprintf($user->lang['listpurchased_footcount'], $total_items, $user->data['user_ilimit']);
-$pagination = generate_pagination('listitems.php'.$SID.'&amp;o='.$current_order['uri']['current'], $total_items, $user->data['user_ilimit'], $start);
+$pagination = generate_pagination(item_path() . path_params(URI_ORDER, $current_order['uri']['current']), $total_items, $user->data['user_ilimit'], $start);
 
 if ( !($items_result = $db->query($sql)) )
 {
@@ -54,12 +55,12 @@ while ( $item = $db->fetch_record($items_result) )
         'ROW_CLASS'    => $eqdkp->switch_row_class(),
         'DATE'         => ( !empty($item['item_date']) ) ? date($user->style['date_notime_short'], $item['item_date']) : '&nbsp;',
         'BUYER'        => ( !empty($item['item_buyer']) ) ? sanitize($item['item_buyer']) : '&lt;<i>Not Found</i>&gt;',
-        'U_VIEW_BUYER' => ( !empty($item['item_buyer']) ) ? '../viewmember.php'.$SID.'&amp;' . URI_NAME . '='.$item['item_buyer'] : '',
+        'U_VIEW_BUYER' => ( !empty($item['item_buyer']) ) ? member_path($item['item_buyer']) : '',
         'NAME'         => sanitize($item['item_name']),
-        'U_VIEW_ITEM'  => 'additem.php'.$SID.'&amp;' . URI_ITEM . '='.$item['item_id'],
+        'U_VIEW_ITEM'  => edit_item_path($item['item_id']),
         'RAID'         => ( !empty($item['raid_name']) ) ? sanitize($item['raid_name']) : '&lt;<i>Not Found</i>&gt;',
-        'U_VIEW_RAID'  => ( !empty($item['raid_name']) ) ? 'addraid.php'.$SID.'&amp;' . URI_RAID . '='.$item['raid_id'] : '',
-        'VALUE'        => floatval($item['item_value'])
+        'U_VIEW_RAID'  => ( !empty($item['raid_name']) ) ? edit_raid_path($item['raid_id']) : '',
+        'VALUE'        => number_format(floatval($item['item_value']), 2)
     ));
 }
 $db->free_result($items_result);
@@ -77,7 +78,7 @@ $tpl->assign_vars(array(
     'O_RAID'  => $current_order['uri'][3],
     'O_VALUE' => $current_order['uri'][4],
     
-    'U_LIST_ITEMS' => 'listitems.php'.$SID.'&amp;',
+    'U_LIST_ITEMS' => item_path() . '&amp;',
     
     'START'               => $start,
     'S_HISTORY'           => true,

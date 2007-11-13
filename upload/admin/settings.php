@@ -24,7 +24,6 @@ class EQdkp_Config extends EQdkp_Admin
     function eqdkp_config()
     {
         global $db, $eqdkp, $user, $tpl, $pm;
-        global $SID;
         
         parent::eqdkp_admin();
         
@@ -71,7 +70,6 @@ class EQdkp_Config extends EQdkp_Admin
     function process_submit()
     {
         global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $SID;
         
         $parsetags = $in->get('parsetags');
         $parsetags = preg_replace('/([^\w\s]+)/', '', $parsetags);
@@ -131,7 +129,7 @@ class EQdkp_Config extends EQdkp_Admin
             $this->update_auth_default($row['auth_value'], $auth_default);
         }
 
-        header('Location: settings.php' . $SID);
+        header('Location: ' . path_default('settings.php', true));
     }
     
     // ---------------------------------------------------------
@@ -166,7 +164,6 @@ class EQdkp_Config extends EQdkp_Admin
     function display_form()
     {
         global $db, $eqdkp, $user, $tpl, $pm;
-        global $SID, $auth_defaults;
 
         //
         // Find default auth settings

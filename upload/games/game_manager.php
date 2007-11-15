@@ -58,6 +58,59 @@ class Game_Manager
         return $retval;
     }
 
+	function list_games()
+	{
+		global $eqdkp_root_path;
+	
+		$games = $sort = array();
+		$listgames = true;
+
+		$path   = $eqdkp_root_path . 'games/';
+		$handle = @opendir($path);
+
+		if (!$handle)
+		{
+			trigger_error('Unable to access the games directory', __LINE__, __FILE__);
+		}
+
+		// Look for game packages
+		while (false !== ($entry = readdir($handle)))
+		{
+			// If the current file isn't a folder, we aren't interested.
+			if (!is_dir($path . $entry))
+			{
+				continue;
+			}
+
+			$classname = 'game_' . $entry;
+
+			// Ignore any directories which aren't valid game packages, or don't have a valid game
+			if (is_file($path . $entry . "/$classname.php"))
+			{
+				include($entry . "/$classname.php");
+				if (!class_exists($classname))
+				{
+					continue;
+				}
+				
+				// Retrieve the game information
+				$newgame = new $classname();
+
+				$games[] = array(
+					'id'        => $entry,
+					'name'      => $newgame->name,
+					'classname' => $classname,
+				);
+			}
+		}
+		closedir($handle);
+
+		$sort = $games;
+		ksort($sort);
+		
+		return $sort;
+	}
+
     function getArmorTypes()
     {
         global $db;

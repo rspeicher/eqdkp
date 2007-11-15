@@ -1180,7 +1180,7 @@ class installer
 
             'L_SUBMIT'               => $lang['INSTALL_LOGIN'],
 
-            'U_ACTION'               => $eqdkp_root_path . "login.php?redirect=" . urlencode('admin/config.php'),
+            'U_ACTION'               => $eqdkp_root_path . "login.php?redirect=" . urlencode('admin/settings.php'),
         ));
     
         $tpl->generate_navigation($this->submenu_ary, $sub);
@@ -1225,10 +1225,10 @@ class installer
         @fclose($sh);
 
         $tpl->assign_block_vars('checks', array(
-            'TITLE'            => $lang['EQDKP_VER_LATEST'],
-            'RESULT'        => $result,
+            'TITLE'           => $lang['EQDKP_VER_LATEST'],
+            'RESULT'          => $result,
 
-            'S_EXPLAIN'        => false,
+            'S_EXPLAIN'       => false,
             'S_LEGEND'        => false,
         ));
         
@@ -1244,64 +1244,63 @@ class installer
             'language'        => basename(request_var('language', '')),
 
             'dbms'            => request_var('dbms', ''),
-            'dbhost'        => request_var('dbhost', ''),
-            'dbport'        => request_var('dbport', ''),
-            'dbuser'        => request_var('dbuser', ''),
-            'dbpass'        => htmlspecialchars_decode(request_var('dbpass', '', true)),
-            'dbname'        => request_var('dbname', ''),
+            'dbhost'          => request_var('dbhost', ''),
+            'dbport'          => request_var('dbport', ''),
+            'dbuser'          => request_var('dbuser', ''),
+            'dbpass'          => htmlspecialchars_decode(request_var('dbpass', '', true)),
+            'dbname'          => request_var('dbname', ''),
             'table_prefix'    => request_var('table_prefix', ''),
 
-            'default_lang'        => basename(request_var('default_lang', '')),
-            'default_locale'    => basename(request_var('default_locale', '')),
+            'default_lang'    => basename(request_var('default_lang', '')),
+            'default_locale'  => basename(request_var('default_locale', '')),
 
-            'admin_name'        => request_var('admin_name', '', true),
-            'admin_pass1'        => request_var('admin_pass1', '', true),
-            'admin_pass2'        => request_var('admin_pass2', '', true),
-            'admin_email1'        => strtolower(request_var('admin_email1', '')),
-            'admin_email2'        => strtolower(request_var('admin_email2', '')),
+            'admin_name'      => request_var('admin_name', '', true),
+            'admin_pass1'     => request_var('admin_pass1', '', true),
+            'admin_pass2'     => request_var('admin_pass2', '', true),
+            'admin_email1'    => strtolower(request_var('admin_email1', '')),
+            'admin_email2'    => strtolower(request_var('admin_email2', '')),
             
-            'server_name'        => request_var('server_name', ''),
-            'server_port'        => request_var('server_port', ''),
-            'server_path'        => request_var('server_path', ''),
+            'server_name'     => request_var('server_name', ''),
+            'server_port'     => request_var('server_port', ''),
+            'server_path'     => request_var('server_path', ''),
         );
     } 
 
     /**
-    * The variables that we will be passing between pages
-    * Used to retrieve data quickly on each page
+    * The fields for each step of the installation process
+    * Used to automatically generate the input fields per page
     */
-    var $request_vars = array('language', 'dbhost', 'dbuser', 'dbpass', 'dbname', 'dbms', 'table_prefix', 'default_lang', 'default_locale', 'admin_name', 'admin_pass1', 'admin_pass2', 'admin_email', 'server_name', 'server_port', 'server_path');    
 
     var $default_config_options = array(
-        'legend1'                => 'DEFAULT_CONFIG',
-        'default_lang'            => array('lang' => 'DEFAULT_LANG',        'type' => 'select', 'options' => 'inst_language_select(\'{VALUE}\')', 'explain' => false),
+        'legend1'               => 'DEFAULT_CONFIG',
+        'default_lang'          => array('lang' => 'DEFAULT_LANG',      'type' => 'select', 'options' => 'inst_language_select(\'{VALUE}\')', 'explain' => false),
         'default_locale'        => array('lang' => 'DEFAULT_LOCALE',    'type' => 'select', 'options' => 'inst_locale_select(\'{VALUE}\')', 'explain' => false),
     );
 
     var $db_config_options = array(
-        'legend1'                => 'DB_CONFIG',
-        'dbms'                    => array('lang' => 'DB_TYPE',        'type' => 'select', 'options' => 'dbms_select(\'{VALUE}\')', 'explain' => false),
-        'dbhost'                => array('lang' => 'DB_HOST',        'type' => 'text:25:100', 'explain' => false),
-        'dbname'                => array('lang' => 'DB_NAME',        'type' => 'text:25:100', 'explain' => false),
-        'dbuser'                => array('lang' => 'DB_USERNAME',    'type' => 'text:25:100', 'explain' => false),
-        'dbpass'                => array('lang' => 'DB_PASSWORD',    'type' => 'password:25:100', 'explain' => false),
-        'table_prefix'            => array('lang' => 'TABLE_PREFIX',    'type' => 'text:25:100', 'explain' => false),
+        'legend1'               => 'DB_CONFIG',
+        'dbms'                  => array('lang' => 'DB_TYPE',           'type' => 'select', 'options' => 'dbms_select(\'{VALUE}\')', 'explain' => false),
+        'dbhost'                => array('lang' => 'DB_HOST',           'type' => 'text:25:100', 'explain' => false),
+        'dbname'                => array('lang' => 'DB_NAME',           'type' => 'text:25:100', 'explain' => false),
+        'dbuser'                => array('lang' => 'DB_USERNAME',       'type' => 'text:25:100', 'explain' => false),
+        'dbpass'                => array('lang' => 'DB_PASSWORD',       'type' => 'password:25:100', 'explain' => false),
+        'table_prefix'          => array('lang' => 'TABLE_PREFIX',      'type' => 'text:25:100', 'explain' => false),
     );
 
     var $server_config_options = array(
-        'legend1'                => 'SERVER_CONFIG',
-        'server_name'            => array('lang' => 'SERVER_NAME',        'type' => 'text:40:255', 'explain' => false),
-        'server_port'            => array('lang' => 'DB_PORT',            'type' => 'text:5:5', 'explain' => true),
-        'server_path'            => array('lang' => 'SERVER_PATH',        'type' => 'text::255', 'explain' => true),
+        'legend1'               => 'SERVER_CONFIG',
+        'server_name'           => array('lang' => 'SERVER_NAME',       'type' => 'text:40:255', 'explain' => false),
+        'server_port'           => array('lang' => 'DB_PORT',           'type' => 'text:5:5', 'explain' => true),
+        'server_path'           => array('lang' => 'SERVER_PATH',       'type' => 'text::255', 'explain' => true),
     );
 
     var $admin_config_options = array(
-        'legend1'                => 'ADMIN_CONFIG',
+        'legend1'               => 'ADMIN_CONFIG',
         'admin_name'            => array('lang' => 'ADMIN_USERNAME',            'type' => 'text:25:100', 'explain' => true),
-        'admin_pass1'            => array('lang' => 'ADMIN_PASSWORD',            'type' => 'password:25:100', 'explain' => true),
-        'admin_pass2'            => array('lang' => 'ADMIN_PASSWORD_CONFIRM',    'type' => 'password:25:100', 'explain' => false),
-        'admin_email1'            => array('lang' => 'ADMIN_EMAIL',                'type' => 'text:25:100', 'explain' => false),
-        'admin_email2'            => array('lang' => 'ADMIN_EMAIL',                'type' => 'text:25:100', 'explain' => false),
+        'admin_pass1'           => array('lang' => 'ADMIN_PASSWORD',            'type' => 'password:25:100', 'explain' => true),
+        'admin_pass2'           => array('lang' => 'ADMIN_PASSWORD_CONFIRM',    'type' => 'password:25:100', 'explain' => false),
+        'admin_email1'          => array('lang' => 'ADMIN_EMAIL',               'type' => 'text:25:100', 'explain' => false),
+        'admin_email2'          => array('lang' => 'ADMIN_EMAIL',               'type' => 'text:25:100', 'explain' => false),
     );
 
 }

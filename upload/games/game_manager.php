@@ -63,10 +63,10 @@ class Game_Manager
 		global $eqdkp_root_path;
 	
 		$games = $sort = array();
-		$listgames = true;
 
 		$path   = $eqdkp_root_path . 'games/';
 		$handle = @opendir($path);
+		$get_gameinfo = true;
 
 		if (!$handle)
 		{
@@ -88,22 +88,23 @@ class Game_Manager
 			if (is_file($path . $entry . "/$classname.php"))
 			{
 				include($entry . "/$classname.php");
-				if (!class_exists($classname))
+				
+				// Retrieve the game information
+				if( !$game_info )
 				{
 					continue;
 				}
 				
-				// Retrieve the game information
-				$newgame = new $classname();
-
-				$games[] = array(
-					'id'        => $entry,
-					'name'      => $newgame->name,
+				$games[$entry] = array(
+					'id'        => $game_info['id'],
 					'classname' => $classname,
+					'name'      => $game_info['name'],
+					'available' => $game_info['available'],
 				);
 			}
 		}
 		closedir($handle);
+		unset($game_info, $classname, $get_gameinfo);
 
 		$sort = $games;
 		ksort($sort);

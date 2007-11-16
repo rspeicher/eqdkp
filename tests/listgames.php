@@ -17,9 +17,9 @@ For instance, once the Game_Manager starts running, the active directory will st
 */
 
 $filename = $eqdkp_root_path . 'games/wow';
-echo $filename . "<br />";
+echo $filename . "<br />\n\n";
 echo (is_dir($filename)) ? 'true' : 'false';
-echo "<br />";
+echo "<br />\n\n";
 
 $gm = new Game_Manager();
 $games = $gm->list_games();

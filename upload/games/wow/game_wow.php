@@ -14,14 +14,14 @@
  * @version     $Rev$
  */
 
-if ( !defined('EQDKP_INC') )
+if (!defined('EQDKP_INC') || !defined('IN_GAME_MANAGER'))
 {
     header('HTTP/1.0 404 Not Found');
     exit;
 }
 
 $game_info = array(
-	'id'        => 'wow',
+	'id'        => 'WoW',
 	'name'      => 'World of Warcraft',
 	'version'   => '1.0',
 	'max_level' => 70,
@@ -123,8 +123,8 @@ if (!isset($get_gameinfo))
 		
 		// Factions
 		'factions'     => array(
-			'alliance' => array('id' => 1, 'races' => array('human','draenei','dwarf','gnome','nightelf')),
-			'horde'    => array('id' => 2, 'races' => array('bloodelf','orc','tauren','troll','undead')),
+			'alliance' => array('id' => 1, 'name' => 'Alliance', 'races' => array('human','draenei','dwarf','gnome','nightelf')),
+			'horde'    => array('id' => 2, 'name' => 'Horde', 'races' => array('bloodelf','orc','tauren','troll','undead')),
 		),
 
 		// Races

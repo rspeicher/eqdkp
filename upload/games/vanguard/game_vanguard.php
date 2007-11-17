@@ -14,11 +14,12 @@
  * @version     $Rev$
  */
 
-if ( !defined('EQDKP_INC') )
+if (!defined('EQDKP_INC') || !defined('IN_GAME_MANAGER'))
 {
     header('HTTP/1.0 404 Not Found');
     exit;
 }
+
 
 
 ?>

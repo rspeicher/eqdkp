@@ -19,6 +19,7 @@ if ( !defined('EQDKP_INC') )
     header('HTTP/1.0 404 Not Found');
     exit;
 }
+define('IN_GAME_MANAGER', true);
 
 // TODO: Log files store the race and class *IDs*, not the strings
 // This class needs to provide methods to find the names by ID.
@@ -112,6 +113,17 @@ class Game_Manager
 	 */
 	function set_current_game($game_id)
 	{
+		/* At the moment I've commented this out because I don't like the idea of relying on the cached data. *shrug*
+		if (isset($this->games[$game_id]))
+		{
+			$this_game = $this->games[$game_id];
+			if (isset($this_game['name'] && isset($this_game['data']) && count($this_game['data']))
+			{
+				return $this_game['name'];
+			}
+		}
+		*/
+		
 		// Retrieve the game data for the specified game
 		$gamedata = $this->get_game_data($game_id);
 		
@@ -138,7 +150,8 @@ class Game_Manager
 	function get_game_data($game_id)
 	{
 		// If we didn't get a valid game package name, there's no point in continuing.
-		if (!strval($game_id) || !strlen($game_id))
+		// TODO: Perhaps add code here to accept $game_id as the array values returned from list_games() / get_game_data() ? Probably not.
+		if (!is_string($game_id) || !strlen($game_id))
 		{
 			return false;
 		}
@@ -336,5 +349,140 @@ class Game_Manager
             return sanitize($class_name) . " (Level {$min_level}+)";
         }
     }
+	
+	/**
+	 * Builds and runs the SQL to install the current game
+	 *
+	 * @access   private
+	 *
+	 * NOTE: In order to enforce nice order of operations with installation, usage of this method 
+	 *       is limited to the current game ONLY.
+	 */
+	// TODO: Perhaps provide an array of mappings from the old game settings to the new ones (eg: WoW class ID -> EQ class ID)
+	// FIXME: calls to sanitize need to be scrutinized
+	function _install_game()
+	{
+		global $db;
+		
+		// If the current game hasn't been set, we don't want to do this.
+		if( $this->current_game === false || !strlen($this->current_game))
+		{
+			//trigger_error('NO_CURRENT_GAME');
+			return false;
+		}
+		
+		// Retrieve the game data for the current game
+		$game_name = $this->games[$this->current_game]['name'];
+		$max_level = $this->games[$this->current_game]['max_level'];
+		$data      = $this->games[$this->current_game]['data'];
+
+		/** Build the SQL for the new game data
+		 *
+		 * NOTE: The order of operations here is fairly important.
+		 * FIXME: This method will definitely fall down on account of foreign key constraints for classes and races and such.
+		 *
+		 * TODO: Use $games[$game_id]['available'] information to only bother working with what we have.
+		 * TODO: Replace use of $info['name'] with the keys themselves. Then upon retrieval from the db, the 'name' can be replaced with the language string.
+		 *
+		 * FIXME: ID information. Right now, if ID isn't provided in the game info file, 
+		 *        this will all fail horribly. use array_key_exists?
+		 */
+		$game_sql = array(
+			'factions'      => array(),
+			'races'         => array(),
+			'armor_types'   => array(),
+			'classes'       => array(),
+			'armor_classes' => array(),
+		);
+		
+		// Factions
+		foreach ($data['factions'] as $faction => $info)
+		{
+			$sql_data = array(
+				'faction_id'      => intval($info['id']),
+				'faction_name'    => sanitize($info['name']),
+			);
+			$game_sql['factions'][] = $db->sql_build_query('INSERT',$sql_data);
+		}
+		
+		// Races
+		$race_sql = array();
+		foreach ($data['races'] as $race => $info)
+		{
+			$sql_data = array(
+				'race_id'         => intval($info['id']),
+				'race_name'       => sanitize($info['name']),
+				'race_faction_id' => (is_numeric($info['faction'])) ? intval($info['faction']) : intval($data['factions'][$info['faction']]['id']),
+			);
+			$game_sql['races'][] = $db->sql_build_query('INSERT',$sql_data);
+		}
+		
+		// Armor Types
+		// TODO: Update database structure before this can be done explicitly
+
+		// Classes
+		foreach ($data['classes'] as $class => $info)
+		{
+			// 1.3 compatibility (this makes baby jesus cry you know)
+			// Search through the class to armor mappings, and if there's one for this class, add it to a short-list
+			$class_armor_types = array();
+			foreach ($data['class_armor'] as $mapping)
+			{
+				if (false !== strpos(strtolower($mapping['class']), strtolower($class)))
+				{
+					$class_armor_types[] = $mapping;
+				}
+			}
+			
+			// Now, for every class-armor mapping for this class, we create a new 'class'
+			foreach($class_armor_types as $class_armor_type)
+			{
+				$armor_name = $data['armor_types'][$class_armor_type['armor']]['name']; // Get armor's default name from the armor_type data
+				$armor_min  = isset($class_armor_type['min']) ? intval($class_armor_type['min']) : 0;
+				$armor_max  = isset($class_armor_type['max']) ? intval($class_armor_type['max']) : $max_level;
+				
+				$sql_data = array(
+					'class_id'        => intval($info['id']),
+					'class_name'      => sanitize($info['name']),
+					'class_armor_type'=> $armor_name,
+					'class_min_level' => $armor_min,
+					'class_max_level' => $armor_max,
+				);
+				$game_sql['classes'][] = $db->sql_build_query('INSERT',$sql_data);
+			}
+		}
+
+		// Armor-Class mappings
+		// TODO: Update database structure before this can be done explicitly
+		
+		var_dump($game_sql);
+		
+		// Time to start assaulting the database!
+		// TODO: Being able to rollback a database transaction would be *really* useful about here
+/*
+		// Discard the old table information
+		$db->sql_query("TRUNCATE TABLE __classes;");
+		$db->sql_query("TRUNCATE TABLE __races;");
+		$db->sql_query("TRUNCATE TABLE __factions;");
+		
+		// Execute the INSERTs for the new information
+		
+		
+		// Other game-related information updates
+		// Max level update
+		$sql = "UPDATE __members 
+			SET member_level = {$max_level} 
+			WHERE member_level > {$max_level};";
+        $db->sql_query($sql);
+		
+		$sql = "ALTER TABLE __members 
+			MODIFY member_level tinyint(2) NOT NULL 
+			default '{$max_level}';";
+        $db->sql_query($sql);
+
+		// Current game name
+        $db->sql_query("UPDATE __config SET config_value = '" . $db->sql_escape($game_name) . "' WHERE config_name = 'default_game';"),
+*/
+	}
 }
 ?>

@@ -158,7 +158,7 @@ else
         array('VALUE' => '', 'SELECTED' => '', 'OPTION' => '---------')
     );
     
-    foreach ( $gm->getArmorTypes() as $type )
+    foreach ( $gm->sql_armor_types() as $type )
     {
         $filter_options[] = array(
             'VALUE'    => sanitize("armor_" . $type, ENT),
@@ -169,7 +169,7 @@ else
     
     $filter_options[] = array('VALUE' => '', 'SELECTED' => '', 'OPTION' => '---------');
     
-    foreach ( $gm->getClasses() as $class )
+    foreach ( $gm->sql_classes() as $class )
     {
         $filter_options[] = array(
             'VALUE'    => sanitize($class['name'], ENT),

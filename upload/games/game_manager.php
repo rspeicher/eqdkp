@@ -25,15 +25,20 @@ if ( !defined('EQDKP_INC') )
 
 class Game_Manager
 {
-    var $armor_types = array();
-    var $classes     = array();
-    var $races       = array();
+	var $games        = array();
+	
+	var $current_game      = '';
+	var $current_game_data = array();
+	
+    var $armor_types  = array();
+    var $classes      = array();
+    var $races        = array();
     
     /**
      * Returns a Game_Manager class instance for a specific game
      *
-     * @param string $game Game
-     * @return Game_Manager
+     * @param     string     $game             The game to create the game manager for.
+     * @return    Game_Manager
      * @static
      */
     function factory($game)
@@ -57,16 +62,19 @@ class Game_Manager
         
         return $retval;
     }
-
+	
+	/**
+	 * List all valid games available for use by EQdkp.
+	 * @access public
+	 */
 	function list_games()
 	{
 		global $eqdkp_root_path;
 	
-		$games = $sort = array();
+		$sort = array();
 
 		$path   = $eqdkp_root_path . 'games/';
 		$handle = @opendir($path);
-		$get_gameinfo = true;
 
 		if (!$handle)
 		{
@@ -76,43 +84,81 @@ class Game_Manager
 		// Look for game packages
 		while (false !== ($entry = readdir($handle)))
 		{
-			// If the current file isn't a folder, we aren't interested.
-			if (!is_dir($path . $entry))
+			$gameinfo = $this->_get_game_info($entry, true);
+			// Retrieve the game information
+			if (!count($gameinfo))
 			{
 				continue;
 			}
-
-			$classname = 'game_' . $entry;
-
-			// Ignore any directories which aren't valid game packages, or don't have a valid game
-			if (is_file($path . $entry . "/$classname.php"))
-			{
-				include($entry . "/$classname.php");
-				
-				// Retrieve the game information
-				if( !$game_info )
-				{
-					continue;
-				}
-				
-				$games[$entry] = array(
-					'id'        => $game_info['id'],
-					'classname' => $classname,
-					'name'      => $game_info['name'],
-					'available' => $game_info['available'],
-				);
-			}
+			
+			$this->games[$entry] = $gameinfo;
 		}
 		closedir($handle);
-		unset($game_info, $classname, $get_gameinfo);
+		unset($game_info, $classname);
 
-		$sort = $games;
+		$sort = $this->games;
 		ksort($sort);
 		
 		return $sort;
 	}
 
-    function getArmorTypes()
+	/**
+	 * Sets the game manager's current game (and game data) to the specified game
+	 */
+	function set_current_game()
+	{
+	}
+
+	/**
+	 * Retrieve game information from a flat game package file
+	 * @param     string     $game_id          The package name for the game. This must correspond with a folder name in the games folder.
+	 * @param     bool       $info_only        Whether to retrieve only the general game information (true) or all game-specific data (false).
+	 * @return    array                        The information for the requested game. If $info_only is false, all extra data is added to this array under the key 'data'.
+	 *
+	 * @access    private
+	 */
+	function _get_game_info($game_id, $info_only = false)
+	{
+		global $eqdkp_root_path;
+		
+		$path      = $eqdkp_root_path . 'games/' . $game_id;
+		$classname = 'game_' . $game_id;
+		$data      = array();
+
+		// Retrieve the game information
+		if ($info_only === true)
+		{
+			$get_gameinfo = true;
+		}
+
+		// If the specified game ID doesn't have a folder, we aren't interested.
+		if (is_dir($path))
+		{
+			// Ignore any directory which isn't a valid game package, or don't have a valid game
+			if (is_file($path . "/$classname.php"))
+			{
+				include($path . "/$classname.php");
+				
+				$data = (isset($game_info)) ? $game_info : $data;
+				$data['classname'] = $classname;
+				
+				if (!$info_only && isset($game_data))
+				{
+					$data['data'] = $game_data;
+					unset($game_data);
+				}
+				unset($game_info);
+			}
+		}
+		
+		return $data;
+	}
+
+	/**
+	 * Retrieve the installed game's armor type information from the database
+	 * @return    array
+	 */
+    function sql_armor_types()
     {
         global $db;
         
@@ -131,7 +177,11 @@ class Game_Manager
         return $this->armor_types;
     }
     
-    function getClasses()
+	/**
+	 * Retrieve the installed game's armor type information from the database
+	 * @return    array
+	 */
+    function sql_classes()
     {
         global $db;
         
@@ -156,7 +206,11 @@ class Game_Manager
         return $this->classes;
     }
     
-    function getRaces()
+	/**
+	 * Retrieve the installed game's armor type information from the database
+	 * @return    array
+	 */
+    function sql_races()
     {
         global $db;
         
@@ -181,18 +235,23 @@ class Game_Manager
         return $this->races;
     }
     
-    function formatClassNameWithLevel($class_id)
+	/**
+	 * Retrieve the installed game's armor type information from the database
+	 * @param     string     $class_id         The class name to format
+	 * @return    string                       The formatted class name for $class_id from $this->classes
+	 */
+    function format_class_name($class_id)
     {
         if ( count($this->classes) == 0 )
         {
-            $this->getClasses();
+            $this->sql_classes();
         }
         
         foreach ( $this->classes as $class )
         {
             if ( $class['id'] == $class_id )
             {
-                return $this->_dumbFormatClass($class['name'], $class['min_level'], $class['max_level']);
+                return $this->_format_class_with_level($class['name'], $class['min_level'], $class['max_level']);
             }
         }
     }
@@ -202,7 +261,7 @@ class Game_Manager
      * expect to deprecate this when we Do It Better™
      */
     // TODO: Localize
-    function _dumbFormatClass($class_name, $min_level = 0, $max_level = 0)
+    function _format_class_with_level($class_name, $min_level = 0, $max_level = 0)
     {
         if ( empty($class_name) )
         {
@@ -219,3 +278,4 @@ class Game_Manager
         }
     }
 }
+?>

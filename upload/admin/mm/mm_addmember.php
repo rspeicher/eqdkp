@@ -417,16 +417,16 @@ class MM_Addmember extends EQdkp_Admin
         require_once($eqdkp->root_path . 'games/game_manager.php');
         $gm = new Game_Manager();
         
-        foreach ( $gm->getClasses() as $class )
+        foreach ( $gm->sql_classes() as $class )
         {
             $tpl->assign_block_vars('class_row', array(
                 'VALUE'    => $class['id'],
                 'SELECTED' => option_selected($class['id'] == $this->member['member_class_id']),
-                'OPTION'   => $gm->formatClassNameWithLevel($class['id']),
+                'OPTION'   => $gm->format_class_name($class['id']),
             ));
         }
 
-        foreach ( $gm->getRaces() as $race )
+        foreach ( $gm->sql_races() as $race )
         {
             $tpl->assign_block_vars('race_row', array(
                 'VALUE'    => $race['id'],

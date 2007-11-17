@@ -25,11 +25,11 @@ if ( !defined('EQDKP_INC') )
 
 class Game_Manager
 {
+	// Uninstalled game information
 	var $games        = array();
+	var $current_game = '';
 	
-	var $current_game      = '';
-	var $current_game_data = array();
-	
+	// Installed game info cache
     var $armor_types  = array();
     var $classes      = array();
     var $races        = array();
@@ -52,7 +52,7 @@ class Game_Manager
         
         if ( file_exists($file) )
         {
-            include_once($fie);
+            include_once($file);
             $retval = new $class;
         }
         else
@@ -84,13 +84,15 @@ class Game_Manager
 		// Look for game packages
 		while (false !== ($entry = readdir($handle)))
 		{
-			$gameinfo = $this->_get_game_info($entry, true);
-			// Retrieve the game information
-			if (!count($gameinfo))
+			// Retrieve the game information only
+			$gameinfo = $this->_get_game_data($entry, true);
+			// If the file wasn't a valid game package, or no valid data was found for the game
+			if ($gameinfo === false || !count($gameinfo))
 			{
 				continue;
 			}
 			
+			// TODO: Check for a duplicate game info entry?
 			$this->games[$entry] = $gameinfo;
 		}
 		closedir($handle);
@@ -104,20 +106,70 @@ class Game_Manager
 
 	/**
 	 * Sets the game manager's current game (and game data) to the specified game
+	 * @param     string     $game_id          The package name for the game. This must correspond with a folder name in the games folder.
+	 * @return    mixed                        Returns false if the game doesn't exist. Otherwise, returns the current game name 
+	 *                                         (if no valid game data was found, $current_game remains the same as it was before).
 	 */
-	function set_current_game()
+	function set_current_game($game_id)
 	{
+		// Retrieve the game data for the specified game
+		$gamedata = $this->get_game_data($game_id);
+		
+		if ($gamedata === false)
+		{
+			return false;
+		}
+		else
+		{
+			if (count($gamedata))
+			{
+				$this->current_game = $game_id;
+			}
+			return $this->current_game;
+		}
 	}
 
+
+	/**
+	 * Retrieves, stores and returns the game data for the specified game
+	 * @param     string     $game_id          The package name for the game. This must correspond with a folder name in the games folder.
+	 * @return    mixed                        False if the game id is invalid. Empty array if no data was found. Filled array if data existed.
+	 */
+	function get_game_data($game_id)
+	{
+		// If we didn't get a valid game package name, there's no point in continuing.
+		if (!strval($game_id) || !strlen($game_id))
+		{
+			return false;
+		}
+		
+		// Retrieve the game data for the specified game
+		$gamedata = $this->_get_game_data($game_id);
+		
+		if (!count($gamedata))
+		{
+			return array();
+		}
+		
+		$this->current_game = $game_id;
+		// Update the data for this game ID, regardless of the data stored in there before.
+		// TODO: Duplication / version checks?		
+		$this->games[$game_id] = $gamedata;
+		
+		return $this->games[$game_id];
+	}
+
+	
 	/**
 	 * Retrieve game information from a flat game package file
 	 * @param     string     $game_id          The package name for the game. This must correspond with a folder name in the games folder.
 	 * @param     bool       $info_only        Whether to retrieve only the general game information (true) or all game-specific data (false).
-	 * @return    array                        The information for the requested game. If $info_only is false, all extra data is added to this array under the key 'data'.
+	 * @return    mixed                        If successful, returns the information for the requested game. If $info_only is false, all extra 
+	 *                                         data is added to this array under the key 'data'. If the game package was invalid, returns false.
 	 *
 	 * @access    private
 	 */
-	function _get_game_info($game_id, $info_only = false)
+	function _get_game_data($game_id, $info_only = false)
 	{
 		global $eqdkp_root_path;
 		
@@ -135,11 +187,17 @@ class Game_Manager
 		if (is_dir($path))
 		{
 			// Ignore any directory which isn't a valid game package, or don't have a valid game
-			if (is_file($path . "/$classname.php"))
+			if (file_exists($path . "/$classname.php"))
 			{
 				include($path . "/$classname.php");
 				
-				$data = (isset($game_info)) ? $game_info : $data;
+				if(!isset($game_info) || !count($game_info))
+				{
+					return array();
+				}
+				// TODO: Check for game_info array validity (check for id, name)
+				
+				$data = $game_info;
 				$data['classname'] = $classname;
 				
 				if (!$info_only && isset($game_data))
@@ -148,10 +206,11 @@ class Game_Manager
 					unset($game_data);
 				}
 				unset($game_info);
+
+				return $data;
 			}
 		}
-		
-		return $data;
+		return false;	
 	}
 
 	/**

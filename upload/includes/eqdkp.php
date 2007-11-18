@@ -433,7 +433,7 @@ class EQdkp
                     {
                         $tpl->assign_block_vars('query_row', array(
                             'ROW_CLASS' => $this->switch_row_class(),
-                            'QUERY'     => $this->sql_highlight($query)
+                            'QUERY'     => $this->sql_highlight(sanitize($query, ENT))
                         ));
                     }
                 }

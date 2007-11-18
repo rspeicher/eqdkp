@@ -33,7 +33,7 @@ if ( $in->get(URI_NAME) != '' )
                 (member_earned-member_spent+member_adjustment) AS member_current,
                 member_firstraid, member_lastraid
             FROM __members
-            WHERE (`member_name` = '" . $db->escape($in->get(URI_NAME)) . "')";
+            WHERE (`member_name` = '" . $db->escape(unsanitize($in->get(URI_NAME))) . "')";
 
     if ( !($member_result = $db->query($sql)) )
     {

@@ -101,6 +101,8 @@ class dbal
         
         switch ($query)
         {
+            case 'REPLACE':
+                // Fall through
             case 'INSERT':
                 // Returns a string in the form: (<field1>, <field2> ...) VALUES ('<value1>', <(int)value2>, ...)
                 foreach ( $array as $field => $value )

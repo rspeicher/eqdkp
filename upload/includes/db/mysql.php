@@ -96,7 +96,7 @@ class dbal_mysql extends dbal
             
             if ( is_array($params) && count($params) > 0 )
             {
-                $params = $this->sql_build_query(preg_replace('/^(INSERT|UPDATE).+/', '\1', $query), $params);
+                $params = $this->sql_build_query(preg_replace('/^(INSERT|REPLACE|UPDATE).+/', '\1', $query), $params);
                 
                 $query  = str_replace(':params', $params, $query);
             }
@@ -310,14 +310,14 @@ class dbal_mysql extends dbal
         if (!$this->link_id)
         {
             return array(
-                'message'    => @mysql_error(),
-                'code'       => @mysql_errno()
+                'message' => @mysql_error(),
+                'code'    => @mysql_errno()
             );
         }
 
         return array(
-            'message'    => @mysql_error($this->link_id),
-            'code'       => @mysql_errno($this->link_id)
+            'message' => @mysql_error($this->link_id),
+            'code'    => @mysql_errno($this->link_id)
         );
     }
 

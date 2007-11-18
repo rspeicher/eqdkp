@@ -203,23 +203,6 @@ function log_path($id = null)
 ## ############################################################################
 
 /**
- * Return the appropriate path to a member or list of members.
- *
- * @param string $id If present, returns the path to a specific member
- * @return string
- */
-function member_path($id = null)
-{
-    if ( !is_null($id) )
-    {
-        $id = sanitize($id, ENT);
-        return path_default('viewmember.php') . path_params(URI_NAME, $id);
-    }
-    
-    return path_default('listmembers.php');
-}
-
-/**
  * Return the appropriate path to add or edit a member.
  *
  * @param string $id If present, returns the path to edit a specific member
@@ -234,6 +217,23 @@ function edit_member_path($id = null)
     }
     
     return path_default('manage_members.php', true) . path_params('mode', 'addmember');
+}
+
+/**
+ * Return the appropriate path to a member or list of members.
+ *
+ * @param string $id If present, returns the path to a specific member
+ * @return string
+ */
+function member_path($id = null)
+{
+    if ( !is_null($id) )
+    {
+        $id = sanitize($id, ENT);
+        return path_default('viewmember.php') . path_params(URI_NAME, $id);
+    }
+    
+    return path_default('listmembers.php');
 }
 
 ## ############################################################################

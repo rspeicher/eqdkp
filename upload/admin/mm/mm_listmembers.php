@@ -34,7 +34,6 @@ $sort_order = array(
     7 => array('member_class', 'member_class desc'),
     8 => array('rank_name', 'rank_name desc'),
     9 => array('class_armor_type', 'class_armor_type desc')
-
 );
 
 $current_order = switch_order($sort_order);
@@ -48,11 +47,11 @@ $sort_index = explode('.', $current_order['uri']['current']);
 $previous_source = preg_replace('/( (asc|desc))?/i', '', $sort_order[$sort_index[0]][$sort_index[1]]);
 
 $sql = "SELECT m.*, (m.member_earned-m.member_spent+m.member_adjustment) AS member_current, 
-            c.class_name AS member_class, r.rank_name, r.rank_prefix, r.rank_suffix,
-            c.class_armor_type AS armor_type
+            m.member_status, CONCAT(r.rank_prefix, '%s', r.rank_suffix) AS member_sname, 
+            r.rank_name, r.rank_hide, r.rank_id, c.class_name AS member_class
         FROM __members AS m, __member_ranks AS r, __classes AS c
-        WHERE (m.`member_rank_id` = r.`rank_id`)
-        AND (m.`member_class_id` = c.`class_id`)
+        WHERE (c.class_id = m.member_class_id)
+        AND (m.member_rank_id = r.rank_id)
         ORDER BY {$current_order['sql']}";
 if ( !($members_result = $db->query($sql)) )
 {
@@ -65,14 +64,14 @@ while ( $row = $db->fetch_record($members_result) )
         'ROW_CLASS'     => $eqdkp->switch_row_class(),
         'ID'            => $row['member_id'],
         'COUNT'         => ($row[$previous_source] == $previous_data) ? '&nbsp;' : $member_count,
-        'NAME'          => $row['rank_prefix'] . sanitize($row['member_name']) . $row['rank_suffix'],
+        'NAME'          => sprintf($row['member_sname'], sanitize($row['member_name'])),
         'RANK'          => sanitize($row['rank_name']),
-        'LEVEL'         => ( $row['member_level'] > 0 ) ? $row['member_level'] : '&nbsp;',
-        'ARMOR'         => ( !empty($row['armor_type']) ) ? $row['armor_type'] : '&nbsp;',
-        'CLASS'         => ( $row['member_class'] != 'NULL' ) ? $row['member_class'] : '&nbsp;',
-        'EARNED'        => $row['member_earned'],
-        'SPENT'         => $row['member_spent'],
-        'ADJUSTMENT'    => $row['member_adjustment'],
+        'LEVEL'         => ( $row['member_level'] > 0 ) ? intval($row['member_level']) : '&nbsp;',
+        'ARMOR'         => ( !empty($row['armor_type']) ) ? sanitize($row['armor_type']) : '&nbsp;',
+        'CLASS'         => ( $row['member_class'] != 'NULL' ) ? sanitize($row['member_class']) : '&nbsp;',
+        'EARNED'        => number_format($row['member_earned'], 2),
+        'SPENT'         => number_format($row['member_spent'], 2),
+        'ADJUSTMENT'    => number_format($row['member_adjustment'], 2),
         'CURRENT'       => number_format($row['member_current'], 2),
         'LASTRAID'      => ( !empty($row['member_lastraid']) ) ? date($user->style['date_notime_short'], $row['member_lastraid']) : '&nbsp;',
         'C_ADJUSTMENT'  => color_item($row['member_adjustment']),
@@ -88,7 +87,7 @@ while ( $row = $db->fetch_record($members_result) )
 $footcount_text = sprintf($user->lang['listmembers_footcount'], $db->num_rows($members_result));
 
 $tpl->assign_vars(array(
-    'F_MEMBERS' => 'manage_members.php' . $SID . '&amp;mode=addmember',
+    'F_MEMBERS' => edit_member_path(),
     
     'L_NAME'       => $user->lang['name'],
     'L_RANK'       => $user->lang['rank'],
@@ -114,7 +113,7 @@ $tpl->assign_vars(array(
     'O_CURRENT'    => $current_order['uri'][4],
     'O_LASTRAID'   => $current_order['uri'][5],
     
-    'U_LIST_MEMBERS' => 'manage_members.php'.$SID.'&amp;mode=list&amp;',
+    'U_LIST_MEMBERS' => path_default('manage_members.php', true) . path_params('mode', 'list') . '&amp;',
     
     'S_COMPARE' => false,
     'S_NOTMM'   => false,

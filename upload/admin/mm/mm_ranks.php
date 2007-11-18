@@ -25,9 +25,6 @@ class MM_Ranks extends EQdkp_Admin
 {
     function mm_ranks()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
-        global $SID;
-        
         parent::eqdkp_admin();
         
         $this->assoc_buttons(array(
@@ -54,8 +51,7 @@ class MM_Ranks extends EQdkp_Admin
     // ---------------------------------------------------------
     function process_submit()
     {
-        global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $SID;
+        global $db, $eqdkp, $user, $in;
         
         $rank_names = $in->getArray('ranks', 'string');
         $prefixes   = $in->getArray('prefix', 'string');
@@ -83,18 +79,17 @@ class MM_Ranks extends EQdkp_Admin
                 $rank_prefix = ( isset($prefixes[$rank_id]) ) ? unsanitize($prefixes[$rank_id]) : '';
                 $rank_suffix = ( isset($suffixes[$rank_id]) ) ? unsanitize($suffixes[$rank_id]) : '';
                
-                $query = $db->build_query('INSERT', array(
+                $db->query("REPLACE INTO __member_ranks :params", array(
                     'rank_id'     => $rank_id,
                     'rank_name'   => $rank_name,
                     'rank_hide'   => ( isset($hidden[$rank_id]) ) ? '1' : '0',
                     'rank_prefix' => $rank_prefix,
                     'rank_suffix' => $rank_suffix
                 ));
-                $db->query("REPLACE INTO __member_ranks {$query}");
             }
         }
         
-        header('Location: manage_members.php' . $SID . '&mode=ranks');
+        header('Location: ' . path_default('manage_members.php', true) . path_params('mode', 'ranks'));
     }
     
     // ---------------------------------------------------------
@@ -102,8 +97,7 @@ class MM_Ranks extends EQdkp_Admin
     // ---------------------------------------------------------
     function display_form()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
-        global $SID;
+        global $db, $eqdkp, $user, $tpl;
         
         //
         // Populate the fields
@@ -116,16 +110,12 @@ class MM_Ranks extends EQdkp_Admin
         $result = $db->query($sql);
         while ( $row = $db->fetch_record($result) )
         {
-            // Don't strip HTML tags, we want to allow them. That's the whole point.
-            $prefix = sanitize($row['rank_prefix'], true, false);
-            $suffix = sanitize($row['rank_suffix'], true, false);
-            
             $tpl->assign_block_vars('ranks_row', array(
                 'ROW_CLASS'    => $eqdkp->switch_row_class(),
                 'RANK_ID'      => intval($row['rank_id']),
-                'RANK_NAME'    => stripslashes($row['rank_name']),
-                'RANK_PREFIX'  => stripslashes($prefix),
-                'RANK_SUFFIX'  => stripslashes($suffix),
+                'RANK_NAME'    => sanitize($row['rank_name'], ENT),
+                'RANK_PREFIX'  => sanitize($row['rank_prefix'], ENT),
+                'RANK_SUFFIX'  => sanitize($row['rank_suffix'], ENT),
                 'HIDE_CHECKED' => option_checked($row['rank_hide'] == '1')
             ));
             $max_id = ( $max_id < $row['rank_id'] ) ? $row['rank_id'] : $max_id;
@@ -134,7 +124,7 @@ class MM_Ranks extends EQdkp_Admin
         
         $tpl->assign_vars(array(
             // Form vars
-            'F_EDIT_RANKS' => "manage_members.php{$SID}&amp;mode=ranks",
+            'F_EDIT_RANKS' => path_default('manage_members.php', true) . path_params('mode', 'ranks'),
             
             // Form values
             'ROW_CLASS' => $eqdkp->switch_row_class(),
@@ -147,8 +137,8 @@ class MM_Ranks extends EQdkp_Admin
             'L_LIST_PREFIX'      => $user->lang['list_prefix'],
             'L_LIST_SUFFIX'      => $user->lang['list_suffix'],
             'L_EDIT_RANKS'       => $user->lang['edit_ranks'],
-            'L_RESET'            => $user->lang['reset'])
-        );
+            'L_RESET'            => $user->lang['reset']
+        ));
         
         $eqdkp->set_vars(array(
             'page_title'    => page_title($user->lang['manage_members_title']),

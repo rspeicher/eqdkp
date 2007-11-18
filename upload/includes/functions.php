@@ -201,16 +201,21 @@ function sanitize($input, $options = 3, $ignore = null)
  */
 function unsanitize($input)
 {
-    //return htmlspecialchars_decode($input, ENT_QUOTES); // PHP >= 5.1.0
+    if ( function_exists('htmlspecialchars_decode') )
+    {
+        return htmlspecialchars_decode($input, ENT_QUOTES); // PHP >= 5.1.0
+    }
+    else
+    {
+        $retval = $input;
+        $retval = str_replace('&amp;', '&', $retval);
+        $retval = str_replace('&#039;', '\'', $retval);
+        $retval = str_replace('&quot;', '"', $retval);
+        $retval = str_replace('&lt;', '<', $retval);
+        $retval = str_replace('&gt;', '>', $retval);
     
-    $retval = $input;
-    $retval = str_replace('&amp;', '&', $retval);
-    $retval = str_replace('&#039;', '\'', $retval);
-    $retval = str_replace('&quot;', '"', $retval);
-    $retval = str_replace('&lt;', '<', $retval);
-    $retval = str_replace('&gt;', '>', $retval);
-    
-    return $retval;
+        return $retval;
+    }
 }
 
 /**

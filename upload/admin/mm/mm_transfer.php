@@ -29,8 +29,7 @@ class MM_Transfer extends EQdkp_Admin
     
     function mm_transfer()
     {
-        global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $SID;
+        global $in;
         
         parent::eqdkp_admin();
         
@@ -79,8 +78,7 @@ class MM_Transfer extends EQdkp_Admin
     // ---------------------------------------------------------
     function process_transfer()
     {
-        global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $SID;
+        global $db, $eqdkp, $user, $tpl, $in;
         
         // Dev note: At some point, I'd like to make this more configurable
         // ie, They can select what (raid, item, adjustment) they want to transfer
@@ -103,7 +101,7 @@ class MM_Transfer extends EQdkp_Admin
                     WHERE (`raid_id` = '{$row['raid_id']}')
                     AND (`member_name` = '{$member_to}')";
                     
-            // If they didn't, replace the FROM with the TWO
+            // If they didn't, replace the FROM with the TO
             if ( $db->num_rows($db->query($sql)) == 0 )
             {
                 $sql = "UPDATE __raid_attendees
@@ -203,8 +201,7 @@ class MM_Transfer extends EQdkp_Admin
     // ---------------------------------------------------------
     function display_form()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
-        global $SID;
+        global $db, $eqdkp, $user, $tpl;
         
         //
         // Generate to/from drop-downs
@@ -218,19 +215,19 @@ class MM_Transfer extends EQdkp_Admin
             $tpl->assign_block_vars('transfer_from_row', array(
                 'VALUE'    => sanitize($row['member_name'], ENT),
                 'SELECTED' => option_selected($this->transfer['from'] == $row['member_name']),
-                'OPTION'   => $row['member_name'])
-            );
+                'OPTION'   => sanitize($row['member_name'], ENT)
+            ));
             
             $tpl->assign_block_vars('transfer_to_row', array(
                 'VALUE'    => sanitize($row['member_name'], ENT),
                 'SELECTED' => option_selected($this->transfer['to'] == $row['member_name']),
-                'OPTION'   => $row['member_name'])
-            );
+                'OPTION'   => sanitize($row['member_name'], ENT)
+            ));
         }
         
         $tpl->assign_vars(array(
             // Form vars
-            'F_TRANSFER' => 'manage_members.php' . $SID . '&amp;mode=transfer',
+            'F_TRANSFER' => path_default('manage_members.php', true) . path_params('mode', 'transfer'),
             
             // Language
             'L_TRANSFER_MEMBER_HISTORY'             => $user->lang['transfer_member_history'],

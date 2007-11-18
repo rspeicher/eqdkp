@@ -31,8 +31,7 @@ class MM_Addmember extends EQdkp_Admin
 
     function mm_addmember()
     {
-        global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $SID;
+        global $db, $user, $in;
 
         parent::eqdkp_admin();
 
@@ -60,7 +59,7 @@ class MM_Addmember extends EQdkp_Admin
             {
                 $sql = "SELECT member_name
                         FROM __members
-                        WHERE (`member_id` IN (" . implode(',', $member_ids) . "))";
+                        WHERE (`member_id` IN (" . $db->escape(',', $member_ids) . "))";
                 $result = $db->query($sql);
                 while ( $row = $db->fetch_record($result) )
                 {
@@ -81,7 +80,7 @@ class MM_Addmember extends EQdkp_Admin
             'confirm_text'  => $confirm_text,
             'uri_parameter' => URI_NAME,
             'url_id'        => ( count($member_ids) > 0 ) ? implode(',', $member_ids) : $in->get(URI_NAME),
-            'script_name'   => 'manage_members.php' . $SID . '&amp;mode=addmember'
+            'script_name'   => edit_member_path()
         ));
 
         $this->assoc_buttons(array(
@@ -140,7 +139,7 @@ class MM_Addmember extends EQdkp_Admin
 
     function error_check()
     {
-        global $db, $user, $in, $SID;
+        global $db, $user, $in;
 
         if ( $in->get('add', false) || $in->get('update', false) )
         {
@@ -171,7 +170,6 @@ class MM_Addmember extends EQdkp_Admin
     function process_add()
     {
         global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $SID;
 
         //
         // Insert the member
@@ -181,7 +179,7 @@ class MM_Addmember extends EQdkp_Admin
         $member_name = strtolower(preg_replace('/\s+/i', ' ', $in->get('member_name')));
         $member_name = ucwords($member_name);
 
-        $query = $db->build_query('INSERT', array(
+        $db->query("INSERT INTO __members :params", array(
             'member_name'       => $member_name,
             'member_earned'     => $in->get('member_earned', 0.00),
             'member_spent'      => $in->get('member_spent', 0.00),
@@ -194,7 +192,6 @@ class MM_Addmember extends EQdkp_Admin
             'member_class_id'   => $in->get('member_class_id', 0),
             'member_rank_id'    => $in->get('member_rank_id', 0)
         ));
-        $db->query("INSERT INTO __members {$query}");
 
         //
         // Logging
@@ -220,8 +217,9 @@ class MM_Addmember extends EQdkp_Admin
         //
         $success_message = sprintf($user->lang['admin_add_member_success'], sanitize($member_name));
         $link_list = array(
-            $user->lang['add_member']           => 'manage_members.php' . $SID . '&amp;mode=addmember',
-            $user->lang['list_edit_del_member'] => 'manage_members.php' . $SID . '&amp;mode=list');
+            $user->lang['add_member']           => edit_member_path(),
+            $user->lang['list_edit_del_member'] => path_default('manage_members.php', true) . path_params('mode', 'list')
+        );
         $this->admin_die($success_message, $link_list);
     }
 
@@ -231,7 +229,6 @@ class MM_Addmember extends EQdkp_Admin
     function process_update()
     {
         global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $SID;
 
         //
         // Get old member data
@@ -312,7 +309,6 @@ class MM_Addmember extends EQdkp_Admin
     function process_confirm()
     {
         global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $SID;
 
         $success_message = '';
         
@@ -366,8 +362,8 @@ class MM_Addmember extends EQdkp_Admin
                         '{L_CLASS}'      => $this->old_member['member_class_id']);
                     $this->log_insert(array(
                         'log_type'   => $log_action['header'],
-                        'log_action' => $log_action)
-                    );
+                        'log_action' => $log_action
+                    ));
 
                     // Append success message
                     $success_message .= sprintf($user->lang['admin_delete_members_success'], sanitize($member_name)) . '<br />';
@@ -384,7 +380,6 @@ class MM_Addmember extends EQdkp_Admin
     function get_old_data($member_name)
     {
         global $db, $eqdkp, $user, $tpl, $pm;
-        global $SID;
 
         $sql = "SELECT *
                 FROM __members
@@ -393,7 +388,7 @@ class MM_Addmember extends EQdkp_Admin
         while ( $row = $db->fetch_record($result) )
         {
             $this->old_member = array(
-                'member_name'       => addslashes($row['member_name']),
+                'member_name'       => $row['member_name'],
                 'member_id'         => $row['member_id'],
                 'member_earned'     => $row['member_earned'],
                 'member_spent'      => $row['member_spent'],
@@ -412,7 +407,6 @@ class MM_Addmember extends EQdkp_Admin
     function display_form()
     {
         global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $SID;
 
         require_once($eqdkp->root_path . 'games/game_manager.php');
         $gm = new Game_Manager();
@@ -470,19 +464,19 @@ class MM_Addmember extends EQdkp_Admin
 
         $tpl->assign_vars(array(
             // Form vars
-            'F_ADD_MEMBER' => 'manage_members.php' . $SID . '&amp;mode=addmember',
+            'F_ADD_MEMBER' => edit_member_path(),
 
             // Form values
             'MEMBER_NAME'           => sanitize($this->member['member_name'], ENT),
             'V_MEMBER_NAME'         => ( $in->get('add', false) ) ? '' : sanitize($this->member['member_name'], ENT),
-            'MEMBER_ID'             => $this->member['member_id'],
-            'MEMBER_EARNED'         => $this->member['member_earned'],
-            'MEMBER_SPENT'          => $this->member['member_spent'],
-            'MEMBER_ADJUSTMENT'     => $this->member['member_adjustment'],
+            'MEMBER_ID'             => intval($this->member['member_id']),
+            'MEMBER_EARNED'         => number_format($this->member['member_earned'], 2),
+            'MEMBER_SPENT'          => number_format($this->member['member_spent'], 2),
+            'MEMBER_ADJUSTMENT'     => number_format($this->member['member_adjustment'], 2),
             'MEMBER_CURRENT'        => ( !empty($this->member['member_current']) ) ? number_format($this->member['member_current'], 2) : '0.00',
-            'MEMBER_LEVEL'          => $this->member['member_level'],
-            'CORRECT_MEMBER_EARNED' => ( !empty($correct_earned) ) ? $correct_earned : '0.00',
-            'CORRECT_MEMBER_SPENT'  => ( !empty($correct_spent) ) ? $correct_spent : '0.00',
+            'MEMBER_LEVEL'          => intval($this->member['member_level']),
+            'CORRECT_MEMBER_EARNED' => ( !empty($correct_earned) ) ? number_format($correct_earned, 2) : '0.00',
+            'CORRECT_MEMBER_SPENT'  => ( !empty($correct_spent) )  ? number_format($correct_spent, 2)  : '0.00',
             'C_MEMBER_CURRENT'      => color_item($this->member['member_current']),
 
             // Language
@@ -520,7 +514,7 @@ class MM_Addmember extends EQdkp_Admin
         $eqdkp->set_vars(array(
             'page_title'    => page_title($user->lang['manage_members_title']),
             'template_file' => 'admin/mm_addmember.html',
-            'display'       => true)
-        );
+            'display'       => true
+        ));
     }
 }

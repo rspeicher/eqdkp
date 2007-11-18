@@ -19,12 +19,6 @@ if ( !defined('EQDKP_INC') )
     header('HTTP/1.0 404 Not Found');
     exit;
 }
-// FIXME: What's the point of this?
-// EQDKP_INC is checked before this is defined, and the game files check both
-// this value and EQDKP_INC, but this wouldn't exist if EQDKP_INC wasn't already
-// defined, so why check both? EQDKP_INC only insures that the file's being included
-// and not accessed directly; all this seems to do is insure that a file in EQdkp
-// doesn't include a game-specific class without going through the game manager?
 define('IN_GAME_MANAGER', true);
 
 // TODO: Log files store the race and class *IDs*, not the strings

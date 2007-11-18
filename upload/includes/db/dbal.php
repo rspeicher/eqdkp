@@ -102,7 +102,7 @@ class dbal
         switch ($query)
         {
             case 'INSERT':
-			// Returns a string in the form: (<field1>, <field2> ...) VALUES (<value1>, <value2>, ...)
+                // Returns a string in the form: (<field1>, <field2> ...) VALUES ('<value1>', <(int)value2>, ...)
                 foreach ( $array as $field => $value )
                 {
                     // Hack to prevent assigning $array directly from a fetch_record call
@@ -133,7 +133,7 @@ class dbal
             break;
 
             case 'UPDATE':
-			// Returns a string in the form: <field1> = '<value1>', <field2> = <(int)value2>, ...
+                // Returns a string in the form: <field1> = '<value1>', <field2> = <(int)value2>, ...
                 foreach ( $array as $field => $value )
                 {
                     // Hack to prevent assigning $array directly from a fetch_record call
@@ -169,7 +169,7 @@ class dbal
     }
 
 
-     /**
+    /**
      * display sql error page
      */
     function sql_error($sql = '')

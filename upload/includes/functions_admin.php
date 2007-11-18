@@ -202,7 +202,7 @@ function get_database_size()
 */
 function get_tables()
 {
-	global $db;
+    global $db;
 
     switch ($db->sql_layer)
     {

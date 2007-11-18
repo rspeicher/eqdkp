@@ -484,11 +484,11 @@ $lang = array_merge($lang, array(
     'backup'            => 'Backup',
     'backup_database'   => 'Backup Database',
     'backup_title'      => 'Create a database backup',
-	'backup_type'       => 'Backup Format',
+    'backup_type'       => 'Backup Format',
     'create_table'      => 'Add \'CREATE TABLE\' statements?',
     'skip_nonessential' => 'Skip non essential data?<br />Will not produce insert rows for eqdkp_sessions.',
     'gzip_content'      => 'GZIP Content?<br />Will produce a smaller file if GZIP is enabled.',
-	'backup_no_table_prefix'    => '<strong>WARNING:</strong> Your installation of EQdkp does not have a table prefix for its database tables. Any tables for plugins you may have will not be backed up.',
+    'backup_no_table_prefix'    => '<strong>WARNING:</strong> Your installation of EQdkp does not have a table prefix for its database tables. Any tables for plugins you may have will not be backed up.',
     
     // Form validation
     'fv_turnin_noitems' => "%1\$s has no purchased items to transfer.",

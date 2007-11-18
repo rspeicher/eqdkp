@@ -17,22 +17,22 @@ echo "<br /><br />\n\n";
 
 if( count($games) )
 {
-	// NOTE: Retrieve/Keep the game's package id in order to access its information
-	$game_keys = array_keys($games);
-	
-	echo "Game Package IDs: \n";
-	echo "<pre>\n";
-	var_dump($game_keys);
-	echo "</pre>";
-	echo "<br /><br />\n\n";	
-	
-	$gm->set_current_game($game_keys[0]);
-	
-	// NOTE: This function is actually meant to be private.
-	// Also in this revision (360), this function doesn't touch the database - it var_dumps the built queries.
-	echo "<pre>\n";
-	$gm->_install_game();
-	echo "</pre>";
+    // NOTE: Retrieve/Keep the game's package id in order to access its information
+    $game_keys = array_keys($games);
+    
+    echo "Game Package IDs: \n";
+    echo "<pre>\n";
+    var_dump($game_keys);
+    echo "</pre>";
+    echo "<br /><br />\n\n";    
+    
+    $gm->set_current_game($game_keys[0]);
+    
+    // NOTE: This function is actually meant to be private.
+    // Also in this revision (360), this function doesn't touch the database - it var_dumps the built queries.
+    echo "<pre>\n";
+    $gm->_install_game();
+    echo "</pre>";
 }
 
 ?>

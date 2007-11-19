@@ -361,6 +361,36 @@ class Game_Manager
     }
     
     /**
+     * Processes all the necessary information to install the current game
+     *
+     * NOTE: In order to enforce nice order of operations with installation, usage of this method 
+     *       is limited to the current game ONLY.
+     *
+     * @access   public
+     */
+    function install_game()
+    {
+		// TODO: Game file data validation
+	
+        // TODO: Mapping between old game data and new game data (WoW class IDs -> EQ class IDs etc.)
+		// NOTE: Where should these mappings be entered and how?
+		/**
+		 * Mappings from old game data to new game data
+		 * 
+		 * This information is necessary in order to ensure referential integrity for foreign keys in the database
+		 */
+        $mappings = array(
+            'factions'      => array(),
+            'races'         => array(),
+            'armor_types'   => array(),
+            'classes'       => array(),
+            'armor_classes' => array(),
+        );
+		
+        $result = $this->_install_game();
+    }
+    
+    /**
      * Builds and runs the SQL to install the current game
      * 
      * NOTE: In order to enforce nice order of operations with installation, usage of this method 
@@ -368,15 +398,14 @@ class Game_Manager
      *
      * @access   private
      */
-    // TODO: Perhaps provide an array of mappings from the old game settings to the new ones (eg: WoW class ID -> EQ class ID)
-    // FIXME: calls to sanitize need to be scrutinized
-    //          I don't think it should be used; it's up to the output to sanitize values --tsigo
+    // TODO: Provide an array of mappings from the old game settings to the new ones (eg: WoW class ID -> EQ class ID)
+	// TODO: Take into account the need to UPDATE instead of INSERT for any IDs that already exist in the database.
     function _install_game()
     {
         global $db;
         
         // If the current game hasn't been set, we don't want to do this.
-        if( $this->current_game === false || !strlen($this->current_game))
+        if( $this->current_game == false || !strlen($this->current_game))
         {
             //trigger_error('NO_CURRENT_GAME');
             return false;
@@ -395,8 +424,14 @@ class Game_Manager
          * TODO: Use $games[$game_id]['available'] information to only bother working with what we have.
          * TODO: Replace use of $info['name'] with the keys themselves. Then upon retrieval from the db, the 'name' can be replaced with the language string.
          *
-         * FIXME: ID information. Right now, if ID isn't provided in the game info file, 
-         *        this will all fail horribly. use array_key_exists?
+         * FIXME: ID information. Right now, if ID isn't provided in the game info file OR the IDs aren't unique, this will all fail horribly. 
+		 *        A new method is going to have to be added somewhere (perhaps in the install_game method, before this one is called) where the IDs 
+		 *        are checked, and if they aren't provided or valid, simply rewrite all of them. Hell, we have to make mappings between IDs, so
+		 *        it won't matter so much for gameA->gameB installs. However, it might matter for gameA->gameA (upgrading EQdkp or similar).
+		 *
+		 * FIXME: Foreign key constraints will ruin this at the moment. UPDATEs are required for cases where the ID already exists.
+		 *        Efficiency in determining whether an UPDATE or INSERT is required can be achieved by retrieving COUNT(id) and MAX(id) from the table in question.
+		 *
          */
         $game_sql = array(
             'factions'      => array(),
@@ -406,13 +441,13 @@ class Game_Manager
             'armor_classes' => array(),
         );
 
-		// Generics for all games
-		$game_sql['factions'][]      = $db->sql_build_query('INSERT',array('faction_id' => 0, 'faction_name' => 'Unknown'));
-		$game_sql['races'][]         = $db->sql_build_query('INSERT',array('race_id' => 0, 'race_name' => 'Unknown', 'race_faction_id' => 0));
-#		$game_sql['armor_types'][]   = $db->sql_build_query('INSERT',array('armor_type_id' => 0, 'armor_type_name' => 'None'));
-#		$game_sql['classes'][]       = $db->sql_build_query('INSERT',array('class_id' => 0, 'class_name' => 'Unknown'));
-		$game_sql['classes'][]       = $db->sql_build_query('INSERT',array('class_id' => 0, 'class_name' => 'Unknown', 'class_armor_type' => 'Unknown', 'class_min_level' => 0, 'class_max_level' => $max_level));
-		// No generics for armor_classes
+        // Generics for all games
+        $game_sql['factions'][]      = $db->sql_build_query('INSERT',array('faction_id' => 0, 'faction_name' => 'Unknown'));
+        $game_sql['races'][]         = $db->sql_build_query('INSERT',array('race_id' => 0, 'race_name' => 'Unknown', 'race_faction_id' => 0));
+#        $game_sql['armor_types'][]   = $db->sql_build_query('INSERT',array('armor_type_id' => 0, 'armor_type_name' => 'None'));
+#        $game_sql['classes'][]       = $db->sql_build_query('INSERT',array('class_id' => 0, 'class_name' => 'Unknown'));
+        $game_sql['classes'][]       = $db->sql_build_query('INSERT',array('class_id' => 0, 'class_name' => 'Unknown', 'class_armor_type' => 'Unknown', 'class_min_level' => 0, 'class_max_level' => $max_level));
+        // No generics for armor_classes
         
         // Factions
         foreach ($data['factions'] as $faction => $info)
@@ -440,7 +475,7 @@ class Game_Manager
         // TODO: Update database structure before this can be done explicitly
 
         // Classes
-		$id_fix = 0;
+        $id_fix = 0;
         foreach ($data['classes'] as $class => $info)
         {
             // 1.3 compatibility (this makes baby jesus cry you know)
@@ -454,8 +489,8 @@ class Game_Manager
                 }
             }
 
-			$num = count($class_armor_types);            
-			$id_fix += ($num - 1);
+            $num = count($class_armor_types);            
+            $id_fix += ($num - 1);
 
             // Now, for every class-armor mapping for this class, we create a new 'class'
             foreach($class_armor_types as $key => $class_armor_type)
@@ -482,19 +517,21 @@ class Game_Manager
         // TODO: Being able to rollback a database transaction would be *really* useful about here
 
         // Discard the old table information
+		// FIXME: TRUNCATE TABLE will not work if there are foreign key dependencies in the table.
+		//        In other words, UPDATE statements are required.
 #        $db->sql_query("TRUNCATE TABLE __classes;");
- #       $db->sql_query("TRUNCATE TABLE __races;");
-  #      $db->sql_query("TRUNCATE TABLE __factions;");
+#        $db->sql_query("TRUNCATE TABLE __races;");
+#        $db->sql_query("TRUNCATE TABLE __factions;");
         
         // Execute the INSERTs for the new information
-		foreach ($game_sql as $table => $tabledata)
-		{
-			foreach ($tabledata as $sql)
-			{
-				echo("INSERT INTO __" . $table . $sql . ";");
-				echo "\n";
-			}
-		}        
+        foreach ($game_sql as $table => $tabledata)
+        {
+            foreach ($tabledata as $sql)
+            {
+                echo("INSERT INTO __" . $table . $sql . ";");
+                echo "\n";
+            }
+        }        
         
         // Other game-related information updates
         // Max level update
@@ -511,9 +548,9 @@ class Game_Manager
         // Current game name
         $db->sql_query("UPDATE __config SET config_value = '" . $db->sql_escape($game_name) . "' WHERE config_name = 'default_game';");
 
-		// TODO: Commit changes if no errors occured up to this point
+        // TODO: Commit changes if no errors occured up to this point
 
-		return true;
+        return true;
     }
 }
 ?>

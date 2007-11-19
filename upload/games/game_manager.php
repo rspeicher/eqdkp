@@ -145,9 +145,8 @@ class Game_Manager
         }
     }
 
-    // FIXME: Where's the storage part? If it does store something, "get" probably shouldn't be in the name
     /**
-     * Retrieves, stores and returns the game data for the specified game
+     * Retrieves and returns the game data for the specified game. The game data will be held in $games
      * 
      * @param     string     $game_id          The package name for the game. This must correspond with a folder name in the games folder.
      * @return    mixed                        False if the game id is invalid. Empty array if no data was found. Filled array if data existed.
@@ -169,9 +168,8 @@ class Game_Manager
             return array();
         }
         
-        $this->current_game = $game_id;
         // Update the data for this game ID, regardless of the data stored in there before.
-        // TODO: Duplication / version checks?        
+        $this->current_game = $game_id;
         $this->games[$game_id] = $gamedata;
         
         return $this->games[$game_id];
@@ -232,8 +230,6 @@ class Game_Manager
         return false;    
     }
 
-    // FIXME: Why is sql_ necessary here? Consuming classes don't care (and don't need to know) where the data comes from
-    
     /**
      * Retrieve the installed game's armor type information from the database
      * 
@@ -388,7 +384,7 @@ class Game_Manager
         
         // Retrieve the game data for the current game
         $game_name = $this->games[$this->current_game]['name'];
-        $max_level = $this->games[$this->current_game]['max_level'];
+        $max_level = intval($this->games[$this->current_game]['max_level']);
         $data      = $this->games[$this->current_game]['data'];
 
         /** Build the SQL for the new game data
@@ -409,13 +405,21 @@ class Game_Manager
             'classes'       => array(),
             'armor_classes' => array(),
         );
+
+		// Generics for all games
+		$game_sql['factions'][]      = $db->sql_build_query('INSERT',array('faction_id' => 0, 'faction_name' => 'Unknown'));
+		$game_sql['races'][]         = $db->sql_build_query('INSERT',array('race_id' => 0, 'race_name' => 'Unknown', 'race_faction_id' => 0));
+#		$game_sql['armor_types'][]   = $db->sql_build_query('INSERT',array('armor_type_id' => 0, 'armor_type_name' => 'None'));
+#		$game_sql['classes'][]       = $db->sql_build_query('INSERT',array('class_id' => 0, 'class_name' => 'Unknown'));
+		$game_sql['classes'][]       = $db->sql_build_query('INSERT',array('class_id' => 0, 'class_name' => 'Unknown', 'class_armor_type' => 'Unknown', 'class_min_level' => 0, 'class_max_level' => $max_level));
+		// No generics for armor_classes
         
         // Factions
         foreach ($data['factions'] as $faction => $info)
         {
             $sql_data = array(
                 'faction_id'      => intval($info['id']),
-                'faction_name'    => sanitize($info['name']),
+                'faction_name'    => $db->sql_escape($info['name']),
             );
             $game_sql['factions'][] = $db->sql_build_query('INSERT',$sql_data);
         }
@@ -426,7 +430,7 @@ class Game_Manager
         {
             $sql_data = array(
                 'race_id'         => intval($info['id']),
-                'race_name'       => sanitize($info['name']),
+                'race_name'       => $db->escape($info['name']),
                 'race_faction_id' => (is_numeric($info['faction'])) ? intval($info['faction']) : intval($data['factions'][$info['faction']]['id']),
             );
             $game_sql['races'][] = $db->sql_build_query('INSERT',$sql_data);
@@ -436,6 +440,7 @@ class Game_Manager
         // TODO: Update database structure before this can be done explicitly
 
         // Classes
+		$id_fix = 0;
         foreach ($data['classes'] as $class => $info)
         {
             // 1.3 compatibility (this makes baby jesus cry you know)
@@ -448,18 +453,21 @@ class Game_Manager
                     $class_armor_types[] = $mapping;
                 }
             }
-            
+
+			$num = count($class_armor_types);            
+			$id_fix += ($num - 1);
+
             // Now, for every class-armor mapping for this class, we create a new 'class'
-            foreach($class_armor_types as $class_armor_type)
+            foreach($class_armor_types as $key => $class_armor_type)
             {
                 $armor_name = $data['armor_types'][$class_armor_type['armor']]['name']; // Get armor's default name from the armor_type data
                 $armor_min  = isset($class_armor_type['min']) ? intval($class_armor_type['min']) : 0;
                 $armor_max  = isset($class_armor_type['max']) ? intval($class_armor_type['max']) : $max_level;
                 
                 $sql_data = array(
-                    'class_id'        => intval($info['id']),
-                    'class_name'      => sanitize($info['name']),
-                    'class_armor_type'=> $armor_name,
+                    'class_id'        => intval($info['id']) + ($id_fix - ($num - intval($key)) + 1),
+                    'class_name'      => $db->sql_escape($info['name']),
+                    'class_armor_type'=> $db->sql_escape($armor_name),
                     'class_min_level' => $armor_min,
                     'class_max_level' => $armor_max,
                 );
@@ -469,19 +477,24 @@ class Game_Manager
 
         // Armor-Class mappings
         // TODO: Update database structure before this can be done explicitly
-        
-        var_dump($game_sql);
-        
+
         // Time to start assaulting the database!
         // TODO: Being able to rollback a database transaction would be *really* useful about here
-/*
+
         // Discard the old table information
-        $db->sql_query("TRUNCATE TABLE __classes;");
-        $db->sql_query("TRUNCATE TABLE __races;");
-        $db->sql_query("TRUNCATE TABLE __factions;");
+#        $db->sql_query("TRUNCATE TABLE __classes;");
+ #       $db->sql_query("TRUNCATE TABLE __races;");
+  #      $db->sql_query("TRUNCATE TABLE __factions;");
         
         // Execute the INSERTs for the new information
-        
+		foreach ($game_sql as $table => $tabledata)
+		{
+			foreach ($tabledata as $sql)
+			{
+				echo("INSERT INTO __" . $table . $sql . ";");
+				echo "\n";
+			}
+		}        
         
         // Other game-related information updates
         // Max level update
@@ -496,8 +509,11 @@ class Game_Manager
         $db->sql_query($sql);
 
         // Current game name
-        $db->sql_query("UPDATE __config SET config_value = '" . $db->sql_escape($game_name) . "' WHERE config_name = 'default_game';"),
-*/
+        $db->sql_query("UPDATE __config SET config_value = '" . $db->sql_escape($game_name) . "' WHERE config_name = 'default_game';");
+
+		// TODO: Commit changes if no errors occured up to this point
+
+		return true;
     }
 }
 ?>

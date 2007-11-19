@@ -34,15 +34,16 @@ class Game_Installer extends Game_Manager
      */
     function install_game()
     {
-		// TODO: Game file data validation
-	
+        // TODO: Game file data validation
+            // TODO: ID Validation + correcting / assigning
+    
         // TODO: Mapping between old game data and new game data (WoW class IDs -> EQ class IDs etc.)
-		// NOTE: Where should these mappings be entered and how?
-		/**
-		 * Mappings from old game data to new game data
-		 * 
-		 * This information is necessary in order to ensure referential integrity for foreign keys in the database
-		 */
+        // NOTE: Where should these mappings be entered and how?
+        /**
+         * Mappings from old game data to new game data
+         * 
+         * This information is necessary in order to ensure referential integrity for foreign keys in the database
+         */
         $mappings = array(
             'factions'      => array(),
             'races'         => array(),
@@ -50,7 +51,7 @@ class Game_Installer extends Game_Manager
             'classes'       => array(),
             'armor_classes' => array(),
         );
-		
+        
         $result = $this->_install_game();
     }
     
@@ -63,7 +64,7 @@ class Game_Installer extends Game_Manager
      * @access   private
      */
     // TODO: Provide an array of mappings from the old game settings to the new ones (eg: WoW class ID -> EQ class ID)
-	// TODO: Take into account the need to UPDATE instead of INSERT for any IDs that already exist in the database.
+    // TODO: Take into account the need to UPDATE instead of INSERT for any IDs that already exist in the database.
     function _install_game()
     {
         global $db;
@@ -89,13 +90,13 @@ class Game_Installer extends Game_Manager
          * TODO: Replace use of $info['name'] with the keys themselves. Then upon retrieval from the db, the 'name' can be replaced with the language string.
          *
          * FIXME: ID information. Right now, if ID isn't provided in the game info file OR the IDs aren't unique, this will all fail horribly. 
-		 *        A new method is going to have to be added somewhere (perhaps in the install_game method, before this one is called) where the IDs 
-		 *        are checked, and if they aren't provided or valid, simply rewrite all of them. Hell, we have to make mappings between IDs, so
-		 *        it won't matter so much for gameA->gameB installs. However, it might matter for gameA->gameA (upgrading EQdkp or similar).
-		 *
-		 * FIXME: Foreign key constraints will ruin this at the moment. UPDATEs are required for cases where the ID already exists.
-		 *        Efficiency in determining whether an UPDATE or INSERT is required can be achieved by retrieving COUNT(id) and MAX(id) from the table in question.
-		 *
+         *        A new method is going to have to be added somewhere (perhaps in the install_game method, before this one is called) where the IDs 
+         *        are checked, and if they aren't provided or valid, simply rewrite all of them. Hell, we have to make mappings between IDs, so
+         *        it won't matter so much for gameA->gameB installs. However, it might matter for gameA->gameA (upgrading EQdkp or similar).
+         *
+         * FIXME: Foreign key constraints will ruin this at the moment. UPDATEs are required for cases where the ID already exists.
+         *        Efficiency in determining whether an UPDATE or INSERT is required can be achieved by retrieving COUNT(id) and MAX(id) from the table in question.
+         *
          */
         $game_sql = array(
             'factions'      => array(),
@@ -181,8 +182,8 @@ class Game_Installer extends Game_Manager
         // TODO: Being able to rollback a database transaction would be *really* useful about here
 
         // Discard the old table information
-		// FIXME: TRUNCATE TABLE will not work if there are foreign key dependencies in the table.
-		//        In other words, UPDATE statements are required.
+        // FIXME: TRUNCATE TABLE will not work if there are foreign key dependencies in the table.
+        //        In other words, UPDATE statements are required.
 #        $db->sql_query("TRUNCATE TABLE __classes;");
 #        $db->sql_query("TRUNCATE TABLE __races;");
 #        $db->sql_query("TRUNCATE TABLE __factions;");

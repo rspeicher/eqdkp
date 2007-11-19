@@ -5,9 +5,9 @@ define('IN_ADMIN', true);
 $eqdkp_root_path = '../upload/';
 include($eqdkp_root_path . 'common.php');
 
-include($eqdkp_root_path . 'games/game_manager.php');
+include($eqdkp_root_path . 'games/game_installer.php');
 
-$gm = new Game_Manager();
+$gm = new Game_Installer();
 $games = $gm->list_games();
 
 echo "<pre>\n";
@@ -29,7 +29,7 @@ if( count($games) )
     $gm->set_current_game($game_keys[0]);
     
     // NOTE: This function is actually meant to be private.
-    // Also in this revision (360), this function doesn't touch the database - it var_dumps the built queries.
+    // Also in this revision (367), this function doesn't touch the database - it echos the built queries.
     echo "<pre>\n";
     $gm->_install_game();
     echo "</pre>";

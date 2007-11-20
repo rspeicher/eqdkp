@@ -267,7 +267,7 @@ while ( $row = $db->fetch_record($result) )
     $tpl->assign_block_vars('class_row', array(
         'ROW_CLASS'      => $row_class,
         'LINK_CLASS'     => ( $row_class == 'rowhead' ) ? 'header' : '',
-        'U_LIST_MEMBERS' => 'listmembers.php' . $SID . '&amp;filter=' . $class,
+        'U_LIST_MEMBERS' => member_path() . path_params('filter', $class),
         'CLASS'          => $class,
         'LOOT_COUNT'     => $v['drops'],
         'LOOT_PCT'       => sprintf("%d%%", $v['drop_pct']),

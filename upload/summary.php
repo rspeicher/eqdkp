@@ -46,7 +46,7 @@ if ( $in->get('submit') == $user->lang['create_news_summary'] )
         // then redirect back to the script
         $from = $in->get('y1', 0) . '-' . $in->get('mo1', 0) . '-' . $in->get('d1', 0);
         $to   = $in->get('y2', 0) . '-' . $in->get('mo2', 0) . '-' . $in->get('d2', 0);
-        header("Location: summary.php{$SID}&from={$from}&to={$to}");
+        header('Location: ' . path_default('summary.php') . path_params(array('from' => $from, 'to' => $to)));
     }
 }
 //

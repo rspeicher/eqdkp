@@ -47,7 +47,6 @@ class Upgrade extends EQdkp_Admin
     function upgrade()
     {
         global $db, $eqdkp, $user, $tpl, $pm;
-        global $SID;
         
         parent::eqdkp_admin();
         
@@ -96,7 +95,6 @@ class Upgrade extends EQdkp_Admin
     function display_form()
     {
         global $db, $eqdkp, $user, $tpl, $pm;
-        global $SID;
         
         if ( !isset($eqdkp->config['eqdkp_version']) )
         {

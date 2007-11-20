@@ -119,5 +119,5 @@ switch ($mode)
 }
 
 // If a mode was used in an unexpected context (eg: user logged in and tries to log in), redirect to the index
-redirect("index.php{$SID}");
+redirect(path_default('index.php'));
 exit;

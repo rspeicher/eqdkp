@@ -181,7 +181,7 @@ if ( $in->get(URI_EVENT, 0) )
         'O_NOTE'  => $current_order['uri'][1],
         'O_VALUE' => $current_order['uri'][2],
         
-        'U_VIEW_EVENT' => 'viewevent.php' . $SID . '&amp;' . URI_EVENT . '=' . $in->get(URI_EVENT, 0) . '&amp;',
+        'U_VIEW_EVENT' => event_path($in->get(URI_EVENT, 0)) . '&amp;',
         
         'EVENT_ADDED_BY'      => ( !empty($event['event_added_by']) ) ? sanitize($event['event_added_by']) : 'N/A',
         'EVENT_UPDATED_BY'    => ( !empty($event['event_updated_by']) ) ? sanitize($event['event_updated_by']) : 'N/A',

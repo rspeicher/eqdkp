@@ -298,3 +298,24 @@ function raid_path($id = null)
     
     return path_default('listraids.php', defined('IN_ADMIN'));
 }
+
+## ############################################################################
+## User Paths
+## ############################################################################
+
+/**
+ * Return the appropriate path to add or edit a user.
+ *
+ * @param string $id If present, returns the path to edit a specific user
+ * @return string
+ */
+function edit_user_path($id = null)
+{
+    if ( !is_null($id) )
+    {
+        $id = sanitize($id, ENT);
+        return path_default('manage_users.php', true) . path_params(URI_NAME, $id);
+    }
+    
+    return path_default('manage_users.php', true);
+}

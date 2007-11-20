@@ -1247,7 +1247,8 @@ class installer
             'dbhost'          => request_var('dbhost', ''),
             'dbport'          => request_var('dbport', ''),
             'dbuser'          => request_var('dbuser', ''),
-            'dbpass'          => htmlspecialchars_decode(request_var('dbpass', '', true)),
+            // FIXME: Previously using htmlspecialchars_decode(); had to add unsanitize to functions_admin.php
+            'dbpass'          => unsanitize(request_var('dbpass', '', true)),
             'dbname'          => request_var('dbname', ''),
             'table_prefix'    => request_var('table_prefix', ''),
 

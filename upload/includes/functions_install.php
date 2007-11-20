@@ -446,6 +446,30 @@ function request_var($var_name, $default, $multibyte = false, $cookie = false)
     return $var;
 }
 
+/**
+ * Reverse the effects of htmlspecialchars()
+ *
+ * @param     string     $input            Input to reverse
+ * @return    string
+ */
+function unsanitize($input)
+{
+    if ( function_exists('htmlspecialchars_decode') )
+    {
+        return htmlspecialchars_decode($input, ENT_QUOTES); // PHP >= 5.1.0
+    }
+    else
+    {
+        $retval = $input;
+        $retval = str_replace('&amp;', '&', $retval);
+        $retval = str_replace('&#039;', '\'', $retval);
+        $retval = str_replace('&quot;', '"', $retval);
+        $retval = str_replace('&lt;', '<', $retval);
+        $retval = str_replace('&gt;', '>', $retval);
+    
+        return $retval;
+    }
+}
 
 /**
 * Removes comments from a SQL data file

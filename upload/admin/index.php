@@ -439,7 +439,7 @@ if ( !defined('IN_ADMIN') )
         }
     }
 
-    // FIXME: Imrpove and re-enable version check?
+    // FIXME: Improve and re-enable version check?
     $eqdkp_com_version = EQDKP_VERSION;
 
     $tpl->assign_vars(array(

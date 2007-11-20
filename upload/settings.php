@@ -24,7 +24,7 @@ $mode = $in->get('mode');
 
 if ( $user->data['user_id'] == ANONYMOUS )
 {
-    header('Location: ' . path_default('login.php');
+    header('Location: ' . path_default('login.php'));
 }
 
 switch ( $mode )
@@ -130,7 +130,7 @@ switch ( $action )
             message_die('Could not update user information', '', __FILE__, __LINE__, $sql);
         }
         
-        meta_refresh(3, path_default('index.php');
+        meta_refresh(3, path_default('index.php'));
        
         message_die($user->lang['update_settings_success']);
         

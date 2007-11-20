@@ -209,7 +209,6 @@ class Manage_Users extends EQdkp_Admin
     function process_submit()
     {
         global $db, $eqdkp, $user, $pm, $in;
-        // global $user_id; // FIXME: Look into deleting this, not sure why it's here
 
         $user_id = $this->user_data['user_id'];
 

@@ -26,7 +26,6 @@ class installer
     var $submenu_ary = array('INTRO', 'REQUIREMENTS', 'DATABASE', 'ADMINISTRATOR', 'CONFIG_FILE', 'GAME_SETTINGS', 'CREATE_TABLE', 'FINAL');
     var $install_url = '';
 
-
     function installer($url)
     {
         $this->install_url = $url;
@@ -73,19 +72,18 @@ class installer
         }
     }
 
-/**
-* The Installation Methods
-*/    
+    ## ########################################################################
+    ## Installation methods
+    ## ########################################################################
     
     /**
-    * Introductory Step
-    */
+     * Introductory Step
+     */
     function introduction($mode, $sub)
     {
         global $eqdkp_root_path, $lang, $DEFAULTS;
 
         $tpl = new Template_Wrap('install_install.html');
-        
         
         $tpl->assign_vars(array(
             'TITLE'               => $lang['INSTALL_INTRO'],
@@ -103,8 +101,8 @@ class installer
     }
     
     /**
-    * Display and Check EQdkp Requiremenets Step
-    */
+     * Display and Check EQdkp Requiremenets Step
+     */
     function requirements($mode, $sub)
     {
         global $eqdkp_root_path, $lang, $DEFAULTS;
@@ -194,7 +192,6 @@ class installer
             'S_LEGEND'            => false,
         ));        
 
-        
         // Check for available databases
         $tpl->assign_block_vars('checks', array(
             'S_LEGEND'            => true,
@@ -230,7 +227,6 @@ class installer
                 ));
             }
         }
-
 
         // Check for other modules
         $tpl->assign_block_vars('checks', array(
@@ -270,7 +266,6 @@ class installer
             'LEGEND'              => $lang['FILES_REQUIRED'],
             'LEGEND_EXPLAIN'      => $lang['FILES_REQUIRED_EXPLAIN'],
         ));
-
 
         $directories = array('templates/cache/',);
 
@@ -398,10 +393,9 @@ class installer
         $tpl->page_tail();
     }
 
-    
     /**
-    * Obtain Database Settings Step
-    */
+     * Obtain Database Settings Step
+     */
     function obtain_database_settings($mode, $sub)
     {
         global $eqdkp_root_path, $lang, $DEFAULTS, $DBALS, $LOCALES;
@@ -505,10 +499,10 @@ class installer
             {
                 $script_name = (!empty($_SERVER['REQUEST_URI'])) ? $_SERVER['REQUEST_URI'] : getenv('REQUEST_URI');
             }
+            
             $server_path = trim(dirname($script_name));
             $server_path = preg_replace('#install$#', '', $server_path);
             $server_path = preg_replace('#[\\\\/]{2,}#', '/', $server_path);
-
 
             // And now for the main part of this page
             $data['table_prefix'] = (!empty($data['table_prefix']) ? $data['table_prefix'] : 'eqdkp_');
@@ -529,8 +523,8 @@ class installer
                     {
                         $tpl->assign_block_vars('options', array(
                             'S_LEGEND'        => true,
-                            'LEGEND'          => $lang[$vars])
-                        );
+                            'LEGEND'          => $lang[$vars]
+                        ));
     
                         continue;
                     }
@@ -544,8 +538,7 @@ class installer
                         'S_LEGEND'        => false,
                         'TITLE_EXPLAIN'   => ($vars['explain']) ? $lang[$vars['lang'] . '_EXPLAIN'] : '',
                         'CONTENT'         => input_field($config_key, $vars['type'], $data[$config_key], $options),
-                        )
-                    );
+                    ));
                 }
             }
         }
@@ -603,8 +596,8 @@ class installer
     }
     
     /**
-    * Obtain Administrative Information Step
-    */
+     * Obtain Administrative Information Step
+     */
     function obtain_administrator_info($mode, $sub)
     {
         global $eqdkp_root_path, $lang, $DEFAULTS, $DBALS, $LOCALES;
@@ -727,8 +720,8 @@ class installer
                 {
                     $tpl->assign_block_vars('options', array(
                         'S_LEGEND'        => true,
-                        'LEGEND'          => $lang[$vars])
-                    );
+                        'LEGEND'          => $lang[$vars]
+                    ));
 
                     continue;
                 }
@@ -742,8 +735,7 @@ class installer
                     'S_LEGEND'        => false,
                     'TITLE_EXPLAIN'   => ($vars['explain']) ? $lang[$vars['lang'] . '_EXPLAIN'] : '',
                     'CONTENT'         => input_field($config_key, $vars['type'], $data[$config_key], $options),
-                    )
-                );
+                ));
             }
         }
         // Otherwise, add the details as hidden fields and move on.
@@ -797,8 +789,8 @@ class installer
     }
 
     /**
-    * Create Configuration File Step
-    */
+     * Create Configuration File Step
+     */
     function create_config_file($mode, $sub)
     {
         global $eqdkp_root_path, $lang, $DEFAULTS;
@@ -849,7 +841,6 @@ class installer
         $config_file .= "\$debug        = '0'; \n";
         $config_file .= "\n" . 'define(\'EQDKP_INSTALLED\', true);' . "\n";
         $config_file .= "?" . ">";
-    
         
         // Attempt to write out the config file directly. If it works, this is the easiest way to do it ...
         if ((file_exists($eqdkp_root_path . 'config.php') && is_writable($eqdkp_root_path . 'config.php')) || is_writable($eqdkp_root_path))
@@ -956,20 +947,18 @@ class installer
 
         $tpl->page_header();
         $tpl->page_tail();
-
     }
 
-
     /**
-    * Obtain EQdkp Game Information Step
-    */
+     * Obtain EQdkp Game Information Step
+     */
     function obtain_game_info($mode, $sub)
     {
     }
     
     /**
-    * Create Database Tables Step
-    */
+     * Create Database Tables Step
+     */
     function create_database_tables($mode, $sub)
     {
         global $eqdkp_root_path, $lang, $db, $DEFAULTS, $LOCALES;
@@ -996,7 +985,6 @@ class installer
         }
 
         include($eqdkp_root_path . 'config.php');
-    
 
         define('CONFIG_TABLE', $data['table_prefix'] . 'config');
         define('USERS_TABLE',  $data['table_prefix'] . 'users');
@@ -1028,13 +1016,13 @@ class installer
         $delimiter = $available_dbms[$data['dbms']]['DELIM'];
         
         // Parse structure file and create database tables
+        // TODO: Can we change the schema and data files to use the __table format since we're using our database class?
         $sql = @fread(@fopen($db_structure_file, 'r'), @filesize($db_structure_file));
         $sql = preg_replace('#eqdkp\_(\S+?)([\s\.,]|$)#', $data['table_prefix'] . '\\1\\2', $sql);
 
         $sql = $remove_remarks_function($sql);
         $sql = parse_sql($sql, $available_dbms[$data['dbms']]['DELIM']);
 
-    
         // FIXME: No way to roll back changes if any particular query fails.
         $sql_count = count($sql);
         $i = 0;
@@ -1122,7 +1110,6 @@ class installer
         $db->query('UPDATE ' . USERS_TABLE . ' SET ' . $query . " WHERE user_id='1'");
         $db->query("UPDATE " . CONFIG_TABLE . " SET config_value='" . $data['admin_email1'] . "' WHERE config_name='admin_email'");
 
-        
         // Figure out where we're bound for next
         $url    = (count($error)) ? $this->install_url . "?mode=$mode&amp;sub=intro" : $this->install_url . "?mode=$mode&amp;sub=final";
         $submit = (count($error)) ? false : $lang['NEXT_STEP'];
@@ -1149,8 +1136,8 @@ class installer
     }
     
     /**
-    * Final step: Finish installation
-    */
+     * Final step: Finish installation
+     */
     function finish_install($mode, $sub)
     {
         global $eqdkp_root_path, $db, $lang, $DEFAULTS;
@@ -1189,14 +1176,13 @@ class installer
         $tpl->page_tail();
     }
 
-
-/**
-* Helper Functions
-*/
+    ## ########################################################################
+    ## Helper methods
+    ## ########################################################################
  
-     /**
-    * Get latest eqdkp version
-    */
+    /**
+     * Get latest eqdkp version
+     */
     function get_latest_eqdkp_version()
     {
         $result = $lang['UNKNOWN'];
@@ -1236,8 +1222,8 @@ class installer
     }
  
     /**
-    * Get submitted data
-    */
+     * Get submitted data
+     */
     function get_submitted_data()
     {
         return array(
@@ -1267,11 +1253,10 @@ class installer
         );
     } 
 
-    /**
-    * The fields for each step of the installation process
-    * Used to automatically generate the input fields per page
-    */
-
+    /**#@+
+     * The fields for each step of the installation process
+     * Used to automatically generate the input fields per page
+     */
     var $default_config_options = array(
         'legend1'               => 'DEFAULT_CONFIG',
         'default_lang'          => array('lang' => 'DEFAULT_LANG',      'type' => 'select', 'options' => 'inst_language_select(\'{VALUE}\')', 'explain' => false),
@@ -1303,6 +1288,6 @@ class installer
         'admin_email1'          => array('lang' => 'ADMIN_EMAIL',               'type' => 'text:25:100', 'explain' => false),
         'admin_email2'          => array('lang' => 'ADMIN_EMAIL',               'type' => 'text:25:100', 'explain' => false),
     );
-
+    /**#@-*/
 }
 ?>

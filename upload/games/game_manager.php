@@ -164,9 +164,9 @@ class Game_Manager
         if (is_dir($path))
         {
             // Ignore any directory which isn't a valid game package, or don't have a valid game
-            if (file_exists($path . "/$classname.php"))
+            if (file_exists($path . "/{$classname}.php"))
             {
-                include($path . "/$classname.php");
+                include($path . "/{$classname}.php");
                 
                 if(!isset($game_info) || !count($game_info))
                 {

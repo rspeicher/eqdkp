@@ -35,8 +35,8 @@ class Game_Installer extends Game_Manager
     function install_game()
     {
         // TODO: Game file data validation
-            // TODO: ID Validation + correcting / assigning
-    
+        // TODO: ID Validation + correcting / assigning
+
         // TODO: Mapping between old game data and new game data (WoW class IDs -> EQ class IDs etc.)
         // NOTE: Where should these mappings be entered and how?
         /**
@@ -67,7 +67,7 @@ class Game_Installer extends Game_Manager
     // TODO: Take into account the need to UPDATE instead of INSERT for any IDs that already exist in the database.
     function _install_game()
     {
-        global $db;
+        global $db, $eqdkp;
         
         // If the current game hasn't been set, we don't want to do this.
         if( $this->current_game == false || !strlen($this->current_game))
@@ -118,8 +118,8 @@ class Game_Installer extends Game_Manager
         foreach ($data['factions'] as $faction => $info)
         {
             $sql_data = array(
-                'faction_id'      => intval($info['id']),
-                'faction_name'    => $db->sql_escape($info['name']),
+                'faction_id'   => intval($info['id']),
+                'faction_name' => $info['name'],
             );
             $game_sql['factions'][] = $db->sql_build_query('INSERT',$sql_data);
         }
@@ -130,7 +130,7 @@ class Game_Installer extends Game_Manager
         {
             $sql_data = array(
                 'race_id'         => intval($info['id']),
-                'race_name'       => $db->escape($info['name']),
+                'race_name'       => $info['name'],
                 'race_faction_id' => (is_numeric($info['faction'])) ? intval($info['faction']) : intval($data['factions'][$info['faction']]['id']),
             );
             $game_sql['races'][] = $db->sql_build_query('INSERT',$sql_data);
@@ -166,8 +166,8 @@ class Game_Installer extends Game_Manager
                 
                 $sql_data = array(
                     'class_id'        => intval($info['id']) + ($id_fix - ($num - intval($key)) + 1),
-                    'class_name'      => $db->sql_escape($info['name']),
-                    'class_armor_type'=> $db->sql_escape($armor_name),
+                    'class_name'      => $info['name'],
+                    'class_armor_type'=> $armor_name,
                     'class_min_level' => $armor_min,
                     'class_max_level' => $armor_max,
                 );
@@ -184,9 +184,9 @@ class Game_Installer extends Game_Manager
         // Discard the old table information
         // FIXME: TRUNCATE TABLE will not work if there are foreign key dependencies in the table.
         //        In other words, UPDATE statements are required.
-#        $db->sql_query("TRUNCATE TABLE __classes;");
-#        $db->sql_query("TRUNCATE TABLE __races;");
-#        $db->sql_query("TRUNCATE TABLE __factions;");
+#        $db->sql_query("TRUNCATE TABLE __classes");
+#        $db->sql_query("TRUNCATE TABLE __races");
+#        $db->sql_query("TRUNCATE TABLE __factions");
         
         // Execute the INSERTs for the new information
         foreach ($game_sql as $table => $tabledata)
@@ -194,7 +194,7 @@ class Game_Installer extends Game_Manager
             foreach ($tabledata as $sql)
 
             {
-                echo("INSERT INTO __" . $table . $sql . ";");
+                echo("INSERT INTO __" . $table . $sql);
                 echo "\n";
             }
         }        
@@ -202,17 +202,17 @@ class Game_Installer extends Game_Manager
         // Other game-related information updates
         // Max level update
         $sql = "UPDATE __members 
-            SET member_level = {$max_level} 
-            WHERE member_level > {$max_level};";
+                SET member_level = {$max_level} 
+                WHERE member_level > {$max_level};";
         $db->sql_query($sql);
         
         $sql = "ALTER TABLE __members 
-            MODIFY member_level tinyint(2) NOT NULL 
-            default '{$max_level}';";
+                MODIFY member_level tinyint(2) NOT NULL 
+                default '{$max_level}'";
         $db->sql_query($sql);
 
         // Current game name
-        $db->sql_query("UPDATE __config SET config_value = '" . $db->sql_escape($game_name) . "' WHERE config_name = 'default_game';");
+        $eqdkp->config_set('default_game', $game_name);
 
         // TODO: Commit changes if no errors occured up to this point
 

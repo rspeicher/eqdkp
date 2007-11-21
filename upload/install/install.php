@@ -16,7 +16,6 @@
 
 if ( !defined('IN_INSTALL') )
 {
-    // Possible hacking attempt
     exit;
 }
 
@@ -1145,6 +1144,7 @@ class installer
         define('DEBUG', 0);
     
         // FIXME: need some way of stopping people just jumping to this step. Not that i think they will, but just for completeness' sake.
+        //        add file_exists check for install_lock
         if (!file_exists($eqdkp_root_path . 'config.php'))
         {
             // Someone's been silly and tried calling this page direct
@@ -1286,7 +1286,12 @@ class installer
         'admin_pass1'           => array('lang' => 'ADMIN_PASSWORD',            'type' => 'password:25:100', 'explain' => true),
         'admin_pass2'           => array('lang' => 'ADMIN_PASSWORD_CONFIRM',    'type' => 'password:25:100', 'explain' => false),
         'admin_email1'          => array('lang' => 'ADMIN_EMAIL',               'type' => 'text:25:100', 'explain' => false),
-        'admin_email2'          => array('lang' => 'ADMIN_EMAIL',               'type' => 'text:25:100', 'explain' => false),
+        'admin_email2'          => array('lang' => 'ADMIN_EMAIL_CONFIRM',       'type' => 'text:25:100', 'explain' => false),
+    );
+    
+    var $game_config_options = array(
+        'legend1'               => 'GAME_CONFIG',
+        'game_name'             => array('lang' => 'GAME_NAME',         'type' => 'select', 'options' => 'game_select(\'{VALUE}\')', 'explain' => true), // FIXME: There'll be a method *somewhere* (game_manager or otherwise) to generate this.
     );
     /**#@-*/
 }

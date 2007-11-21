@@ -97,7 +97,20 @@ $DEFAULTS = array(
     'table_prefix'  => 'eqdkp_',
     'dbal'          => 'mysql'
 );
-
+$LOCALES = array(
+    'English' => array(
+        'label'   => 'English',
+        'type'    => 'en_US'
+    ),
+    'German'  => array(
+        'label'   => 'German',
+        'type'    => 'de_DE'
+    ),
+    'French'  => array(
+        'label'   => 'French',
+        'type'    => 'fr_FR'
+    ),
+);
 
 // NOTE: the language includes should be changed eventually so that they can be set dynamically
 if( !include_once($eqdkp_root_path . 'language/english/lang_install.php') )

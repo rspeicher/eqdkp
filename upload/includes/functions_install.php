@@ -24,14 +24,14 @@ function get_available_dbms($dbms = false, $return_unavailable = false)
     global $lang;
 
     $available_dbms = array(
-        'mysql'        => array(
-            'LABEL'            => 'MySQL',
+        'mysql'       => array(
+            'LABEL'         => 'MySQL',
             'SCHEMA'        => 'mysql',
             'MODULE'        => 'mysql', 
-            'DELIM'            => ';',
-            'COMMENTS'        => 'remove_remarks',
+            'DELIM'         => ';',
+            'COMMENTS'      => 'remove_remarks',
             'DRIVER'        => 'mysql',
-            'AVAILABLE'        => true,
+            'AVAILABLE'     => true,
         ),
     );
 
@@ -129,7 +129,7 @@ function inst_locale_select($default = '')
 
     foreach ( $LOCALES as $locale_type => $locale_desc )
     {
-        $selected = $DEFAULTS['default_lang'] == $locale_type ? 'selected="selected"' : '';
+        $selected = (strpos(strtolower($DEFAULTS['default_lang']), strtolower($locale_type)) === 0) ? 'selected="selected"' : '';
         $locale_options .= '<option value="'. $locale_desc['type'] .'" '. $selected .'>'. $locale_type .'</option>';
     }
 
@@ -449,8 +449,8 @@ function request_var($var_name, $default, $multibyte = false, $cookie = false)
 /**
  * Reverse the effects of htmlspecialchars()
  *
- * @param     string     $input            Input to reverse
- * @return    string
+ * @param   string  $input   Input to reverse
+ * @return  string
  */
 function unsanitize($input)
 {
@@ -707,14 +707,14 @@ function input_field($name, $type, $value='', $options='')
         break;
 
         case 'radio':
-            $key_yes    = ($value) ? ' checked="checked" id="' . $name . '"' : '';
-            $key_no        = (!$value) ? ' checked="checked" id="' . $name . '"' : '';
+            $key_yes    = ($value)  ? ' checked="checked" id="' . $name . '"' : '';
+            $key_no     = (!$value) ? ' checked="checked" id="' . $name . '"' : '';
 
             $tpl_type_cond = explode('_', $tpl_type[1]);
-            $type_no = ($tpl_type_cond[0] == 'disabled' || $tpl_type_cond[0] == 'enabled') ? false : true;
+            $type_no    = ($tpl_type_cond[0] == 'disabled' || $tpl_type_cond[0] == 'enabled') ? false : true;
 
-            $tpl_no = '<label><input type="radio" name="' . $name . '" value="0"' . $key_no . ' class="radio" /> ' . (($type_no) ? $lang['NO'] : $lang['DISABLED']) . '</label>';
-            $tpl_yes = '<label><input type="radio" name="' . $name . '" value="1"' . $key_yes . ' class="radio" /> ' . (($type_no) ? $lang['YES'] : $lang['ENABLED']) . '</label>';
+            $tpl_no     = '<label><input type="radio" name="' . $name . '" value="0"' . $key_no . ' class="radio" /> ' . (($type_no) ? $lang['NO'] : $lang['DISABLED']) . '</label>';
+            $tpl_yes    = '<label><input type="radio" name="' . $name . '" value="1"' . $key_yes . ' class="radio" /> ' . (($type_no) ? $lang['YES'] : $lang['ENABLED']) . '</label>';
 
             $tpl = ($tpl_type_cond[0] == 'yes' || $tpl_type_cond[0] == 'enabled') ? $tpl_yes . '&nbsp;&nbsp;' . $tpl_no : $tpl_no . '&nbsp;&nbsp;' . $tpl_yes;
         break;

@@ -1076,38 +1076,27 @@ class installer
         // Update some config settings
         //
         // FIXME: No way to roll back changes if any particular query fails.
-        $db->query('UPDATE ' . CONFIG_TABLE . " SET config_name='eqdkp_start' WHERE config_name='" . $data['table_prefix'] . "start'");
-        $db->query("UPDATE " . CONFIG_TABLE . " SET config_value='" . $data['server_name'] . "' WHERE config_name='server_name'");
-        $db->query("UPDATE " . CONFIG_TABLE . " SET config_value='" . $data['server_port'] . "' WHERE config_name='server_port'");
-        $db->query("UPDATE " . CONFIG_TABLE . " SET config_value='" . $data['server_path'] . "' WHERE config_name='server_path'");
-        $db->query("UPDATE " . CONFIG_TABLE . " SET config_value='" . $data['default_lang'] . "' WHERE config_name='default_lang'");
-        $db->query("UPDATE " . CONFIG_TABLE . " SET config_value='" . $data['default_locale'] . "' WHERE config_name='default_locale'");
+        $db->query('UPDATE ' . CONFIG_TABLE . " SET config_name='eqdkp_start' WHERE config_name='" . $data['table_prefix'] . "start'"); // FIXME: Necessary evil because of the find-replace for database table prefix done above
+        config_set('server_name', $data['server_name']);
+        config_set('server_port', $data['server_port']);
+        config_set('server_path', $data['server_path']);
+        config_set('default_lang', $data['default_lang']);
+        config_set('default_locale', $data['default_locale']);
         
         //
         // Update admin account
         //
-        // FIXME: This shouldn't happen by now. Remove this check + error I suppose...
-        $admin_password_check = ( $data['admin_pass1'] == $data['admin_pass2'] );
-        $admin_password = ($admin_password_check) ? md5($data['admin_pass1']) : md5('admin');
-
-        if ( !$admin_password_check )
-        {
-            $tpl->message_append('<p><span style="font-weight: bold; font-size: 14px; color:red;">NOTICE:</span></p>
-                <p>The passwords you provided did not match, so a new password has been generated for you.<br />Your administrator account password is: <strong>' . $admin_password . '</strong>.</p>
-                <p>Please take a moment and take note of this password! You can change it later by logging in and going to your account settings.</p>');
-            $error[] = $lang['INST_ERR_PASSWORD_MISMATCH'];
-        }
         
         $query = $db->build_query('UPDATE', array(
             'username'           => $data['admin_name'],
-            'user_password'      => $admin_password,
+            'user_password'      => $data['admin_pass1'],
             'user_lang'          => $data['default_lang'],
             'user_email'         => $data['admin_email1'],
             'user_active'        => '1',
         ));
 
         $db->query('UPDATE ' . USERS_TABLE . ' SET ' . $query . " WHERE user_id='1'");
-        $db->query("UPDATE " . CONFIG_TABLE . " SET config_value='" . $data['admin_email1'] . "' WHERE config_name='admin_email'");
+        config_set('admin_email', $data['admin_email1']);
 
         // Figure out where we're bound for next
         $url    = (count($error)) ? $this->install_url . "?mode=$mode&amp;sub=intro" : $this->install_url . "?mode=$mode&amp;sub=final";
@@ -1247,6 +1236,13 @@ class installer
             'admin_email1'    => strtolower(request_var('admin_email1', '')),
             'admin_email2'    => strtolower(request_var('admin_email2', '')),
             
+			'game_id'         => request_var('game_id', ''),
+			'guild_name'      => request_var('guild_name', '', true),
+			'dkp_name'        => request_var('dkp_name', ''),
+			
+			'site_name'       => request_var('site_name', '', true),
+			'site_desc'       => request_var('site_desc', '', true),
+			
             'server_name'     => request_var('server_name', ''),
             'server_port'     => request_var('server_port', ''),
             'server_path'     => request_var('server_path', ''),
@@ -1291,7 +1287,12 @@ class installer
     
     var $game_config_options = array(
         'legend1'               => 'GAME_CONFIG',
-        'game_name'             => array('lang' => 'GAME_NAME',         'type' => 'select', 'options' => 'game_select(\'{VALUE}\')', 'explain' => true), // FIXME: There'll be a method *somewhere* (game_manager or otherwise) to generate this.
+        'game_id'               => array('lang' => 'GAME_NAME',         'type' => 'select', 'options' => 'game_select(\'{VALUE}\')', 'explain' => true), // FIXME: There'll be a method *somewhere* (game_manager or otherwise) to generate this.
+		'guild_name'            => array('lang' => 'GUILD_NAME',        'type' => 'text:25:100', 'explain' => true),
+		'dkp_name'              => array('lang' => 'DKP_NAME',          'type' => 'text:5:5', 'explain' => true),
+		
+		'site_name'             => array('lang' => 'SITE_NAME',         'type' => 'text:25:100', 'explain' => true),
+		'site_desc'             => array('lang' => 'SITE_DESC',         'type' => 'textarea:25:3', 'explain' => false),
     );
     /**#@-*/
 }

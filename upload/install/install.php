@@ -5,13 +5,13 @@
  * -----------------------------------------------------------------------
  * File:        install.php
  * Began:       Wed Aug 1 2007
- * Date:        $Date: 2007-08-01 17:36:22 +1000 (D, d m Y) $
+ * Date:        $Date$
  * -----------------------------------------------------------------------
- * @author      $Author: Dazza $
+ * @author      $Author$
  * @copyright   2002-2007 The EQdkp Project Team
  * @link        http://eqdkp.com/
  * @package     eqdkp
- * @version     $Rev: 1 $
+ * @version     $Rev$
  */
 
 if ( !defined('IN_INSTALL') )
@@ -81,7 +81,7 @@ class installer
      */
     function introduction($mode, $sub)
     {
-        global $eqdkp_root_path, $lang, $DEFAULTS;
+        global $eqdkp_root_path, $lang;
 
         $tpl = new Template_Wrap('install_install.html');
         
@@ -398,7 +398,7 @@ class installer
      */
     function obtain_database_settings($mode, $sub)
     {
-        global $eqdkp_root_path, $lang, $DEFAULTS, $DBALS, $LOCALES;
+        global $eqdkp_root_path, $lang, $DEFAULTS;
     
         define('DEBUG', 2);
 
@@ -600,7 +600,7 @@ class installer
      */
     function obtain_administrator_info($mode, $sub)
     {
-        global $eqdkp_root_path, $lang, $DEFAULTS, $DBALS, $LOCALES;
+        global $eqdkp_root_path, $lang, $DEFAULTS;
     
         define('DEBUG', 2);
 
@@ -961,7 +961,7 @@ class installer
      */
     function create_database_tables($mode, $sub)
     {
-        global $eqdkp_root_path, $lang, $db, $DEFAULTS, $LOCALES;
+        global $eqdkp_root_path, $lang, $db, $DEFAULTS;
 
         define('DEBUG', 2);
 

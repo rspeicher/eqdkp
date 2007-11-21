@@ -3,15 +3,15 @@
  * Project:     EQdkp - Open Source Points System
  * License:     http://eqdkp.com/?p=license
  * -----------------------------------------------------------------------
- * File:        install.php
- * Began:       Sun Jun 22 2003
- * Date:        $Date: 2007-06-19 07:29:11 +1000 (D, d m Y) $
+ * File:        install/index.php
+ * Began:       Sun Jul 27 2007
+ * Date:        $Date$
  * -----------------------------------------------------------------------
- * @author      $Author: tsigo $
+ * @author      $Author$
  * @copyright   2002-2007 The EQdkp Project Team
  * @link        http://eqdkp.com/
  * @package     eqdkp
- * @version     $Rev: 46 $
+ * @version     $Rev$
  */
 
 // ---------------------------------------------------------
@@ -24,7 +24,6 @@ define('IN_INSTALL', true);
 error_reporting(E_ALL ^ E_NOTICE);
 
 $eqdkp_root_path = './../';
-$phpEx = substr(strrchr(__FILE__, '.'), 1);
 
 /*
 * Remove variables created by register_globals from the global scope
@@ -42,7 +41,6 @@ function deregister_globals()
         '_SESSION' => true,
         '_ENV' => true,
         '_FILES' => true,
-        'phpEx' => true,
         'eqdkp_root_path' => true
     );
 
@@ -99,29 +97,6 @@ $DEFAULTS = array(
     'table_prefix'  => 'eqdkp_',
     'dbal'          => 'mysql'
 );
-$DBALS    = array(
-    'mysql' => array(
-        'label'       => 'MySQL 4.x',
-        'structure'   => 'mysql',
-        'comments'    => 'remove_remarks',
-        'delim'       => ';',
-        'delim_basic' => ';'
-    ),
-);
-$LOCALES = array(
-    'English' => array(
-        'label'    => 'English',
-        'type'    => 'en_US'
-        ),
-    'German'  => array(
-        'label' => 'German',
-        'type'    => 'de_DE'
-        ),
-    'French'  => array(
-        'label'    => 'French',
-        'type'    => 'fr_FR'
-        )
-    );
 
 
 // NOTE: the language includes should be changed eventually so that they can be set dynamically
@@ -142,7 +117,12 @@ if ( !include_once($eqdkp_root_path . 'includes/class_template.php') )
     die('Could not include the template file! Check to make sure that "' . $eqdkp_root_path . 'includes/class_template.php" exists!');
 }
 
-
+/**
+ * Template_Wrap class
+ * This class extends the default template to supply some install-specific templating functionality
+ *
+ * TODO: Check how much of this stuff is actually being used anymore, and remove the stuff that isn't used.
+ */
 class Template_Wrap extends Template
 {
     var $error_message   = array();           // Array of errors      @var $error_message
@@ -306,7 +286,6 @@ class Template_Wrap extends Template
             ));
         }
     }
-
 }
 
 // If EQdkp is already installed, don't let them install it again
@@ -330,4 +309,3 @@ $sub  = request_var('sub','');
 
 $install = new installer("index.php");
 $install->main($mode, $sub);
-

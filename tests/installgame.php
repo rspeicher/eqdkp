@@ -31,7 +31,7 @@ if( count($games) )
     // NOTE: This function is actually meant to be private.
     // Also in this revision (367), this function doesn't touch the database - it echos the built queries.
     echo "<pre>\n";
-    $gm->_install_game();
+    $gm->_create_database_tables();
     echo "</pre>";
 }
 

@@ -24,6 +24,12 @@ include('game_manager.php');
 
 class Game_Installer extends Game_Manager
 {
+	
+	function Game_Installer()
+	{
+		$this->Game_Manager();
+	}
+
     /**
      * Processes all the necessary information to install the current game
      *
@@ -52,7 +58,7 @@ class Game_Installer extends Game_Manager
             'armor_classes' => array(),
         );
         
-        $result = $this->_install_game();
+        $result = $this->_create_database_tables();
     }
     
     /**
@@ -65,7 +71,7 @@ class Game_Installer extends Game_Manager
      */
     // TODO: Provide an array of mappings from the old game settings to the new ones (eg: WoW class ID -> EQ class ID)
     // TODO: Take into account the need to UPDATE instead of INSERT for any IDs that already exist in the database.
-    function _install_game()
+    function _create_database_tables()
     {
         global $db, $eqdkp;
         
@@ -194,7 +200,7 @@ class Game_Installer extends Game_Manager
             foreach ($tabledata as $sql)
 
             {
-                echo("INSERT INTO __" . $table . $sql);
+                echo("REPLACE INTO __" . $table . $sql);
                 echo "\n";
             }
         }        
@@ -219,3 +225,4 @@ class Game_Installer extends Game_Manager
         return true;
     }
 }
+?>

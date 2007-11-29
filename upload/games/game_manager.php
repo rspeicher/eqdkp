@@ -36,6 +36,16 @@ class Game_Manager
     var $races        = array();
     
     
+	function Game_Manager()
+	{
+		$this->games        = array();
+		$this->current_game = '';
+
+		$this->armor_types  = array();
+		$this->classes      = array();
+		$this->races        = array();
+	}
+	
     /**
      * List all valid games available for use by EQdkp.
      * 

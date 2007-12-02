@@ -41,7 +41,7 @@ $lang = array_merge($lang, array(
     'addraid_title'        => 'Add a Raid',
     'addturnin_title'      => "Add a Turn-in - Step %1\$d",
     'admin_index_title'    => 'EQdkp Administration',
-	'manage_game_title'    => 'EQdkp Game Management',
+    'manage_game_title'    => 'EQdkp Game Management',
     'manage_members_title' => 'Manage Guild Members',
     'manage_users_title'   => 'User Accounts and Permissions',
     'parselog_title'       => 'Parse a Log File',
@@ -310,13 +310,13 @@ $lang = array_merge($lang, array(
     'admin_email'               => 'Administrator E-Mail Address',
     'backup_options'            => 'Backup Options',
     
-	// Manage Game 
-	'game_settings'             => 'Game Settings',
-	'current_game'              => 'Current Game',
+    // Manage Game 
+    'game_settings'             => 'Game Settings',
+    'current_game'              => 'Current Game',
     'default_game'              => 'Default Game', #TODO: Deprecate
     'default_game_warn'         => 'Changing the default game may void other changes in this session.', #TODO: Deprecate
-	'game'                      => 'Game',
-	'new_game'                  => 'New Game',
+    'game'                      => 'Game',
+    'new_game'                  => 'New Game',
 
 
     // Admin Index

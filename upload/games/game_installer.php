@@ -25,6 +25,21 @@ include_once('game_manager.php');
 class Game_Installer extends Game_Manager
 {
     
+	/**
+	 * Mappings from old game data to new game data
+	 * 
+	 * This information is necessary in order to ensure referential integrity for foreign keys in the database
+	 */
+	// NOTE: Where should these mappings be entered and how?
+	var $mappings = array(
+		'factions'      => array(),
+		'races'         => array(),
+		'armor_types'   => array(),
+		'classes'       => array(),
+		'armor_classes' => array(),
+	);
+
+
     function Game_Installer()
     {
         $this->Game_Manager();
@@ -44,19 +59,6 @@ class Game_Installer extends Game_Manager
         // TODO: ID Validation + correcting / assigning
 
         // TODO: Mapping between old game data and new game data (WoW class IDs -> EQ class IDs etc.)
-        // NOTE: Where should these mappings be entered and how?
-        /**
-         * Mappings from old game data to new game data
-         * 
-         * This information is necessary in order to ensure referential integrity for foreign keys in the database
-         */
-        $mappings = array(
-            'factions'      => array(),
-            'races'         => array(),
-            'armor_types'   => array(),
-            'classes'       => array(),
-            'armor_classes' => array(),
-        );
         
         $result = $this->_create_database_tables();
     }
@@ -71,7 +73,8 @@ class Game_Installer extends Game_Manager
      */
     // TODO: Provide an array of mappings from the old game settings to the new ones (eg: WoW class ID -> EQ class ID)
     // TODO: Take into account the need to UPDATE instead of INSERT for any IDs that already exist in the database.
-    function _create_database_tables()
+	// FIXME: Remove the echo_sql parameter when we're ready to release. It's useful for testing rather than doing.
+    function _create_database_tables($echo_sql = false)
     {
         global $db;
         
@@ -197,26 +200,50 @@ class Game_Installer extends Game_Manager
         // Execute the INSERTs for the new information
         foreach ($game_sql as $table => $tabledata)
         {
-            foreach ($tabledata as $sql)
+            foreach ($tabledata as $sqldata)
 
             {
-                echo("REPLACE INTO __" . $table . $sql);
-                echo "\n";
+				// FIXME: Remove the echos once we're ready to release. Still kind of useful for testing.
+				if ($echo_sql)
+				{
+					echo("REPLACE INTO __" . $table . $sqldata);
+					echo "\n";
+				}
+				else
+				{
+					$sql = "REPLACE INTO __{$table}" . $sqldata;
+					$db->sql_query($sql);
+				}
             }
         }        
         
         // Other game-related information updates
-        // Max level update
+        // FIXME: Remove echo_sql calls when we're ready to release.
+		// Max level update
         $sql = "UPDATE __members 
                 SET member_level = {$max_level} 
                 WHERE member_level > {$max_level};";
-        $db->sql_query($sql);
+		if ($echo_sql)
+		{
+			echo $sql . "<br />\n";
+		}
+		else 
+		{
+        	$db->sql_query($sql);		
+		}
         
         $sql = "ALTER TABLE __members 
                 MODIFY member_level tinyint(2) NOT NULL 
                 default '{$max_level}'";
-        $db->sql_query($sql);
-
+		if ($echo_sql)
+		{
+			echo $sql . "<br />\n";
+		}
+		else 
+		{
+        	$db->sql_query($sql);
+		}
+		
         // NOTE: The script which called install_game() should update the config table.
         // TODO: Commit changes if no errors occured up to this point
 

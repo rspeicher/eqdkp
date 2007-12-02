@@ -3,8 +3,8 @@
  * Project:     EQdkp - Open Source Points System
  * License:     http://eqdkp.com/?p=license
  * -----------------------------------------------------------------------
- * File:        settings.php
- * Began:       Sat Dec 28 2002
+ * File:        manage_game.php
+ * Began:       Sun Dec 2 2007
  * Date:        $Date$
  * -----------------------------------------------------------------------
  * @author      $Author$

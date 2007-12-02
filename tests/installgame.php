@@ -19,19 +19,37 @@ if( count($games) )
 {
     // NOTE: Retrieve/Keep the game's package id in order to access its information
     $game_keys = array_keys($games);
-    
+	
     echo "Game Package IDs: \n";
     echo "<pre>\n";
-    var_dump($game_keys);
+    print_r($game_keys);
     echo "</pre>";
     echo "<br /><br />\n\n";    
-    
+
+    // Alternatively, as of revision 395, the game data itself should have the id in it.
+	echo "Game IDs - keys vs stored values" . "<br />\n<pre>";
+	foreach ($game_keys as $game_id)
+	{
+		echo "Game: " . $game_id . " - ";
+		echo (isset($games[$game_id]['id'])) ? 'id set' : 'no id';
+		if (isset($games[$game_id]['id']))
+		{
+			echo " - " . $games[$game_id]['id'];
+		}	
+		echo "\n";
+	}
+    echo "</pre>\n<br />\n";
+	
     $gm->set_current_game($game_keys[0]);
-    
+    echo "Selected game data: " . "<br />\n<pre>";
+	print_r($gm->get_game_data());
+	echo "</pre>\n<br /><br />\n\n";
+	
     // NOTE: This function is actually meant to be private.
-    // Also in this revision (367), this function doesn't touch the database - it echos the built queries.
+    // In this revision (398), this function accepts a single boolean parameter echo_sql, which will echo all sql rather than executing it.
+	echo "Game SQL queries" . "<br />\n";
     echo "<pre>\n";
-    $gm->_create_database_tables();
+    $gm->_create_database_tables(true);
     echo "</pre>";
 }
 

@@ -21,8 +21,9 @@ if (!defined('EQDKP_INC') || !defined('IN_GAME_MANAGER'))
 }
 
 $game_info = array(
-	'id'        => 'WoW',
+	'id'        => 'wow',
 	'name'      => 'World of Warcraft',
+	'shortname' => 'WoW',
 	'version'   => '1.0',
 	'max_level' => 70,
 	

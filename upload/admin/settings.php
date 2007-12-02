@@ -382,8 +382,8 @@ class EQdkp_Config extends EQdkp_Admin
         }
         
         $eqdkp->set_vars(array(
-            'page_title'    => page_title($user->lang['config_title']),
-            'template_file' => 'admin/config.html',
+            'page_title'    => page_title($user->lang['settings_title']),
+            'template_file' => 'admin/settings.html',
             'display'       => true
         ));
     }

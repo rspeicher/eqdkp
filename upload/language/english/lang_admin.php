@@ -41,11 +41,12 @@ $lang = array_merge($lang, array(
     'addraid_title'        => 'Add a Raid',
     'addturnin_title'      => "Add a Turn-in - Step %1\$d",
     'admin_index_title'    => 'EQdkp Administration',
-    'config_title'         => 'Script Configuration',
+	'manage_game_title'    => 'EQdkp Game Management',
     'manage_members_title' => 'Manage Guild Members',
     'manage_users_title'   => 'User Accounts and Permissions',
     'parselog_title'       => 'Parse a Log File',
     'plugins_title'        => 'Manage Plugins',
+    'settings_title'       => 'EQdkp Settings',
     'styles_title'         => 'Manage Styles',
     'viewlogs_title'       => 'Log Viewer',
     
@@ -283,8 +284,6 @@ $lang = array_merge($lang, array(
     'admin'                     => 'Admin',
     'default_language'          => 'Default Language',
     'default_locale'            => 'Default Locale (character set only, does not affect language)',
-    'default_game'              => 'Default Game',
-    'default_game_warn'         => 'Changing the default game may void other changes in this session.',
     'default_style'             => 'Default Style',
     'default_page'              => 'Default Index Page',
     'hide_inactive'             => 'Hide Inactive Members',
@@ -311,6 +310,15 @@ $lang = array_merge($lang, array(
     'admin_email'               => 'Administrator E-Mail Address',
     'backup_options'            => 'Backup Options',
     
+	// Manage Game 
+	'game_settings'             => 'Game Settings',
+	'current_game'              => 'Current Game',
+    'default_game'              => 'Default Game', #TODO: Deprecate
+    'default_game_warn'         => 'Changing the default game may void other changes in this session.', #TODO: Deprecate
+	'game'                      => 'Game',
+	'new_game'                  => 'New Game',
+
+
     // Admin Index
     'anonymous'          => 'Anonymous',
     'database_size'      => 'Database Size',

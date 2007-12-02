@@ -141,36 +141,6 @@ CREATE TABLE `eqdkp_member_ranks` (
   `rank_suffix` varchar(75) NOT NULL default ''
 )TYPE=InnoDB;
 
-DROP TABLE IF EXISTS eqdkp_classes;
-CREATE TABLE `eqdkp_classes` (
-  `c_index`  smallint(3) unsigned NOT NULL auto_increment,
-  `class_id` smallint(3) unsigned NOT NULL,
-  `class_name` varchar(50) NOT NULL,
-  `class_min_level` smallint(3) NOT NULL DEFAULT '0',
-  `class_max_level` smallint(3) NOT NULL DEFAULT '999',
-  `class_armor_type` varchar(50) NOT NULL,
-  `class_hide` enum('0','1') NOT NULL DEFAULT '0',
-  PRIMARY KEY (`c_index`)
-)TYPE=InnoDB;
-
-DROP TABLE IF EXISTS eqdkp_races;
-CREATE TABLE `eqdkp_races` (
-  `race_id` smallint(3) unsigned NOT NULL UNIQUE,
-  `race_name` varchar(50) NOT NULL,
-  `race_faction_id` smallint(3) NOT NULL DEFAULT '0',
-  `race_hide` enum('0','1') NOT NULL DEFAULT '0',
-  PRIMARY KEY (`race_id`)
-)TYPE=InnoDB;
-
-DROP TABLE IF EXISTS eqdkp_factions;
-CREATE TABLE `eqdkp_factions` (
-  `f_index` smallint(3) unsigned NOT NULL auto_increment,
-  `faction_id` smallint(3) unsigned NOT NULL,
-  `faction_name` varchar(50) NOT NULL,
-  `faction_hide` enum('0','1') NOT NULL DEFAULT '0',
-  PRIMARY KEY (`f_index`)
-)TYPE=InnoDB;
-
 DROP TABLE IF EXISTS eqdkp_news;
 CREATE TABLE `eqdkp_news` (
   `news_id` smallint(5) unsigned NOT NULL auto_increment,
@@ -289,3 +259,56 @@ CREATE TABLE `eqdkp_plugins` (
 )TYPE=InnoDB;
 
 # --------------------------------------------------------
+### Games
+
+DROP TABLE IF EXISTS eqdkp_factions;
+CREATE TABLE `eqdkp_factions` (
+  `faction_id` smallint(3) unsigned NOT NULL UNIQUE,
+  `faction_name` varchar(50) NOT NULL,
+  `faction_hide` enum('0','1') NOT NULL DEFAULT '0',
+  PRIMARY KEY (`faction_id`)
+)TYPE=InnoDB;
+
+DROP TABLE IF EXISTS eqdkp_races;
+CREATE TABLE `eqdkp_races` (
+  `race_id` smallint(3) unsigned NOT NULL UNIQUE,
+  `race_name` varchar(50) NOT NULL,
+  `race_faction_id` smallint(3) NOT NULL DEFAULT '0',
+  `race_hide` enum('0','1') NOT NULL DEFAULT '0',
+  PRIMARY KEY (`race_id`)
+)TYPE=InnoDB;
+
+DROP TABLE IF EXISTS eqdkp_armor_types;
+CREATE TABLE `eqdkp_armor_types` (
+  `armor_type_id` smallint(3) unsigned NOT NULL UNIQUE,
+  `armor_type_name` varchar(50) NOT NULL,
+  PRIMARY KEY (`armor_type_id`)
+)TYPE=InnoDB;
+
+DROP TABLE IF EXISTS eqdkp_classes;
+CREATE TABLE `eqdkp_classes` (
+  `class_id` smallint(3) unsigned NOT NULL UNIQUE,
+  `class_name` varchar(50) NOT NULL,
+  `class_min_level` smallint(3) NOT NULL DEFAULT '0',
+  `class_max_level` smallint(3) NOT NULL DEFAULT '999',
+  `class_armor_type` varchar(50) NOT NULL,
+  `class_hide` enum('0','1') NOT NULL DEFAULT '0',
+  PRIMARY KEY (`class_id`)
+)TYPE=InnoDB;
+
+DROP TABLE IF EXISTS eqdkp_class_armor;
+CREATE TABLE eqdkp_inputsec_388_class_armor(
+  `class_id` smallint(3) unsigned NOT NULL,
+  `armor_type_id` smallint(3) unsigned NOT NULL,
+  `armor_min_level` smallint(3) NOT NULL DEFAULT '0',
+  `armor_max_level` smallint(3),
+  PRIMARY KEY (`class_id`, `armor_type_id`),
+  INDEX classes (`class_id`),
+  INDEX armor_types (`armor_type_id`),
+  FOREIGN KEY classes(`class_id`) REFERENCES eqdkp_classes(`class_id`) 
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+  FOREIGN KEY armor_types(`armor_type_id`) REFERENCES eqdkp_armor_types(`armor_type_id`)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+)TYPE=InnoDB;

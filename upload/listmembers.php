@@ -149,8 +149,6 @@ else
     // Build filter drop-down
     // ---------------------------
     $filter = $in->get('filter');
-    require_once($eqdkp_root_path . 'games/game_manager.php');
-    $gm = new Game_Manager();
     
     $filter_options = array(
         // TODO: Localize this string

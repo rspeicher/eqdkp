@@ -92,14 +92,15 @@ define('A_BACKUP',      36);
 // Backwards compatibility for pre-1.4
 $dbms = ( !isset($dbms) && isset($dbtype) ) ? $dbtype : $dbms;
 
-require_once($eqdkp_root_path . 'includes/functions.php');
-require_once($eqdkp_root_path . 'includes/functions_paths.php');
-require_once($eqdkp_root_path . 'includes/db/' . $dbms . '.php');
-require_once($eqdkp_root_path . 'includes/eqdkp.php');
-require_once($eqdkp_root_path . 'includes/session.php');
-require_once($eqdkp_root_path . 'includes/class_template.php');
-require_once($eqdkp_root_path . 'includes/eqdkp_plugins.php');
-require_once($eqdkp_root_path . 'includes/input.php');
+require($eqdkp_root_path . 'includes/functions.php');
+require($eqdkp_root_path . 'includes/functions_paths.php');
+require($eqdkp_root_path . 'includes/db/' . $dbms . '.php');
+require($eqdkp_root_path . 'includes/eqdkp.php');
+require($eqdkp_root_path . 'includes/session.php');
+require($eqdkp_root_path . 'includes/class_template.php');
+require($eqdkp_root_path . 'includes/eqdkp_plugins.php');
+require($eqdkp_root_path . 'includes/input.php');
+require($eqdkp_root_path . 'games/game_manager.php');
 
 $tpl  = new Template;
 $in   = new Input();
@@ -112,14 +113,17 @@ $db->sql_connect($dbhost, $dbname, $dbuser, $dbpass, false);
 // Initialize the eqdkp module
 $eqdkp = new EQdkp($eqdkp_root_path);
 
-// Start up the user/session management
-$user->start();
-$user->setup($in->get('style', 0));
-
 // Set the locale
 // TODO: Shouldn't this be per-user? That was rhetorical. It should.
 $cur_locale = $eqdkp->config['default_locale'];
 setlocale(LC_ALL, $cur_locale);
+
+// Start up the user/session management
+$user->start();
+$user->setup($in->get('style', 0));
+
+// Initialize the Game Manager
+$gm = new Game_Manager();
 
 // Start plugin management
 $pm = new EQdkp_Plugin_Manager(true, DEBUG);

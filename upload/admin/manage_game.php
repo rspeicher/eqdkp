@@ -105,10 +105,9 @@ class EQdkp_Manage_Game extends EQdkp_Admin
     // ---------------------------------------------------------
     function display_form()
     {
-        global $db, $eqdkp, $eqdkp_root_path, $user, $tpl, $pm, $in;
+        global $db, $eqdkp, $eqdkp_root_path, $user, $tpl, $in;
+        global $gm, $pm;
 
-        require_once($eqdkp_root_path . 'games/game_manager.php');
-        $gm = new Game_Manager();
         $games = $gm->list_games();
 
         // FIXME: These values *MUST* be discovered from the game language files. Perhaps another task for the game manager...?

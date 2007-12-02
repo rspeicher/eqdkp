@@ -406,11 +406,9 @@ class MM_Addmember extends EQdkp_Admin
     // ---------------------------------------------------------
     function display_form()
     {
-        global $db, $eqdkp, $user, $tpl, $pm, $in;
+        global $db, $eqdkp, $user, $tpl, $in;
+        global $gm, $pm;
 
-        require_once($eqdkp->root_path . 'games/game_manager.php');
-        $gm = new Game_Manager();
-        
         foreach ( $gm->sql_classes() as $class )
         {
             $tpl->assign_block_vars('class_row', array(

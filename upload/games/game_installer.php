@@ -25,19 +25,19 @@ include_once('game_manager.php');
 class Game_Installer extends Game_Manager
 {
     
-	/**
-	 * Mappings from old game data to new game data
-	 * 
-	 * This information is necessary in order to ensure referential integrity for foreign keys in the database
-	 */
-	// NOTE: Where should these mappings be entered and how?
-	var $mappings = array(
-		'factions'      => array(),
-		'races'         => array(),
-		'armor_types'   => array(),
-		'classes'       => array(),
-		'armor_classes' => array(),
-	);
+    /**
+     * Mappings from old game data to new game data
+     * 
+     * This information is necessary in order to ensure referential integrity for foreign keys in the database
+     */
+    // NOTE: Where should these mappings be entered and how?
+    var $mappings = array(
+        'factions'      => array(),
+        'races'         => array(),
+        'armor_types'   => array(),
+        'classes'       => array(),
+        'armor_classes' => array(),
+    );
 
 
     function Game_Installer()
@@ -73,7 +73,7 @@ class Game_Installer extends Game_Manager
      */
     // TODO: Provide an array of mappings from the old game settings to the new ones (eg: WoW class ID -> EQ class ID)
     // TODO: Take into account the need to UPDATE instead of INSERT for any IDs that already exist in the database.
-	// FIXME: Remove the echo_sql parameter when we're ready to release. It's useful for testing rather than doing.
+    // FIXME: Remove the echo_sql parameter when we're ready to release. It's useful for testing rather than doing.
     function _create_database_tables($echo_sql = false)
     {
         global $db;
@@ -134,7 +134,6 @@ class Game_Installer extends Game_Manager
         }
         
         // Races
-        $race_sql = array();
         foreach ($data['races'] as $race => $info)
         {
             $sql_data = array(
@@ -166,6 +165,7 @@ class Game_Installer extends Game_Manager
             $num = count($class_armor_types);            
             $id_fix += ($num - 1);
 
+            $iteration = 0;
             // Now, for every class-armor mapping for this class, we create a new 'class'
             foreach($class_armor_types as $key => $class_armor_type)
             {
@@ -173,14 +173,19 @@ class Game_Installer extends Game_Manager
                 $armor_min  = isset($class_armor_type['min']) ? intval($class_armor_type['min']) : 0;
                 $armor_max  = isset($class_armor_type['max']) ? intval($class_armor_type['max']) : $max_level;
                 
+                $fix_value  = $id_fix - ($num - intval($key)) + 1;
+                
                 $sql_data = array(
-                    'class_id'        => intval($info['id']) + ($id_fix - ($num - intval($key)) + 1),
+                    'class_id'        => intval($info['id']) + $fix_value,
                     'class_name'      => $info['name'],
                     'class_armor_type'=> $armor_name,
                     'class_min_level' => $armor_min,
                     'class_max_level' => $armor_max,
+#                    'class_hide'      => ($num > 0 && $iteration > 0) ? '1' : '0',
                 );
                 $game_sql['classes'][] = $db->sql_build_query('INSERT',$sql_data);
+                
+                $iteration++;
             }
         }
 
@@ -191,8 +196,21 @@ class Game_Installer extends Game_Manager
         // TODO: Being able to rollback a database transaction would be *really* useful about here
 
         // Discard the old table information
+        if ($echo_sql)
+        {
+            echo "TRUNCATE TABLE __class_armor" . "<br />\n";
+        }
+        else 
+        {
+            $db->sql_query("TRUNCATE TABLE __class_armor");
+        }
+
         // FIXME: TRUNCATE TABLE will not work if there are foreign key dependencies in the table.
-        //        In other words, UPDATE statements are required.
+        //        In other words, REPLACE INTO statements are required.
+        //        However, there may be a possibility of creating temporary tables, adding the old + new classes to that, 
+        //        then mapping back to the values in the real tables.
+        //        That way would probably take a hell of a lot longer though. Still, either way there needs to be one additional 
+        //        'swap' id row so you can switch from the old class ID to the new ones without accidentally losing class values.
 #        $db->sql_query("TRUNCATE TABLE __classes");
 #        $db->sql_query("TRUNCATE TABLE __races");
 #        $db->sql_query("TRUNCATE TABLE __factions");
@@ -201,49 +219,94 @@ class Game_Installer extends Game_Manager
         foreach ($game_sql as $table => $tabledata)
         {
             foreach ($tabledata as $sqldata)
-
             {
-				// FIXME: Remove the echos once we're ready to release. Still kind of useful for testing.
-				if ($echo_sql)
-				{
-					echo("REPLACE INTO __" . $table . $sqldata);
-					echo "\n";
-				}
-				else
-				{
-					$sql = "REPLACE INTO __{$table}" . $sqldata;
-					$db->sql_query($sql);
-				}
+                // FIXME: Remove the echos once we're ready to release. Still kind of useful for testing.
+                if ($echo_sql)
+                {
+                    echo("REPLACE INTO __" . $table . $sqldata);
+                    echo "\n";
+                }
+                else
+                {
+                    $sql = "REPLACE INTO __{$table}" . $sqldata;
+                    $db->sql_query($sql);
+                }
             }
-        }        
+        }
+        
+        if ($echo_sql) echo "<br />\n";
+        
+        // FIXME: Method of choice - strip all old class IDs.
+        // FIXME: At this point, user classes and such will start going haywire.
+        // FIXME: I am currently assuming the class IDs are incremental. They have to be checked up above still, so it makes life easier for me down here.
+        $class_count = count($game_sql['classes']);
+        $faction_count = count($game_sql['factions']);
+        $race_count = count($game_sql['races']);
+        
+        // Remove old classes
+        $sql = "DELETE FROM __classes
+                WHERE class_id > '" . intval($class_count - 1) . "'";
+        if ($echo_sql)
+        {
+            echo $sql . "<br />\n";
+        }
+        else 
+        {
+            $db->sql_query($sql);
+        }
+
+        // Remove old factions
+        $sql = "DELETE FROM __factions
+                WHERE faction_id > '" . intval($faction_count - 1) . "'";
+        if ($echo_sql)
+        {
+            echo $sql . "<br />\n";
+        }
+        else 
+        {
+            $db->sql_query($sql);
+        }
+
+        // Remove old classes
+        $sql = "DELETE FROM __races
+                WHERE race_id > '" . intval($race_count - 1) . "'";
+        if ($echo_sql)
+        {
+            echo $sql . "<br />\n";
+        }
+        else 
+        {
+            $db->sql_query($sql);
+        }
+        
         
         // Other game-related information updates
         // FIXME: Remove echo_sql calls when we're ready to release.
-		// Max level update
+        // Max level update
         $sql = "UPDATE __members 
                 SET member_level = {$max_level} 
                 WHERE member_level > {$max_level};";
-		if ($echo_sql)
-		{
-			echo $sql . "<br />\n";
-		}
-		else 
-		{
-        	$db->sql_query($sql);		
-		}
+        if ($echo_sql)
+        {
+            echo $sql . "<br />\n";
+        }
+        else 
+        {
+            $db->sql_query($sql);
+        }
         
         $sql = "ALTER TABLE __members 
                 MODIFY member_level tinyint(2) NOT NULL 
                 default '{$max_level}'";
-		if ($echo_sql)
-		{
-			echo $sql . "<br />\n";
-		}
-		else 
-		{
-        	$db->sql_query($sql);
-		}
-		
+        if ($echo_sql)
+        {
+            echo $sql . "<br />\n";
+        }
+        else 
+        {
+            $db->sql_query($sql);
+        }
+        
         // NOTE: The script which called install_game() should update the config table.
         // TODO: Commit changes if no errors occured up to this point
 

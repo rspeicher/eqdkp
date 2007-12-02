@@ -36,23 +36,25 @@ class Game_Manager
     var $races        = array();
     
     
-	function Game_Manager()
-	{
-		$this->games        = array();
-		$this->current_game = '';
+    function Game_Manager()
+    {
+        $this->games        = array();
+        $this->current_game = '';
 
-		$this->armor_types  = array();
-		$this->classes      = array();
-		$this->races        = array();
-	}
-	
+        $this->armor_types  = array();
+        $this->classes      = array();
+        $this->races        = array();
+    }
+    
     /**
      * List all valid games available for use by EQdkp.
      * 
-     * @return array
-     * @access public
+     * @param     bool      $ids_only         If true, will only return an indexed array, where the values are the ids of all valid games.
+     *
+     * @return    array
+     * @access    public
      */
-    function list_games()
+    function list_games($ids_only = false)
     {
         global $eqdkp_root_path;
     
@@ -66,18 +68,25 @@ class Game_Manager
             trigger_error("Unable to access the <b>games</b> directory", E_USER_WARNING);
         }
 
+        $ignore = array('.','..','.svn');
+
         // Look for game packages
         while (false !== ($entry = readdir($handle)))
         {
+            if (in_array($entry, $ignore))
+            {
+                continue;
+            }
+            
             // Retrieve the game information only
-            $gameinfo = $this->_get_game_data($entry, true);
+            $gameinfo = $this->_retrieve_game_data($entry, true);
             // If the file wasn't a valid game package, or no valid data was found for the game
             if ($gameinfo === false || !count($gameinfo))
             {
                 continue;
             }
             
-            // TODO: Check for a duplicate game info entry?
+            // NOTE: Consecutive calls will always override whatever is currently held in the games array
             $this->games[$entry] = $gameinfo;
         }
         closedir($handle);
@@ -85,6 +94,11 @@ class Game_Manager
 
         $sort = $this->games;
         ksort($sort);
+        
+        if ($ids_only)
+        {
+            $sort = array_keys($sort);
+        }
         
         return $sort;
     }
@@ -99,7 +113,7 @@ class Game_Manager
     function set_current_game($game_id)
     {
         // Retrieve the game data for the specified game
-        $gamedata = $this->get_game_data($game_id);
+        $gamedata = $this->retrieve_game_data($game_id);
         
         if ($gamedata === false)
         {
@@ -116,22 +130,45 @@ class Game_Manager
     }
 
     /**
+     * Returns the game data for the specified game. If no game id is specified, it will attempt to retrieve the current game's data.
+     */
+    function get_game_data($game_id = false)
+    {
+        if (!is_string($game_id) || !strlen($game_id))
+        {
+            $game_id = (!empty($this->current_game)) ? $this->current_game : false;
+        }
+        
+        if ($game_id == false)
+        {
+            return false;
+        }
+        
+        if (!isset($this->games[$game_id]) || !isset($this->games[$game_id]['data']))
+        {
+            $this->retrieve_game_data($game_id);
+        }
+        
+        return $this->games[$game_id];
+    }
+
+    /**
      * Retrieves and returns the game data for the specified game. The game data will be held in $games
      * 
      * @param     string     $game_id          The package name for the game. This must correspond with a folder name in the games folder.
      * @return    mixed                        False if the game id is invalid. Empty array if no data was found. Filled array if data existed.
      */
-    function get_game_data($game_id)
+    // TODO: Perhaps add code here to accept $game_id as the array values returned from list_games() / retrieve_game_data() ? Probably not.
+    function retrieve_game_data($game_id)
     {
         // If we didn't get a valid game package name, there's no point in continuing.
-        // TODO: Perhaps add code here to accept $game_id as the array values returned from list_games() / get_game_data() ? Probably not.
         if (!is_string($game_id) || !strlen($game_id))
         {
             return false;
         }
         
         // Retrieve the game data for the specified game
-        $gamedata = $this->_get_game_data($game_id);
+        $gamedata = $this->_retrieve_game_data($game_id);
         
         if (!count($gamedata))
         {
@@ -156,7 +193,7 @@ class Game_Manager
      *
      * @access    private
      */
-    function _get_game_data($game_id, $info_only = false)
+    function _retrieve_game_data($game_id, $info_only = false)
     {
         global $eqdkp_root_path;
         

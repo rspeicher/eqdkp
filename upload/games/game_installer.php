@@ -20,15 +20,15 @@ if ( !defined('EQDKP_INC') )
     exit;
 }
 
-include('game_manager.php');
+include_once('game_manager.php');
 
 class Game_Installer extends Game_Manager
 {
-	
-	function Game_Installer()
-	{
-		$this->Game_Manager();
-	}
+    
+    function Game_Installer()
+    {
+        $this->Game_Manager();
+    }
 
     /**
      * Processes all the necessary information to install the current game
@@ -73,7 +73,7 @@ class Game_Installer extends Game_Manager
     // TODO: Take into account the need to UPDATE instead of INSERT for any IDs that already exist in the database.
     function _create_database_tables()
     {
-        global $db, $eqdkp;
+        global $db;
         
         // If the current game hasn't been set, we don't want to do this.
         if( $this->current_game == false || !strlen($this->current_game))
@@ -217,9 +217,7 @@ class Game_Installer extends Game_Manager
                 default '{$max_level}'";
         $db->sql_query($sql);
 
-        // Current game name
-        $eqdkp->config_set('default_game', $game_name);
-
+        // NOTE: The script which called install_game() should update the config table.
         // TODO: Commit changes if no errors occured up to this point
 
         return true;

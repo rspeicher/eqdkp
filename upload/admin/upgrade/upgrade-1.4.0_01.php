@@ -67,6 +67,13 @@ if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
     }
     $db->free_result($result);
     
+    // Determine what the currently installed game is
+    $sql = "SELECT * 
+            FROM __config
+            WHERE `config_name` = 'default_game'";
+    $result = $db->query($sql);
+    $game_name = $db->fetch_record($result);
+    
     Upgrade::execute(array(
         // Change auth_users to use a UNIQUE index
         "ALTER TABLE __auth_users DROP INDEX `user_id`",
@@ -86,6 +93,10 @@ if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
         "ALTER TABLE __members CHANGE `member_spent` `member_spent` DOUBLE( 11, 2 ) NOT NULL DEFAULT '0.00",
         "ALTER TABLE __members CHANGE `member_adjustment` `member_adjustment` DOUBLE( 11, 2 ) NOT NULL DEFAULT '0.00",
         "ALTER TABLE __raids CHANGE `raid_value` `raid_value` DOUBLE( 11, 2 ) NOT NULL DEFAULT '0.00'",
+        
+        // Update the default game values
+        "INSERT INTO __config (`config_name`, `config_value`) VALUES ('current_game_name', '" . $game_name . "')",
+        "UPDATE __config SET `config_name` = 'current_game' WHERE `config_name` = 'default_game' LIMIT 1",
     ));
     
     // Finalize

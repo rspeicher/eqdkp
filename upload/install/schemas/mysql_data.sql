@@ -1,6 +1,7 @@
 ### Configuration values
 INSERT INTO eqdkp_config (config_name, config_value) VALUES ('default_lang', 'english');
-INSERT INTO eqdkp_config (config_name, config_value) VALUES ('default_game', 'Everquest');
+INSERT INTO eqdkp_config (config_name, config_value) VALUES ('default_game', 'everquest');
+INSERT INTO eqdkp_config (config_name, config_value) VALUES ('default_game_name', 'Everquest');
 INSERT INTO eqdkp_config (config_name, config_value) VALUES ('default_style', '6');
 INSERT INTO eqdkp_config (config_name, config_value) VALUES ('default_alimit', '100');
 INSERT INTO eqdkp_config (config_name, config_value) VALUES ('default_elimit', '100');

@@ -23,6 +23,7 @@ Version 1.4 - MMM DD, YYYY
 [+] Added a new sql_error method, which governs the way in which database errors are handled. Plugin authors should use this method to handle all database error management instead of error().
 [ ] Moved database schema files to the install/schema directory.
 [+] Added implicit template variables S_FIRST_ROW and S_LAST_ROW for all block variables.
+[ ] Re-named the config variable 'default_game' to 'current_game', and added a variable 'current_game_name'
 
 Version 1.3.2 - March 9, 2007
 -----------------------------

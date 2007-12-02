@@ -1,0 +1,34 @@
+<!-- INCLUDE page_header.html -->
+
+<form method="post" action="{F_MANAGE_GAME}" name="post">
+<table width="100%" border="0" cellspacing="1" cellpadding="2">
+  <colgroup>
+    <col width="40%" class="row2" /><col width="60%" class="row1" />
+  </colgroup>
+  <tr>
+    <th align="center" colspan="2">{L_GAME_SETTINGS}</th>
+  </tr>
+  <tr>
+    <td>{L_CURRENT_GAME}:</td>
+    <td>{CURRENT_GAME_NAME}</td>
+  </tr>
+  <tr>
+    <td>{L_NEW_GAME}:</td>
+    <td>
+      <select name="new_game" class="input">
+        <!-- BEGIN game_row -->
+        <option value="{game_row.VALUE}"{game_row.SELECTED}>{game_row.OPTION}</option>
+        <!-- END game_row -->
+      </select>
+    </td>
+  </tr>
+</table>
+<br />
+
+<table width="100%" border="0" cellspacing="1" cellpadding="2">
+  <tr>
+    <th align="center" colspan="2"><input type="submit" name="submit" value="{L_SUBMIT}" class="mainoption" /> <input type="reset" name="reset" value="{L_RESET}" class="liteoption" /></th>
+  </tr>
+</table>
+</form>
+<!-- INCLUDE page_tail.html -->

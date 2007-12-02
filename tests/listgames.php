@@ -26,4 +26,11 @@ $games = $gm->list_games();
 
 var_dump($games);
 
+// Get the config value for default game
+$sql = "SELECT * 
+        FROM __config
+        WHERE `config_name` = 'default_game'";
+$result = $db->sql_query($sql);
+
+var_dump($db->fetch_record($result));
 ?>

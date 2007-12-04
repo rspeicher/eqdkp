@@ -102,7 +102,6 @@ class dbal_mysql extends dbal
             }
     
             // Do the query
-            $this->query_count++;
             $this->query_id = @mysql_query($query, $this->link_id);
 
             // If the query didn't work    
@@ -121,7 +120,7 @@ class dbal_mysql extends dbal
             // SQL Reporting
             if ( DEBUG == 2 )
             {
-                $this->queries[$this->query_count] = $query;
+                $this->queries[] = $query;
             }
             
             // Unset records for the query ID

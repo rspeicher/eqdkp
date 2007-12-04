@@ -33,7 +33,6 @@ class dbal
     var $query_id    = 0;                   // @var    int        $query_id        query ID
     var $record      = array();             // @var    array      $record          Record
     var $record_set  = array();             // @var    array      $record_set      Record set
-    var $query_count = 0;                   // @var    int        $query_count     the number of queries executed for the page
     var $queries     = array();             // @var    array      $queries         the result of all queries run
     var $error_die   = true;                // @var    bool       $error_die       die on errors (true) or allow the script to run (false)?
 
@@ -54,8 +53,6 @@ class dbal
      */
     function dbal()
     {
-        $this->query_count = 0;
-
         // Fill default sql layer based on the class being called.
         // This can be changed by the specified layer itself later if needed.
         $this->sql_layer = substr(get_class($this), 5);

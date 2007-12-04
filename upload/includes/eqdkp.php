@@ -424,7 +424,7 @@ class EQdkp
                     'S_SHOW_DEBUG'     => true,
                     'S_SHOW_QUERIES'   => $s_show_queries,
                     'EQDKP_RENDERTIME' => substr($this->timer_end - $this->timer_start, 0, 5),
-                    'EQDKP_QUERYCOUNT' => $db->query_count
+                    'EQDKP_QUERYCOUNT' => count($db->queries)
                 ));
                 
                 if ( $s_show_queries )

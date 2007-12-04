@@ -24,6 +24,8 @@ class Session
         
         $current_time = time();
         
+        $db->queries[] = "SESSION :: Starting sessions.";
+        
         $this->ip_address   = ( !empty($_SERVER['REMOTE_ADDR']) )     ? $_SERVER['REMOTE_ADDR']     : '127.0.0.1';
         $this->browser      = ( !empty($_SERVER['HTTP_USER_AGENT']) ) ? $_SERVER['HTTP_USER_AGENT'] : $_ENV['HTTP_USER_AGENT'];
         $this->current_page = ( !empty($_SERVER['REQUEST_URI']) )     ? $_SERVER['REQUEST_URI']     : $_SERVER['SCRIPT_NAME'] . (( isset($_SERVER['QUERY_STRING']) ) ? '?' . $_SERVER['QUERY_STRING'] : '');
@@ -37,23 +39,28 @@ class Session
         
         if ( (isset($cookie_data['sid'])) && (isset($cookie_data['data'])) )
         {
+            $db->queries[] = "SESSION :: Have cookie data.";
             $session_data = ( isset($cookie_data['data']) ) ? $cookie_data['data'] : '';
-            $this->sid    = ( isset($cookie_data['sid']) ) ? $cookie_data['sid'] : '';
-            $SID = '?' . URI_SESSION . '=';
+            $this->sid    = ( isset($cookie_data['sid']) )  ? $cookie_data['sid'] : '';
+            $SID          = '?' . URI_SESSION . '=';
         }
         else
         {
+            $db->queries[] = "SESSION :: No cookie data.";
             $session_data = array();
-            $this->sid    = $in->get(URI_SESSION, '');
-            $SID = '?' . URI_SESSION . '=' . $this->sid;
+            $this->sid    = $in->hash(URI_SESSION, '');
+            $SID          = '?' . URI_SESSION . '=' . $this->sid;
         }
         
         // NOTE: Don't completely understand this check
+        // If sid is empty, it came from the 'else' above
+        // FIXME: The second condition will never evaluate to true, right?
         if ( !empty($this->sid) || $this->sid == $in->get(URI_SESSION, 'notempty') )
         {
+            $db->queries[] = "SESSION :: Session from cookie matches session from GET?.";
             $sql = "SELECT u.*, s.*
                     FROM __sessions AS s, __users AS u
-                    WHERE (s.`session_id` = '{$this->sid}')
+                    WHERE (s.`session_id` = '" . $db->escape($this->sid) . "')
                     AND (u.user_id = s.session_user_id)";
             $result = $db->query($sql);
             
@@ -63,19 +70,21 @@ class Session
             // Did the session exist in the DB?
             if ( isset($this->data['user_id']) )
             {
-                // Validate IP length
-                $s_ip = implode('.', array_slice(explode('.', $this->data['session_ip']), 0, 4));
-                $u_ip = implode('.', array_slice(explode('.', $this->ip_address),         0, 4));
+                $db->queries[] = "SESSION :: Session belongs to a user_id.";
+                // Make sure this session's IP matches the current IP
+                $s_ip = preg_replace('/[^\d\.]/', '', $this->data['session_ip']);
+                $u_ip = preg_replace('/[^\d\.]/', '', $this->ip_address);
                 
                 if ( $u_ip == $s_ip )
                 {
+                    $db->queries[] = "SESSION :: IPs match.";
                     // Only update session DB a minute or so after last update or if page changes
                     if ( ($current_time - $this->data['session_current'] > 60) || ($this->data['session_page'] != $this->current_page) )
                     {
                         $sql = "UPDATE __sessions
                                 SET `session_current` = '{$current_time}',
                                     `session_page` = '" . $db->escape($this->current_page) . "'
-                                WHERE (`session_id` = '{$this->sid}')";
+                                WHERE (`session_id` = '" . $db->escape($this->sid) . "')";
                         $db->query($sql);
                     }
                     
@@ -89,7 +98,7 @@ class Session
         // Prevent security vulnerability
         if ( (isset($session_data['auto_login_id'])) && (is_bool($session_data['auto_login_id'])) )
         {
-           die('Invalid session data.');
+            die('Invalid session data.');
         }
   
         $auto_login = ( @isset($session_data['auto_login_id']) ) ? $session_data['auto_login_id'] : '';
@@ -98,9 +107,13 @@ class Session
         return $this->create($user_id, $auto_login);
     }
     
-    function create(&$user_id, &$auto_login, $set_auto_login = false)
+    function create($user_id, $auto_login, $set_auto_login = false)
     {
         global $SID, $db, $eqdkp;
+        
+        $user_id = intval($user_id);
+        
+        $db->queries[] = "SESSION :: Creating a session ($user_id, $auto_login, $set_auto_login).";
         
         $session_data = array();
         $current_time = time();
@@ -112,19 +125,24 @@ class Session
         }
         
         // Grab user data
-        $sql = "SELECT u.*, s.session_current
-                FROM __users AS u LEFT JOIN __sessions AS s ON s.`session_user_id` = u.`user_id`
-                WHERE u.`user_id` = '{$user_id}'
-                ORDER BY s.`session_current` DESC
-                LIMIT 1";
-        $result = $db->query($sql);
-        $this->data = $db->fetch_record($result);
-        $db->free_result($result);
+        if ( $user_id != ANONYMOUS )
+        {
+            $sql = "SELECT u.*, s.session_current
+                    FROM __users AS u LEFT JOIN __sessions AS s ON s.`session_user_id` = u.`user_id`
+                    WHERE (u.`user_id` = '{$user_id}')
+                    ORDER BY s.`session_current` DESC
+                    LIMIT 1";
+            $result = $db->query($sql);
+            $this->data = $db->fetch_record($result);
+            $db->free_result($result);
+        }
         
         // Check auto login request to see if it's valid
         if ( empty($this->data) || ($this->data['user_password'] != $auto_login && !$set_auto_login) || !$this->data['user_active'])
         {
+            $db->queries[] = "SESSION :: Invalid or anonymous user.";
             $auto_login = '';
+            $this->data = array();
             $this->data['user_id'] = $user_id = ANONYMOUS;
         }
         
@@ -132,29 +150,33 @@ class Session
         $this->data['session_last_visit'] = ( !empty($this->data['session_current']) ) ? $this->data['session_current'] : (( !empty($this->data['user_lastvisit']) ) ? $this->data['user_lastvisit'] : time());
         
         // Create or update the session
-        $query = $db->build_query('UPDATE', array(
-            'session_user_id'    => $user_id,
-            'session_last_visit' => $this->data['session_last_visit'],
-            'session_start'      => $current_time,
-            'session_current'    => $current_time,
-            'session_page'       => $db->escape($this->current_page))
-        );
-        $sql = "UPDATE __sessions SET {$query} WHERE `session_id` = '" . $this->sid . "'";
-        
-        if ( ($this->sid == '') || (!$db->query($sql)) || (!$db->affected_rows()) )
+        if ( $this->sid == '' )
         {
             $this->sid = md5(uniqid($this->ip_address));
             
-            $query = $db->build_query('INSERT', array(
+            $db->queries[] = "SESSION :: SID is blank, creating a new session ({$this->sid}).";
+            
+            $db->query("INSERT INTO __sessions :params", array(
                 'session_id'         => $this->sid,
                 'session_user_id'    => $user_id,
                 'session_last_visit' => $this->data['session_last_visit'],
                 'session_start'      => $current_time,
                 'session_current'    => $current_time,
                 'session_ip'         => $this->ip_address,
-                'session_page'       => $db->escape($this->current_page))
-            );
-            $db->query("INSERT INTO __sessions {$query}");
+                'session_page'       => $this->current_page
+            ));
+        }
+        else
+        {
+            $db->queries[] = "SESSION :: SID is set, updating session ({$this->sid}).";
+            
+            $db->query("UPDATE __sessions SET :params WHERE (`session_id` = '" . $db->escape($this->sid) . "')", array(
+                'session_user_id'    => $user_id, // NOTE: Shouldn't this, like, not be changing, ever?
+                'session_last_visit' => $this->data['session_last_visit'],
+                // 'session_start'      => $current_time, // NOTE: Setting both this and _current to the current time strikes me as a logic error
+                'session_current'    => $current_time,
+                'session_page'       => $this->current_page
+            ));
         }
         
         $this->data['session_id'] = $this->sid;
@@ -165,8 +187,6 @@ class Session
         $this->set_cookie('data', serialize($session_data), $current_time + 31536000);
         $this->set_cookie('sid', $this->sid, 0);
         $SID = '?' . URI_SESSION . '=' . (( !isset($_COOKIE['sid']) ) ? $this->sid : '');
-        
-        return true;
     }
     
     function destroy()
@@ -195,56 +215,34 @@ class Session
         return true;
     }
     
-    function cleanup(&$current_time)
+    function cleanup($current_time)
     {
         global $db, $eqdkp;
         
         // Get expired sessions, only most recent for each user
-        $sql = "SELECT session_user_id, session_page, MAX(session_current) AS recent_time
-                FROM __sessions
-                WHERE `session_current` < " . ($current_time - $eqdkp->config['session_length']) . "
-                GROUP BY `session_user_id`, `session_page`";
-        $result = $db->query($sql);
+        // $sql = "SELECT session_user_id, session_page, MAX(session_current) AS recent_time
+        //         FROM __sessions
+        //         WHERE (`session_current` < " . ($current_time - $eqdkp->config['session_length']) . ")
+        //         GROUP BY `session_user_id`, `session_page`";
+        // $result = $db->query($sql);
+        // while ( $row = $db->fetch_record($result) )
+        // {
+        //     if ( intval($row['session_user_id']) != ANONYMOUS )
+        //     {
+        //         $db->query("UPDATE __users SET :params WHERE (`user_id` = '{$row['session_user_id']}')", array(
+        //             'user_lastvisit' => $row['recent_time'],
+        //             'user_lastpage'  => $row['session_page']
+        //         ));
+        //     }
+        // }
         
-        $del_user_id  = '';
-        $del_sessions = 0;
-        if ( $row = $db->fetch_record($result) )
-        {
-            do
-            {
-                if ( intval($row['session_user_id']) != ANONYMOUS )
-                {
-                    $sql = "UPDATE __users
-                            SET `user_lastvisit` = '{$row['recent_time']}', 
-                                `user_lastpage` = '" . $db->escape($row['session_page']) . "'
-                            WHERE `user_id` = '{$row['session_user_id']}'";
-                    $db->query($sql);
-                }
-                
-                $del_user_id .= ( ($del_user_id != '') ? ', ' : '') . " '" . $row['session_user_id'] . "'";
-                $del_sessions++;
-            }
-            while ( $row = $db->fetch_record($result) );
-        }
+        // Delete expired sessions
+        // FIXME: Why are we updating these sessions above and then deleting them with the same conditions?
+        $sql = "DELETE FROM __sessions
+                WHERE `session_current` < " . ($current_time - $eqdkp->config['session_length']);
+        $db->query($sql);
         
-        if ( $del_user_id != '' )
-        {
-            // Delete expired sessions
-            $sql = "DELETE FROM __sessions
-                    WHERE `session_user_id` IN ($del_user_id)
-                    AND `session_current` < " . ($current_time - $eqdkp->config['session_length']);
-            $db->query($sql);
-        }
-        
-        if ( $del_sessions < 5 )
-        {
-            // Less than 5 sessions, update gc timer
-            // Otherwise we want cleanup called again to delete other sessions
-            $sql = "UPDATE __config
-                    SET `config_value` = '{$current_time}'
-                    WHERE `config_name` = 'session_last_cleanup'";
-            $db->query($sql);
-        }
+        $eqdkp->config_set('session_last_cleanup', $current_time);
     }
     
     function get_cookie($name)

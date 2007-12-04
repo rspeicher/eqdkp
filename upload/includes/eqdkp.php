@@ -101,7 +101,7 @@ class EQdkp
             else
             {
                 $sql = "REPLACE INTO __config (config_name, config_value)
-                        VALUES ('" . $db->escape($config_name) . "','" . $db->escape($config_value) . "')";
+                        VALUES ('" . $db->escape($config_name) . "', '" . $db->escape($config_value) . "')";
                 $db->query($sql);
                 
                 return true;

@@ -374,7 +374,7 @@ class EQdkp_Config extends EQdkp_Admin
             $text = ( isset($user->data['username']) ) ? str_replace($user->data['username'], $user->lang['username'], $page['text']) : $page['text'];
             
             $tpl->assign_block_vars('page_row', array(
-                'VALUE'    => $link,
+                'VALUE'    => basename($link), // We only want the script name, no paths!
                 'SELECTED' => option_selected($eqdkp->config['start_page'] == $link),
                 'OPTION'   => $text
             ));

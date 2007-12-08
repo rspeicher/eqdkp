@@ -107,7 +107,7 @@ class dbal_mysql extends dbal
             // If the query didn't work    
             if ( $this->query_id === false )
             {
-                $message = $this->sql_error();
+                $message = $this->sql_error($query);
 
                 if ( DEBUG )
                 {

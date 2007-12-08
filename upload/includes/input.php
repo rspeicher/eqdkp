@@ -66,6 +66,11 @@ class Input
             $retval = $_SESSION[$key];
         }
         
+        if ( isset($_COOKIE[$key]) )
+        {
+            $retval = $_COOKIE[$key];
+        }
+        
         return $retval;
     }
 
@@ -351,7 +356,7 @@ class Input
      */
     function _cleanHash($value)
     {
-        $value = substr(preg_replace('/[^0-9A-Za-z]/', '', $this->_string($value)), 0, 40);
+        $value = substr(preg_replace('/[^0-9A-Za-z]/', '', $this->_cleanString($value)), 0, 40);
         
         return $value;
     }

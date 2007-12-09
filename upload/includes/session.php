@@ -544,7 +544,7 @@ class Session
             // Appears to be the user's first login in the new format. Check 
             // their password against the old (md5) format, if it matches, 
             // generate their new password using their unique salt value
-            if ( strlen($row['user_password'] == 32 && $row['user_password'] == md5($pass) )
+            if ( strlen($row['user_password']) == 32 && $row['user_password'] == md5($pass) )
             {
                 $db->query("UPDATE __users SET :params WHERE (`user_id` = '{$row['user_id']}')", array(
                     'user_password'  => hash_password($pass, $row['user_salt']),

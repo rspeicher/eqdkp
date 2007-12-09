@@ -15,6 +15,8 @@ Version 1.4 - MMM DD, YYYY
 [*] Fixed an issue with admin/mysql_info.php not displaying with certain versions of MySQL [ #5 ]
 [*] To alleviate an issue with webhosts blocking access to admin/config.php, the file has been renamed to settings.php
 [*] Fixed a logic error where updating a group adjustment would delete that value from everyone it was originally applied to and then applied it to everyone, rather than those members that existed at the time of the adjustment.
+[*] Greatly improved the resource usage of Session management [ #9 ]
+[+] User passwords, previously stored as MD5 hashes, are now salted SHA1 hashes for extra security. Conversion to the new format happens automatically upon each user's first valid login.
 
 [ ] Removed constants defining table names in favor of replacing patterns in MySQL::query
 [ ] Changed the language file format. The language array is now constructed using the following format: $lang = array_merge($lang, array( ... 'key' => 'value', ... ));

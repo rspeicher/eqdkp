@@ -105,7 +105,6 @@ if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
         "ALTER TABLE __users CHANGE `user_password` `user_password` VARCHAR( 40 ) NOT NULL", // Increase user_password length to 40, for SHA1 hashes
         "ALTER TABLE __users CHANGE `user_newpassword` `user_newpassword` VARCHAR( 40 ) NULL DEFAULT NULL",
         "ALTER TABLE __users ADD `user_salt` VARCHAR( 40 ) NOT NULL AFTER `user_password`",
-        "ALTER TABLE __users ADD `user_converted` TINYINT( 1 ) NOT NULL DEFAULT '0'", // Determines whether or not the user's password is in the new format
         "ALTER TABLE __sessions DROP INDEX `session_current`",
     ));
     
@@ -121,7 +120,6 @@ if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
     {
         $db->query("UPDATE __users SET :params WHERE (`user_id` = '{$row['user_id']}')", array(
             'user_salt'      => generate_salt(),
-            'user_converted' => 0,
         ));
     }
     $db->free_result($result);

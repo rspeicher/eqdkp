@@ -34,7 +34,6 @@ CREATE TABLE `eqdkp_users` (
   `user_lastpage` varchar(100) default '',
   `user_active` enum('0','1') NOT NULL default '1',
   `user_newpassword` varchar(40),
-  `user_converted` tinyint(1) NOT NULL default '0',
   PRIMARY KEY (`user_id`)
 )TYPE=InnoDB;
 

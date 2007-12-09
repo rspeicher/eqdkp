@@ -533,8 +533,7 @@ class Session
     {
         global $db, $eqdkp;
         
-        $sql = "SELECT user_id, user_name, user_password, user_salt, user_active,
-                    user_converted
+        $sql = "SELECT user_id, user_name, user_password, user_salt, user_active
                 FROM __users
                 WHERE (`user_name` = '" . $db->escape($name) . "')";
         $result = $db->query($sql);
@@ -545,11 +544,10 @@ class Session
             // Appears to be the user's first login in the new format. Check 
             // their password against the old (md5) format, if it matches, 
             // generate their new password using their unique salt value
-            if ( $row['user_converted'] == 0 && $row['user_password'] == md5($pass) )
+            if ( strlen($row['user_password'] == 32 && $row['user_password'] == md5($pass) )
             {
                 $db->query("UPDATE __users SET :params WHERE (`user_id` = '{$row['user_id']}')", array(
                     'user_password'  => hash_password($pass, $row['user_salt']),
-                    'user_converted' => 1
                 ));
                 
                 // Recurse so we can use the record we just updated

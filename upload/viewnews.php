@@ -54,7 +54,7 @@ while ( $news = $db->fetch_record($result) )
     $tpl->assign_block_vars('date_row.news_row', array(
         'ROW_CLASS' => $eqdkp->switch_row_class(),
         'HEADLINE'  => sanitize($news['news_headline']),
-        'AUTHOR'    => sanitize($news['username']),
+        'AUTHOR'    => sanitize($news['user_name']),
         'TIME'      => date("h:ia T", $news['news_date']),
         'MESSAGE'   => $message
     ));

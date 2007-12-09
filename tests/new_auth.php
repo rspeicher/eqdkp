@@ -10,7 +10,7 @@
     * Might not need cookie_path and cookie_domain anymore
     
   Code
-    * Change User::Encrypt calls to Session::HashPassword
+    * Change User::Encrypt calls to hash_password
 */
 
 ## ############################################################################
@@ -46,12 +46,12 @@ require($eqdkp_root_path . 'includes/functions.php');
 require($eqdkp_root_path . 'includes/db/' . $dbms . '.php');
 require($eqdkp_root_path . 'includes/eqdkp.php');
 // require($eqdkp_root_path . 'includes/session.php');
-// require($eqdkp_root_path . 'includes/class_template.php');
+require($eqdkp_root_path . 'includes/class_template.php');
 // require($eqdkp_root_path . 'includes/eqdkp_plugins.php');
 require($eqdkp_root_path . 'includes/input.php');
 // require($eqdkp_root_path . 'games/game_manager.php');
 
-// $tpl  = new Template;
+$tpl  = new Template;
 $in   = new Input();
 // $user = new User;
 $db   = new $sql_db();
@@ -73,12 +73,27 @@ class Session
     // var $browser = '';
     var $page    = '';
     
+    var $lang = array();
+    // var $lang_name = ''; // Unused?
+    // var $lang_path = ''; // Unused?
+    var $style = array();
+    
     function session()
     {
+        global $eqdkp;
+        
         $this->ip = ( !empty($_SERVER['REMOTE_ADDR']) )     ? $_SERVER['REMOTE_ADDR']     : '127.0.0.1';
         $this->ip = preg_replace('/[^\d\.]/', '', $this->ip);
         
         // $this->browser = ( !empty($_SERVER['HTTP_USER_AGENT']) ) ? $_SERVER['HTTP_USER_AGENT'] : $_ENV['HTTP_USER_AGENT'];
+        
+        $this->page = ( !empty($_SERVER['REQUEST_URI']) ) 
+            ? $_SERVER['REQUEST_URI'] 
+            : $_SERVER['SCRIPT_NAME'] . (( isset($_SERVER['QUERY_STRING']) ) 
+                ? '?' . $_SERVER['QUERY_STRING'] 
+                : ''
+            );
+        $this->page = str_replace($eqdkp->config['server_path'], '', $this->page);
     }
     
     /**
@@ -123,10 +138,8 @@ class Session
                         user_ilimit, user_nlimit, user_rlimit,user_style, user_lang,
                         user_lastpage, user_active
                     FROM __users2
-                    WHERE (
-                        (`user_id` = '{$cookie_user}') AND
-                        (`user_password` = '" . $db->escape($cookie_auth) . "')
-                    )
+                    WHERE (`user_id` = '{$cookie_user}') 
+                    AND (`user_password` = '" . $db->escape($cookie_auth) . "')
                     LIMIT 1";
             $result = $db->query($sql);
             $row = $db->fetch_record($result);
@@ -166,10 +179,8 @@ class Session
         
         $sql = "SELECT session_id, session_start, session_current, session_page
                 FROM __sessions2 AS s
-                WHERE (
-                    (`session_id` = '" . $db->escape($cookie_sid) . "') AND
-                    (`session_ip` = '" . $db->escape($this->ip) . "')
-                )
+                WHERE (`session_id` = '" . $db->escape($cookie_sid) . "') 
+                AND (`session_ip` = '" . $db->escape($this->ip) . "')
                 LIMIT 1";
         $result = $db->query($sql);
         $row = $db->fetch_record($result);
@@ -243,7 +254,7 @@ class Session
                 'user_id'         => $this->data['user_id'],
                 'session_start'   => time(),
                 'session_current' => time(),
-                'session_page'    => '',
+                'session_page'    => $this->page,
                 'session_ip'      => $this->ip
             ));
         }
@@ -257,7 +268,7 @@ class Session
                 $db->query($sql, array(
                     'user_id'         => $this->data['user_id'],
                     'session_current' => time(),
-                    'session_page'    => '',
+                    'session_page'    => $this->page,
                     'session_ip'      => $this->ip
                 ));
             }
@@ -290,6 +301,232 @@ class Session
     }
     
     ## ########################################################################
+    ## User setup and permissions
+    ## ########################################################################
+    
+    /**
+     * Sets up user language and style settings
+     *
+     * @param $lang_set Language to set
+     * @param $style Style ID to set
+     */
+    function setup($style = 0)
+    {
+        global $db, $eqdkp, $tpl;
+        
+        // Populate $lang with the values from the language files
+        $this->_setup_language();
+
+        // Populate $style with the values from the database
+        $this->_setup_style($style);
+        
+        $this->_setup_permissions();
+    }
+    
+    /**
+     * Populate {@link $lang} with the values from the language files, based
+     * on user settings
+     *
+     * @return void
+     * @access private
+     */
+    function _setup_language()
+    {
+        global $eqdkp_root_path;
+        
+        $lang_name = '';
+        $lang_path = '';
+        
+        // user_lang has already been set by _user_restore(), regardless of anonymity
+        $lang_name = ( file_exists($eqdkp_root_path . 'language/' . $this->data['user_lang']) ) 
+            ? $this->data['user_lang'] 
+            : $eqdkp->config['default_lang'];
+        $lang_path = $eqdkp_root_path . 'language/' . $lang_name . '/';
+
+        require_once("{$lang_path}lang_main.php");
+        if ( defined('IN_ADMIN') )
+        {
+            require_once("{$lang_path}lang_admin.php");
+        }
+        
+        $this->lang = $lang;
+        unset($lang);
+    }
+    
+    /**
+     * Populate {@link $style} with the values from the database, based
+     * on user settings
+     *
+     * @param int $style Populate with a specific style ID, otherwise uses the user's setting
+     * @return void
+     * @access private
+     */
+    function _setup_style($style)
+    {
+        global $db, $tpl;
+        
+        $style = intval($style);
+        
+        $style = ( $style == 0 ) ? intval($this->data['user_style']) : $style;
+
+        // Get database values for this style
+        $sql = "SELECT s.*, c.*
+                FROM __styles AS s, __style_config AS c
+                WHERE (s.`style_id` = c.`style_id`)
+                AND (s.`style_id` = '{$style}')";
+        $result = $db->query($sql);
+        if ( !($this->style = $db->fetch_record($result)) )
+        {
+            // If we STILL can't get style information, go back to the default
+            // Fail-safe in case someone (ahem) forgets to add style config settings
+            
+            // NOTE: This was mostly only an issue during development before the
+            // manage_styles panel was developed, but can remain here as a fail-safe
+            $sql = "SELECT s.*, c.*
+                    FROM __styles AS s, __style_config AS c
+                    WHERE s.`style_id` = c.`style_id`
+                    AND s.`style_id` = '{$eqdkp->config['default_style']}'";
+            $result = $db->query($sql);
+            $this->style = $db->fetch_record($result);
+        }
+
+        $tpl->set_template($this->style['template_path']);
+    }
+    
+    /**
+     * Populate {@link $data} with an 'auth' array, containing a user's permissions,
+     * or the default permissions if the user is not logged in.
+     *
+     * @return void
+     * @access private
+     */
+    function _setup_permissions()
+    {
+        global $db;
+        
+        $this->data['auth'] = array();
+        
+        if ( $this->data['user_id'] == ANONYMOUS )
+        {
+            // Get the default permissions if they're not logged in
+            $sql = "SELECT auth_value, auth_default AS auth_setting
+                    FROM __auth_options";
+        }
+        else
+        {
+            $sql = "SELECT o.auth_value, u.auth_setting
+                    FROM __auth_users AS u, __auth_options AS o
+                    WHERE (u.`auth_id` = o.`auth_id`)
+                    AND (u.`user_id` = '{$this->data['user_id']}')";
+        }
+        if ( !($result = $db->query($sql)) )
+        {
+            die('Could not obtain permission data');
+        }
+        while ( $row = $db->fetch_record($result) )
+        {
+            $this->data['auth'][$row['auth_value']] = $row['auth_setting'];
+        }
+    }
+    
+    /**
+    * Checks if a user has permission to do ($auth_value)
+    * 
+    * @param $auth_value Permission we want to check
+    * @param $die If they don't have permission, exit with message_die or just return false?
+    * @param $user_id If set, checks $user_id's permission instead of $this->data['user_id']
+    * @return bool
+    */
+    function check_auth($auth_value, $die = true, $user_id = 0)
+    {
+        // To cut down the query count, store the auth settings 
+        // for $user_id in a static var if we need to
+        static $specific_auth = array();
+        
+        // Lets us know if we're looking up data for a different user_id
+        // than the last one
+        static $previous_user_id = 0;
+        
+        // Reset $specific_auth if our $previous_user_id has changed from $user_id
+        if ( ($user_id > 0) && ($user_id != $previous_user_id) )
+        {
+            $previous_user_id = $user_id;
+            $specific_auth = array();
+        }
+        
+        // Look up a specific user if an id was provided and $specific_auth contains
+        // no data, otherwise we're going to use the $this->data['auth'] array 
+        // or $specific_auth
+        if ( (intval($user_id) > 0) && (sizeof($specific_auth) == 0) )
+        {
+            global $db;
+            
+            $auth = array();
+            $sql = "SELECT au.auth_setting, ao.auth_value
+                    FROM __auth_users AS au, __auth_options AS ao
+                    WHERE (au.`auth_id` = ao.`auth_id`)
+                    AND (au.`user_id` = '{$user_id}')";
+            $result = $db->query($sql);
+            while ( $row = $db->fetch_record($result) )
+            {
+                $auth[$row['auth_value']] = $row['auth_setting'];
+            }
+            $db->free_result($result);
+            $specific_auth = $auth;
+        }
+        elseif ( (intval($user_id) > 0) && (sizeof($specific_auth) > 0) )
+        {
+            $auth = $specific_auth;
+        }
+        else
+        {
+            $auth = $this->data['auth'];
+        }
+        
+        if ( (!isset($auth)) || (!is_array($auth)) )
+        {
+            return ( $die ) 
+                ? message_die($this->lang['noauth_default_title'], $this->lang['noauth_default_title']) 
+                : false;
+        }
+        
+        // If auth_value ends with a '_' it's checking for any permissions of that type
+        $exact = ( preg_match('/_$/', $auth_value) ) ? false : true;
+        
+        foreach ( $auth as $value => $setting )
+        {
+            if ( $exact )
+            {
+                if ( ($value == $auth_value) && ($setting == 'Y') )
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if ( preg_match('/^('.$auth_value.'.+)$/', $value, $match) )
+                {
+                    if ( $auth[$match[1]] == 'Y' )
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        $index = 'noauth_default_title';
+        if ( $exact && isset($this->lang['noauth_' . $auth_value]) )
+        {
+            $index = 'noauth_' . $auth_value;
+        }
+        
+        return ( $die ) 
+            ? message_die($this->lang[$index], $this->lang['noauth_default_title']) 
+            : false;
+    }
+
+
+    ## ########################################################################
     ## Login/Logout
     ## ########################################################################
     
@@ -310,7 +547,7 @@ class Session
         $result = $db->query($sql);
         $row = $db->fetch_record($result);
         
-        if ( $row && $row['user_password'] == Session::HashPassword($pass, $row['user_salt']) && $row['user_active'] )
+        if ( $row && $row['user_password'] == hash_password($pass, $row['user_salt']) && $row['user_active'] )
         {
             $this->set_cookie('cuser', $row['user_id'],       60 * 60 * 24 * 365);
             $this->set_cookie('cauth', $row['user_password'], 60 * 60 * 24 * 365);
@@ -385,7 +622,7 @@ class Session
      *
      * @param string $name Cookie name
      * @param string $val Cookie value
-     * @param string $expires Expiration date
+     * @param int $expires Expiration date
      * @return void
      */
     function set_cookie($name, $val, $expires)
@@ -399,25 +636,6 @@ class Session
         
         setcookie($this->_cookie_name($name), $val, $expires);
     }
-    
-    ## ########################################################################
-    ## Static methods
-    ## ########################################################################
-    
-    /**
-     * Static function to abstract password encryption
-     *
-     * @param string $string String to encrypt
-     * @param string $salt Salt value
-     * @return string
-     * @static
-     */
-    function HashPassword($string, $salt = '')
-    {
-        global $eqdkp;
-
-        return sha1("{$string}_{$eqdkp->config['auth_salt']}_{$salt}");
-    }
 }
 
 ## ############################################################################
@@ -426,6 +644,7 @@ class Session
 
 $user = new Session();
 $user->start();
+$user->setup();
 
 if ( $in->exists('logout') )
 {
@@ -453,6 +672,8 @@ echo '<a href="new_auth.php?login">Login</a> | <a href="new_auth.php?logout">Log
 echo '<pre>';
 echo "User -------------------------------------------------------------------\n";
 print_r($user->data);
+// print_r($user->style);
+// print_r($user->lang);
 echo "Cookies ----------------------------------------------------------------\n";
 print_r($_COOKIE);
 echo "Queries ----------------------------------------------------------------\n";

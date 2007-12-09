@@ -102,9 +102,9 @@ require($eqdkp_root_path . 'includes/eqdkp_plugins.php');
 require($eqdkp_root_path . 'includes/input.php');
 require($eqdkp_root_path . 'games/game_manager.php');
 
-$tpl  = new Template;
+$tpl  = new Template();
 $in   = new Input();
-$user = new User;
+$user = new Session();
 $db   = new $sql_db();
 
 // Connect to the database
@@ -117,6 +117,9 @@ $eqdkp = new EQdkp($eqdkp_root_path);
 // TODO: Shouldn't this be per-user? That was rhetorical. It should.
 $cur_locale = $eqdkp->config['default_locale'];
 setlocale(LC_ALL, $cur_locale);
+
+// TODO: Remove this, it's for legacy only
+$SID = '?s=';
 
 // Start up the user/session management
 $user->start();

@@ -25,7 +25,7 @@ $VERSION = '1.4.0';
 
 if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
 {
-    global $db;
+    global $db, $eqdkp;
     
     // Get rid of (what would be) invalid duplicate user_auth keys before we add a UNIQUE index
     $sql = "SELECT user_id, auth_id, COUNT(*) as num
@@ -97,7 +97,34 @@ if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
         // Update the default game values
         "INSERT INTO __config (`config_name`, `config_value`) VALUES ('current_game_name', '" . $game_name . "')",
         "UPDATE __config SET `config_name` = 'current_game' WHERE `config_name` = 'default_game' LIMIT 1",
+        
+        // New session and user management
+        "DELETE FROM __config WHERE (config_name IN ('session_cleanup','cookie_domain','cookie_path')", // Unused config values
+        "ALTER TABLE __users CHANGE `username` `user_name` VARCHAR( 30 ) NOT NULL", // username to user_name
+        "ALTER TABLE __sessions CHANGE `session_user_id` `user_id` SMALLINT( 5 ) NOT NULL DEFAULT '-1'", // session_user_id to user_id
+        "ALTER TABLE __users CHANGE `user_password` `user_password` VARCHAR( 40 ) NOT NULL", // Increase user_password length to 40, for SHA1 hashes
+        "ALTER TABLE __users CHANGE `user_newpassword` `user_newpassword` VARCHAR( 40 ) NULL DEFAULT NULL",
+        "ALTER TABLE __users ADD `user_salt` VARCHAR( 40 ) NOT NULL AFTER `user_password`",
+        "ALTER TABLE __users ADD `user_converted` TINYINT( 1 ) NOT NULL DEFAULT '0'", // Determines whether or not the user's password is in the new format
+        "ALTER TABLE __sessions DROP INDEX `session_current`",
     ));
+    
+    // Generate an installation-specific unique salt value
+    $eqdkp->config_set('auth_salt', generate_salt());
+    
+    // Generate a salt value for every user in the database
+    $sql = "SELECT user_id
+            FROM __users
+            ORDER BY user_id";
+    $result = $db->query($sql);
+    while ( $row = $db->fetch_record($result) )
+    {
+        $db->query("UPDATE __users SET :params WHERE (`user_id` = '{$row['user_id']}')", array(
+            'user_salt'      => generate_salt(),
+            'user_converted' => 0,
+        ));
+    }
+    $db->free_result($result);
     
     // Finalize
     Upgrade::set_version($VERSION);

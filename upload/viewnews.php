@@ -22,7 +22,7 @@ $total_news = $db->query_first("SELECT COUNT(*) FROM __news");
 $start = $in->get('start', 0);
 
 $previous_date = 0;
-$sql = "SELECT n.news_id, n.news_date, n.news_headline, n.news_message, u.username
+$sql = "SELECT n.news_id, n.news_date, n.news_headline, n.news_message, u.user_name
         FROM __news AS n, __users AS u
         WHERE (n.`user_id` = u.`user_id`)
         ORDER BY `news_date` DESC

@@ -20,9 +20,9 @@ if ( !defined('EQDKP_INC') )
     exit;
 }
 
-// -----------------------------------------
-// Template helpers
-// -----------------------------------------
+## ############################################################################
+## Template helpers
+## ############################################################################
 
 /**
  * Keep a consistent page title across the entire application
@@ -241,9 +241,58 @@ function create_bar($width, $text = '')
     return "<div class=\"graph\"><strong class=\"bar\" style=\"width: {$width}%;\">{$text}</strong></div>\n";
 }
 
-// -----------------------------------------
-// Other stuff?
-// -----------------------------------------
+## ############################################################################
+## Password hashing
+## ############################################################################
+
+/**
+ * Static function to abstract password encryption
+ *
+ * @param string $string String to encrypt
+ * @param string $salt Salt value
+ * @return string SHA1-encrypted and salted hash
+ */
+function hash_password($plaintext, $salt)
+{
+    global $eqdkp;
+    
+    return sha1("{$plaintext}_{$eqdkp->config['auth_salt']}_{$salt}");
+}
+
+/**
+ * Generate a string suitable for use as a password salt
+ *
+ * @return string
+ */
+function generate_salt()
+{
+    $chars = array(
+        'a','A','b','B','c','C','d','D','e','E','f','F','g','G','h','H','i','I',
+        'j','J','k','K','l','L','m','M','n','N','o','O','p','P','q','Q','r','R',
+        's','S','t','T','u','U','v','V','w','W','x','X','y','Y','z','Z',
+        
+        '1','2','3','4','5','6','7','8','9','0',
+        
+        '!','@','#','$','%','^','&','*','_','+','|'
+    );
+
+    $max_chars = count($chars) - 1;
+    srand( (double) microtime() * 1000000);
+    
+    $salt_length = rand(8, 20);
+
+    $retval = '';
+    for($i = 0; $i < $salt_length; $i++)
+    {
+        $retval = $retval . $chars[rand(0, $max_chars)];
+    }
+
+    return $retval;
+}
+
+## ############################################################################
+## Other stuff
+## ############################################################################
 
 /**
  * Outputs a message with debugging info if needed and ends output.  
@@ -575,10 +624,9 @@ function meta_refresh($time, $url)
     ));
 }
 
-
-// -----------------------------------------
-// Deprecated
-// -----------------------------------------
+## ############################################################################
+## Deprecated
+## ############################################################################
 
 /**
  * Checks if a POST field value exists;

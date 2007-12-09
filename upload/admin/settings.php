@@ -374,7 +374,7 @@ class EQdkp_Config extends EQdkp_Admin
             $text = ( isset($user->data['username']) ) ? str_replace($user->data['username'], $user->lang['username'], $page['text']) : $page['text'];
             
             $tpl->assign_block_vars('page_row', array(
-                'VALUE'    => preg_replace('/^[\/\.]+([\w\/\.\-]+)$/', '\1\2', $link), // Remove any path traversals at the start of the link
+                'VALUE'    => preg_replace('/^[\/\.]+([\w\/\.\-]+)$/', '\1', $link), // Remove any path traversals at the start of the link
                 'SELECTED' => option_selected($eqdkp->config['start_page'] == $link),
                 'OPTION'   => $text
             ));

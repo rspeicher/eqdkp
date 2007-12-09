@@ -312,10 +312,10 @@ if ( !defined('IN_ADMIN') )
     //
     // Who's Online
     //
-    $sql = "SELECT s.*, u.username
-            FROM __sessions AS s LEFT JOIN __users AS u ON u.`user_id` = s.`session_user_id`
-            GROUP BY u.`username`, s.`session_ip`
-            ORDER BY u.`username`, s.`session_current` DESC";
+    $sql = "SELECT s.*, u.user_name
+            FROM __sessions AS s LEFT JOIN __users AS u ON u.`user_id` = s.`user_id`
+            GROUP BY u.`user_name`, s.`session_ip`
+            ORDER BY u.`user_name`, s.`session_current` DESC";
     $result = $db->query($sql);
     while ( $row = $db->fetch_record($result) )
     {
@@ -323,7 +323,7 @@ if ( !defined('IN_ADMIN') )
 
         $tpl->assign_block_vars('online_row', array(
             'ROW_CLASS'   => $eqdkp->switch_row_class(),
-            'USERNAME'    => ( !empty($row['username']) ) ? sanitize($row['username']) : $user->lang['anonymous'],
+            'USERNAME'    => ( !empty($row['user_name']) ) ? sanitize($row['user_name']) : $user->lang['anonymous'],
             'LOGIN'       => date($user->style['date_time'], $row['session_start']),
             'LAST_UPDATE' => date($user->style['date_time'], $row['session_current']),
             'LOCATION'    => $session_page,
@@ -338,7 +338,7 @@ if ( !defined('IN_ADMIN') )
     {
         if ( $total_logs > 0 )
         {
-            $sql = "SELECT l.*, u.username
+            $sql = "SELECT l.*, u.user_name
                     FROM __logs AS l, __users AS u
                     WHERE (u.`user_id` = l.`admin_id`)
                     ORDER BY l.`log_date` DESC
@@ -351,73 +351,73 @@ if ( !defined('IN_ADMIN') )
                 switch ( $row['log_type'] )
                 {
                     case '{L_ACTION_EVENT_ADDED}':
-                        $logline = sprintf($user->lang['vlog_event_added'],      $row['username'], $log_action['{L_NAME}'], $log_action['{L_VALUE}']);
+                        $logline = sprintf($user->lang['vlog_event_added'],      $row['user_name'], $log_action['{L_NAME}'], $log_action['{L_VALUE}']);
                         break;
                     case '{L_ACTION_EVENT_UPDATED}':
-                        $logline = sprintf($user->lang['vlog_event_updated'],    $row['username'], $log_action['{L_NAME_BEFORE}']);
+                        $logline = sprintf($user->lang['vlog_event_updated'],    $row['user_name'], $log_action['{L_NAME_BEFORE}']);
                         break;
                     case '{L_ACTION_EVENT_DELETED}':
-                        $logline = sprintf($user->lang['vlog_event_deleted'],    $row['username'], $log_action['{L_NAME}']);
+                        $logline = sprintf($user->lang['vlog_event_deleted'],    $row['user_name'], $log_action['{L_NAME}']);
                         break;
                     case '{L_ACTION_GROUPADJ_ADDED}':
-                        $logline = sprintf($user->lang['vlog_groupadj_added'],   $row['username'], $log_action['{L_ADJUSTMENT}']);
+                        $logline = sprintf($user->lang['vlog_groupadj_added'],   $row['user_name'], $log_action['{L_ADJUSTMENT}']);
                         break;
                     case '{L_ACTION_GROUPADJ_UPDATED}':
-                        $logline = sprintf($user->lang['vlog_groupadj_updated'], $row['username'], $log_action['{L_ADJUSTMENT_BEFORE}']);
+                        $logline = sprintf($user->lang['vlog_groupadj_updated'], $row['user_name'], $log_action['{L_ADJUSTMENT_BEFORE}']);
                         break;
                     case '{L_ACTION_GROUPADJ_DELETED}':
-                        $logline = sprintf($user->lang['vlog_groupadj_deleted'], $row['username'], $log_action['{L_ADJUSTMENT}']);
+                        $logline = sprintf($user->lang['vlog_groupadj_deleted'], $row['user_name'], $log_action['{L_ADJUSTMENT}']);
                         break;
                     case '{L_ACTION_HISTORY_TRANSFER}':
-                        $logline = sprintf($user->lang['vlog_history_transfer'], $row['username'], $log_action['{L_FROM}'], $log_action['{L_TO}']);
+                        $logline = sprintf($user->lang['vlog_history_transfer'], $row['user_name'], $log_action['{L_FROM}'], $log_action['{L_TO}']);
                         break;
                     case '{L_ACTION_INDIVADJ_ADDED}':
-                        $logline = sprintf($user->lang['vlog_indivadj_added'],   $row['username'], $log_action['{L_ADJUSTMENT}'], count(explode(', ', $log_action['{L_MEMBERS}'])));
+                        $logline = sprintf($user->lang['vlog_indivadj_added'],   $row['user_name'], $log_action['{L_ADJUSTMENT}'], count(explode(', ', $log_action['{L_MEMBERS}'])));
                         break;
                     case '{L_ACTION_INDIVADJ_UPDATED}':
-                        $logline = sprintf($user->lang['vlog_indivadj_updated'], $row['username'], $log_action['{L_ADJUSTMENT_BEFORE}'], $log_action['{L_MEMBERS_BEFORE}']);
+                        $logline = sprintf($user->lang['vlog_indivadj_updated'], $row['user_name'], $log_action['{L_ADJUSTMENT_BEFORE}'], $log_action['{L_MEMBERS_BEFORE}']);
                         break;
                     case '{L_ACTION_INDIVADJ_DELETED}':
-                        $logline = sprintf($user->lang['vlog_indivadj_deleted'], $row['username'], $log_action['{L_ADJUSTMENT}'], $log_action['{L_MEMBERS}']);
+                        $logline = sprintf($user->lang['vlog_indivadj_deleted'], $row['user_name'], $log_action['{L_ADJUSTMENT}'], $log_action['{L_MEMBERS}']);
                         break;
                     case '{L_ACTION_ITEM_ADDED}':
-                        $logline = sprintf($user->lang['vlog_item_added'],       $row['username'], $log_action['{L_NAME}'], count(explode(', ', $log_action['{L_BUYERS}'])), $log_action['{L_VALUE}']);
+                        $logline = sprintf($user->lang['vlog_item_added'],       $row['user_name'], $log_action['{L_NAME}'], count(explode(', ', $log_action['{L_BUYERS}'])), $log_action['{L_VALUE}']);
                         break;
                     case '{L_ACTION_ITEM_UPDATED}':
-                        $logline = sprintf($user->lang['vlog_item_updated'],     $row['username'], $log_action['{L_NAME_BEFORE}'], count(explode(', ', $log_action['{L_BUYERS_BEFORE}'])));
+                        $logline = sprintf($user->lang['vlog_item_updated'],     $row['user_name'], $log_action['{L_NAME_BEFORE}'], count(explode(', ', $log_action['{L_BUYERS_BEFORE}'])));
                         break;
                     case '{L_ACTION_ITEM_DELETED}':
-                        $logline = sprintf($user->lang['vlog_item_deleted'],     $row['username'], $log_action['{L_NAME}'], count(explode(', ', $log_action['{L_BUYERS}'])));
+                        $logline = sprintf($user->lang['vlog_item_deleted'],     $row['user_name'], $log_action['{L_NAME}'], count(explode(', ', $log_action['{L_BUYERS}'])));
                         break;
                     case '{L_ACTION_MEMBER_ADDED}':
-                        $logline = sprintf($user->lang['vlog_member_added'],     $row['username'], $log_action['{L_NAME}']);
+                        $logline = sprintf($user->lang['vlog_member_added'],     $row['user_name'], $log_action['{L_NAME}']);
                         break;
                     case '{L_ACTION_MEMBER_UPDATED}':
-                        $logline = sprintf($user->lang['vlog_member_updated'],   $row['username'], $log_action['{L_NAME_BEFORE}']);
+                        $logline = sprintf($user->lang['vlog_member_updated'],   $row['user_name'], $log_action['{L_NAME_BEFORE}']);
                         break;
                     case '{L_ACTION_MEMBER_DELETED}':
-                        $logline = sprintf($user->lang['vlog_member_deleted'],   $row['username'], $log_action['{L_NAME}']);
+                        $logline = sprintf($user->lang['vlog_member_deleted'],   $row['user_name'], $log_action['{L_NAME}']);
                         break;
                     case '{L_ACTION_NEWS_ADDED}':
-                        $logline = sprintf($user->lang['vlog_news_added'],       $row['username'], $log_action['{L_HEADLINE}']);
+                        $logline = sprintf($user->lang['vlog_news_added'],       $row['user_name'], $log_action['{L_HEADLINE}']);
                         break;
                     case '{L_ACTION_NEWS_UPDATED}':
-                        $logline = sprintf($user->lang['vlog_news_updated'],     $row['username'], $log_action['{L_HEADLINE_BEFORE}']);
+                        $logline = sprintf($user->lang['vlog_news_updated'],     $row['user_name'], $log_action['{L_HEADLINE_BEFORE}']);
                         break;
                     case '{L_ACTION_NEWS_DELETED}':
-                        $logline = sprintf($user->lang['vlog_news_deleted'],     $row['username'], $log_action['{L_HEADLINE}']);
+                        $logline = sprintf($user->lang['vlog_news_deleted'],     $row['user_name'], $log_action['{L_HEADLINE}']);
                         break;
                     case '{L_ACTION_RAID_ADDED}':
-                        $logline = sprintf($user->lang['vlog_raid_added'],       $row['username'], $log_action['{L_EVENT}']);
+                        $logline = sprintf($user->lang['vlog_raid_added'],       $row['user_name'], $log_action['{L_EVENT}']);
                         break;
                     case '{L_ACTION_RAID_UPDATED}':
-                        $logline = sprintf($user->lang['vlog_raid_updated'],     $row['username'], $log_action['{L_EVENT_BEFORE}']);
+                        $logline = sprintf($user->lang['vlog_raid_updated'],     $row['user_name'], $log_action['{L_EVENT_BEFORE}']);
                         break;
                     case '{L_ACTION_RAID_DELETED}':
-                        $logline = sprintf($user->lang['vlog_raid_deleted'],     $row['username'], $log_action['{L_EVENT}']);
+                        $logline = sprintf($user->lang['vlog_raid_deleted'],     $row['user_name'], $log_action['{L_EVENT}']);
                         break;
                     case '{L_ACTION_TURNIN_ADDED}':
-                        $logline = sprintf($user->lang['vlog_turnin_added'],     $row['username'], $log_action['{L_FROM}'], $log_action['{L_TO}'], $log_action['{L_ITEM}']);
+                        $logline = sprintf($user->lang['vlog_turnin_added'],     $row['user_name'], $log_action['{L_FROM}'], $log_action['{L_TO}'], $log_action['{L_ITEM}']);
                         break;
                 }
                 unset($log_action);

@@ -104,6 +104,9 @@ class EQdkp
                         VALUES ('" . $db->escape($config_name) . "', '" . $db->escape($config_value) . "')";
                 $db->query($sql);
                 
+                // Update or insert the array value for immediate use
+                $this->config[$config_name] = $config_value;
+                
                 return true;
             }
         }
@@ -367,7 +370,7 @@ class EQdkp
         // Switch login/logout link
         if ( $user->data['user_id'] != ANONYMOUS )
         {
-            $main_menu2[] = array('link' => path_default('login.php') . path_params('logout', 'true'), 'text' => $user->lang['logout'] . ' [ ' . sanitize($user->data['username']) . ' ]');
+            $main_menu2[] = array('link' => path_default('login.php') . path_params('logout', 'true'), 'text' => $user->lang['logout'] . ' [ ' . sanitize($user->data['user_name']) . ' ]');
         }
         else
         {
@@ -533,13 +536,13 @@ class EQdkp_Admin
             'log_date'      => time(),
             'log_type'      => NULL,
             'log_action'    => NULL,
-            'log_ipaddress' => $user->ip_address,
-            'log_sid'       => $user->sid,
+            'log_ipaddress' => $user->data['session_ip'],
+            'log_sid'       => $user->data['session_id'],
             'log_result'    => '{L_SUCCESS}',
             'admin_id'      => $user->data['user_id']
         );
             
-        $this->admin_user = ( $user->data['user_id'] != ANONYMOUS ) ? $user->data['username'] : '';
+        $this->admin_user = ( $user->data['user_id'] != ANONYMOUS ) ? $user->data['user_name'] : '';
         $this->time = time();
     }
     

@@ -18,11 +18,8 @@ INSERT INTO eqdkp_config (config_name, config_value) VALUES ('inactive_point_adj
 INSERT INTO eqdkp_config (config_name, config_value) VALUES ('main_title', '');
 INSERT INTO eqdkp_config (config_name, config_value) VALUES ('sub_title', '');
 INSERT INTO eqdkp_config (config_name, config_value) VALUES ('start_page', 'viewnews.php');
-INSERT INTO eqdkp_config (config_name, config_value) VALUES ('cookie_domain', '');
 INSERT INTO eqdkp_config (config_name, config_value) VALUES ('cookie_name', 'eqdkp');
-INSERT INTO eqdkp_config (config_name, config_value) VALUES ('cookie_path', '/');
 INSERT INTO eqdkp_config (config_name, config_value) VALUES ('session_length', '3600');
-INSERT INTO eqdkp_config (config_name, config_value) VALUES ('session_cleanup', '0');
 INSERT INTO eqdkp_config (config_name, config_value) VALUES ('session_last_cleanup', '0');
 INSERT INTO eqdkp_config (config_name, config_value) VALUES ('server_name', '');
 INSERT INTO eqdkp_config (config_name, config_value) VALUES ('server_path', '/eqdkp/');

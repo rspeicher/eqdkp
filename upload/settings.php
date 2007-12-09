@@ -169,7 +169,7 @@ switch ( $action )
             'L_SUBMIT'                   => $user->lang['submit'],
             'L_RESET'                    => $user->lang['reset'],
 
-            'USERNAME'    => $user->data['username'],
+            'USERNAME'    => $user->data['user_name'],
             'USER_EMAIL'  => $user->data['user_email'],
             'USER_ALIMIT' => $user->data['user_alimit'],
             'USER_ELIMIT' => $user->data['user_elimit'],

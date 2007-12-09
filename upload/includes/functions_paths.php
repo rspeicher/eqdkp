@@ -54,7 +54,7 @@ function path_default($path, $admin = false)
         $path = $eqdkp_root_path . $path;
     }
     
-    return $path . $SID;
+    return $path . '?';
 }
 
 /**

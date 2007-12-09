@@ -18,8 +18,9 @@ CREATE TABLE `eqdkp_config` (
 DROP TABLE IF EXISTS eqdkp_users;
 CREATE TABLE `eqdkp_users` (
   `user_id` smallint(5) unsigned NOT NULL auto_increment,
-  `username` varchar(30) NOT NULL UNIQUE,
-  `user_password` varchar(32) NOT NULL,
+  `user_name` varchar(30) NOT NULL UNIQUE,
+  `user_password` varchar(40) NOT NULL,
+  `user_salt` varchar(40) NOT NULL,
   `user_email` varchar(100) default NULL,
   `user_alimit` smallint(4) NOT NULL default '100',
   `user_elimit` smallint(4) NOT NULL default '100',
@@ -32,7 +33,8 @@ CREATE TABLE `eqdkp_users` (
   `user_lastvisit` int(11) NOT NULL default '0',
   `user_lastpage` varchar(100) default '',
   `user_active` enum('0','1') NOT NULL default '1',
-  `user_newpassword` varchar(32),
+  `user_newpassword` varchar(40),
+  `user_converted` tinyint(1) NOT NULL default '0',
   PRIMARY KEY (`user_id`)
 )TYPE=InnoDB;
 
@@ -56,14 +58,13 @@ CREATE TABLE `eqdkp_auth_users` (
 DROP TABLE IF EXISTS eqdkp_sessions;
 CREATE TABLE `eqdkp_sessions` (
   `session_id` varchar(32) NOT NULL,
-  `session_user_id` smallint(5) NOT NULL default '-1',
+  `user_id` smallint(5) NOT NULL default '-1',
   `session_last_visit` int(11) NOT NULL default '0',
   `session_start` int(11) NOT NULL,
   `session_current` int(11) NOT NULL,
   `session_page` varchar(100) NOT NULL default '0',
   `session_ip` varchar(15) NOT NULL,
-  PRIMARY KEY (`session_id`),
-  KEY `session_current` (`session_current`)
+  PRIMARY KEY (`session_id`)
 )TYPE=InnoDB;
 
 DROP TABLE IF EXISTS eqdkp_member_user;

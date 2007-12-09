@@ -37,7 +37,7 @@ switch ($mode)
         {
             $redirect_path = path_default('login.php') . path_params('redirect', $redirect);
             
-            if ( !$user->login($in->get('username'), $in->get('password'), $in->get('auto_login', 0)) )
+            if ( !$user->login($in->get('username'), $in->get('password')) )
             {
                 // Invalid login attempt. Trigger error + redirect back to login page
                 meta_refresh(3, $redirect_path);
@@ -45,7 +45,7 @@ switch ($mode)
             }
             else
             {
-                redirect(preg_replace('/^.*?redirect=(.+?)&(.+?)$/', "\\1{$SID}&\\2", $redirect));
+                redirect(preg_replace('/^.*?redirect=(.+?)&(.+?)$/', "\\1?\\2", $redirect));
             }
         }
         else
@@ -58,8 +58,8 @@ switch ($mode)
     // Process logout
         if ($user->data['user_id'] != ANONYMOUS)
         {
-            $user->destroy();
-            redirect(preg_replace('/^.*?redirect=(.+?)&(.+?)$/', "\\1{$SID}&\\2", $redirect));
+            $user->logout();
+            redirect(preg_replace('/^.*?redirect=(.+?)&(.+?)$/', "\\1?\\2", $redirect));
         }
     break;
     

@@ -437,7 +437,7 @@ class Manage_Users extends EQdkp_Admin
         $start = $in->get('start', 0);
 
         $sql = "SELECT u.user_id, u.username, u.user_email, u.user_lastvisit, u.user_active, s.session_id
-                FROM __users AS u LEFT JOIN __sessions AS s ON u.`user_id` = s.`session_user_id`
+                FROM __users AS u LEFT JOIN __sessions AS s ON u.`user_id` = s.`user_id`
                 GROUP BY u.`username`
                 ORDER BY {$current_order['sql']}
                 LIMIT {$start},100";

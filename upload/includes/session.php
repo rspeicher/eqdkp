@@ -1,87 +1,61 @@
 <?php
-/*
-  TODO: Based on this file, the following changes have to be made to 1.4:
-  
-  Database (and any code that uses these)
-    * REPLACE INTO __config VALUES ('auth_salt', '<SOME RANDOM STRING GENERATED AT UPGRADE>')
-    * Rename __users.username to __users.user_name
-    * Add __users.user_salt
-    * Rename __sessions.session_user_id to __sessions.user_id
-    * Might not need cookie_path and cookie_domain anymore
-    
-  Code
-    * Change User::Encrypt calls to hash_password
-*/
+/**
+ * Project:     EQdkp - Open Source Points System
+ * License:     http://eqdkp.com/?p=license
+ * -----------------------------------------------------------------------
+ * File:        session.php
+ * Began:       Sat Dec  8 2007
+ * Date:        $Date$
+ * -----------------------------------------------------------------------
+ * @author      $Author$
+ * @copyright   2002-2007 The EQdkp Project Team
+ * @link        http://eqdkp.com/
+ * @package     eqdkp
+ * @version     $Rev$
+ */
 
-## ############################################################################
-## Create a simulated EQdkp environment, since we're overriding some Session stuff
-## ############################################################################
-
-define('EQDKP_INC', true);
-error_reporting (E_ALL);
-
-$eqdkp_root_path = './../upload/';
-
-if ( !is_file($eqdkp_root_path . 'config.php') )
+if ( !defined('EQDKP_INC') )
 {
-    die('Error: could not locate configuration file.');
+    header('HTTP/1.0 404 Not Found');
+    exit;
 }
 
-require_once($eqdkp_root_path . 'config.php');
-
-// Constants
-define('EQDKP_VERSION', '1.4.0');
-define('NO_CACHE', true);
-
-define('DEBUG', 2);
-
-// User Levels
-define('ANONYMOUS', -1);
-
-// Backwards compatibility for pre-1.4
-$dbms = ( !isset($dbms) && isset($dbtype) ) ? $dbtype : $dbms;
-
-require($eqdkp_root_path . 'includes/functions.php');
-// require($eqdkp_root_path . 'includes/functions_paths.php');
-require($eqdkp_root_path . 'includes/db/' . $dbms . '.php');
-require($eqdkp_root_path . 'includes/eqdkp.php');
-// require($eqdkp_root_path . 'includes/session.php');
-require($eqdkp_root_path . 'includes/class_template.php');
-// require($eqdkp_root_path . 'includes/eqdkp_plugins.php');
-require($eqdkp_root_path . 'includes/input.php');
-// require($eqdkp_root_path . 'games/game_manager.php');
-
-$tpl  = new Template;
-$in   = new Input();
-// $user = new User;
-$db   = new $sql_db();
-
-// Connect to the database
-$db->sql_connect($dbhost, $dbname, $dbuser, $dbpass, false);
-
-// Initialize the eqdkp module
-$eqdkp = new EQdkp($eqdkp_root_path);
-
-## ############################################################################
-## Class Definitions
-## ############################################################################
-
+/**
+ * Session class
+ * 
+ * Stores session data, user options, language values, style settings, performs
+ * login and logout operations, checks user authorization.
+ *
+ * @package eqdkp
+ */
 class Session
 {
-    var $data    = array();
-    var $ip      = '';
-    // var $browser = '';
-    var $page    = '';
-    
-    var $lang = array();
-    // var $lang_name = ''; // Unused?
-    // var $lang_path = ''; // Unused?
+    /**#@+
+     * @var array
+     */
+    var $data  = array();
+    var $lang  = array();
     var $style = array();
+    /**#@-*/
+
+    /**
+     * Session IP address
+     *
+     * @var string
+     */
+    var $ip      = '';
+    
+    // var $browser = '';
+    
+    /**
+     * Current session page
+     *
+     * @var string
+     */
+    var $page    = '';
     
     function session()
     {
-        global $eqdkp;
-        
         $this->ip = ( !empty($_SERVER['REMOTE_ADDR']) )     ? $_SERVER['REMOTE_ADDR']     : '127.0.0.1';
         $this->ip = preg_replace('/[^\d\.]/', '', $this->ip);
         
@@ -93,6 +67,19 @@ class Session
                 ? '?' . $_SERVER['QUERY_STRING'] 
                 : ''
             );
+    }
+    
+    /**
+     * Work around a bug(?) where the constructor apparently can't access variables
+     * via global $var
+     *
+     * @return void
+     * @access private
+     */
+    function _session()
+    {
+        global $eqdkp;
+        
         $this->page = str_replace($eqdkp->config['server_path'], '', $this->page);
     }
     
@@ -103,6 +90,9 @@ class Session
      */
     function start()
     {
+        // Blah blah blah, 10 minutes of debugging, grumble grumble
+        $this->_session();
+        
         // Grab data from __users, given an ID and password hash from cookies
         $this->_user_restore();
         
@@ -137,7 +127,7 @@ class Session
             $sql = "SELECT user_id, user_name, user_email, user_alimit, user_elimit,
                         user_ilimit, user_nlimit, user_rlimit,user_style, user_lang,
                         user_lastpage, user_active
-                    FROM __users2
+                    FROM __users
                     WHERE (`user_id` = '{$cookie_user}') 
                     AND (`user_password` = '" . $db->escape($cookie_auth) . "')
                     LIMIT 1";
@@ -177,8 +167,9 @@ class Session
         
         $cookie_sid  = $in->hash($this->_cookie_name('csid'));
         
-        $sql = "SELECT session_id, session_start, session_current, session_page
-                FROM __sessions2 AS s
+        $sql = "SELECT session_id, session_start, session_current, session_page,
+                    session_ip
+                FROM __sessions AS s
                 WHERE (`session_id` = '" . $db->escape($cookie_sid) . "') 
                 AND (`session_ip` = '" . $db->escape($this->ip) . "')
                 LIMIT 1";
@@ -212,7 +203,7 @@ class Session
         // user_lastvisit is more than 60 seconds old
         if ( isset($this->data['user_lastvisit']) && $current - $this->data['user_lastvisit'] > 60 )
         {
-            $sql = "UPDATE __users2 SET user_lastvisit = '{$current}' 
+            $sql = "UPDATE __users SET user_lastvisit = '{$current}' 
                     WHERE (`user_id` = '{$this->data['user_id']}')";
             $db->query($sql);
         }
@@ -221,7 +212,7 @@ class Session
         // session_current is more than 60 seconds old
         if ( isset($this->data['session_current']) && $current - $this->data['session_current'] > 60 )
         {
-            $sql = "UPDATE __sessions2 SET session_current = '{$current}' 
+            $sql = "UPDATE __sessions SET session_current = '{$current}' 
                     WHERE (`session_id` = '" . $db->escape($this->data['session_id']) . "')";
             $db->query($sql);
         }
@@ -229,7 +220,7 @@ class Session
         // session_page is inaccurate
         if ( isset($this->data['session_page']) && $this->page != $this->data['session_page'] )
         {
-            $sql = "UPDATE __sessions2 SET session_page = '" . $db->escape($this->page) . "' 
+            $sql = "UPDATE __sessions SET session_page = '" . $db->escape($this->page) . "' 
                     WHERE (`session_id` = '" . $db->escape($this->data['session_id']) . "')";
             $db->query($sql);
         }
@@ -249,7 +240,7 @@ class Session
         if ( empty($this->data['session_start']) )
         {
             // Insert a new session record
-            $db->query("INSERT INTO __sessions2 :params", array(
+            $db->query("INSERT INTO __sessions :params", array(
                 'session_id'      => $this->data['session_id'],
                 'user_id'         => $this->data['user_id'],
                 'session_start'   => time(),
@@ -264,7 +255,7 @@ class Session
             if ( time() - $this->data['session_current'] > 60 || $this->page != $this->data['session_page'] )
             {
                 // Update existing session record
-                $sql = "UPDATE __sessions2 SET :params WHERE (`session_id` = '" . $db->escape($this->data['session_id']) . "')";
+                $sql = "UPDATE __sessions SET :params WHERE (`session_id` = '" . $db->escape($this->data['session_id']) . "')";
                 $db->query($sql, array(
                     'user_id'         => $this->data['user_id'],
                     'session_current' => time(),
@@ -292,7 +283,7 @@ class Session
         
         if ( $expiration > $eqdkp->config['session_last_cleanup'] )
         {
-            $sql = "DELETE FROM __sessions2
+            $sql = "DELETE FROM __sessions
                     WHERE (`session_current` < {$expiration})";
             $db->query($sql);
             
@@ -320,6 +311,7 @@ class Session
         // Populate $style with the values from the database
         $this->_setup_style($style);
         
+        // Populate $data[auth] with the values from the database
         $this->_setup_permissions();
     }
     
@@ -541,32 +533,50 @@ class Session
     {
         global $db, $eqdkp;
         
-        $sql = "SELECT user_id, user_name, user_password, user_salt, user_active
-                FROM __users2
+        $sql = "SELECT user_id, user_name, user_password, user_salt, user_active,
+                    user_converted
+                FROM __users
                 WHERE (`user_name` = '" . $db->escape($name) . "')";
         $result = $db->query($sql);
         $row = $db->fetch_record($result);
         
-        if ( $row && $row['user_password'] == hash_password($pass, $row['user_salt']) && $row['user_active'] )
+        if ( $row )
         {
-            $this->set_cookie('cuser', $row['user_id'],       60 * 60 * 24 * 365);
-            $this->set_cookie('cauth', $row['user_password'], 60 * 60 * 24 * 365);
+            // Appears to be the user's first login in the new format. Check 
+            // their password against the old (md5) format, if it matches, 
+            // generate their new password using their unique salt value
+            if ( $row['user_converted'] == 0 && $row['user_password'] == md5($pass) )
+            {
+                $db->query("UPDATE __users SET :params WHERE (`user_id` = '{$row['user_id']}')", array(
+                    'user_password'  => hash_password($pass, $row['user_salt']),
+                    'user_converted' => 1
+                ));
+                
+                // Recurse so we can use the record we just updated
+                return $this->login($name, $pass);
+            }
             
-            // Set the user_id of the current session to this user, since it
-            // otherwise wouldn't be updated immediately
-            $sql = "UPDATE __sessions2
-                    SET user_id = '" . $row['user_id'] . "'
-                    WHERE (`session_id` = '" . $this->data['session_id'] . "')";
-            $db->query($sql);
+            if ( $row['user_password'] == hash_password($pass, $row['user_salt']) && $row['user_active'] )
+            {
+                $this->set_cookie('cuser', $row['user_id'],       60 * 60 * 24 * 365);
+                $this->set_cookie('cauth', $row['user_password'], 60 * 60 * 24 * 365);
             
-            return true;
+                // Set the user_id of the current session to this user, since it
+                // otherwise wouldn't be updated immediately
+                $sql = "UPDATE __sessions
+                        SET user_id = '" . $row['user_id'] . "'
+                        WHERE (`session_id` = '" . $this->data['session_id'] . "')";
+                $db->query($sql);
+            
+                return true;
+            }
         }
-        else
-        {
-            $this->logout();
+
+        // At this point the login attempt has failed, destroy any cookies that
+        // may have been set and return
+        $this->logout();
             
-            return false;
-        }
+        return false;
     }
     
     /**
@@ -583,12 +593,12 @@ class Session
         
         // Set the user_id of the current session to anonymous, since it
         // otherwise wouldn't be updated immediately
-        $sql = "UPDATE __sessions2
+        $sql = "UPDATE __sessions
                 SET user_id = '" . ANONYMOUS . "'
                 WHERE (`session_id` = '" . $this->data['session_id'] . "')";
         $db->query($sql);
     }
-    
+
     ## ########################################################################
     ## Cookie Handling
     ## ########################################################################
@@ -637,49 +647,3 @@ class Session
         setcookie($this->_cookie_name($name), $val, $expires);
     }
 }
-
-## ############################################################################
-## Action! Note that almost none of this will be used in the real world
-## ############################################################################
-
-$user = new Session();
-$user->start();
-$user->setup();
-
-if ( $in->exists('logout') )
-{
-    $user->logout();
-    header("Location: new_auth.php");
-}
-elseif ( $in->exists('login') )
-{
-    $user->logout();
-    if ( $user->login('Kamien', 'kamien') )
-    {
-        header("Location: new_auth.php");
-    }
-    else
-    {
-        echo "Login failed!";
-    }
-}
-
-$username = ( isset($user->data['user_name']) ) ? $user->data['user_name'] : 'Guest';
-
-echo "Welcome, {$username}! ";
-echo '<a href="new_auth.php?login">Login</a> | <a href="new_auth.php?logout">Logout</a><br/>';
-
-echo '<pre>';
-echo "User -------------------------------------------------------------------\n";
-print_r($user->data);
-// print_r($user->style);
-// print_r($user->lang);
-echo "Cookies ----------------------------------------------------------------\n";
-print_r($_COOKIE);
-echo "Queries ----------------------------------------------------------------\n";
-foreach ( $db->queries as $query )
-{
-    echo '    ' . preg_replace('/\s+/', ' ', $query) . "\n";
-}
-// print_r($db->queries);
-echo '</pre>';

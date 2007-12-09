@@ -41,13 +41,13 @@ class Manage_Users extends EQdkp_Admin
             $user_ids = $in->getArray('user_id', 'int');
             if ( count($user_ids) > 0 )
             {
-                $sql = "SELECT username
+                $sql = "SELECT user_name
                         FROM __users
                         WHERE (`user_id` IN (" . $db->escape(',', $user_ids) . "))";
                 $result = $db->query($sql);
                 while ( $row = $db->fetch_record($result) )
                 {
-                    $usernames[] = $row['username'];
+                    $usernames[] = $row['user_name'];
                 }
 
                 $names = implode(', ', $usernames);
@@ -109,7 +109,7 @@ class Manage_Users extends EQdkp_Admin
             // See if the user exists
             $sql = "SELECT au.*, u.*
                     FROM __users AS u LEFT JOIN __auth_users AS au ON u.`user_id` = au.`user_id`
-                    WHERE (u.`username` = '" . $db->escape($in->get(URI_NAME)) . "')";
+                    WHERE (u.`user_name` = '" . $db->escape($in->get(URI_NAME)) . "')";
             $result = $db->query($sql);
             if ( !$this->user_data = $db->fetch_record($result) )
             {
@@ -128,7 +128,7 @@ class Manage_Users extends EQdkp_Admin
                 // They changed the username, see if it's already registered
                 $sql = "SELECT user_id
                         FROM __users
-                        WHERE (`username` = '" . $db->escape($in->get('username')) . "')";
+                        WHERE (`user_name` = '" . $db->escape($in->get('username')) . "')";
                 if ( $db->num_rows($db->query($sql)) > 0 )
                 {
                     $this->fv->errors['username'] = $user->lang['fv_already_registered_username'];
@@ -191,7 +191,7 @@ class Manage_Users extends EQdkp_Admin
             // See if the user exists
             $sql = "SELECT au.*, u.*
                     FROM __users AS u LEFT JOIN __auth_users AS au ON u.`user_id` = au.`user_id`
-                    WHERE (u.`username` = '" . $db->escape($in->get(URI_NAME)) . "')";
+                    WHERE (u.`user_name` = '" . $db->escape($in->get(URI_NAME)) . "')";
             $result = $db->query($sql);
             if ( !$this->user_data = $db->fetch_record($result) )
             {
@@ -354,14 +354,14 @@ class Manage_Users extends EQdkp_Admin
             
             // Find usernames for the pretty message at the end
             $usernames = array();
-            $sql = "SELECT user_id, username
+            $sql = "SELECT user_id, user_name
                     FROM __users
                     WHERE (`user_id` IN ({$user_ids}))
-                    ORDER BY username";
+                    ORDER BY user_name";
             $result = $db->query($sql);
             while ( $row = $db->fetch_record($result) )
             {
-                $usernames[] = $row['username'];
+                $usernames[] = $row['user_name'];
             }
             $db->free_result($result);
             
@@ -424,7 +424,7 @@ class Manage_Users extends EQdkp_Admin
         global $db, $eqdkp, $user, $tpl, $in;
 
         $sort_order = array(
-            0 => array('u.username', 'u.username desc'),
+            0 => array('u.user_name', 'u.user_name desc'),
             1 => array('u.user_email', 'u.user_email desc'),
             2 => array('u.user_lastvisit desc', 'u.user_lastvisit'),
             3 => array('u.user_active desc', 'u.user_active'),
@@ -436,9 +436,9 @@ class Manage_Users extends EQdkp_Admin
         $total_users = $db->query_first("SELECT COUNT(*) FROM __users");
         $start = $in->get('start', 0);
 
-        $sql = "SELECT u.user_id, u.username, u.user_email, u.user_lastvisit, u.user_active, s.session_id
+        $sql = "SELECT u.user_id, u.user_name, u.user_email, u.user_lastvisit, u.user_active, s.session_id
                 FROM __users AS u LEFT JOIN __sessions AS s ON u.`user_id` = s.`user_id`
-                GROUP BY u.`username`
+                GROUP BY u.`user_name`
                 ORDER BY {$current_order['sql']}
                 LIMIT {$start},100";
         if ( !($result = $db->query($sql)) )
@@ -452,10 +452,10 @@ class Manage_Users extends EQdkp_Admin
 
             $tpl->assign_block_vars('users_row', array(
                 'ROW_CLASS'     => $eqdkp->switch_row_class(),
-                'U_MANAGE_USER' => edit_user_path($row['username']),
+                'U_MANAGE_USER' => edit_user_path($row['user_name']),
                 'USER_ID'       => intval($row['user_id']),
                 'NAME_STYLE'    => ( $user->check_auth('a_', false, $row['user_id']) ) ? 'font-weight: bold' : 'font-weight: none',
-                'USERNAME'      => sanitize($row['username']),
+                'USERNAME'      => sanitize($row['user_name']),
                 'U_MAIL_USER'   => ( !empty($row['user_email']) ) ? 'mailto:' . sanitize($row['user_email']) : '',
                 'EMAIL'         => ( !empty($row['user_email']) ) ? sanitize($row['user_email']) : '&nbsp;',
                 'LAST_VISIT'    => date($user->style['date_time'], $row['user_lastvisit']),
@@ -590,7 +590,7 @@ class Manage_Users extends EQdkp_Admin
             // Form values
             'NAME'                    => sanitize($in->get(URI_NAME), ENT),
             'USER_ID'                 => intval($this->user_data['user_id']),
-            'USERNAME'                => sanitize($this->user_data['username'], ENT),
+            'USERNAME'                => sanitize($this->user_data['user_name'], ENT),
             'USER_EMAIL'              => sanitize($this->user_data['user_email'], ENT),
             'USER_ALIMIT'             => intval($this->user_data['user_alimit']),
             'USER_ELIMIT'             => intval($this->user_data['user_elimit']),

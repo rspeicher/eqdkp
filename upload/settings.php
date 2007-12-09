@@ -43,12 +43,12 @@ if ( $in->exists('submit') )
     
     // Error-check the form
     $change_username = false;
-    if ( $in->get('username') != $user->data['username'] )
+    if ( $in->get('username') != $user->data['user_name'] )
     {
         // They changed the username. See if it's already registered
         $sql = "SELECT user_id
                 FROM __users
-                WHERE (`username` = '" . $db->escape($in->get('username')) . "')";
+                WHERE (`user_name` = '" . $db->escape($in->get('username')) . "')";
         if ( $db->num_rows($db->query($sql)) > 0 )
         {
             $fv->errors['username'] = $user->lang['fv_already_registered_username'];

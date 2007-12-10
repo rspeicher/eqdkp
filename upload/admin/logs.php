@@ -19,7 +19,7 @@ require_once($eqdkp_root_path . 'common.php');
 $sort_order = array(
     0 => array('log_date desc', 'log_date'),
     1 => array('log_type', 'log_type desc'),
-    2 => array('username', 'username desc'),
+    2 => array('user_name', 'user_name desc'),
     3 => array('log_ipaddress', 'log_ipaddress desc'),
     4 => array('log_result', 'log_result desc')
 );
@@ -65,7 +65,7 @@ switch ( $action )
 {
     case 'view':
         // Get log info
-        $sql = "SELECT l.*, u.username 
+        $sql = "SELECT l.*, u.user_name 
                 FROM __logs AS l LEFT JOIN __users AS u ON u.`user_id` = l.`admin_id`
                 WHERE (`log_id` = '{$log_id}')";
         $result = $db->query($sql);
@@ -106,7 +106,7 @@ switch ( $action )
             'L_SESSION_ID' => $user->lang['session_id'],
 
             'LOG_DATE'       => ( !empty($log['log_date']) ) ? date($user->style['date_time'], $log['log_date']) : '&nbsp;',
-            'LOG_USERNAME'   => ( !empty($log['username']) ) ? sanitize($log['username']) : '&nbsp;',
+            'LOG_USERNAME'   => ( !empty($log['user_name']) ) ? sanitize($log['user_name']) : '&nbsp;',
             'LOG_IP_ADDRESS' => sanitize($log['log_ipaddress']),
             'LOG_SESSION_ID' => sanitize($log['log_sid']),
             'LOG_ACTION'     => ( !empty($log_header) ) ? sanitize($log_header) : '&nbsp;')
@@ -114,7 +114,7 @@ switch ( $action )
 
         break;
     case 'list':
-        $sql = "SELECT l.*, u.username 
+        $sql = "SELECT l.*, u.user_name 
                 FROM __logs AS l LEFT JOIN __users AS u ON u.`user_id` = l.`admin_id`";
         $addon_sql = '';
         $search_term = '';
@@ -143,7 +143,7 @@ switch ( $action )
             // Still going? It's a username
             else
             {
-                $addon_sql = " WHERE (u.`username` = '" . $db->escape($search_term) . "')";
+                $addon_sql = " WHERE (u.`user_name` = '" . $db->escape($search_term) . "')";
             }
         }
 
@@ -164,12 +164,12 @@ switch ( $action )
                 'DATE'         => ( !empty($log['log_date']) ) ? date($user->style['date_time'], $log['log_date']) : '&nbsp;',
                 'TYPE'         => ( !empty($log['log_type']) ) ? $log['log_type'] : '&nbsp;',
                 'U_VIEW_LOG'   => log_path($log['log_id']),
-                'USER'         => sanitize($log['username']),
+                'USER'         => sanitize($log['user_name']),
                 'IP'           => sanitize($log['log_ipaddress']),
                 'RESULT'       => sanitize($log['log_result']),
                 'C_RESULT'     => ( $log['log_result'] == $user->lang['success'] ) ? 'positive' : 'negative',
                 'ENCODED_TYPE' => urlencode(sanitize($log['log_type'])),
-                'ENCODED_USER' => urlencode(sanitize($log['username'])),
+                'ENCODED_USER' => urlencode(sanitize($log['user_name'])),
                 'ENCODED_IP'   => urlencode(sanitize($log['log_ipaddress']))
             ));
         }

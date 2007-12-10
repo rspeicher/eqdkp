@@ -46,7 +46,7 @@ function path_default($path, $admin = false)
     if ( !defined('IN_ADMIN') && $admin === true )
     {
         // Path is an admin page but we're not already in the admin folder, prefix it to the path
-        $path = 'admin/' . $path;
+        $path = $eqdkp_root_path . 'admin/' . $path;
     }
     elseif ( defined('IN_ADMIN') && $admin === false )
     {

@@ -27,6 +27,45 @@ if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
 {
     global $db, $eqdkp;
     
+    // Make sure the files that were deleted for this version are, in fact, missing
+    Upgrade::assert_deleted(array(
+        '/ChangeLog',
+        // '/COPYING',
+        // '/INSTALL', // Matches /install/ folder, bleh
+        // '/LICENSE',
+        '/README',
+        '/install.php',
+        '/upgrade.php',
+        '/admin/mm/mm_addmember.php.NEW.gz',
+        '/admin/soap/',
+        '/admin/config.php',
+        '/admin/fix_negative.php',
+        '/admin/lua.php',
+        '/admin/lua_config.php',
+        '/admin/DAoC.php',
+        '/admin/Everquest.php',
+        '/admin/Everquest2-german.sql',
+        '/admin/Everquest2.php',
+        '/admin/WoW-english.php',
+        '/admin/WoW-german.php',
+        '/admin/WoW.php',
+        '/dbal/',
+        '/games/Everquest.php',
+        '/games/WoW-german.php',
+        '/games/WoW.php',
+        '/includes/lib/',
+        '/includes/file_upload.php',
+        '/includes/nusoap.php',
+        '/images/arrow.gif',
+        '/images/error.gif',
+        '/images/glyphs/',
+        '/images/statbox.jpg',
+        '/images/view.gif',
+        '/templates/default/admin/config.html',
+        '/templates/default/admin/lua.html',
+        '/templates/default/admin/menu.html',
+    ));
+    
     // Get rid of (what would be) invalid duplicate user_auth keys before we add a UNIQUE index
     $sql = "SELECT user_id, auth_id, COUNT(*) as num
             FROM __auth_users

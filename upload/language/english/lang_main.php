@@ -379,9 +379,11 @@ $lang = array_merge($lang, array(
     
     // Upgrade
     'upgrade_complete'    => "You are already running EQdkp <b>%s</b>, no upgrade is necessary. <b>Delete the /install/ folder before continuing.</b>",
-    'upgrade_continue'    => "Continuing in %d seconds...",
+    'upgrade_continue'    => "Continue",
+    'upgrade_continuing'  => "Continuing in %d seconds...",
     'upgrade_instruction' => "You are currently running EQdkp <b>%1\$s</b>. Click 'Upgrade' below to upgrade to <b>%2\$s</b>.",
     'upgrade_selversion'  => "Please select the EQdkp version from which you are upgrading",
     'upgrade_started'     => "Upgrading from <b>%s</b>...",
     'upgrade_progress'    => "Completed upgrade to <b>%s</b>.",
+    'upgrade_delete'      => "Please delete the following file before continuing:",
 ));

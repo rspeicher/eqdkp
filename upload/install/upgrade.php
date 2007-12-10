@@ -34,7 +34,7 @@ if ( isset($eqdkp->config['eqdkp_version']) && EQDKP_VERSION == $eqdkp->config['
 {
     if ( $in->exists('run') )
     {
-        header('Location: ' . path_default('upgrade.php', true));
+        header('Location: ' . path_default('install/upgrade.php'));
         exit;
     }
     message_die(sprintf($user->lang['upgrade_complete'], EQDKP_VERSION));
@@ -128,7 +128,7 @@ class Upgrade extends EQdkp_Admin
 
         $eqdkp->set_vars(array(
             'page_title'    => $user->lang['eqdkp_upgrade'],
-            'template_file' => 'admin/upgrade.html',
+            'template_file' => 'upgrade.html',
             'display'       => true
         ));
     }
@@ -192,10 +192,11 @@ class Upgrade extends EQdkp_Admin
      * become "Completed upgrade to $VERSION."
      *
      * @param string $message Message to display
+     * @param bool $auto_refresh Automatically refresh and continue the upgrade?
      * @return void
      * @static
      */
-    function progress($message)
+    function progress($message, $auto_refresh = true)
     {
         global $user;
         
@@ -204,9 +205,19 @@ class Upgrade extends EQdkp_Admin
             $message = sprintf($user->lang['upgrade_progress'], $message);
         }
         
-        $delay = 2;
-        meta_refresh($delay, path_default('upgrade.php', true) . path_params('run'));
-        message_die($message . "<br /><br />" . sprintf($user->lang['upgrade_continue'], $delay));
+        if ( $auto_refresh )
+        {
+            $delay = 2;
+            meta_refresh($delay, path_default('install/upgrade.php') . path_params('run'));
+            message_die($message . "<br /><br />" . sprintf($user->lang['upgrade_continuing'], $delay));
+        }
+        else
+        {
+            $message = $message . '<br /><a href="' . 
+                path_default('install/upgrade.php') . path_params('run') . '">' . 
+                $user->lang['upgrade_continue'] . '</a>';
+            message_die($message);
+        }
     }
     
     /**
@@ -237,7 +248,7 @@ class Upgrade extends EQdkp_Admin
         {
             // If we included an upgrade file and we don't have a prior version set,
             // something went wrong. Bounce them back to the selection page.
-            header('Location: ' . path_default('upgrade.php', true));
+            header('Location: ' . path_default('install/upgrade.php'));
             exit;
         }
         
@@ -248,6 +259,48 @@ class Upgrade extends EQdkp_Admin
         else
         {
             return false;
+        }
+    }
+    
+    /**
+     * Allows a version upgrade script to force the user to delete deprecated
+     * files before continuing with that version's upgrade.
+     *
+     * @param array $files Paths to check, relative to EQdkp's root
+     * @return void
+     * @static
+     */
+    function assert_deleted($files)
+    {
+        global $user;
+        global $eqdkp_root_path;
+        
+        if ( !is_array($files) )
+        {
+            return;
+        }
+        
+        $to_delete = array();
+        foreach ( $files as $file )
+        {
+            $path = $eqdkp_root_path . preg_replace('/^\//', '', $file);
+            
+            if ( file_exists($path) )
+            {
+                $to_delete[] = $file;
+            }
+        }
+        
+        if ( count($to_delete) > 0 )
+        {
+            $message = $user->lang['upgrade_delete'] . "<ul>";
+            foreach ( $to_delete as $v )
+            {
+                $message = $message . "<li>{$v}</li>";
+            }
+            $message = $message . "</ul>";
+            
+            Upgrade::progress($message, false);
         }
     }
 }

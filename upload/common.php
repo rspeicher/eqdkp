@@ -164,6 +164,6 @@ function install_check()
     
     if ( file_exists($path . '/install/') && is_readable($path . '/install/') )
     {
-        trigger_error("Delete the <b>{$path}/install/</b> folder, or make it unreadable.", E_USER_ERROR);
+        trigger_error("<b>{$path}/install/</b> folder still exists, please delete it or make it unreadable.", E_USER_ERROR);
     }
 }

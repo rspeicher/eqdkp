@@ -53,6 +53,10 @@ function path_default($path, $admin = false)
         // We're in the admin folder but linking to a non-admin path, prefix the root traversal to the path
         $path = $eqdkp_root_path . $path;
     }
+    elseif ( defined('IN_INSTALL') )
+    {
+        $path = $eqdkp_root_path . $path;
+    }
     
     return $path . '?';
 }

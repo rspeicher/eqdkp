@@ -113,13 +113,16 @@ $db->sql_connect($dbhost, $dbname, $dbuser, $dbpass, false);
 // Initialize the eqdkp module
 $eqdkp = new EQdkp($eqdkp_root_path);
 
+// Ensure that, if we're not upgrading, the install folder is gone or unreadable
+install_check();
+
 // Set the locale
 // TODO: Shouldn't this be per-user? That was rhetorical. It should.
 $cur_locale = $eqdkp->config['default_locale'];
 setlocale(LC_ALL, $cur_locale);
 
 // TODO: Remove this, it's for legacy only
-$SID = '?s=';
+// $SID = '?s=';
 
 // Start up the user/session management
 $user->start();
@@ -141,5 +144,26 @@ if ( (defined('IN_ADMIN')) && (IN_ADMIN === true) )
         {
             include($eqdkp_root_path . 'admin/index.php');
         }
+    }
+}
+
+/**
+ * Ensure that the install folder is deleted or unreadable
+ *
+ * @ignore
+ */
+function install_check()
+{
+    $path = dirname(__FILE__);
+    
+    // Let the page go through if we're performing an upgrade
+    if ( preg_match('/upgrade\.php$/', $_SERVER['PHP_SELF']) )
+    {
+        return;
+    }
+    
+    if ( file_exists($path . '/install/') && is_readable($path . '/install/') )
+    {
+        trigger_error("Delete the <b>{$path}/install/</b> folder, or make it unreadable.", E_USER_ERROR);
     }
 }

@@ -15,11 +15,9 @@
  */
 
 define('EQDKP_INC', true);
-define('IN_ADMIN', true);
+define('IN_INSTALL', true);
 $eqdkp_root_path = './../';
 require_once($eqdkp_root_path . 'common.php');
-
-$user->check_auth('a_');
 
 // I require MySQL version 4.0.4 minimum.
 // TODO: ^ You do? for what?
@@ -118,6 +116,7 @@ class Upgrade extends EQdkp_Admin
         }
         else
         {
+            $tpl->assign_var('S_SELECTVERSION', false);
             $instructions = sprintf($user->lang['upgrade_instruction'], $eqdkp->config['eqdkp_version'], EQDKP_VERSION);
         }
         

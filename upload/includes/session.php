@@ -386,8 +386,8 @@ class Session
     }
     
     /**
-     * Populate {@link $data} with an 'auth' array, containing a user's permissions,
-     * or the default permissions if the user is not logged in.
+     * Populate {@link $data} with an 'auth' array, containing a user's 
+     * permissions, or the default permissions if the user is not logged in.
      *
      * @return void
      * @access private
@@ -422,13 +422,22 @@ class Session
     }
     
     /**
-    * Checks if a user has permission to do ($auth_value)
-    * 
-    * @param $auth_value Permission we want to check
-    * @param $die If they don't have permission, exit with message_die or just return false?
-    * @param $user_id If set, checks $user_id's permission instead of $this->data['user_id']
-    * @return bool
-    */
+     * Checks if the current user, or a specific user, is authorized to perform
+     * an action.
+     * 
+     * <code>
+     * // Check if the current user has permission to add a raid; die with an error message if not
+     * $user->check_auth('a_raid_add');
+     * 
+     * // Check if user 2 has any administrative raid permissions; return boolean
+     * $result = $user->check_auth('a_raid_', false, 2);
+     * </code>
+     * 
+     * @param string $auth_value Permission to check
+     * @param bool $die Perform message_die() if the permission is denied?
+     * @param int $user_id Check a specific user ID instead of the current user
+     * @return bool|void
+     */
     function check_auth($auth_value, $die = true, $user_id = 0)
     {
         // To cut down the query count, store the auth settings 
@@ -546,9 +555,12 @@ class Session
             // generate their new password using their unique salt value
             if ( strlen($row['user_password']) == 32 && $row['user_password'] == md5($pass) )
             {
+                $salt = generate_salt();
                 $db->query("UPDATE __users SET :params WHERE (`user_id` = '{$row['user_id']}')", array(
-                    'user_password'  => hash_password($pass, $row['user_salt']),
+                    'user_salt'      => $salt,
+                    'user_password'  => hash_password($pass, $salt),
                 ));
+                unset($salt);
                 
                 // Recurse so we can use the record we just updated
                 return $this->login($name, $pass);

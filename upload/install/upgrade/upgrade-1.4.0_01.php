@@ -111,19 +111,6 @@ if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
     // Generate an installation-specific unique salt value
     $eqdkp->config_set('auth_salt', generate_salt());
     
-    // Generate a salt value for every user in the database
-    $sql = "SELECT user_id
-            FROM __users
-            ORDER BY user_id";
-    $result = $db->query($sql);
-    while ( $row = $db->fetch_record($result) )
-    {
-        $db->query("UPDATE __users SET :params WHERE (`user_id` = '{$row['user_id']}')", array(
-            'user_salt'      => generate_salt(),
-        ));
-    }
-    $db->free_result($result);
-    
     // Finalize
     Upgrade::set_version($VERSION);
     Upgrade::progress($VERSION);

@@ -91,9 +91,11 @@ define('STRIP', (get_magic_quotes_gpc()) ? true : false);
 
 // System defaults / available database abstraction layers
 $DEFAULTS = array(
-    'version'       => '1.3.3',
+    'version'       => '1.4.0',
     'default_lang'  => 'English',
     'default_style' => '1',
+	'default_game'  => 'wow',
+	'dkp_name'      => 'DKP',
     'table_prefix'  => 'eqdkp_',
     'dbal'          => 'mysql'
 );

@@ -61,7 +61,8 @@ class installer
                 $this->obtain_game_info($mode, $sub);
             break;
             
-            case 'create_table';
+            case 'create_table':
+			case 'create_tables':
                 $this->create_database_tables($mode, $sub);
                 break;
             
@@ -404,8 +405,8 @@ class installer
         $tpl = new Template_Wrap('install_install.html');
 
         $tpl->assign_vars(array(
-            'TITLE'           => '',
-            'BODY'            => '',
+            'TITLE'           => $lang['DATABASE_TITLE'],
+            'BODY'            => $lang['DATABASE_BODY'],
             
         ));
 
@@ -509,9 +510,9 @@ class installer
             $data['server_port']  = (!empty($data['server_port']) ? $data['server_port'] : $server_port);
             $data['server_path']  = (!empty($data['server_path']) ? $data['server_path'] : $server_path);
             
-            foreach ( array($this->default_config_options, $this->db_config_options, $this->server_config_options) as $option_groups)
+            foreach (array($this->default_config_options, $this->db_config_options, $this->server_config_options) as $option_groups)
             {
-                foreach ( $option_groups as $config_key => $vars)
+                foreach ($option_groups as $config_key => $vars)
                 {
                     if (!is_array($vars) && strpos($config_key, 'legend') === false)
                     {
@@ -606,7 +607,7 @@ class installer
         $tpl = new Template_Wrap('install_install.html');
     
         $tpl->assign_vars(array(
-            'TITLE'     => '',
+            'TITLE'     => $lang['ADMINISTRATOR_TITLE'],
             'BODY'      => '',
         ));
     
@@ -799,7 +800,7 @@ class installer
         $tpl = new Template_Wrap('install_install.html');
 
         $tpl->assign_vars(array(
-            'TITLE'      => '',
+            'TITLE'      => $lang['CONFIG_FILE'],
             'BODY'       => '',
         ));
     
@@ -930,7 +931,7 @@ class installer
         }
 
         // Figure out where we're bound for next
-        $url = (!$written) ? $this->install_url . "?mode=$mode&amp;sub=config_file" : $this->install_url . "?mode=$mode&amp;sub=create_table";
+        $url = (!$written) ? $this->install_url . "?mode=$mode&amp;sub=config_file" : $this->install_url . "?mode=$mode&amp;sub=game_settings";
 
         //
         // Output the page
@@ -953,6 +954,151 @@ class installer
      */
     function obtain_game_info($mode, $sub)
     {
+        global $eqdkp_root_path, $lang, $DEFAULTS;
+
+        $tpl = new Template_Wrap('install_install.html');
+
+        $tpl->assign_vars(array(
+            'TITLE'     => $lang['EQDKP_SETTINGS_TITLE'],
+            'BODY'      => $lang['EQDKP_SETTINGS_BODY'],
+        ));
+
+        $error = array();
+
+        // Obtain any submitted data
+        $data = $this->get_submitted_data();
+
+        if ($data['dbms'] == '')
+        {
+            // Someone's been silly and tried calling this page direct
+            // So we send them back to the start to do it again properly
+            redirect($this->install_url . "?mode=$mode&sub=intro");
+        }
+
+        include($eqdkp_root_path . 'config.php');
+		
+        $passed = false;
+        $s_hidden_fields = '';
+
+        $data['default_lang'] = ($data['default_lang'] !== '') ? $data['default_lang'] : $data['language'];
+
+        if (isset($_POST['check']))
+        {
+			// TODO: Check for a DKP points name?
+
+            $tpl->assign_block_vars('checks', array(
+                'S_LEGEND'            => true,
+                'LEGEND'              => $lang['STAGE_EQDKP_SETTINGS'],
+                'LEGEND_EXPLAIN'      => false,
+            ));
+
+            if (!count($error))
+            {
+                $passed = true;
+                $tpl->assign_block_vars('checks', array(
+                    'TITLE'           => $lang['EQDKP_TEST'],
+                    'RESULT'          => '<strong style="color:green">' . $lang['TESTS_PASSED'] . '</strong>',
+
+                    'S_EXPLAIN'       => false,
+                    'S_LEGEND'        => false,
+                ));
+            }
+            else
+            {
+                $tpl->assign_block_vars('checks', array(
+                    'TITLE'           => $lang['EQDKP_TEST'],
+                    'RESULT'          => '<strong style="color:red">' . implode('<br />', $error) . '</strong>',
+
+                    'S_EXPLAIN'       => false,
+                    'S_LEGEND'        => false,
+                ));
+            }
+            
+            $tpl->assign_vars(array(
+                'S_CHECKS' => true,
+            ));
+        }
+
+		if (!$passed)
+		{
+			$data['dkp_name'] = (!empty($data['dkp_name'])) ? $data['dkp_name'] : $DEFAULTS['dkp_name'];
+		
+			foreach ($this->game_config_options as $config_key => $vars)
+			{
+				if (!is_array($vars) && strpos($config_key, 'legend') === false)
+				{
+					continue;
+				}
+
+				if (strpos($config_key, 'legend') !== false)
+				{
+					$tpl->assign_block_vars('options', array(
+						'S_LEGEND'        => true,
+						'LEGEND'          => $lang[$vars]
+					));
+
+					continue;
+				}
+
+				$options = isset($vars['options']) ? $vars['options'] : '';
+
+				$tpl->assign_block_vars('options', array(
+					'KEY'             => $config_key,
+					'TITLE'           => $lang[$vars['lang']],
+					'S_EXPLAIN'       => $vars['explain'],
+					'S_LEGEND'        => false,
+					'TITLE_EXPLAIN'   => ($vars['explain']) ? $lang[$vars['lang'] . '_EXPLAIN'] : '',
+					'CONTENT'         => input_field($config_key, $vars['type'], $data[$config_key], $options),
+				));
+			}
+		}
+		else
+		{
+            foreach ($this->game_config_options as $config_key => $vars)
+            {
+                if (!is_array($vars))
+                {
+                    continue;
+                }
+                $s_hidden_fields .= '<input type="hidden" name="' . $config_key . '" value="' . $data[$config_key] . '" />';
+            }
+		}
+		
+        // Build hidden fields
+        $config_options = array_merge($this->default_config_options, $this->db_config_options, $this->admin_config_options, $this->server_config_options);
+        foreach ($config_options as $config_key => $vars)
+        {
+            if (!is_array($vars))
+            {
+                continue;
+            }
+            $s_hidden_fields .= '<input type="hidden" name="' . $config_key . '" value="' . $data[$config_key] . '" />';
+        }
+        $s_hidden_fields .= '<input type="hidden" name="language" value="' . $data['language'] . '" />';
+        $s_hidden_fields .= ($passed) ? '' : '<input type="hidden" name="check" value="true" />';
+
+
+        // Figure out where we're bound for next
+        $url    = (!$passed) ? $this->install_url . "?mode=$mode&amp;sub=game_settings" : $this->install_url . "?mode=$mode&amp;sub=create_table";
+        $submit = $lang['NEXT_STEP'];
+
+        //
+        // Output the page
+        //
+        $tpl->assign_vars(array(
+            'BODY'                   => $lang['STAGE_GAME_SETTINGS_EXPLAIN'],
+
+            'L_SUBMIT'               => $submit,
+
+            'S_OPTIONS'              => ($passed) ? false : true,
+            'S_HIDDEN'               => $s_hidden_fields,
+            'U_ACTION'               => $url,
+        ));
+
+        $tpl->generate_navigation($this->submenu_ary, $sub);
+
+        $tpl->page_header();
+        $tpl->page_tail();
     }
     
     /**
@@ -960,14 +1106,14 @@ class installer
      */
     function create_database_tables($mode, $sub)
     {
-        global $eqdkp_root_path, $lang, $db, $DEFAULTS;
+        global $eqdkp_root_path, $lang, $db, $table_prefix, $DEFAULTS;
 
         define('DEBUG', 2);
 
         $tpl = new Template_Wrap('install_install.html');
 
         $tpl->assign_vars(array(
-            'TITLE'     => '',
+            'TITLE'     => $lang['CREATE_DATABASE_TABLES_TITLE'],
             'BODY'      => '',
         ));
 
@@ -989,6 +1135,8 @@ class installer
         define('USERS_TABLE',  $data['table_prefix'] . 'users');
         define('STYLES_TABLE', $data['table_prefix'] . 'styles');
     
+		$table_prefix = $data['table_prefix'];
+	
         //
         // Database population
         //
@@ -1069,9 +1217,19 @@ class installer
         }
         unset($sql);
         
+		// Game installation
+		if (!class_exists('Game_Installer'))
+		{
+			include($eqdkp_root_path . 'games/game_installer.php');
+		}
+		$gm = new Game_Installer();
+		
+		$gm->set_current_game($data['game_id']);
+		$gm->install_game();
+		
         // Script path fix
         $data['server_path'] .= (substr($data['server_path'], strlen($data['server_path'])-1) == '/') ? '' : '/';
-        
+		
         //
         // Update some config settings
         //
@@ -1082,14 +1240,27 @@ class installer
         config_set('server_path', $data['server_path']);
         config_set('default_lang', $data['default_lang']);
         config_set('default_locale', $data['default_locale']);
+		
+		config_set('main_title', $data['site_name']);
+		config_set('sub_title', $data['site_desc']);
+		config_set('dkp_name', $data['dkp_name']);
+		config_set('guildtag', $data['guildtag']);
+
+		// Set the salt		
+		$data['auth_salt'] = generate_salt();
+		config_set('auth_salt', $data['auth_salt']);
         
         //
         // Update admin account
         //
-        
+        // Encrypt the admin's password
+		$admin_salt = generate_salt();
+		$admin_password = sha1("{$data['admin_pass1']}_{$data['auth_salt']}_" . $admin_salt);
+		
         $query = $db->build_query('UPDATE', array(
-            'username'           => $data['admin_name'],
-            'user_password'      => $data['admin_pass1'],
+            'user_name'          => $data['admin_name'],
+            'user_password'      => $admin_password,
+			'user_salt'          => $admin_salt,
             'user_lang'          => $data['default_lang'],
             'user_email'         => $data['admin_email1'],
             'user_active'        => '1',
@@ -1150,7 +1321,7 @@ class installer
     
         $tpl->assign_vars(array(
             'TITLE'                  => $lang['INSTALL_CONGRATS'],
-            'BODY'                   => $lang['INSTALL_CONGRATS_EXPLAIN'],
+            'BODY'                   => sprintf($lang['INSTALL_CONGRATS_EXPLAIN'], $DEFAULTS['version']),
     
             'MESSAGE'                => $message,
 
@@ -1237,7 +1408,7 @@ class installer
             'admin_email2'    => strtolower(request_var('admin_email2', '')),
             
 			'game_id'         => request_var('game_id', ''),
-			'guild_name'      => request_var('guild_name', '', true),
+			'guildtag'        => request_var('guildtag', '', true),
 			'dkp_name'        => request_var('dkp_name', ''),
 			
 			'site_name'       => request_var('site_name', '', true),
@@ -1285,14 +1456,15 @@ class installer
         'admin_email2'          => array('lang' => 'ADMIN_EMAIL_CONFIRM',       'type' => 'text:25:100', 'explain' => false),
     );
     
-    var $game_config_options = array(
+    var $game_config_options = array(		
         'legend1'               => 'GAME_CONFIG',
-        'game_id'               => array('lang' => 'GAME_NAME',         'type' => 'select', 'options' => 'game_select(\'{VALUE}\')', 'explain' => true), // FIXME: There'll be a method *somewhere* (game_manager or otherwise) to generate this.
-		'guild_name'            => array('lang' => 'GUILD_NAME',        'type' => 'text:25:100', 'explain' => true),
-		'dkp_name'              => array('lang' => 'DKP_NAME',          'type' => 'text:5:5', 'explain' => true),
-		
-		'site_name'             => array('lang' => 'SITE_NAME',         'type' => 'text:25:100', 'explain' => true),
-		'site_desc'             => array('lang' => 'SITE_DESC',         'type' => 'textarea:25:3', 'explain' => false),
+        'game_id'               => array('lang' => 'GAME_NAME',         'type' => 'select', 'options' => 'game_select(\'{VALUE}\')', 'explain' => false),
+
+		'legend2'               => 'OTHER_SETTINGS',
+		'guildtag'              => array('lang' => 'GUILD_NAME',        'type' => 'text:25:100', 'explain' => false),
+		'site_name'             => array('lang' => 'SITE_NAME',         'type' => 'text:25:100', 'explain' => false),
+		'site_desc'             => array('lang' => 'SITE_DESC',         'type' => 'textarea:3:25', 'explain' => false),
+		'dkp_name'              => array('lang' => 'DKP_NAME',          'type' => 'text:5:5', 'explain' => false),
     );
     /**#@-*/
 }

@@ -261,15 +261,19 @@ CREATE TABLE `eqdkp_plugins` (
 # --------------------------------------------------------
 ### Games
 
+DROP TABLE IF EXISTS eqdkp_class_armor;
+DROP TABLE IF EXISTS eqdkp_armor_types;
+DROP TABLE IF EXISTS eqdkp_classes;
+DROP TABLE IF EXISTS eqdkp_races;
 DROP TABLE IF EXISTS eqdkp_factions;
+
 CREATE TABLE `eqdkp_factions` (
-  `faction_id` smallint(3) unsigned NOT NULL UNIQUE,
+  `faction_id` smallint(3) unsigned NOT NULL,
   `faction_name` varchar(50) NOT NULL,
   `faction_hide` enum('0','1') NOT NULL DEFAULT '0',
   PRIMARY KEY (`faction_id`)
 )TYPE=InnoDB;
 
-DROP TABLE IF EXISTS eqdkp_races;
 CREATE TABLE `eqdkp_races` (
   `race_id` smallint(3) unsigned NOT NULL UNIQUE,
   `race_name` varchar(50) NOT NULL,
@@ -278,16 +282,8 @@ CREATE TABLE `eqdkp_races` (
   PRIMARY KEY (`race_id`)
 )TYPE=InnoDB;
 
-DROP TABLE IF EXISTS eqdkp_armor_types;
-CREATE TABLE `eqdkp_armor_types` (
-  `armor_type_id` smallint(3) unsigned NOT NULL UNIQUE,
-  `armor_type_name` varchar(50) NOT NULL,
-  PRIMARY KEY (`armor_type_id`)
-)TYPE=InnoDB;
-
-DROP TABLE IF EXISTS eqdkp_classes;
 CREATE TABLE `eqdkp_classes` (
-  `class_id` smallint(3) unsigned NOT NULL UNIQUE,
+  `class_id` smallint(3) unsigned NOT NULL,
   `class_name` varchar(50) NOT NULL,
   `class_min_level` smallint(3) NOT NULL DEFAULT '0',
   `class_max_level` smallint(3) NOT NULL DEFAULT '999',
@@ -296,8 +292,13 @@ CREATE TABLE `eqdkp_classes` (
   PRIMARY KEY (`class_id`)
 )TYPE=InnoDB;
 
-DROP TABLE IF EXISTS eqdkp_class_armor;
-CREATE TABLE eqdkp_inputsec_388_class_armor(
+CREATE TABLE `eqdkp_armor_types` (
+  `armor_type_id` smallint(3) unsigned NOT NULL UNIQUE,
+  `armor_type_name` varchar(50) NOT NULL,
+  PRIMARY KEY (`armor_type_id`)
+)TYPE=InnoDB;
+
+CREATE TABLE `eqdkp_class_armor` (
   `class_id` smallint(3) unsigned NOT NULL,
   `armor_type_id` smallint(3) unsigned NOT NULL,
   `armor_min_level` smallint(3) NOT NULL DEFAULT '0',
@@ -312,3 +313,4 @@ CREATE TABLE eqdkp_inputsec_388_class_armor(
     ON DELETE RESTRICT
     ON UPDATE CASCADE
 )TYPE=InnoDB;
+

@@ -56,7 +56,7 @@ class EQdkp_Manage_Game extends EQdkp_Admin
         global $db, $eqdkp, $user, $tpl, $pm, $in;
 
         $game_id      = $in->get('new_game','');
-        $current_game = $eqdkp->config['default_game'];
+        $current_game = $eqdkp->config['current_game'];
         $redirect_url = path_default('manage_game.php', true);
 
         if (empty($game_id))
@@ -89,8 +89,8 @@ class EQdkp_Manage_Game extends EQdkp_Admin
         
         // Update EQdkp's configuration
         $eqdkp->config_set(array(
-            'default_game'      => $db->sql_escape($game_id),
-            'default_game_name' => isset($newgame['name']) ? $db->sql_escape($newgame['name']) : $db->sql_escape($game_id),
+            'current_game'      => $db->sql_escape($game_id),
+            'current_game_name' => isset($newgame['name']) ? $db->sql_escape($newgame['name']) : $db->sql_escape($game_id),
         ));            
         
         // meta_refresh(3, $redirect_url);
@@ -116,8 +116,8 @@ class EQdkp_Manage_Game extends EQdkp_Admin
             'F_MANAGE_GAME' => path_default('manage_game.php', true),
             
             // Form values
-            'CURRENT_GAME_ID'   => sanitize($eqdkp->config['default_game'], ENT),
-            'CURRENT_GAME_NAME' => sanitize($eqdkp->config['default_game_name'], ENT),
+            'CURRENT_GAME_ID'   => sanitize($eqdkp->config['current_game'], ENT),
+            'CURRENT_GAME_NAME' => sanitize($eqdkp->config['current_game_name'], ENT),
             
             // Language
             'L_GAME'            => $user->lang['game'],

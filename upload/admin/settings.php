@@ -84,7 +84,6 @@ class EQdkp_Config extends EQdkp_Admin
             'main_title'         => $in->get('main_title',         $eqdkp->config['main_title']),
             'sub_title'          => $in->get('sub_title',          $eqdkp->config['sub_title']),
             'dkp_name'           => $in->get('dkp_name',           $eqdkp->config['dkp_name']),
-            'default_game'       => $in->get('default_game',       $eqdkp->config['default_game']),
             'default_locale'     => $in->get('default_locale',     $eqdkp->config['default_locale']),
             'account_activation' => $in->get('account_activation', intval($eqdkp->config['account_activation'])),
             'default_alimit'     => $in->get('default_alimit',     intval($eqdkp->config['default_alimit'])),
@@ -106,17 +105,6 @@ class EQdkp_Config extends EQdkp_Admin
             'admin_email'        => $in->get('admin_email',        $eqdkp->config['admin_email']),
             'start_page'         => $in->get('start_page',         $eqdkp->config['start_page'])
         ));
-
-        $current_game = $eqdkp->config['default_game'];
-        $default_game = preg_replace('/[^\w]+/', '', $in->get('default_game', $current_game));
-        
-        if ( $default_game != $current_game ) 
-        {
-            // TODO: Change to Game Manager
-            include($eqdkp->root_path . 'games/' . $default_game . '.php');
-            $game_extension = new Manage_Game;
-            $game_extension->process();
-        }
 
         // Permissions
         $sql = "SELECT auth_id, auth_value
@@ -233,7 +221,6 @@ class EQdkp_Config extends EQdkp_Admin
             'COOKIE_PATH'               => sanitize($eqdkp->config['cookie_path'], ENT),
             'SESSION_LENGTH'            => intval($eqdkp->config['session_length']),
             'ADMIN_EMAIL'               => sanitize($eqdkp->config['admin_email'], ENT),
-            'DEFAULT_GAME'              => sanitize($eqdkp->config['default_game'], ENT),
 
             // Language (General Settings)
             'L_GENERAL_SETTINGS'          => $user->lang['general_settings'],
@@ -260,8 +247,6 @@ class EQdkp_Config extends EQdkp_Admin
             'L_NEWS_PER_PAGE'             => $user->lang['news_per_page'],
             'L_RAIDS_PER_PAGE'            => $user->lang['raids_per_page'],
             'L_DEFAULT_LANGUAGE'          => $user->lang['default_language'],
-            'L_DEFAULT_GAME'              => $user->lang['default_game'],
-            'L_DEFAULT_GAME_WARN'         => $user->lang['default_game_warn'],
             'L_DEFAULT_STYLE'             => $user->lang['default_style'],
             'L_DEFAULT_PAGE'              => $user->lang['default_page'],
             'L_DEFAULT_LOCALE'            => $user->lang['default_locale'],
@@ -310,36 +295,6 @@ class EQdkp_Config extends EQdkp_Admin
             $tpl->assign_block_vars('style_row', $row);
         }
 
-        //
-        // Build game option drop-down
-        // New for 1.3
-        // Total hack job - I moved the class, race, and faction 
-        // info to the db, but I'm hardcoding what games I support 
-        // for the "button push" - what a tard I am :-)
-        // To add a new game option, just copy the 4 lines below,
-        // add them to the botton, increase the value of VALUE by 1,
-        // and be sure to set OPTION to the EXACT SAME THING you put
-        // in the == check in the SELECTED line and there must be
-        // no spaces in the name, since the value below gets changed
-        // to name.php and ran when you change it: for example,
-        // if you change to WoW, this program will redirect you to
-        // WoW.php and use that file to populate the database.
-        // 
-        // Cheesy, but extensible and effective.
-        //
-        
-        // ^ Hey, if you have to describe something as a "total hack job", it probably sucks
-        // TODO: Use Game_Manager to abstract the game selection drop-down
-        $games = array('Everquest', 'Everquest2', 'WoW', 'DAoC', 'Vanguard-SoH');
-        foreach ( $games as $game )
-        {
-            $tpl->assign_block_vars('game_row', array(
-                'VALUE'    => $game,
-                'SELECTED' => option_selected($eqdkp->config['default_game'] == $game),
-                'OPTION'   => $game
-            ));
-        }
-        unset($games);
 
         // Default locale drop-down
         // new for 1.3

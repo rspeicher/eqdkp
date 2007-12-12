@@ -966,7 +966,7 @@ class Add_Raid extends EQdkp_Admin
                         'member_name'          => $row['member_name'],
                         'adjustment_reason'    => $adj_reason,
                         'adjustment_group_key' => $group_key,
-                        'adjustment_added_by'  => $user->data['username']
+                        'adjustment_added_by'  => $user->data['user_name']
                     ));
                     $db->query("INSERT INTO __adjustments {$query}");
                 }
@@ -987,7 +987,7 @@ class Add_Raid extends EQdkp_Admin
                     '{L_ADJUSTMENT}' => $eqdkp->config['inactive_point_adj'],
                     '{L_MEMBERS}'    => implode(', ', $inactive_members),
                     '{L_REASON}'     => 'Inactive adjustment', // TODO: Localize
-                    '{L_ADDED_BY}'   => $user->data['username']
+                    '{L_ADDED_BY}'   => $user->data['user_name']
                 );
                 $this->log_insert(array(
                     'log_type'   => $log_action['header'],
@@ -1008,7 +1008,7 @@ class Add_Raid extends EQdkp_Admin
                     '{L_ADJUSTMENT}' => $eqdkp->config['active_point_adj'],
                     '{L_MEMBERS}'    => implode(', ', $active_members),
                     '{L_REASON}'     => 'Active adjustment', // TODO: Localize
-                    '{L_ADDED_BY}'   => $user->data['username']
+                    '{L_ADDED_BY}'   => $user->data['user_name']
                 );
                 $this->log_insert(array(
                     'log_type'   => $log_action['header'],
@@ -1192,7 +1192,7 @@ class Add_Raid extends EQdkp_Admin
             // Javascript messages
             'MSG_ATTENDEES_EMPTY' => $user->lang['fv_required_attendees'],
             'MSG_NAME_EMPTY'      => $user->lang['fv_required_event_name'],
-            'MSG_GAME_NAME'       => $eqdkp->config['default_game'],
+            'MSG_GAME_NAME'       => $eqdkp->config['current_game_name'],
             
             // Buttons
             'S_ADD' => ( !$this->url_id ) ? true : false)

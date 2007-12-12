@@ -40,7 +40,7 @@ class Register extends EQdkp_Admin
         // Data to be put into the form
         // If it's not in POST, we get it from config defaults
         $this->data = array(
-            'username'    => $in->get('username'),
+            'user_name'   => $in->get('username'),
             'user_email'  => $in->get('user_email'),
             'user_alimit' => $in->get('user_alimit', intval($eqdkp->config['default_alimit'])),
             'user_elimit' => $in->get('user_elimit', intval($eqdkp->config['default_elimit'])),
@@ -93,7 +93,7 @@ class Register extends EQdkp_Admin
         {
             $sql = "SELECT user_id
                     FROM __users
-                    WHERE (`username` = '" . $db->escape($in->get('username')) . "')";
+                    WHERE (`user_name` = '" . $db->escape($in->get('username')) . "')";
             if ( $db->num_rows($db->query($sql)) > 0 )
             {
                 $this->fv->errors['username'] = $user->lang['fv_already_registered_username'];
@@ -119,7 +119,7 @@ class Register extends EQdkp_Admin
             $this->fv->is_email_address('user_email', $user->lang['fv_invalid_email']);
             
             $this->fv->is_filled(array(
-                'username'       => $user->lang['fv_required_user'],
+                'user_name'      => $user->lang['fv_required_user'],
                 'user_email'     => $user->lang['fv_required_email'],
                 'user_password1' => $user->lang['fv_required_password'],
                 'user_password2' => ''
@@ -159,7 +159,7 @@ class Register extends EQdkp_Admin
         
         // Insert them into the users table
         $query = $db->build_query('INSERT', array(
-            'username'       => $in->get('username'),
+            'user_name'      => $in->get('username'),
             'user_password'  => User::Encrypt($in->get('user_password1')),
             'user_email'     => $in->get('user_email'),
             'user_alimit'    => $in->get('user_alimit', 0),
@@ -257,10 +257,10 @@ class Register extends EQdkp_Admin
         //
         // Look up record based on the username and e-mail
         //
-        $sql = "SELECT user_id, username, user_email, user_active, user_lang
+        $sql = "SELECT user_id, user_name, user_email, user_active, user_lang
                 FROM __users
                 WHERE (`user_email` = '" . $db->escape($user_email) . "')
-                AND (`username` = '" . $db->escape($username) . "')";
+                AND (`user_name` = '" . $db->escape($username) . "')";
         if ( $result = $db->query($sql) )
         {
             if ( $row = $db->fetch_record($result) )
@@ -271,7 +271,7 @@ class Register extends EQdkp_Admin
                     message_die($user->lang['error_account_inactive']);
                 }
  
-                $username = $row['username'];
+                $username = $row['user_name'];
                 
                 // Create a new activation key
                 $user_key = $this->random_string(true);
@@ -298,7 +298,7 @@ class Register extends EQdkp_Admin
                         'lang'     => $row['user_lang'],
                     ),
                     array(
-                        'USERNAME'   => sanitize($row['username']),
+                        'USERNAME'   => sanitize($row['user_name']),
                         'DATETIME'   => date('m/d/y h:ia T', time()),
                         'IPADDRESS'  => sanitize($user->ip_address),
                         'U_ACTIVATE' => $this->server_url . '?mode=activate&key=' . $user_key,
@@ -326,7 +326,7 @@ class Register extends EQdkp_Admin
     {
         global $db, $eqdkp, $user, $tpl, $pm, $in;
         
-        $sql = "SELECT user_id, username, user_active, user_email, user_newpassword, user_lang, user_key
+        $sql = "SELECT user_id, user_name, user_active, user_email, user_newpassword, user_lang, user_key
                 FROM __users
                 WHERE (`user_key` = '" . $db->escape($in->hash('key')) . "')";
         if ( !($result = $db->query($sql)) )
@@ -366,7 +366,7 @@ class Register extends EQdkp_Admin
                             'lang'     => $row['user_lang']
                         ), 
                         array(
-                            'USERNAME' => sanitize($row['username']),
+                            'USERNAME' => sanitize($row['user_name']),
                             'PASSWORD' => '(encrypted)'
                         )
                     );
@@ -482,7 +482,7 @@ class Register extends EQdkp_Admin
             'L_SUBMIT'                   => $user->lang['submit'],
             'L_RESET'                    => $user->lang['reset'],
 
-            'USERNAME'    => sanitize($this->data['username'], ENT),
+            'USERNAME'    => sanitize($this->data['user_name'], ENT),
             'USER_EMAIL'  => sanitize($this->data['user_email'], ENT),
             'USER_ALIMIT' => intval($this->data['user_alimit']),
             'USER_ELIMIT' => intval($this->data['user_elimit']),
@@ -490,7 +490,7 @@ class Register extends EQdkp_Admin
             'USER_NLIMIT' => intval($this->data['user_nlimit']),
             'USER_RLIMIT' => intval($this->data['user_rlimit']),
 
-            'FV_USERNAME'      => $this->fv->generate_error('username'),
+            'FV_USERNAME'      => $this->fv->generate_error('user_name'),
             'FV_USER_PASSWORD' => $this->fv->generate_error('user_password1'),
             'FV_USER_EMAIL'    => $this->fv->generate_error('user_email'),
             'FV_USER_ALIMIT'   => $this->fv->generate_error('user_alimit'),

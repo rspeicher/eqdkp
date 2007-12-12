@@ -88,6 +88,16 @@ if (@ini_get('register_globals') == '1' || strtolower(@ini_get('register_globals
 
 define('STRIP', (get_magic_quotes_gpc()) ? true : false);
 
+// Include essential scripts
+require($eqdkp_root_path . 'includes/functions.php');
+
+include($eqdkp_root_path . 'includes/class_template.php');
+include($eqdkp_root_path . 'includes/session.php');
+include($eqdkp_root_path . 'includes/input.php');
+include($eqdkp_root_path . 'includes/functions_admin.php');
+include($eqdkp_root_path . 'includes/functions_paths.php');
+require($eqdkp_root_path . 'includes/functions_install.php');
+
 
 // System defaults / available database abstraction layers
 $DEFAULTS = array(
@@ -115,19 +125,16 @@ $LOCALES = array(
 );
 
 // NOTE: the language includes should be changed eventually so that they can be set dynamically
-if( !include_once($eqdkp_root_path . 'language/english/lang_install.php') )
-{
-    die('Could not include the language files! Check to make sure that "' . $eqdkp_root_path . 'language/english/lang_install.php" exists!');
-}
-if( !include_once($eqdkp_root_path . 'language/english/lang_main.php') )
-{
-    die('Could not include the language files! Check to make sure that "' . $eqdkp_root_path . 'language/english/lang_main.php" exists!');
-}
+$language = strtolower($DEFAULTS['default_lang']);
+
+include($eqdkp_root_path . 'language/' . $language . '/lang_install.php');
+include($eqdkp_root_path . 'language/' . $language . '/lang_main.php');
+
 
 // ---------------------------------------------------------
 // Template Wrap class
 // ---------------------------------------------------------
-if ( !include_once($eqdkp_root_path . 'includes/class_template.php') )
+if ( !class_exists('Template') )
 {
     die('Could not include the template file! Check to make sure that "' . $eqdkp_root_path . 'includes/class_template.php" exists!');
 }
@@ -316,7 +323,6 @@ if (@file_exists($eqdkp_root_path . 'config.php') && !file_exists($eqdkp_root_pa
     }
 }
 
-include($eqdkp_root_path . 'includes/functions_install.php');
 include($eqdkp_root_path . 'install/install.php');
 
 $mode = 'install'; // NOTE: For now, there are no alternate methods of installation.

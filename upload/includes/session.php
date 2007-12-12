@@ -438,7 +438,7 @@ class Session
      * @param int $user_id Check a specific user ID instead of the current user
      * @return bool|void
      */
-    function check_auth($auth_value, $die = true, $user_id = 0)
+    function check_auth($auth_value, $die = false, $user_id = 0)
     {
         // To cut down the query count, store the auth settings 
         // for $user_id in a static var if we need to

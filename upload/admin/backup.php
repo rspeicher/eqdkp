@@ -109,16 +109,18 @@ class Backup extends EQdkp_Admin
     // ---------------------------------------------------------
     function do_backup()
     {
-        global $eqdkp, $user, $tpl, $pm, $in;
+        global $eqdkp, $eqdkp_root_path, $user, $tpl, $pm, $in;
         global $db, $dbhost, $table_prefix;
         global $SID;
+
+		include($eqdkp_root_path . 'includes/functions_install.php');
 
         $tables = array();
 
         // Attempt to find all the tables associated with this installation of EQdkp
         if( !empty($table_prefix) )
         {
-            $all_tables = get_tables();
+            $all_tables = get_tables($db);
             
             // Only add the tables for EQdkp
             foreach( $all_tables as $tablename )

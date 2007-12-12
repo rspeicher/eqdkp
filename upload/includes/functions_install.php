@@ -475,31 +475,6 @@ function request_var($var_name, $default, $multibyte = false, $cookie = false)
 }
 
 /**
- * Reverse the effects of htmlspecialchars()
- *
- * @param   string  $input   Input to reverse
- * @return  string
- */
-function unsanitize($input)
-{
-    if ( function_exists('htmlspecialchars_decode') )
-    {
-        return htmlspecialchars_decode($input, ENT_QUOTES); // PHP >= 5.1.0
-    }
-    else
-    {
-        $retval = $input;
-        $retval = str_replace('&amp;', '&', $retval);
-        $retval = str_replace('&#039;', '\'', $retval);
-        $retval = str_replace('&quot;', '"', $retval);
-        $retval = str_replace('&lt;', '<', $retval);
-        $retval = str_replace('&gt;', '>', $retval);
-    
-        return $retval;
-    }
-}
-
-/**
 * Removes comments from a SQL data file
 *
 * @param    string  $sql    SQL file contents
@@ -572,7 +547,7 @@ function parse_sql($sql, $delim)
 * This is used during the installation when we do not have a database available to call the normal redirect function
 * @param string $page The page to redirect to relative to the installer root path
 */
-function redirect($page)
+function auto_redirect($page)
 {
     $server_name = (!empty($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : getenv('SERVER_NAME');
     $server_port = (!empty($_SERVER['SERVER_PORT'])) ? (int) $_SERVER['SERVER_PORT'] : (int) getenv('SERVER_PORT');
@@ -600,36 +575,6 @@ function redirect($page)
     exit;
 }
 
-/**
- * Generate a string suitable for use as a password salt
- *
- * @return string
- */
-function generate_salt()
-{
-    $chars = array(
-        'a','A','b','B','c','C','d','D','e','E','f','F','g','G','h','H','i','I',
-        'j','J','k','K','l','L','m','M','n','N','o','O','p','P','q','Q','r','R',
-        's','S','t','T','u','U','v','V','w','W','x','X','y','Y','z','Z',
-        
-        '1','2','3','4','5','6','7','8','9','0',
-        
-        '!','@','#','$','%','^','&','*','_','+','|'
-    );
-
-    $max_chars = count($chars) - 1;
-    srand( (double) microtime() * 1000000);
-    
-    $salt_length = rand(8, 20);
-
-    $retval = '';
-    for($i = 0; $i < $salt_length; $i++)
-    {
-        $retval = $retval . $chars[rand(0, $max_chars)];
-    }
-
-    return $retval;
-}
 
 /**
 * Output an error message

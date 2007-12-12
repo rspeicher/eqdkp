@@ -100,7 +100,8 @@ INSERT INTO eqdkp_style_config (style_id, attendees_columns, logo_path) VALUES (
 INSERT INTO eqdkp_style_config (style_id, attendees_columns, logo_path) VALUES (12, '8', 'logo.gif');
 INSERT INTO eqdkp_style_config (style_id, attendees_columns, logo_path) VALUES (13, '8', 'logo.gif');
 
-### Default user
+### Default users
+# INSERT INTO eqdkp_users (user_id, user_name, user_password, user_salt, user_style, user_lang, user_active) VALUES ('1','Anonymous','','','6','english','1');
 INSERT INTO eqdkp_users (user_id, user_name, user_password, user_salt, user_style, user_lang, user_active) VALUES ('1','admin',sha1('admin'),'salt','6','english','0');
 
 INSERT INTO eqdkp_auth_users (user_id, auth_id, auth_setting) VALUES ('1','1','Y');

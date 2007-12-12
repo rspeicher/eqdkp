@@ -618,7 +618,7 @@ class installer
         {
             // Someone's been silly and tried calling this page direct
             // So we send them back to the start to do it again properly
-            redirect($this->install_url . "?mode=$mode&sub=intro");
+            auto_redirect($this->install_url . "?mode=$mode&sub=intro");
         }
         
         $passed = false;
@@ -811,7 +811,7 @@ class installer
         {
             // Someone's been silly and tried calling this page direct
             // So we send them back to the start to do it again properly
-            redirect($this->install_url . "?mode=$mode&sub=intro");
+            auto_redirect($this->install_url . "?mode=$mode&sub=intro");
         }
 
         // Set a variable for the result of our attempt to create the config file
@@ -972,7 +972,7 @@ class installer
         {
             // Someone's been silly and tried calling this page direct
             // So we send them back to the start to do it again properly
-            redirect($this->install_url . "?mode=$mode&sub=intro");
+            auto_redirect($this->install_url . "?mode=$mode&sub=intro");
         }
 
         include($eqdkp_root_path . 'config.php');
@@ -1126,7 +1126,7 @@ class installer
         {
             // Someone's been silly and tried calling this page direct
             // So we send them back to the start to do it again properly
-            redirect($this->install_url . "?mode=$mode&sub=intro");
+            auto_redirect($this->install_url . "?mode=$mode&sub=intro");
         }
 
         include($eqdkp_root_path . 'config.php');
@@ -1309,7 +1309,7 @@ class installer
         {
             // Someone's been silly and tried calling this page direct
             // So we send them back to the start to do it again properly
-            redirect($this->install_url . "?mode=$mode&sub=intro");
+            auto_redirect($this->install_url . "?mode=$mode&sub=intro");
         }
 
         $tpl = new Template_Wrap('install_final.html');

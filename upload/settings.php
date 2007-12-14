@@ -67,10 +67,11 @@ if ( $in->exists('submit') )
     // their current password
     if ( ($change_username) || ($change_password) )
     {
+        $salt = $db->query_first("SELECT user_salt FROM __users WHERE (`user_id` = '" . $db->escape($user->data['user_id']) . "')");
         $sql = "SELECT user_id
                 FROM __users
                 WHERE (`user_id` = '" . $db->escape($user->data['user_id']) . "')
-                AND (`user_password` = '" . User::Encrypt($in->get('user_password')) . "')";
+                AND (`user_password` = '" . hash_password($in->get('user_password'), $salt) . "')";
         if ( $db->num_rows($db->query($sql)) == 0 )
         {
             $fv->errors['user_password'] = $user->lang['incorrect_password'];
@@ -121,7 +122,8 @@ switch ( $action )
         }
         if ( $change_password )
         {
-            $update['user_password'] = User::Encrypt($in->get('new_user_password1'));
+            $update['user_salt']     = generate_salt();
+            $update['user_password'] = hash_password($in->get('new_user_password1'), $update['user_salt']);
         }
         
         $sql = "UPDATE __users SET :params WHERE (`user_id` = '{$user->data['user_id']}')";

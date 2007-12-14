@@ -158,9 +158,11 @@ class Register extends EQdkp_Admin
         }
         
         // Insert them into the users table
+        $salt  = generate_salt();
         $query = $db->build_query('INSERT', array(
             'user_name'      => $in->get('username'),
-            'user_password'  => User::Encrypt($in->get('user_password1')),
+            'user_salt'      => $salt,
+            'user_password'  => hash_password($in->get('user_password1'), $salt),
             'user_email'     => $in->get('user_email'),
             'user_alimit'    => $in->get('user_alimit', 0),
             'user_elimit'    => $in->get('user_elimit', 0),
@@ -257,7 +259,8 @@ class Register extends EQdkp_Admin
         //
         // Look up record based on the username and e-mail
         //
-        $sql = "SELECT user_id, user_name, user_email, user_active, user_lang
+        $sql = "SELECT user_id, user_name, user_email, user_active, user_lang,
+                    user_salt
                 FROM __users
                 WHERE (`user_email` = '" . $db->escape($user_email) . "')
                 AND (`user_name` = '" . $db->escape($username) . "')";
@@ -282,7 +285,7 @@ class Register extends EQdkp_Admin
                 $user_password = $this->random_string(false);
                 
                 $sql = "UPDATE __users
-                        SET `user_newpassword` = '" . User::Encrypt($user_password) . "', `user_key` = '{$user_key}'
+                        SET `user_newpassword` = '" . hash_password($user_password, $row['user_salt']) . "', `user_key` = '{$user_key}'
                         WHERE (`user_id` = '" . $db->escape($row['user_id']) . "')";
                 if ( !$db->query($sql) )
                 {

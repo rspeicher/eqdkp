@@ -364,7 +364,7 @@ class EQdkp
         
         if ( $user->check_auth('a_', false) )
         {
-            $main_menu2[] = array('link' => path_default('index.php', true), 'text' => $user->lang['menu_admin_panel']);
+            $main_menu2[] = array('link' => path_default('admin/index.php'), 'text' => $user->lang['menu_admin_panel']);
         }
         
         // Switch login/logout link
@@ -1315,7 +1315,7 @@ class Form_Validate
         $value1 = $this->_get_value($field1);
         $value2 = $this->_get_value($field2);
 
-        if ( User::Encrypt($value1) != User::Encrypt($value2) )
+        if ( sha1($value1) != sha1($value2) )
         {
             $this->errors[$field1] = $message;
             return false;

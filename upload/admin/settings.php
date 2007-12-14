@@ -117,7 +117,7 @@ class EQdkp_Config extends EQdkp_Admin
             $this->update_auth_default($row['auth_value'], $auth_default);
         }
 
-        header('Location: ' . path_default('settings.php', true));
+        header('Location: ' . path_default('admin/settings.php'));
     }
     
     // ---------------------------------------------------------
@@ -190,7 +190,7 @@ class EQdkp_Config extends EQdkp_Admin
         
         $tpl->assign_vars(array(
             // Form vars
-            'F_CONFIG' => path_default('settings.php', true),
+            'F_CONFIG' => path_default('admin/settings.php'),
             
             // Form values
             'GUILDTAG'                  => sanitize($eqdkp->config['guildtag'], ENT),
@@ -329,7 +329,7 @@ class EQdkp_Config extends EQdkp_Admin
             $text = ( isset($user->data['username']) ) ? str_replace($user->data['username'], $user->lang['username'], $page['text']) : $page['text'];
             
             $tpl->assign_block_vars('page_row', array(
-                'VALUE'    => preg_replace('/^[\/\.]+([\w\/\.\-]+)$/', '\1', $link), // Remove any path traversals at the start of the link
+                'VALUE'    => $link,
                 'SELECTED' => option_selected($eqdkp->config['start_page'] == $link),
                 'OPTION'   => $text
             ));

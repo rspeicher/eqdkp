@@ -285,7 +285,6 @@ else
 
 $tpl->assign_vars(array(
     'F_MEMBERS' => member_path(),
-    'V_SID'     => str_replace('?' . URI_SESSION . '=', '', $SID),
     
     'L_FILTER'        => $user->lang['filter'],
     'L_NAME'          => $user->lang['name'],

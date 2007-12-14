@@ -74,7 +74,7 @@ switch ( $mode )
                 'NAME'      => sanitize($pm->get_data($plugin_code, 'name')),
                 'CODE'      => sanitize($plugin_code),
                 'VERSION'   => ( !empty($version) ) ? sanitize($version) : '&nbsp;',
-                'U_ACTION'  => path_default('plugins.php', true) 
+                'U_ACTION'  => path_default('admin/plugins.php') 
                                . path_params('mode', (( $installed ) ? 'uninstall' : 'install'))
                                . path_params('code', $plugin_code),
                 'ACTION'    => ( $installed ) ? $user->lang['uninstall'] : $user->lang['install'],

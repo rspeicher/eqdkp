@@ -191,13 +191,13 @@ switch ( $action )
             'O_IP'          => $current_order['uri'][3],
             'O_RESULT'      => $current_order['uri'][4],
 
-            'U_LOGS'        => path_default('logs.php', true) . path_params(array('search' => $search_term, 'start' => $start)) .'&amp;',
-            'U_LOGS_SEARCH' => path_default('logs.php', true) . '&amp;',
+            'U_LOGS'        => path_default('admin/logs.php') . path_params(array('search' => $search_term, 'start' => $start)) .'&amp;',
+            'U_LOGS_SEARCH' => path_default('admin/logs.php') . '&amp;',
 
             'CURRENT_ORDER'       => $current_order['uri']['current'],
             'START'               => $start,
             'VIEWLOGS_FOOTCOUNT'  => sprintf($user->lang['viewlogs_footcount'], $total_logs, 100),
-            'VIEWLOGS_PAGINATION' => generate_pagination(path_default('logs.php', true) . path_params(array('search' => $search_term, URI_ORDER, $current_order['uri']['current'])),
+            'VIEWLOGS_PAGINATION' => generate_pagination(path_default('admin/logs.php') . path_params(array('search' => $search_term, URI_ORDER, $current_order['uri']['current'])),
                                      $total_logs, '100', $start)
         ));
         break;

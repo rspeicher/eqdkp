@@ -57,7 +57,7 @@ class EQdkp_Manage_Game extends EQdkp_Admin
 
         $game_id      = $in->get('new_game','');
         $current_game = $eqdkp->config['current_game'];
-        $redirect_url = path_default('manage_game.php', true);
+        $redirect_url = path_default('admin/manage_game.php');
 
         if (empty($game_id))
         {
@@ -113,7 +113,7 @@ class EQdkp_Manage_Game extends EQdkp_Admin
         // FIXME: These values *MUST* be discovered from the game language files. Perhaps another task for the game manager...?
         $tpl->assign_vars(array(
             // Form vars
-            'F_MANAGE_GAME' => path_default('manage_game.php', true),
+            'F_MANAGE_GAME' => path_default('admin/manage_game.php'),
             
             // Form values
             'CURRENT_GAME_ID'   => sanitize($eqdkp->config['current_game'], ENT),

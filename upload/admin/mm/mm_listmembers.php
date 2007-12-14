@@ -113,7 +113,7 @@ $tpl->assign_vars(array(
     'O_CURRENT'    => $current_order['uri'][4],
     'O_LASTRAID'   => $current_order['uri'][5],
     
-    'U_LIST_MEMBERS' => path_default('manage_members.php', true) . path_params('mode', 'list') . '&amp;',
+    'U_LIST_MEMBERS' => path_default('admin/manage_members.php') . path_params('mode', 'list') . '&amp;',
     
     'S_COMPARE' => false,
     'S_NOTMM'   => false,

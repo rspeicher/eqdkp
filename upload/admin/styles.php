@@ -327,11 +327,11 @@ class Manage_Styles extends EQdkp_Admin
         {
             $tpl->assign_block_vars('styles_row', array(
                 'ROW_CLASS'    => $eqdkp->switch_row_class(),
-                'U_EDIT_STYLE' => path_default('styles.php', true) . path_params('styleid', $row['style_id']),
+                'U_EDIT_STYLE' => path_default('admin/styles.php') . path_params('styleid', $row['style_id']),
                 'NAME'         => sanitize($row['style_name']),
                 'TEMPLATE'     => sanitize($row['template_path']),
                 'USERS'        => intval($row['users']),
-                'U_PREVIEW'    => path_default('styles.php', true) . path_params('style', $row['style_id'])
+                'U_PREVIEW'    => path_default('admin/styles.php') . path_params('style', $row['style_id'])
             ));
         }
         $db->free_result($result);
@@ -428,7 +428,7 @@ class Manage_Styles extends EQdkp_Admin
         
         $tpl->assign_vars(array(
             // Form vars
-            'F_ADD_STYLE' => path_default('styles.php', true),
+            'F_ADD_STYLE' => path_default('admin/styles.php'),
             'STYLE_ID'    => $this->url_id,
             
             // Form Values

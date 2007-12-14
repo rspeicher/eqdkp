@@ -84,10 +84,10 @@ class Manage_Members extends EQdkp_Admin
             'L_EDIT_RANKS'            => $user->lang['edit_ranks'],
             'L_TRANSFER_HISTORY'      => $user->lang['transfer_history'],
             
-            'U_ADD_MEMBER'       => path_default('manage_members.php', true) . path_params('mode', 'addmember'),
-            'U_LIST_MEMBERS'     => path_default('manage_members.php', true) . path_params('mode', 'list'),
-            'U_EDIT_RANKS'       => path_default('manage_members.php', true) . path_params('mode', 'ranks'),
-            'U_TRANSFER_HISTORY' => path_default('manage_members.php', true) . path_params('mode', 'transfer')
+            'U_ADD_MEMBER'       => path_default('admin/manage_members.php') . path_params('mode', 'addmember'),
+            'U_LIST_MEMBERS'     => path_default('admin/manage_members.php') . path_params('mode', 'list'),
+            'U_EDIT_RANKS'       => path_default('admin/manage_members.php') . path_params('mode', 'ranks'),
+            'U_TRANSFER_HISTORY' => path_default('admin/manage_members.php') . path_params('mode', 'transfer')
         ));
         
         $eqdkp->set_vars(array(

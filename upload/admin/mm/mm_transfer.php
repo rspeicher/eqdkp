@@ -227,7 +227,7 @@ class MM_Transfer extends EQdkp_Admin
         
         $tpl->assign_vars(array(
             // Form vars
-            'F_TRANSFER' => path_default('manage_members.php', true) . path_params('mode', 'transfer'),
+            'F_TRANSFER' => path_default('admin/manage_members.php') . path_params('mode', 'transfer'),
             
             // Language
             'L_TRANSFER_MEMBER_HISTORY'             => $user->lang['transfer_member_history'],

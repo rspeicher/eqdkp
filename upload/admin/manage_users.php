@@ -64,7 +64,7 @@ class Manage_Users extends EQdkp_Admin
             'confirm_text'  => $confirm_text,
             'uri_parameter' => 'users',
             'url_id'        => ( count($user_ids) > 0 ) ? implode(',', $user_ids) : $in->get('username'),
-            'script_name'   => path_default('manage_users.php', true)
+            'script_name'   => path_default('admin/manage_users.php')
         ));
 
         $this->assoc_buttons(array(
@@ -388,7 +388,7 @@ class Manage_Users extends EQdkp_Admin
                 $success_message .= sprintf($user->lang['admin_delete_user_success'], sanitize($username)) . '<br />';
             }
 
-            $link_list = array($user->lang['manage_users'] => path_default('manage_users.php', true));
+            $link_list = array($user->lang['manage_users'] => path_default('admin/manage_users.php'));
 
             $this->admin_die($success_message, $link_list);
         }

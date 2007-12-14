@@ -89,7 +89,7 @@ class MM_Ranks extends EQdkp_Admin
             }
         }
         
-        header('Location: ' . path_default('manage_members.php', true) . path_params('mode', 'ranks'));
+        header('Location: ' . path_default('admin/manage_members.php') . path_params('mode', 'ranks'));
     }
     
     // ---------------------------------------------------------
@@ -124,7 +124,7 @@ class MM_Ranks extends EQdkp_Admin
         
         $tpl->assign_vars(array(
             // Form vars
-            'F_EDIT_RANKS' => path_default('manage_members.php', true) . path_params('mode', 'ranks'),
+            'F_EDIT_RANKS' => path_default('admin/manage_members.php') . path_params('mode', 'ranks'),
             
             // Form values
             'ROW_CLASS' => $eqdkp->switch_row_class(),

@@ -39,26 +39,18 @@ define('URI_SESSION',    's');
  * @param bool $admin Path is located in the admin folder
  * @return string
  */
-function path_default($path, $admin = false)
+function path_default($path, $admin = null)
 {
-    global $eqdkp_root_path, $SID;
+    global $eqdkp_root_path;
     
-    if ( !defined('IN_ADMIN') && $admin === true )
+    if ( !is_null($admin) )
     {
-        // Path is an admin page but we're not already in the admin folder, prefix it to the path
-        $path = $eqdkp_root_path . 'admin/' . $path;
-    }
-    elseif ( defined('IN_ADMIN') && $admin === false )
-    {
-        // We're in the admin folder but linking to a non-admin path, prefix the root traversal to the path
-        $path = $eqdkp_root_path . $path;
-    }
-    elseif ( defined('IN_INSTALL') )
-    {
-        $path = $eqdkp_root_path . $path;
+        trigger_error("Second parameter to path_default() is deprecated.", E_USER_NOTICE);
     }
     
-    return $path . '?';
+    $path = $eqdkp_root_path . $path;
+    
+    return $path . '?s=';
 }
 
 /**
@@ -93,12 +85,12 @@ function path_params($param_name, $param_value = '')
 
 function adjustment_path()
 {
-    return path_default('listadj.php', true);
+    return path_default('admin/listadj.php');
 }
 
 function iadjustment_path()
 {
-    return path_default('listadj.php', true) . path_params(URI_PAGE, 'individual');
+    return path_default('admin/listadj.php') . path_params(URI_PAGE, 'individual');
 }
 
 function edit_adjustment_path($id = null)
@@ -106,10 +98,10 @@ function edit_adjustment_path($id = null)
     if ( !is_null($id) )
     {
         $id = intval($id);
-        return path_default('addadj.php', true) . path_params(URI_ADJUSTMENT, $id);
+        return path_default('admin/addadj.php') . path_params(URI_ADJUSTMENT, $id);
     }
     
-    return path_default('addadj.php', true);
+    return path_default('admin/addadj.php');
 }
 
 function edit_iadjustment_path($id = null)
@@ -117,10 +109,10 @@ function edit_iadjustment_path($id = null)
     if ( !is_null($id) )
     {
         $id = intval($id);
-        return path_default('addiadj.php', true) . path_params(URI_ADJUSTMENT, $id);
+        return path_default('admin/addiadj.php') . path_params(URI_ADJUSTMENT, $id);
     }
     
-    return path_default('addiadj.php', true);
+    return path_default('admin/addiadj.php');
 }
 
 ## ############################################################################
@@ -132,10 +124,10 @@ function edit_event_path($id = null)
     if ( !is_null($id) )
     {
         $id = intval($id);
-        return path_default('addevent.php', true) . path_params(URI_EVENT, $id);
+        return path_default('admin/addevent.php') . path_params(URI_EVENT, $id);
     }
     
-    return path_default('addevent.php', true);
+    return path_default('admin/addevent.php');
 }
 
 /**
@@ -152,7 +144,8 @@ function event_path($id = null)
         return path_default('viewevent.php') . path_params(URI_EVENT, $id);
     }
     
-    return path_default('listevents.php', defined('IN_ADMIN'));
+    $admin = ( defined('IN_ADMIN') ) ? 'admin/' : '';
+    return path_default("{$admin}listevents.php");
 }
 
 ## ############################################################################
@@ -164,10 +157,10 @@ function edit_item_path($id = null)
     if ( !is_null($id) && $id > 0 )
     {
         $id = intval($id);
-        return path_default('additem.php', true) . path_params(URI_ITEM, $id);
+        return path_default('admin/additem.php') . path_params(URI_ITEM, $id);
     }
     
-    return path_default('additem.php', true);
+    return path_default('admin/additem.php');
 }
 
 /**
@@ -184,7 +177,8 @@ function item_path($id = null)
         return path_default('viewitem.php') . path_params(URI_ITEM, $id);
     }
     
-    return path_default('listitems.php', defined('IN_ADMIN'));
+    $admin = ( defined('IN_ADMIN') ) ? 'admin/' : '';
+    return path_default("{$admin}listitems.php");
 }
 
 ## ############################################################################
@@ -196,10 +190,10 @@ function log_path($id = null)
     if ( !is_null($id) )
     {
         $id = intval($id);
-        return path_default('logs.php', true) . path_params(URI_LOG, $id);
+        return path_default('admin/logs.php') . path_params(URI_LOG, $id);
     }
     
-    return path_default('logs.php', true);
+    return path_default('admin/logs.php');
 }
 
 ## ############################################################################
@@ -217,10 +211,10 @@ function edit_member_path($id = null)
     if ( !is_null($id) )
     {
         $id = sanitize($id, ENT);
-        return path_default('manage_members.php', true) . path_params(array('mode' => 'addmember', URI_NAME => $id));
+        return path_default('admin/manage_members.php') . path_params(array('mode' => 'addmember', URI_NAME => $id));
     }
     
-    return path_default('manage_members.php', true) . path_params('mode', 'addmember');
+    return path_default('admin/manage_members.php') . path_params('mode', 'addmember');
 }
 
 /**
@@ -249,10 +243,10 @@ function edit_news_path($id = null)
     if ( !is_null($id) )
     {
         $id = intval($id);
-        return path_default('addnews.php', true) . path_params(URI_NEWS, $id);
+        return path_default('admin/addnews.php') . path_params(URI_NEWS, $id);
     }
     
-    return path_default('addnews.php', true);
+    return path_default('admin/addnews.php');
 }
 
 /**
@@ -265,10 +259,10 @@ function news_path($admin = false)
 {
     if ( $admin )
     {
-        return path_default('listnews.php', true);
+        return path_default('admin/listnews.php');
     }
     
-    return path_default('viewnews.php', false);
+    return path_default('viewnews.php');
 }
 
 ## ############################################################################
@@ -280,10 +274,10 @@ function edit_raid_path($id = null)
     if ( !is_null($id) )
     {
         $id = intval($id);
-        return path_default('addraid.php', true) . path_params(URI_RAID, $id);
+        return path_default('admin/addraid.php') . path_params(URI_RAID, $id);
     }
     
-    return path_default('addraid.php', true);
+    return path_default('admin/addraid.php');
 }
 
 /**
@@ -300,7 +294,8 @@ function raid_path($id = null)
         return path_default('viewraid.php') . path_params(URI_RAID, $id);
     }
     
-    return path_default('listraids.php', defined('IN_ADMIN'));
+    $admin = ( defined('IN_ADMIN') ) ? 'admin/' : '';
+    return path_default("{$admin}listraids.php");
 }
 
 ## ############################################################################
@@ -318,8 +313,8 @@ function edit_user_path($id = null)
     if ( !is_null($id) )
     {
         $id = sanitize($id, ENT);
-        return path_default('manage_users.php', true) . path_params(URI_NAME, $id);
+        return path_default('admin/manage_users.php') . path_params(URI_NAME, $id);
     }
     
-    return path_default('manage_users.php', true);
+    return path_default('admin/manage_users.php');
 }

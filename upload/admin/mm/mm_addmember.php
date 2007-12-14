@@ -218,7 +218,7 @@ class MM_Addmember extends EQdkp_Admin
         $success_message = sprintf($user->lang['admin_add_member_success'], sanitize($member_name));
         $link_list = array(
             $user->lang['add_member']           => edit_member_path(),
-            $user->lang['list_edit_del_member'] => path_default('manage_members.php', true) . path_params('mode', 'list')
+            $user->lang['list_edit_del_member'] => path_default('admin/manage_members.php') . path_params('mode', 'list')
         );
         $this->admin_die($success_message, $link_list);
     }

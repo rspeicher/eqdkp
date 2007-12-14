@@ -26,7 +26,7 @@ if ( isset($eqdkp->config['start_page']) )
     {
         $start_page = basename(preg_replace('#\?' . URI_SESSION . '=([A-Za-z0-9]{32,40})?#', $SID, $start_page));
     }
-    redirect(preg_replace('/^[\/\.]+([\w\/\.\-]+)$/', '\1', $start_page));
+    redirect($start_page);
 }
 else
 {

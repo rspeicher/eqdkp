@@ -145,6 +145,7 @@ if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
         "ALTER TABLE __users CHANGE `user_newpassword` `user_newpassword` VARCHAR( 40 ) NULL DEFAULT NULL",
         "ALTER TABLE __users ADD `user_salt` VARCHAR( 40 ) NOT NULL AFTER `user_password`",
         "ALTER TABLE __sessions DROP INDEX `session_current`",
+        "ALTER TABLE __sessions DROP `session_last_visit`",
     ));
     
     // Generate an installation-specific unique salt value

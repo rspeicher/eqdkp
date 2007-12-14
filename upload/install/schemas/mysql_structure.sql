@@ -58,7 +58,6 @@ DROP TABLE IF EXISTS eqdkp_sessions;
 CREATE TABLE `eqdkp_sessions` (
   `session_id` varchar(32) NOT NULL,
   `user_id` smallint(5) NOT NULL default '-1',
-  `session_last_visit` int(11) NOT NULL default '0',
   `session_start` int(11) NOT NULL,
   `session_current` int(11) NOT NULL,
   `session_page` varchar(100) NOT NULL default '0',

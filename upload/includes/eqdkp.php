@@ -536,8 +536,8 @@ class EQdkp_Admin
             'log_date'      => time(),
             'log_type'      => NULL,
             'log_action'    => NULL,
-            'log_ipaddress' => $user->data['session_ip'],
-            'log_sid'       => $user->data['session_id'],
+            'log_ipaddress' => ( isset($user->data['session_ip']) ) ? $user->data['session_ip'] : $user->ip,
+            'log_sid'       => ( isset($user->data['session_id']) ) ? $user->data['session_id'] : null,
             'log_result'    => '{L_SUCCESS}',
             'admin_id'      => $user->data['user_id']
         );

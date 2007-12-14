@@ -118,6 +118,9 @@ $eqdkp = new EQdkp($eqdkp_root_path);
 $cur_locale = $eqdkp->config['default_locale'];
 setlocale(LC_ALL, $cur_locale);
 
+// Ensure that, if we're not upgrading, the install folder is gone or unreadable
+install_check();
+
 // TODO: Remove this, it's for legacy only
 // $SID = '?s=';
 
@@ -125,18 +128,14 @@ setlocale(LC_ALL, $cur_locale);
 $user->start();
 $user->setup($in->get('style', 0));
 
-
 // Initialize the Game Manager
 $gm = new Game_Manager();
 
 // Start plugin management
 $pm = new EQdkp_Plugin_Manager(true, DEBUG);
 
-// Ensure that, if we're not upgrading, the install folder is gone or unreadable
-install_check();
-
 // Populate the admin menu if we're in an admin page, they have admin permissions, and $gen_simple_header is false
-if ( (defined('IN_ADMIN')) && (IN_ADMIN === true) )
+if ( defined('IN_ADMIN') )
 {
     if ( $user->check_auth('a_', false) )
     {
@@ -167,22 +166,6 @@ function install_check()
     
     if ( file_exists($path . '/install/') && is_readable($path . '/install/') )
     {
-		if (!$user->check_auth('a_'))
-		{
-			// The site should not stop working in the event of the install folder still being there. At the very least we need a message page.
-			// Also, let's not tell the average joe that the install directory is still there...
-	        message_die($user->lang['EQDKP_DISABLED_EXPLAIN'], $user->lang['EQDKP_DISABLED']);
-		}
-		else 
-		{
-			// FIXME: I don't like this way. I want to put this message in the admin panel somewhere as well.
-			// If the admin is in the admin panel, put a (nice) warning here saying EQdkp is 'disabled' for admin users?
-			$install_dir = sprintf("{$path}%sinstall%s", DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR);
-			
-			if (!defined('IN_ADMIN'))
-			{
-				message_die(sprintf($user->lang['REMOVE_INSTALL_FOLDER_EXPLAIN'], $install_dir), $user->lang['EQDKP_DISABLED']);
-			}
-		}
+        die("EQdkp cannot run while the <b>/install/</b> folder is readable. Please delete it or make it unreadable to continue.");
     }
 }

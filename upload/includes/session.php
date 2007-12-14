@@ -117,7 +117,7 @@ class Session
      */
     function _user_restore()
     {
-        global $db, $eqdkp, $in;
+        global $db, $in;
         
         $cookie_user = $in->get($this->_cookie_name('cuser'), ANONYMOUS);
         $cookie_auth = $in->get($this->_cookie_name('cauth'));
@@ -138,21 +138,42 @@ class Session
             {
                 $this->data = array_merge($this->data, $row);
             }
+            else
+            {
+                // Rare case where cookie data existed, but we didn't get valid
+                // values, so default the user settings
+                $this->data = $this->_user_defaults();
+            }
         }
         else
         {
             // User doesn't exist, populate data with default values
-            $this->data = array_merge($this->data, array(
-                'user_id'     => ANONYMOUS,
-                'user_alimit' => $eqdkp->config['default_alimit'],
-                'user_elimit' => $eqdkp->config['default_elimit'],
-                'user_ilimit' => $eqdkp->config['default_ilimit'],
-                'user_nlimit' => $eqdkp->config['default_nlimit'],
-                'user_rlimit' => $eqdkp->config['default_rlimit'],
-                'user_style'  => $eqdkp->config['default_style'],
-                'user_lang'   => $eqdkp->config['default_lang'],
-            ));
+            $this->data = $this->_user_defaults();
         }
+    }
+    
+    /**
+     * Return an array of default user data, to be merged with {@link data}
+     *
+     * @return array
+     * @access private
+     */
+    function _user_defaults()
+    {
+        global $eqdkp;
+        
+        $retval = array(
+            'user_id'     => ANONYMOUS,
+            'user_alimit' => $eqdkp->config['default_alimit'],
+            'user_elimit' => $eqdkp->config['default_elimit'],
+            'user_ilimit' => $eqdkp->config['default_ilimit'],
+            'user_nlimit' => $eqdkp->config['default_nlimit'],
+            'user_rlimit' => $eqdkp->config['default_rlimit'],
+            'user_style'  => $eqdkp->config['default_style'],
+            'user_lang'   => $eqdkp->config['default_lang'],
+        );
+        
+        return $retval;
     }
     
     /**

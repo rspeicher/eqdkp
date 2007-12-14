@@ -21,7 +21,11 @@ require_once($eqdkp_root_path . 'common.php');
 // Short and sweet
 if ( isset($eqdkp->config['start_page']) )
 {
-    $start_page = basename(preg_replace('#\?' . URI_SESSION . '=([A-Za-z0-9]{32})?#', $SID, $eqdkp->config['start_page']));
+    $start_page = $eqdkp->config['start_page'];
+    if ( isset($SID) )
+    {
+        $start_page = basename(preg_replace('#\?' . URI_SESSION . '=([A-Za-z0-9]{32,40})?#', $SID, $start_page));
+    }
     redirect(preg_replace('/^[\/\.]+([\w\/\.\-]+)$/', '\1', $start_page));
 }
 else

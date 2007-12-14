@@ -119,7 +119,7 @@ class Register extends EQdkp_Admin
             $this->fv->is_email_address('user_email', $user->lang['fv_invalid_email']);
             
             $this->fv->is_filled(array(
-                'user_name'      => $user->lang['fv_required_user'],
+                'username'       => $user->lang['fv_required_user'],
                 'user_email'     => $user->lang['fv_required_email'],
                 'user_password1' => $user->lang['fv_required_password'],
                 'user_password2' => ''
@@ -193,7 +193,7 @@ class Register extends EQdkp_Admin
             $db->query("INSERT INTO __auth_users :params", array(
                 'user_id'      => $user_id,
                 'auth_id'      => intval($row['auth_id']),
-                'auth_default' => $row['auth_default']
+                'auth_setting' => $row['auth_default']
             ));
         }
         

@@ -30,7 +30,7 @@ $current_order = switch_order($sort_order);
 $log_id = $in->get(URI_LOG, 0);
 $action = ( $log_id ) ? 'view' : 'list';
 
-$user->check_auth('a_logs_view');
+$user->check_auth('a_logs_view', true);
 
 //
 // Processing

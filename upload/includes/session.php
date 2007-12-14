@@ -448,7 +448,7 @@ class Session
      * 
      * <code>
      * // Check if the current user has permission to add a raid; die with an error message if not
-     * $user->check_auth('a_raid_add');
+     * $user->check_auth('a_raid_add', true);
      * 
      * // Check if user 2 has any administrative raid permissions; return boolean
      * $result = $user->check_auth('a_raid_', false, 2);

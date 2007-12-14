@@ -18,7 +18,7 @@ define('EQDKP_INC', true);
 $eqdkp_root_path = './';
 require_once($eqdkp_root_path . 'common.php');
 
-$user->check_auth('u_raid_list');
+$user->check_auth('u_raid_list', true);
 
 //
 // Build the from/to GET vars to pass back to the script

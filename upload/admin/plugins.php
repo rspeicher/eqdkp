@@ -19,7 +19,7 @@ define('IN_ADMIN', true);
 $eqdkp_root_path = './../';
 require_once($eqdkp_root_path . 'common.php');
 
-$user->check_auth('a_plugins_man');
+$user->check_auth('a_plugins_man', true);
 
 $mode = $in->get('mode', 'list');
 $code = $in->get('code');

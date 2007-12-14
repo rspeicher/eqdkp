@@ -18,7 +18,7 @@ define('EQDKP_INC', true);
 $eqdkp_root_path = './';
 require_once($eqdkp_root_path . 'common.php');
 
-$user->check_auth('u_member_list');
+$user->check_auth('u_member_list', true);
 
 $sort_order = array(
     0 => array('member_name', 'member_name desc'),

@@ -281,7 +281,7 @@ if ( !defined('IN_ADMIN') )
     $eqdkp_root_path = './../';
     require_once($eqdkp_root_path . 'common.php');
 
-    $user->check_auth('a_');
+    $user->check_auth('a_', true);
 
     $days = ((time() - $eqdkp->config['eqdkp_start']) / 86400);
 

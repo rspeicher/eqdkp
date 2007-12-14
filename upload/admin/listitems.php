@@ -19,7 +19,7 @@ define('IN_ADMIN', true);
 $eqdkp_root_path = './../';
 require_once($eqdkp_root_path . 'common.php');
 
-$user->check_auth('a_item_');
+$user->check_auth('a_item_', true);
 
 $sort_order = array(
     0 => array('item_date desc', 'item_date'),

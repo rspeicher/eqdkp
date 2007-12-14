@@ -34,7 +34,7 @@ $current_order = switch_order($sort_order);
 //
 if ( $in->get(URI_PAGE, 'group') == 'group' )
 {
-    $user->check_auth('a_groupadj_');
+    $user->check_auth('a_groupadj_', true);
     
     $u_list_adjustments = adjustment_path() . '&amp;';
     
@@ -61,7 +61,7 @@ if ( $in->get(URI_PAGE, 'group') == 'group' )
 //
 elseif ( $in->get(URI_PAGE) == 'individual' )
 {
-    $user->check_auth('a_indivadj_');
+    $user->check_auth('a_indivadj_', true);
     
     $u_list_adjustments = iadjustment_path() . '&amp;';
     

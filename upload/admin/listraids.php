@@ -19,7 +19,7 @@ define('IN_ADMIN', true);
 $eqdkp_root_path = './../';
 require_once($eqdkp_root_path . 'common.php');
 
-$user->check_auth('a_raid_');
+$user->check_auth('a_raid_', true);
 
 $sort_order = array(
     0 => array('raid_date desc', 'raid_date'),

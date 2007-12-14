@@ -608,17 +608,21 @@ function redirect($url, $return = false)
     exit;
 }
 
-
 /**
-* Meta refresh assignment
-*/
+ * Perform a clean redirect via meta refresh after a defined delay
+ * 
+ * @param string $time Time delay
+ * @param string $url URL to redirect to
+ * @return void
+ */
 function meta_refresh($time, $url)
 {
     global $tpl;
 
-//    $url = redirect($url, true);
+    // $url = redirect($url, true);
 
     // For XHTML compatibility we change back & to &amp;
+    // FIXME: ^ Where?
     $tpl->assign_vars(array(
         'META' => '<meta http-equiv="refresh" content="' . $time . ';url=' . $url . '" />'
     ));

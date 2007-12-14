@@ -85,7 +85,7 @@ class dbal_mysql extends dbal
      */
     function sql_query($query, $params = false)
     {
-        global $table_prefix, $debug;
+        global $table_prefix;
         
         if ( $query != '' )
         {
@@ -112,7 +112,7 @@ class dbal_mysql extends dbal
 
                 if ( DEBUG )
                 {
-                    return $message;
+                    echo $message;
                 }
                 // FIXME: I don't think this is a good idea. If there's an error and it's not debugging, then it should be a hard error.
                 return false;

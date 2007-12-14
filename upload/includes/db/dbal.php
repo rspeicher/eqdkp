@@ -175,17 +175,12 @@ class dbal
     {
         $error = $this->_sql_error();
         
-        if ($this->error_die)
-        {
-            $message  = 'SQL ERROR<br /><br />';
-            $message .= 'Query: '   . (($sql) ? $sql : 'null') . '<br />';
-            $message .= 'Message: ' . $error['message'] . '<br />';
-            $message .= 'Code: '    . $error['code'] . '<br />';
-
-            die($message);
-        }
+        $message  = 'SQL ERROR<br /><br />';
+        $message .= 'Query: '   . (($sql) ? $sql : 'null') . '<br />';
+        $message .= 'Message: ' . $error['message'] . '<br />';
+        $message .= 'Code: '    . $error['code'] . '<br />';
         
-        return $error;
+        return ( $this->error_die ) ? die($message) : $message;
     }
 
 

@@ -18,7 +18,7 @@ define('EQDKP_INC', true);
 $eqdkp_root_path = './';
 require_once($eqdkp_root_path . 'common.php');
 
-$user->check_auth('u_member_view', true);
+$user->check_auth('u_member_view');
 
 if ( $in->get(URI_NAME) != '' )
 {

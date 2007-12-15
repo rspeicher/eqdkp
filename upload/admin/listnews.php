@@ -19,7 +19,7 @@ define('IN_ADMIN', true);
 $eqdkp_root_path = './../';
 require_once($eqdkp_root_path . 'common.php');
 
-$user->check_auth('a_news_', true);
+$user->check_auth('a_news_');
 
 $sort_order = array(
     0 => array('news_date desc', 'news_date'),

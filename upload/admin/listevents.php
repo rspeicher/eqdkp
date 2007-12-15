@@ -19,7 +19,7 @@ define('IN_ADMIN', true);
 $eqdkp_root_path = './../';
 require_once($eqdkp_root_path . 'common.php');
 
-$user->check_auth('a_event_', true);
+$user->check_auth('a_event_');
 
 $sort_order = array(
     0 => array('event_name', 'event_name desc'),

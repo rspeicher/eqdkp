@@ -601,7 +601,7 @@ class EQdkp_Admin
                     $processed = true;
                     if ( isset($this->buttons['delete']['check']) )
                     {
-                        $user->check_auth($this->buttons['delete']['check'], true);
+                        $user->check_auth($this->buttons['delete']['check']);
                     }
                     $this->process_confirm();
                 }
@@ -625,7 +625,7 @@ class EQdkp_Admin
                         $processed = true;
                         if ( isset($button['check']) )
                         {
-                            $user->check_auth($button['check'], true);
+                            $user->check_auth($button['check']);
                         }
                         $this->$button['process']();
                     }
@@ -650,7 +650,7 @@ class EQdkp_Admin
                         $processed = true;
                         if ( isset($param['check']) )
                         {
-                            $user->check_auth($param['check'], true);
+                            $user->check_auth($param['check']);
                         }
                         $this->$param['process']();
                     }
@@ -661,7 +661,7 @@ class EQdkp_Admin
                     $processed = true;
                     if ( isset($param['check']) )
                     {
-                        $user->check_auth($param['check'], true);
+                        $user->check_auth($param['check']);
                     }
                     $this->$param['process']();
                 }
@@ -675,7 +675,7 @@ class EQdkp_Admin
             {   
                 if ( isset($this->buttons['form']['check']) )
                 {
-                    $user->check_auth($this->buttons['form']['check'], true);
+                    $user->check_auth($this->buttons['form']['check']);
                 }
                 $process = $this->buttons['form']['process'];
                 $this->$process();

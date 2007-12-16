@@ -56,10 +56,10 @@ $lang = array_merge($lang, array(
     'viewmember_title'    => "History for %1\$s",
     'viewraid_title'      => 'Raid Summary',
     
-	'EQDKP_DISABLED'          => 'EQDKP is currently disabled',
-	'EQDKP_DISABLED_EXPLAIN'  => 'EQdkp is currently disabled. Please visit again at a later time.',
-	'REMOVE_INSTALL_FOLDER_EXPLAIN' => 'The EQDKP installation folder (%s) is still publicly accessible. Please remove the folder, or make the directory unreadable.',
-	
+    'EQDKP_DISABLED'          => 'EQDKP is currently disabled',
+    'EQDKP_DISABLED_EXPLAIN'  => 'EQdkp is currently disabled. Please visit again at a later time.',
+    'REMOVE_INSTALL_FOLDER_EXPLAIN' => 'The EQDKP installation folder (%s) is still publicly accessible. Please remove the folder, or make the directory unreadable.',
+    
     // Main Menu
     'menu_admin_panel' => 'Administration Panel',
     'menu_events'      => 'Events',

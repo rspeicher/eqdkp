@@ -356,11 +356,16 @@ class Session
             : $eqdkp->config['default_lang'];
         $lang_path = $eqdkp_root_path . 'language/' . $lang_name . '/';
 
+        // Include the common language strings
         require_once("{$lang_path}lang_main.php");
+        
+        // Administrative language strings
         if ( defined('IN_ADMIN') )
         {
             require_once("{$lang_path}lang_admin.php");
         }
+        
+        // TODO: Game language strings ?
         
         $this->lang = $lang;
         unset($lang);

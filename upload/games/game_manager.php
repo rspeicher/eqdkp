@@ -36,14 +36,61 @@ class Game_Manager
     var $races        = array();
     
     
-    function Game_Manager()
+    function Game_Manager($game_id = false)
     {
         $this->games        = array();
-        $this->current_game = '';
 
         $this->armor_types  = array();
         $this->classes      = array();
         $this->races        = array();
+
+        $this->current_game = '';
+
+        if ($game_id !== false)
+        {
+            if (false === set_current_game($game_id))
+            {
+                $this->current_game = '';
+            }
+        }
+    }
+    
+    /**
+     * Add the language file for the current (or specified) game
+     */
+    function add_lang($game_id = false)
+    {
+        global $eqdkp, $eqdkp_root_path, $user, $lang;
+        
+        if (empty($this->current_game) && $game_id === false)
+        {
+            return;
+        }
+        
+        if ($game_id === false)
+        {
+            $game_id = $this->current_game;
+        }
+        
+        $path   = $eqdkp_root_path . 'games/';
+        $handle = @opendir($path);
+
+        if (!$handle)
+        {
+            trigger_error("Unable to access the <b>games</b> directory", E_USER_WARNING);
+        }
+
+        $lang_file = $path . "{$game_id}/{$user->data['user_lang']}/lang_game.php";
+
+        if (!@include_once($lang_file))
+        {
+            return false;
+        }
+        
+		// Append the language strings to the user's
+		$user->lang = array_merge($user->lang, $lang);
+		
+        return true;
     }
     
     /**

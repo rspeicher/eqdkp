@@ -83,16 +83,32 @@ function path_params($param_name, $param_value = '')
 ## Adjustment Paths
 ## ############################################################################
 
+/**
+ * Return the appropriate path to a list of adjustments
+ *
+ * @return string
+ */
 function adjustment_path()
 {
     return path_default('admin/listadj.php');
 }
 
+/**
+ * Return the appropriate path to a list of individual adjustments
+ *
+ * @return string
+ */
 function iadjustment_path()
 {
     return path_default('admin/listadj.php') . path_params(URI_PAGE, 'individual');
 }
 
+/**
+ * Return the appropriate path to add or edit an adjustment
+ *
+ * @param int $id If present, returns the path to edit a specific adjustment
+ * @return string
+ */
 function edit_adjustment_path($id = null)
 {
     if ( !is_null($id) )
@@ -104,6 +120,12 @@ function edit_adjustment_path($id = null)
     return path_default('admin/addadj.php');
 }
 
+/**
+ * Return the appropriate path to add or edit an individual adjustment
+ *
+ * @param int $id If present, returns the path to edit a specific individual adjustment
+ * @return string
+ */
 function edit_iadjustment_path($id = null)
 {
     if ( !is_null($id) )
@@ -119,6 +141,12 @@ function edit_iadjustment_path($id = null)
 ## Event Paths
 ## ############################################################################
 
+/**
+ * Return the appropriate path to add or edit an event
+ *
+ * @param int $id If present, returns the path to edit a specific event
+ * @return string
+ */
 function edit_event_path($id = null)
 {
     if ( !is_null($id) )
@@ -131,7 +159,7 @@ function edit_event_path($id = null)
 }
 
 /**
- * Return the appropriate path to an event or list of events.
+ * Return the appropriate path to an event or list of events
  *
  * @param int $id If present, returns the path to a specific event
  * @return string
@@ -152,6 +180,12 @@ function event_path($id = null)
 ## Item Paths
 ## ############################################################################
 
+/**
+ * Return the appropriate path to add or edit an item
+ *
+ * @param int $id If present, returns the path to edit a specific item
+ * @return string
+ */
 function edit_item_path($id = null)
 {
     if ( !is_null($id) && $id > 0 )
@@ -185,6 +219,12 @@ function item_path($id = null)
 ## Log Paths
 ## ############################################################################
 
+/**
+ * Return the appropriate path to a log or list of logs
+ *
+ * @param int $id If present, returns the path to a specific log
+ * @return string
+ */
 function log_path($id = null)
 {
     if ( !is_null($id) )
@@ -201,7 +241,7 @@ function log_path($id = null)
 ## ############################################################################
 
 /**
- * Return the appropriate path to add or edit a member.
+ * Return the appropriate path to add or edit a member
  *
  * @param string $id If present, returns the path to edit a specific member
  * @return string
@@ -218,7 +258,7 @@ function edit_member_path($id = null)
 }
 
 /**
- * Return the appropriate path to a member or list of members.
+ * Return the appropriate path to a member or list of members
  *
  * @param string $id If present, returns the path to a specific member
  * @return string
@@ -238,6 +278,12 @@ function member_path($id = null)
 ## News Paths
 ## ############################################################################
 
+/**
+ * Return the appropriate path to add or edit a news entry
+ *
+ * @param int $id If present, returns the path to a specific news entry
+ * @return string
+ */
 function edit_news_path($id = null)
 {
     if ( !is_null($id) )
@@ -250,7 +296,7 @@ function edit_news_path($id = null)
 }
 
 /**
- * Return the appropriate path to a list of news items.
+ * Return the appropriate path to a list of news items
  *
  * @param bool $admin If true, returns the path to a list of news entries for editing
  * @return string
@@ -269,6 +315,12 @@ function news_path($admin = false)
 ## Raid Paths
 ## ############################################################################
 
+/**
+ * Return the appropriate path to add or edit a raid
+ *
+ * @param int $id If present, returns the path to a specific raid
+ * @return string
+ */
 function edit_raid_path($id = null)
 {
     if ( !is_null($id) )
@@ -281,7 +333,7 @@ function edit_raid_path($id = null)
 }
 
 /**
- * Return the appropriate path to a raid or list of raids.
+ * Return the appropriate path to a raid or list of raids
  *
  * @param int $id If present, returns the path to a specific raid
  * @return string
@@ -303,7 +355,7 @@ function raid_path($id = null)
 ## ############################################################################
 
 /**
- * Return the appropriate path to add or edit a user.
+ * Return the appropriate path to add or edit a user
  *
  * @param string $id If present, returns the path to edit a specific user
  * @return string

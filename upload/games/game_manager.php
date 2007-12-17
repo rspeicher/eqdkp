@@ -414,5 +414,79 @@ class Game_Manager
         }
     }
     
+	/** 
+	 * Parse a game log entry
+	 * 
+     * @param     string     $log_entry        The string log entry to parse
+	 * @param     string     $parse_string     An optional format for the parsing string
+     * @return    array                        The parsed data for the log entry.
+	 * 
+	 * @note This function requires that the current game be set.
+	 * 
+	 * The data is formatted as follows:
+	 * array(
+	 *    'name'    => (string)       
+	 *    'level'   => (int)          
+	 *    'race'    => (multi-string) (optional) 
+	 *    'class'   => (multi-string) 
+	 *    'guild'   => (multi-string) (optional) 
+	 *    'zone'    => (optional)
+	 * )
+	 *
+	 * If the data is not present in the log entry, the index's value will be set to false.
+	 */
+	 function parse_log_entry($log_entry, $parse_string = false)
+	 {
+		global $db, $eqdkp;
+		
+	 	// TODO: Set current game? If we do, then it kind of breaks the standard method of instantiating and using the class.
+	 	
+		$log_data = array(
+			'name'   => false,
+			'level'  => false,
+			'race'   => false,
+			'class'  => false,
+			'guild'  => false,
+			'zone'   => false,
+		);
+		
+		$raw_log_entry = $log_entry;
+		
+		// Get the parse string
+		if ($parse_string === false)
+		{
+			// Check the current game is set, and there is data for it
+			if (!empty($this->current_game) && isset($this->games[$this->current_game]))
+			{
+				// Check if there are parsing string(s) set for the game
+				if (($this->games[$this->current_game]['available']['parsing'] == true) && (count($this->games[$this->current_game]['data']['parsing']) > 0))
+				{
+					$parse_string = $this->games[$this->current_game]['data']['parsing'][0];
+				}
+			}
+		}
+		
+		// If we have a valid parse string, let us begin
+		if ($parse_string !== false)
+		{
+			// First thing's first - let's escape anything that isn't a special tag.
+			$parse_string = mysql_escape_string($parse_string);
+			$parse_string = preg_replace('#([<>\[\]\(\)-:;\'\"])#', '\\\\\1', $parse_string);
+			
+			// NOTE: Parts of the parse string enclosed in question Mark characters denotes optional components
+			$parse_string = preg_replace('#\?(.*?)\?#', '(?:\1)?', $parse_string);
+			
+			// Quick test
+			$parse_string = preg_replace('#__.*?__#', '(.*)', $parse_string);
+			$parse_string = '#' . $parse_string . '#';
+			echo '<pre>' . $parse_string . '</pre>';
+
+			$results = array();
+			var_dump(preg_match($parse_string, $log_entry, $results));
+			var_dump($results);
+		}
+		
+		return $log_data;
+	 }
 }
 ?>

@@ -35,7 +35,7 @@ $game_info = array(
 		'races'       => true,
 		
 		'professions' => false,
-		'parsing'     => false,
+		'parsing'     => true,
 	),
 );
 
@@ -190,6 +190,10 @@ if (!isset($get_gameinfo))
 				'faction'  => 'horde',
 				'classes'  => array('priest','rogue','warrior','mage','warlock')
 			),
+		),
+		
+		'parsing'      => array(
+			'[__name__]? <__guild__>?: __level__ __race__ __class__',
 		),
 	);
 }

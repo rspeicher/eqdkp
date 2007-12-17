@@ -32,6 +32,7 @@ INSERT INTO eqdkp_config (config_name, config_value) VALUES ('admin_email', '');
 INSERT INTO eqdkp_config (config_name, config_value) VALUES ('account_activation', '1');
 INSERT INTO eqdkp_config (config_name, config_value) VALUES ('eqdkp_start', UNIX_TIMESTAMP());
 INSERT INTO eqdkp_config (config_name, config_value) VALUES ('default_locale', 'en_US');
+INSERT INTO eqdkp_config (config_name, config_value) VALUES ('eqdkp_version', '1.4.0 B1');
 
 ### Permission Options
 ### A = Admin / U = User

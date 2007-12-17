@@ -21,7 +21,7 @@ if ( !defined('EQDKP_INC') )
 }
 
 // FIXME: This needs to change as we decide our beta-testing plan
-$VERSION = '1.4.0';
+$VERSION = '1.4.0 B1';
 
 if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
 {
@@ -31,7 +31,7 @@ if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
     Upgrade::assert_deleted(array(
         '/ChangeLog',
         // '/COPYING',
-        // '/INSTALL', // Matches /install/ folder, bleh
+        '/INSTALL',
         // '/LICENSE',
         '/README',
         '/install.php',

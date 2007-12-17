@@ -283,9 +283,10 @@ class Upgrade extends EQdkp_Admin
         $to_delete = array();
         foreach ( $files as $file )
         {
-            $path = $eqdkp_root_path . preg_replace('/^\//', '', $file);
+            $path       = $eqdkp_root_path . preg_replace('/^\//', '', $file);
+            $type_check = ( preg_match('/\/$/', $file) ) ? 'is_dir' : 'is_file';
             
-            if ( file_exists($path) )
+            if ( file_exists($path) && $type_check($path) )
             {
                 $to_delete[] = $file;
             }

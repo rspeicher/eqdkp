@@ -44,7 +44,6 @@ $show_all = ( $in->get('show') == 'all' ) ? true : false;
 // No idea if this massive query will work outside MySQL...if not, we'll have
 // to use a switch and get the values another way
 $time = time();
-// TODO: Revise massive query?
 $sql = "SELECT member_name, member_earned, member_spent, member_adjustment,
             (member_earned-member_spent+member_adjustment) AS member_current,
             member_firstraid, member_lastraid, member_raidcount,
@@ -56,7 +55,8 @@ $sql = "SELECT member_name, member_earned, member_spent, member_adjustment,
             member_earned / member_raidcount AS earned_per_raid,
             member_spent / member_raidcount AS spent_per_raid,
             r.rank_prefix, r.rank_suffix
-        FROM __members AS m LEFT JOIN __member_ranks AS r ON m.member_rank_id = r.rank_id";
+        FROM __members AS m 
+        LEFT JOIN __member_ranks AS r ON m.member_rank_id = r.rank_id";
 
 if ( ($eqdkp->config['hide_inactive'] == 1) && (!$show_all) )
 {
@@ -116,7 +116,10 @@ while ( $row = $db->fetch_record($members_result) )
 
 if ( ($eqdkp->config['hide_inactive'] == 1) && (!$show_all) )
 {
-    $path = path_default('stats.php') . path_params(array(URI_ORDER => $current_order['uri']['current'], 'show' => 'all'));
+    $path = path_default('stats.php') . path_params(array(
+        URI_ORDER => $current_order['uri']['current'], 
+        'show' => 'all'
+    ));
     $footcount_text = sprintf($user->lang['stats_active_footcount'], $db->num_rows($members_result),
                               '<a href="' . $path . '" class="rowfoot">');
 }
@@ -125,160 +128,87 @@ else
     $footcount_text = sprintf($user->lang['stats_footcount'], $db->num_rows($members_result));
 }
 
-// TOOD: BEGIN 1.3 garbage fixup ----------------------------------------------
+## ############################################################################
+## Class statistics
+## ############################################################################
 
-// Class Statistics
-// Class Summary
-// Classes array - if an element is false, that class has gotten no
-// loot and won't show up from the SQL query
-// Otherwise it contains an array with the SQL data
-// New for 1.3 - grab class info from database
-
-// TODO: Fixup after Game Manager
-
-$eq_classes = array();
-
-// Find the total members existing with a class
+// Find the total members
 $sql = "SELECT COUNT(member_id)
-        FROM __members" ;
+        FROM __members";
 $total_members = $db->query_first($sql);
 
-// Find the total priced items
-$sql = "SELECT COUNT(item_id)
-        FROM __items
-        WHERE (`item_value` != 0.00)";
-$total_drops = $db->query_first($sql);
-
-// Find out how many members of each class exist
-$class_counts = array();
-$sql = "SELECT member_class_id, COUNT(member_id) AS class_count
-        FROM __members
-        GROUP BY `member_class_id`";
-$result = $db->query($sql);
-
-while ( $row = $db->fetch_record($result) )
+// Store drop data
+$drop_data['total_drops'] = 0;
+foreach ( $gm->sql_classes() as $cdata )
 {
-    $class_counts[ $row['member_class_id'] ] = $row['class_count'];
+    $drop_data[$cdata['name']] = array(
+        'drops'   => 0,
+        'members' => 0,
+        'factor'  => 0
+    );
 }
-$db->free_result($result);
 
-// Query finds all items purchased by each class
-// Will not find items that are unpriced
-$sql = "SELECT c.class_name, c.class_id, COUNT(i.item_id) AS class_drops
+$sql = "SELECT c.class_name, COUNT(i.item_id) AS num_drops,
+            COUNT(m.member_id) AS num_members
         FROM __items AS i, __classes AS c, __members AS m
-        WHERE (m.`member_name` = i.`item_buyer`)
-        AND (i.`item_value` != 0.00)
-        AND (m.`member_class_id` = c.`class_id`)
-        GROUP BY c.`class_name`";
+        WHERE (m.member_name = i.item_buyer)
+        AND (m.member_class_id = c.class_id)
+        AND (i.item_value > 0)
+        GROUP BY c.class_name";
 $result = $db->query($sql);
 
 while ( $row = $db->fetch_record($result) )
 {
-    $class          = $row['class_name'];
-    $class_id       = $row['class_id'];
-    $class_drops    = $row['class_drops'];
-    $class_drop_pct = ( $total_drops > 0 ) ? round(($class_drops / $total_drops) * 100) : 0;
-    $class_members  = ( isset($class_counts[$class_id]) ) ? $class_counts[$class_id] : 0;
-    $class_factor   = ( $class_members > 0 ) ? round(($class_drops / $class_members) * 100) : 0;
-
-    $eq_classes[$class] = array(
-         'drops'       => $class_drops,
-         'drop_pct'    => $class_drop_pct,
-         'class_count' => $class_members,
-         'class_pct'   => ( $total_members > 0 ) ? round(($class_members / $total_members) * 100) : 0,
-         'factor'      => $class_factor
+    $drop_data['total_drops'] += $row['num_drops'];
+    
+    $drop_data[$row['class_name']] = array(
+        'drops'   => $row['num_drops'],
+        'members' => $row['num_members'],
+        'factor'  => ( $row['num_members'] > 0 ) 
+            ? round(($row['num_drops'] / $row['num_members']) * 100) 
+            : 0
     );
 }
 $db->free_result($result);
 
-/*
-// Query finds all items purchased by each armor type
-// Will not find items that are unpriced
-// Check out them longass var names! :-)
-$sql = "SELECT c.class_armor_type, COUNT(i.item_id) AS armor_type_drops
-        FROM __items AS i, __classes AS c, __members AS m
-        WHERE (m.`member_name` = i.`item_buyer`)
-        AND (i.`item_value` != 0.00)
-        AND (m.`member_class_id` = c.`class_id`)
-        GROUP BY c.`class_armor_type`";
-$result = $db->query($sql);
-
-while ( $row = $db->fetch_record($result) )
-{
-    $sql = "SELECT COUNT(*)
-            FROM __classes AS c, __members AS m
-            WHERE (c.`class_armor_type` = '" . $db->escape($row['class_armor_type']) . "')
-            AND (m.`member_class_id` = c.`class_id`)";
-    $number_of_armor_type_members     = $db->query_first($sql);
-    $number_of_armor_type_drops       = $row['armor_type_drops'];
-    $pct_of_armor_type_to_all_members = ( $total_members > 0 ) ? round(($number_of_armor_type_members / $total_members) * 100) : 0;
-    $type_of_armor_drop_pct           = ( $total_drops > 0 ) ? round(($number_of_armor_type_drops / $total_drops) * 100) : 0;
-    $pct_drops_per_armor_type         = ( $number_of_armor_type_members > 0 ) ? round(($number_of_armor_type_drops / $number_of_armor_type_members) * 100) : 0;
-    $loot_factor                      = ( $number_of_armor_type_members > 0 ) ? round((($number_of_armor_type_members / $type_of_armor_drop_pct) - 1) * 100) : '0';
-
-    $tpl->assign_block_vars('type_row', array(
-        'ROW_TYPE'         => $eqdkp->switch_row_class(),
-        'LINK_TYPE'        => '',
-        'U_LIST_MEMBERS'   => member_path() . path_params('filter', 'armor_' . strtolower($row['class_armor_type'])),
-        'TYPE'             => sanitize($row['class_armor_type']),
-        'LOOT_COUNT'       => $number_of_armor_type_drops,
-        'LOOT_PCT'         => sprintf("%d%%", $type_of_armor_drop_pct),
-        'TYPE_COUNT'       => $number_of_armor_type_members,
-        'TYPE_PCT'         => sprintf("%d%%", $pct_of_armor_type_to_all_members),
-        'LOOT_FACTOR'      => sprintf("%d%%", $loot_factor),
-        'T_LOOT_FACTOR'    => color_item($loot_factor)
-    ));
-}
-$db->free_result($result);
-*/
-
-// We still need to find out how many of the class exist
+// Process data by class
 $sql = "SELECT c.class_name, COUNT(m.member_id) as class_count
         FROM __members AS m, __classes AS c
         WHERE (m.`member_class_id` = c.`class_id`)
         AND (c.`class_name` IS NOT NULL)
-        GROUP BY m.`member_class_id`";
+        GROUP BY m.member_class_id
+        ORDER BY c.class_name";
 $result = $db->query($sql);
 
 while ( $row = $db->fetch_record($result) )
 {
     $class = $row['class_name'];
     $class_count = $row['class_count'];
-
-    // if this isn't an array, define blank values
-    if ( !isset($eq_classes[$class]) || !is_array($eq_classes[$class]) )
-    {
-        $v = array(
-            'drops'       => 0,
-            'drop_pct'    => 0,
-            'class_count' => $class_count,
-            'class_pct'   => ( $total_members > 0 ) ? round(($class_count / $total_members) * 100) : 0,
-            'factor'      => 0
-        );
-    }
-    else
-    {
-        $v = $eq_classes[$class];
-    }
+    
     $row_class = ( $in->get('class') == $class ) ? 'rowhead' : $eqdkp->switch_row_class();
+    
+    $cdata = $drop_data[$row['class_name']];
+    $cdata = array_merge($cdata, array(
+        'class_pct' => round(($class_count / $total_members) * 100),
+        'drop_pct'  => round(($cdata['drops'] / $drop_data['total_drops']) * 100),
+    ));
 
-    $loot_factor = ( $v['class_pct'] > 0 ) ? round((($v['drop_pct'] / $v['class_pct']) - 1) * 100) : '0';
+    $loot_factor = ( $cdata['class_pct'] > 0 ) ? round((($cdata['drop_pct'] / $cdata['class_pct']) - 1) * 100) : 0;
 
     $tpl->assign_block_vars('class_row', array(
         'ROW_CLASS'      => $row_class,
         'LINK_CLASS'     => ( $row_class == 'rowhead' ) ? 'header' : '',
         'U_LIST_MEMBERS' => member_path() . path_params('filter', $class),
-        'CLASS'          => $class,
-        'LOOT_COUNT'     => $v['drops'],
-        'LOOT_PCT'       => sprintf("%d%%", $v['drop_pct']),
-        'CLASS_COUNT'    => $v['class_count'],
-        'CLASS_PCT'      => sprintf("%d%%", $v['class_pct']),
+        'CLASS'          => sanitize($class),
+        'LOOT_COUNT'     => intval($cdata['drops']),
+        'LOOT_PCT'       => sprintf("%d%%", $cdata['drop_pct']),
+        'CLASS_COUNT'    => intval($class_count),
+        'CLASS_PCT'      => sprintf("%d%%", $cdata['class_pct']),
         'LOOT_FACTOR'    => sprintf("%d%%", $loot_factor),
         'C_LOOT_FACTOR'  => color_item($loot_factor))
     );
 }
-
-// END 1.3 garbage ----------------------------------------------------
+$db->free_result($result);
 
 $tpl->assign_vars(array(
     'L_NAME'               => $user->lang['name'],

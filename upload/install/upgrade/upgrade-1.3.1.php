@@ -26,31 +26,13 @@ if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
 {
     global $db, $eqdkp;
     
-    $queries = array();
+    Upgrade::prepare_uniquekey('members', array('member_name'));
     
+    $queries = array();
     if ( isset($eqdkp->config['default_game']) && $eqdkp->config['default_game'] == 'WoW' )
     {
         $queries[] = "UPDATE __classes SET class_armor_type = 'Mail' WHERE (LOWER(`class_armor_type`) = 'chain')";
     }
-    
-    // Get rid of (what would be) invalid duplicate member_idx keys before we add a UNIQUE index
-    $sql = "SELECT member_name, COUNT(*) as num
-            FROM __members
-            GROUP BY member_name
-            HAVING num > 1";
-    $result = $db->query($sql);
-    while ( $row = $db->fetch_record($result) )
-    {
-        $row['member_name'] = $db->escape($row['member_name']);
-        $limit = $row['num'] - 1;
-        
-        $sql = "DELETE FROM __members
-                WHERE (`member_name` = '{$row['member_name']}')
-                LIMIT {$limit}";
-        $db->query($sql);
-    }
-    $db->free_result($result);
-    
     $queries[] = "CREATE UNIQUE INDEX member_idx ON __members (member_name)";
 
     Upgrade::execute($queries);

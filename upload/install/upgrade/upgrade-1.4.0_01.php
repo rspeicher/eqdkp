@@ -66,45 +66,8 @@ if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
         '/templates/default/admin/menu.html',
     ));
     
-    // Get rid of (what would be) invalid duplicate user_auth keys before we add a UNIQUE index
-    $sql = "SELECT user_id, auth_id, COUNT(*) as num
-            FROM __auth_users
-            GROUP BY user_id, auth_id
-            HAVING num > 1";
-    $result = $db->query($sql);
-    while ( $row = $db->fetch_record($result) )
-    {
-        $row['user_id'] = intval($row['user_id']);
-        $row['auth_id'] = intval($row['auth_id']);
-        $limit = $row['num'] - 1;
-        
-        $sql = "DELETE FROM __auth_users 
-                WHERE (`user_id` = '{$row['user_id']}')
-                AND (`auth_id` = '{$row['auth_id']}')
-                LIMIT {$limit}";
-        $db->query($sql);
-    }
-    $db->free_result($result);
-    
-    // Get rid of (what would be) invalid duplicate raid_member keys before we add a UNIQUE index
-    $sql = "SELECT raid_id, member_name, COUNT(*) as num
-            FROM __raid_attendees
-            GROUP BY raid_id, member_name
-            HAVING num > 1";
-    $result = $db->query($sql);
-    while ( $row = $db->fetch_record($result) )
-    {
-        $row['raid_id'] = intval($row['raid_id']);
-        $row['member_name'] = $db->escape($row['member_name']);
-        $limit = $row['num'] - 1;
-        
-        $sql = "DELETE FROM __raid_attendees
-                WHERE (`raid_id` = '{$row['raid_id']}')
-                AND (`member_name` = '{$row['member_name']}')
-                LIMIT {$limit}";
-        $db->query($sql);
-    }
-    $db->free_result($result);
+    Upgrade::prepare_uniquekey('auth_users',     array('user_id', 'auth_id'));
+    Upgrade::prepare_uniquekey('raid_attendees', array('raid_id', 'member_name'));
     
     // Determine what the currently installed game is
     $sql = "SELECT * 

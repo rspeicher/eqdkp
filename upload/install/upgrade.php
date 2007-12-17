@@ -304,6 +304,75 @@ class Upgrade extends EQdkp_Admin
             Upgrade::progress($message, false);
         }
     }
+    
+    /**
+     * Prepares a table to accept a UNIQUE index by deleting all but one of any
+     * duplicate rows
+     * 
+     * <code>
+     * // Prepare __raid_attendees for a raid_id-member_name key
+     * Upgrade::prepare_uniquekey('__raid_attendees', array('raid_id', 'member_name'));
+     * 
+     * // Prepare __auth_users for a user_id-auth_id key
+     * // Note that the '__' table name prefix isn't required
+     * Upgrade::prepare_uniquekey('auth_users', array('user_id', auth_id'));
+     * </code>
+     *
+     * @param string $table Table to prepare
+     * @param array $fields Field(s) being made UNIQUE
+     * @return void
+     * @static
+     */
+    function prepare_uniquekey($table, $fields)
+    {
+        global $db;
+        
+        if ( !is_array($fields) )
+        {
+            return;
+        }
+        
+        $table = preg_replace('/^__/', '', $table);
+        
+        $string_fields = implode(', ', $fields); // String field theory?
+        $sql = "SELECT {$string_fields}, COUNT(*) as num
+                FROM __{$table}
+                GROUP BY {$string_fields}
+                HAVING num > 1";
+        $result = $db->query($sql);
+        while ( $row = $db->fetch_record($result) )
+        {
+            $clauses = array();
+            
+            // Perform the correct type of cleaning on each field
+            foreach ( $fields as $field )
+            {
+                $int = preg_match('/_id$/', $field);
+                if ( $int )
+                {
+                    $val = intval($row[$field]);
+                }
+                else
+                {
+                    $val = $db->escape($row[$field]);
+                }
+                
+                $clauses[] = "(`{$field}` = '{$val}')";
+            }
+            $limit = $row['num'] - 1;
+
+            $clauses = implode(' AND ', $clauses);
+            
+            // Delete all but 1 record from this group
+            $sql = "DELETE FROM __{$table}
+                    WHERE ({$clauses})
+                    LIMIT {$limit}";
+            $db->query($sql);
+            
+            unset($clauses, $val, $int);
+        }
+        $db->free_result($result);
+    }
 }
 
 $upgrade = new Upgrade();

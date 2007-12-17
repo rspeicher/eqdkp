@@ -25,7 +25,6 @@ if ( !defined('EQDKP_INC') )
  * Database Abstraction Layer
  * 
  * @abstract
- * @package dbal
  */
 class dbal
 {

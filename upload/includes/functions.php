@@ -47,7 +47,11 @@ function page_title($title = '')
 
 /**
  * Option Checked value method
+ * 
  * Returns ' selected="selected"' for use in <option> tags if $condition is true
+ * 
+ * @param bool $condition Condition to evaluate
+ * @return string
  */
 function option_checked($condition)
 {
@@ -56,7 +60,11 @@ function option_checked($condition)
 
 /**
  * Option Selected value method
+ * 
  * Returns ' checked="checked"' for use in checkbox/radio <input> tags if $condition is true
+ * 
+ * @param bool $condition Condition to evaluate
+ * @return string
  */
 function option_selected($condition)
 {
@@ -295,7 +303,8 @@ function generate_salt()
 ## ############################################################################
 
 /**
- * Outputs a message with debugging info if needed and ends output.  
+ * Outputs a message with debugging info (if needed) and ends output
+ * 
  * Clean replacement for die()
  *
  * @param     string     $text             Message text
@@ -435,6 +444,7 @@ function color_item($item, $percentage = false)
 
 /**
  * Switches the sorting order of a supplied array
+ * 
  * The array is in the format [number][0/1] (0 = the default, 1 = the opposite)
  * Returns an array containing the code to use in an SQL query and the code to
  * use to pass the sort value through the URI.  URI is in the format

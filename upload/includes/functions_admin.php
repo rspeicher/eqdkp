@@ -20,6 +20,25 @@ if ( !defined('EQDKP_INC') )
     exit;
 }
 
+/**
+ * Return an array of data to be used in generating permission checkboxes in a
+ * consistent format
+ * 
+ * Automatically includes permission boxes added by plugins and applies some
+ * formatting to distinguish administrative options from non-administrative.
+ * 
+ * Format:
+ * array(
+ *  'Header Name' => array(
+ *      'CBNAME'    => 'permission_name',
+ *      'CBCHECKED' => PERMISSION_CONSTANT,
+ *      'TEXT'      => "Permission Option",
+ *  ),
+ *  ...
+ * );
+ *
+ * @return array
+ */
 function generate_permission_boxes()
 {
     global $user, $pm;
@@ -101,13 +120,13 @@ function generate_permission_boxes()
     return $retval;
 }
 
-
-
-
 /**
-* Get database size
-* Currently only mysql is supported
-*/
+ * Get database size
+ * 
+ * Currently only mysql is supported
+ * 
+ * @return int
+ */
 function get_database_size()
 {
     global $db, $dbname, $user, $table_prefix;
@@ -195,4 +214,3 @@ function get_database_size()
     return $database_size;
 
 }
-

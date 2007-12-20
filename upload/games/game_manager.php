@@ -469,21 +469,46 @@ class Game_Manager
 		// If we have a valid parse string, let us begin
 		if ($parse_string !== false)
 		{
+			echo $parse_string;
+			echo "\n\n<br />";
+		
+			$regex_string = '';
+/*
 			// First thing's first - let's escape anything that isn't a special tag.
 			$parse_string = mysql_escape_string($parse_string);
-			$parse_string = preg_replace('#([<>\[\]\(\)-:;\'\"])#', '\\\\\1', $parse_string);
-			
-			// NOTE: Parts of the parse string enclosed in question Mark characters denotes optional components
-			$parse_string = preg_replace('#\?(.*?)\?#', '(?:\1)?', $parse_string);
-			
+			$parse_string = preg_replace('#([-:;<>\[\]\(\)\{\}\^\$\'\"])#', '\\\\\1', $parse_string);
+*/			
+			// NOTE: Parts of the parse string enclosed in question mark characters denote optional components
+			$regex_string = preg_replace('#\?(.*?)\?#', '(?:\1)?', $parse_string);
+
+/*			
 			// Quick test
-			$parse_string = preg_replace('#__.*?__#', '(.*)', $parse_string);
-			$parse_string = '#' . $parse_string . '#';
-			echo '<pre>' . $parse_string . '</pre>';
+			$regex_string = preg_replace('#__.*?__#', '(.*)', $regex_string);
+			$regex_string = '#^' . $regex_string . '$#';
+			echo '<pre>' . $regex_string . '</pre>';
 
 			$results = array();
-			var_dump(preg_match($parse_string, $log_entry, $results));
+			var_dump(preg_match($regex_string, $log_entry, $results));
 			var_dump($results);
+*/
+			preg_match_all('#[^_]*?__(\w+?)__(?:[^_]+)?#', $parse_string, $parse_string_parts, PREG_OFFSET_CAPTURE);
+#			echo "<pre>";
+#			var_dump($parse_string_parts);
+#			echo "</pre>";
+			
+			$ps_strings = $parse_string_parts[0];
+			$ps_data = $parse_string_parts[1];
+			
+			$ps   = array();
+			$data = '';
+			
+			for($i = 0; $i < count($ps_strings); $i++)
+			{
+				$ps   = $ps_strings[$i];
+				$data = $ps_data[$i][0];
+				
+				echo $data;
+			}
 		}
 		
 		return $log_data;

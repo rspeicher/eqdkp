@@ -491,11 +491,32 @@ class Game_Manager
 			var_dump(preg_match($regex_string, $log_entry, $results));
 			var_dump($results);
 */
-			preg_match_all('#[^_]*?__(\w+?)__(?:[^_]+)?#', $parse_string, $parse_string_parts, PREG_OFFSET_CAPTURE);
-#			echo "<pre>";
-#			var_dump($parse_string_parts);
-#			echo "</pre>";
-			
+			/** 
+			 * Match string segments in the following form: 
+			 * pre-text__magic_tag__post-text
+			 * 
+			 * post-text may include 'optional' segments
+			 * pre-text__magic_tag__post-?optional ?text
+			 *
+			 * NOTES:
+			 *  - Magic tags are two and only two underscores either side of the tag name.
+			 *  - There may be ONLY ONE optional component between two magic tags.
+			 */
+			 
+			/**
+			 * This match will return data in the following format:
+			 * array(
+			 *   [0] => array( all full string matches for entire regex )
+			 *   [1] => array( name of magic tag that was captured in this string )
+			 *   [2] => array( optional component included in the string )
+			 * );
+			 */
+			preg_match_all('#[^_]*?__(\w+?)__(?:[^_?])*(?:(\?.*?\?))?(?:[^_?])*#', $parse_string, $parse_string_parts);
+
+			echo "<pre>";
+			var_dump($parse_string_parts);
+			echo "</pre>";
+						
 			$ps_strings = $parse_string_parts[0];
 			$ps_data = $parse_string_parts[1];
 			
@@ -505,7 +526,7 @@ class Game_Manager
 			for($i = 0; $i < count($ps_strings); $i++)
 			{
 				$ps   = $ps_strings[$i];
-				$data = $ps_data[$i][0];
+				$data = $ps_data[$i];
 				
 				echo $data;
 			}

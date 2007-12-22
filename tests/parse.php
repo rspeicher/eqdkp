@@ -18,12 +18,12 @@ $log_entries = array(
 	'[Tsigo]: 70 Dwarf Hunter',
 );
 
-echo "<h3>Logs</h3>\n\n";
+echo "<h2>Logs</h2>\n\n";
 print_r($log_entries);
 
 foreach ($log_entries as $log)
 {
-	echo "<h5>" . $log . "</h5>";
+	echo "<h3>" . htmlspecialchars($log) . "</h3>";
 	
 	$result = $gm->parse_log_entry($log);
 	

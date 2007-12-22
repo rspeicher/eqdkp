@@ -435,11 +435,9 @@ class Game_Manager
 	 *
 	 * If the data is not present in the log entry, the index's value will be set to false.
 	 */
-	 function parse_log_entry($log_entry, $parse_string = false)
-	 {
-		global $db, $eqdkp;
-		
-	 	// TODO: Set current game? If we do, then it kind of breaks the standard method of instantiating and using the class.
+	function parse_log_entry($log_entry, $parse_string = false)
+	{
+		// TODO: Set current game? If we do, then it kind of breaks the standard method of instantiating and using the class.
 	 	
 		$log_data = array(
 			'name'   => false,
@@ -450,7 +448,9 @@ class Game_Manager
 			'zone'   => false,
 		);
 		
+		// Undo any HTML/SQL formatting to the log entry
 		$raw_log_entry = $log_entry;
+		$log_entry = unsanitize($log_entry);
 		
 		// Get the parse string
 		if ($parse_string === false)
@@ -469,28 +469,8 @@ class Game_Manager
 		// If we have a valid parse string, let us begin
 		if ($parse_string !== false)
 		{
-			echo $parse_string;
-			echo "\n\n<br />";
+			echo "Parse String: <pre>" . $parse_string . "</pre>\n\n<br />";
 		
-			$regex_string = '';
-/*
-			// First thing's first - let's escape anything that isn't a special tag.
-			$parse_string = mysql_escape_string($parse_string);
-			$parse_string = preg_replace('#([-:;<>\[\]\(\)\{\}\^\$\'\"])#', '\\\\\1', $parse_string);
-*/			
-			// NOTE: Parts of the parse string enclosed in question mark characters denote optional components
-			$regex_string = preg_replace('#\?(.*?)\?#', '(?:\1)?', $parse_string);
-
-/*			
-			// Quick test
-			$regex_string = preg_replace('#__.*?__#', '(.*)', $regex_string);
-			$regex_string = '#^' . $regex_string . '$#';
-			echo '<pre>' . $regex_string . '</pre>';
-
-			$results = array();
-			var_dump(preg_match($regex_string, $log_entry, $results));
-			var_dump($results);
-*/
 			/** 
 			 * Match string segments in the following form: 
 			 * pre-text__magic_tag__post-text
@@ -513,26 +493,175 @@ class Game_Manager
 			 */
 			preg_match_all('#[^_]*?__(\w+?)__(?:[^_?])*(?:(\?.*?\?))?(?:[^_?])*#', $parse_string, $parse_string_parts);
 
-			echo "<pre>";
+			echo "<b>Parse string Components:</b> <pre>";
 			var_dump($parse_string_parts);
-			echo "</pre>";
-						
+			echo "</pre><br />";
+			
+			
+			// TODO: Revise names of values in this method, they suck
 			$ps_strings = $parse_string_parts[0];
 			$ps_data = $parse_string_parts[1];
 			
 			$ps   = array();
 			$data = '';
+
+			$matched_pos = 0;
+			$results = array();
 			
+			// For each component of the parse string, we try to get its value separately
 			for($i = 0; $i < count($ps_strings); $i++)
 			{
-				$ps   = $ps_strings[$i];
-				$data = $ps_data[$i];
+				$ps    = $ps_strings[$i];
+				$data  = $ps_data[$i];
+				$entry = substr($log_entry, $matched_pos);
 				
-				echo $data;
+#				echo $data;
+				
+				$results = $this->_parse_log_entry($entry, $ps, $data);
+
+				// If the match was successful, we'll create a substring starting from the end of the match.
+				// Otherwise, we'll leave it alone.
+				$matched_pos += ( isset($results[0])) ? strlen($results[0]) : 0;
 			}
 		}
 		
 		return $log_data;
-	 }
+	}
+	 
+    function _parse_log_entry($log_entry, $parse_string, $datatype)
+	{
+		$results = array();
+		
+		// NOTE: Using regexes here may cause the whole process to slow down considerably...
+		// NOTE: Is there a chance the parse string would have had slashes added to it already?
+		// First thing's first - let's escape anything that isn't a special tag.
+		$regex_string = mysql_escape_string($parse_string);
+		$regex_string = preg_replace('#([-:;<>\[\]\(\)\{\}\^\$\'\"\#])#', '\\\\\1', $regex_string);
+
+		// Now replace optional components from the parse string with optional regular expression groupings
+		$regex_string = preg_replace('#\?(.*?)\?#', '(?:\1)?', $regex_string);
+
+		echo "<ul>";
+		echo "<li><b>Datatype:</b> " . $datatype . "</li>\n";
+		echo "<li><b>Log Entry:</b> " . $log_entry . "</li>\n";
+		echo "<li><b>Parse:</b> " . $parse_string . "</li>\n";
+		echo "<li><b>Regex:</b> " . $regex_string . "</li>\n";
+		echo "</ul>";
+
+		// We have to match differently depending on the type of data
+		switch ($datatype)
+		{
+			// These values are highly variable, so we're going to match everything.
+			case 'name':
+			case 'guild':
+			case 'zone':
+				$regex_string = preg_replace('#__.*?__#', '(.*)', $regex_string);
+				preg_match('#' . $regex_string . '#', $log_entry, $results);
+			break;
+			
+			// We want to match a simple number
+			case 'level':
+				$regex_string = str_replace('__level__', '(\d+)', $regex_string);
+				preg_match('#' . $regex_string . '#', $log_entry, $results);
+			break;
+
+			// These data types have a finite set of possible values, and can include any unicode character depending on language.
+			// For this reason, we will offload the matching process to a special method.
+			case 'race':
+			case 'class':
+				$value = $this->_parse_special_data($log_entry, $datatype);
+				// If the match was successful...
+				if (!empty($value))
+				{
+					$results = array(
+						0 => preg_replace('#__.*?__#', $value, $parse_string),
+						1 => $value,
+					);
+				}
+			break;	
+			
+			// If the data type is invalid, we'll return an empty array
+			default:
+				return array();
+			break;
+		}
+
+		echo "Result: ";
+		echo "<pre>";		
+		print_r($results);
+		echo "</pre>";
+		echo "<hr />";
+
+		return $results;
+	}
+	 
+	function _parse_special_data($log_entry, $datatype)
+	{
+		global $user, $lang;
+	
+		echo "Entering special method..." . "\n<br />\n<pre>";
+	
+		$dataset = array(); // Holds the finite set of possible values for the data type
+		$result = '';       // Holds the result of a successful match
+		
+		switch ($datatype)
+		{
+			case 'class':
+				$dataset = $this->sql_classes();
+			break;
+			
+			case 'race':
+				$dataset = $this->sql_races();
+			break;
+		}
+
+#		var_dump($dataset);
+	
+		// Now, for each valid data entry, we're going to see if we can make a match.	
+		foreach ($dataset as $data_entry)
+		{
+			// Retrieve the correct string representation of the data, using the (english) name in the database as a fallback
+			// FIXME: Language implementation and use of 'name' instead of their key
+			$lang_key = strtoupper($datatype . '_' . str_replace(' ', '_', $data_entry['name']));
+			$match_value = isset($user->lang[$lang_key]) ? $user->lang[$lang_key] : $data_entry['name'];
+			
+			echo "Value: ";
+			printf('%-20s', $match_value);
+			echo " [lang-key = '" . (isset($user->lang[$lang_key]) ? $lang_key : 'false') . "']";
+			
+			// FIXME: If the parse string has mixed case and it's in an exotic language, 
+			// this will fall down on case-(in)sensitive matches because we're not using UTF-8
+			// NOTE: We can't just use an in_array call because of the above consideration, combined with the fact that 
+			// the string most likely has trailing crap on it.
+			// FIXME: Should this return the string for the race/class, or its actual ID within the system?
+			
+			// Try to find the required data at the beginning of the partial log entry
+			// NOTE: stripos is a PHP5 function, so we have to make sure it's present before we use it.
+			// If it isn't there, then there's some work for us to do to get this working right.
+			if (function_exists('stripos'))
+			{
+				echo ' ...' . ((stripos($log_entry, $match_value) === false) ? 'no match' : 'match @ ' . stripos($log_entry, $match_value)) . "\n";
+
+				if (stripos($log_entry, $match_value) === 0)
+				{
+					$result = $match_value;
+					break;
+				}
+			}
+			else
+			{
+				if (strpos($log_entry, $match_value) === 0)
+				{
+					$result = $match_value;
+					break;
+				}
+			}
+		}
+		
+		echo "</pre>\nreturning... '" . $result . "'\n<br /><br />\n";
+		
+		return $result;
+	}
+	 
 }
 ?>

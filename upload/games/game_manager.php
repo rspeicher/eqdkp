@@ -515,13 +515,17 @@ class Game_Manager
 				$data  = $ps_data[$i];
 				$entry = substr($log_entry, $matched_pos);
 				
-#				echo $data;
-				
 				$results = $this->_parse_log_entry($entry, $ps, $data);
 
-				// If the match was successful, we'll create a substring starting from the end of the match.
-				// Otherwise, we'll leave it alone.
-				$matched_pos += ( isset($results[0])) ? strlen($results[0]) : 0;
+				// If the match was successful
+				if (count($results) > 1)
+				{
+					// Merge in the data from a match
+					$log_data = array_merge($log_data, array($data => $results[1]));
+					
+					// we'll create a substring starting from the end of the match.
+					$matched_pos += strlen($results[0]);
+				}
 			}
 		}
 		
@@ -545,7 +549,6 @@ class Game_Manager
 		echo "<li><b>Datatype:</b> " . $datatype . "</li>\n";
 		echo "<li><b>Log Entry:</b> " . $log_entry . "</li>\n";
 		echo "<li><b>Parse:</b> " . $parse_string . "</li>\n";
-		echo "<li><b>Regex:</b> " . $regex_string . "</li>\n";
 		echo "</ul>";
 
 		// We have to match differently depending on the type of data
@@ -582,7 +585,7 @@ class Game_Manager
 			
 			// If the data type is invalid, we'll return an empty array
 			default:
-				return array();
+				$results = array();
 			break;
 		}
 
@@ -591,7 +594,7 @@ class Game_Manager
 		print_r($results);
 		echo "</pre>";
 		echo "<hr />";
-
+		
 		return $results;
 	}
 	 

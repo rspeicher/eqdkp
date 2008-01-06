@@ -193,7 +193,9 @@ if (!isset($get_gameinfo))
 		),
 		
 		'parsing'      => array(
-			'[__name__]? <__guild__>?: __level__ __race__ __class__',
+			//[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring
+			//[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple
+			'[__name__]: Level __level__ __race__ __class__? <__guild__>?? - __zone__?',
 		),
 	);
 }

@@ -14,8 +14,9 @@ var_dump($games);
 //var_dump($gm->games);
 
 $log_entries = array(
-	'[Dazza] <Banimal>: 60 Night Elf Priest',
-	'[Tsigo]: 70 Dwarf Hunter',
+	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+	'[Aldos]: Level 40 Gnome Mage - Ironforge',
 );
 
 echo "<h2>Logs</h2>\n\n";

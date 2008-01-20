@@ -466,10 +466,25 @@ class Game_Manager
 			}
 		}
 		
+		// Begin the parsing!
+		$this->_parse_log_entry($log_entry, $parse_string, $log_data);
+		
+		return $log_data;
+	}
+	
+	/**
+	 * Parse a game log entry helper function
+	 * 
+	 * Takes a log entry string, a (EQdkp-formatted) parse string, and an array for the results.
+	 */
+	function _parse_log_entry($log_entry, $parse_string, &$log_data)
+	{
+		$matched_length = 0;
+
 		// If we have a valid parse string, let us begin
-		if ($parse_string !== false)
+		if ($parse_string !== false && strlen($parse_string) > 0)
 		{
-			echo "Parse String: <pre>" . $parse_string . "</pre>\n\n<br />";
+#			echo "Parse String: <pre>" . $parse_string . "</pre>\n\n<br />";
 
 			// Remove any extraneous question marks so that they don't destroy the regex parsing
 			$char_count = count_chars($parse_string, 0);
@@ -483,78 +498,76 @@ class Game_Manager
 					$second_half = substr($parse_string, $last_mark+1);
 
 					$parse_string = (($second_half !== false)) ? $first_half . $second_half : $first_half;
-					echo $parse_string;
+					
+#					echo "Cleaned... <br />\n";
+#					echo $parse_string;
+#					echo "<br />\n";
 				}
 			}
 		
 			/** 
-			 * Match string segments in the following form: 
-			 * pre-text__magic_tag__post-text
+			 * EQdkp parse string format (in ... format):
+			 *
+			 * <pre-text><magic-tag><post-text>
 			 * 
-			 * post-text may include 'optional' segments
-			 * pre-text__magic_tag__post-?optional ?text
+			 * <pre-text>          : <utf8-text>
+			 * <magic-tag>         : __<text>__
+			 * <post-tag>          : <utf8-text> | <pre-text><optional-group>
+			 * <optional-group>    : ?<pre-text><magic-tag><utf8-text>?
+			 * <text>              : any number of english alphabetic characters
+			 * <utf8-text>         : any number of utf-8 characters EXCLUDING the question-mark (?) character
 			 *
 			 * NOTES:
-			 *  - Magic tags are two and only two underscores either side of the tag name.
-			 *  - There may be ONLY ONE optional component between two magic tags.
+			 *  - Magic tags are two and only two underscores either side of a name for the tag.
+			 *  - 
 			 */
 			 
 			/**
+			 * Match string segments in the EQdkp parse string form.
 			 * This match will return data in the following format:
 			 * array(
 			 *   [0] => array( all full string matches for entire regex )
 			 *   [1] => array( name of magic tag that was captured in this string )
-			 *   [2] => array( optional component included in the string )
 			 * );
 			 */
-			preg_match_all('#[^_]*?__(\w+?)__(?:[^_?])*(?:(\?.*?\?)+)?(?:[^_?])*#', $parse_string, $captures);
+			preg_match_all('#[^_]*?__(\w+?)__(?:[^_?])*(?:(?:\?.*?\?)+)?(?:[^_?])*#', $parse_string, $captures);
 
-			echo "<b>Parse string Components:</b> <pre>";
-			var_dump($captures);
-			echo "</pre><br />";
-			
+#			echo "<b>Parse string Components:</b> <pre>";
+#			var_dump($captures);
+#			echo "</pre><br />";			
 			
 			$capture_strings = $captures[0];
 			$capture_names   = $captures[1];
 			
 			$results = array();
 
-			// For each component of the parse string, we try to get its value separately
+			// For each component of the parse string, we try to get its value separately.
 			$partial_parse_string = array();
 			$datatype = '';
-			$matched_pos = 0;
 
 			for($i = 0; $i < count($capture_strings); $i++)
 			{
-				$partial_log_entry       = substr($log_entry, $matched_pos);
+				$partial_log_entry       = substr($log_entry, $matched_length);
 				$partial_parse_string    = $capture_strings[$i];
 				$datatype                = $capture_names[$i];
 				
-				$results = $this->_parse_log_entry($partial_log_entry, $partial_parse_string, $datatype);
-
-				// If the match was successful
-				if (count($results) > 1)
-				{
-					// Merge in the data from a match
-					$log_data = array_merge($log_data, array($datatype => $results[1]));
-					
-					// We'll create a substring starting from the end of the match.
-					$matched_pos += strlen($results[0]);
-				}
+				$matched_length += $this->_parse_log_entry_component($partial_log_entry, $partial_parse_string, $datatype, $log_data);
 			}
 		}
 		
-		return $log_data;
+		return $matched_length;
 	}
+	
 	
 	/**
 	 * Parse log entry helper function
 	 * 
-	 * Does the work for a particular section of the log entry, such as parsing the name, the race, class, etc.
+	 * Does the work for a particular component of the log entry, such as parsing the name, the race, class, etc.
 	 */
-    function _parse_log_entry($log_entry, $parse_string, $datatype)
+    function _parse_log_entry_component($log_entry, $parse_string, $datatype, &$log_data)
 	{
 		$results = array();
+		$matched_length = 0;
 		
 		// NOTE: Using regexes here may cause the whole process to slow down considerably...
 		// NOTE: Is there a chance the parse string would have had slashes added to it already?
@@ -565,16 +578,16 @@ class Game_Manager
 		// Now replace optional components from the parse string with optional regular expression groupings
 		$regex_string = preg_replace('#\?(.*?)\?#', '(?:\1)?', $regex_string);
 
-		echo "<ul>";
-		echo "<li><b>Datatype:</b> " . $datatype . "</li>\n";
-		echo "<li><b>Log Entry:</b> " . $log_entry . "</li>\n";
-		echo "<li><b>Parse:</b> ";
-		     var_dump($parse_string);
-		echo "</li>\n";
-		echo "<li><b>Regex:</b> ";
- 		     var_dump($regex_string);
-		echo "</li>\n";
-		echo "</ul>";
+#		echo "<ul>";
+#		echo "<li><b>Datatype:</b> " . $datatype . "</li>\n";
+#		echo "<li><b>Log Entry:</b> " . $log_entry . "</li>\n";
+#		echo "<li><b>Parse:</b> ";
+#		     var_dump($parse_string);
+#		echo "</li>\n";
+#		echo "<li><b>Regex:</b> ";
+#		     var_dump($regex_string);
+#		echo "</li>\n";
+#		echo "</ul>";
 
 
 		// We have to match differently depending on the type of data
@@ -610,28 +623,69 @@ class Game_Manager
 				}
 			break;	
 			
-			// If the data type is invalid, we'll return an empty array
+			// If the data type is invalid, we'll return an empty result
 			default:
 				$results = array();
 			break;
 		}
 
-		echo "Result: ";
-		echo "<pre>";		
-		print_r($results);
-		echo "</pre>";
-		echo "<hr />";
+#		echo "Result: ";
+#		echo "<pre>";		
+#		print_r($results);
+#		echo "</pre>";
+#		echo "<hr />";
 		
-		// Check for any optional components of the parse string
-		if (($first_mark = strpos($parse_string, '?')) !== false)
+
+		if (count($results) > 1)
 		{
-			// FIXME: Need to cut up log entry here. As it stands recursion is out of the question, 
-			// because parse_log_entry is going to mess everything up with its hard-coded log_data array initialization.
-			// We need to pass log_data to each method by reference.
-			// $optional_results = parse_log_entry($log_entry, substr($parse_string, $first_mark));
+			// If the match was successful, merge in the data from the match into the parsed log data.
+			$log_data = array_merge($log_data, array($datatype => $results[1]));
+		}
+		else
+		{
+			// Otherwise, we'll create a blank result to use when processing the optional groups.
+			$results = array(0 => '', 1 => '');
+		}
+
+		// Check for any optional components of the parse string. 
+		// If there are any, make a recursive call to parse that component the log.
+		$first_mark = strpos($parse_string, '?');
+		if ($first_mark == false)
+		{
+			// If there are no optional components to the string, we can use the length of the matched string
+			$matched_length = strlen($results[0]);
+		}
+		else
+		{
+			// Otherwise, only know that we've matched everything up until the first optional grouping.
+			$matched_length = strpos($results[0], '?');
+			$second_mark = false;
+			
+			// NOTE: The while loop is to capture multiple optional groups
+			while ($first_mark !== false)
+			{
+				$second_mark = strpos($parse_string, '?', $first_mark+1);
+				$substring_length = $second_mark - $first_mark;
+	
+				// Remove the matched content from the parse string and log entry.
+				$optional_log_entry = substr($log_entry, $matched_length);
+				$optional_parse_string = substr($parse_string, $first_mark+1, $substring_length-1);
+	
+#				echo $matched_length;
+#				echo "<br />\n'{$optional_log_entry}'<br />\n";
+#				echo "'{$optional_parse_string}'";
+#				exit;
+
+				$optional_matched_length = $this->_parse_log_entry($optional_log_entry, $optional_parse_string, $log_data);
+				
+				$matched_length += $optional_matched_length;
+				
+				// Find the next optional group, if it exists.
+				$first_mark = strpos($parse_string, '?', $second_mark+1);
+			}
 		}
 		
-		return $results;
+		return $matched_length;
 	}
 	
 	/**
@@ -644,7 +698,7 @@ class Game_Manager
 	{
 		global $user, $lang;
 	
-		echo "Entering special method..." . "\n<br />\n<pre>";
+#		echo "Entering special method..." . "\n<br />\n<pre>";
 	
 		$dataset = array(); // Holds the finite set of possible values for the data type
 		$result = '';       // Holds the result of a successful match
@@ -670,9 +724,9 @@ class Game_Manager
 			$lang_key = strtoupper($datatype . '_' . str_replace(' ', '_', $data_entry['name']));
 			$match_value = isset($user->lang[$lang_key]) ? $user->lang[$lang_key] : $data_entry['name'];
 			
-			echo "Value: ";
-			printf('%-20s', $match_value);
-			echo " [lang-key = '" . (isset($user->lang[$lang_key]) ? $lang_key : 'false') . "']";
+#			echo "Value: ";
+#			printf('%-20s', $match_value);
+#			echo " [lang-key = '" . (isset($user->lang[$lang_key]) ? $lang_key : 'false') . "']";
 			
 			// FIXME: If the parse string has mixed case and it's in an exotic language, 
 			// this will fall down on case-(in)sensitive matches because we're not using UTF-8
@@ -685,7 +739,7 @@ class Game_Manager
 			// If it isn't there, then there's some work for us to do to get this working right.
 			if (function_exists('stripos'))
 			{
-				echo ' ...' . ((stripos($log_entry, $match_value) === false) ? 'no match' : 'match @ ' . stripos($log_entry, $match_value)) . "\n";
+#				echo ' ...' . ((stripos($log_entry, $match_value) === false) ? 'no match' : 'match @ ' . stripos($log_entry, $match_value)) . "\n";
 
 				// TODO: utf-8 conversions of names to lowercase for comparison instead of using stripos
 				if (stripos($log_entry, $match_value) === 0)
@@ -705,7 +759,7 @@ class Game_Manager
 			}
 		}
 		
-		echo "</pre>\nreturning... '" . $result . "'\n<br /><br />\n";
+#		echo "</pre>\nreturning... '" . $result . "'\n<br /><br />\n";
 		
 		return $result;
 	}

@@ -161,23 +161,25 @@ class Template_Wrap extends Template
 
         $this->assign_vars(array(
             'MSG_TITLE' => '',
-            'MSG_TEXT'  => '')
+            'MSG_TEXT'  => '',
+			)
         );
 
         $this->set_filenames(array(
-            'body' => $this->template_file)
-        );
+            'body' => $this->template_file
+		));
     }
 
     function message_die($text = '', $title = '')
     {
         $this->set_filenames(array(
-            'body' => 'install_message.html')
-        );
+            'body' => 'install_message.html'
+		));
 
         $this->assign_vars(array(
             'MSG_TITLE' => ( $title != '' ) ? $title : '&nbsp;',
-            'MSG_TEXT'  => ( $text  != '' ) ? $text  : '&nbsp;')
+            'MSG_TEXT'  => ( $text  != '' ) ? $text  : '&nbsp;',
+			)
         );
 
         if ( !$this->header_inc )
@@ -208,7 +210,8 @@ class Template_Wrap extends Template
         {
             $this->assign_vars(array(
                 'MSG_TITLE' => 'Installation ' . (( sizeof($this->install_message) == 1 ) ? 'Note' : 'Notes'),
-                'MSG_TEXT'  => $install_message)
+                'MSG_TEXT'  => $install_message,
+				)
             );
         }
     }
@@ -240,7 +243,7 @@ class Template_Wrap extends Template
 
     function page_header()
     {
-        global $STEP;
+        global $eqdkp_root_path, $STEP;
 
         $this->header_inc = true;
 
@@ -255,7 +258,9 @@ class Template_Wrap extends Template
         */
 
         $this->assign_vars(array(
-            'INSTALL_STEP' => $STEP)
+			'EQDKP_ROOT_PATH' => $eqdkp_root_path,
+            'INSTALL_STEP' => $STEP,
+			)
         );
     }
 

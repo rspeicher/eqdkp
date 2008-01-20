@@ -1246,7 +1246,7 @@ class installer
 		config_set('dkp_name', $data['dkp_name']);
 		config_set('guildtag', $data['guildtag']);
 
-		// Set the salt		
+		// Set EQdkp's installation-unique salt
 		$data['auth_salt'] = generate_salt();
 		config_set('auth_salt', $data['auth_salt']);
         
@@ -1255,7 +1255,7 @@ class installer
         //
         // Encrypt the admin's password
 		$admin_salt = generate_salt();
-		$admin_password = sha1("{$data['admin_pass1']}_{$data['auth_salt']}_" . $admin_salt);
+		$admin_password = hash_password($data['admin_pass1'], $admin_salt);
 		
         $query = $db->build_query('UPDATE', array(
             'user_name'          => $data['admin_name'],

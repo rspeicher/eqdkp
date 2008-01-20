@@ -323,10 +323,12 @@ if (@file_exists($eqdkp_root_path . 'config.php') && !file_exists($eqdkp_root_pa
     }
 }
 
+$in = new Input();
+
 include($eqdkp_root_path . 'install/install.php');
 
 $mode = 'install'; // NOTE: For now, there are no alternate methods of installation.
-$sub  = request_var('sub','');
+$sub  = $in->get('sub','');
 
 $install = new installer("index.php");
 $install->main($mode, $sub);

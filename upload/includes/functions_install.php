@@ -321,7 +321,7 @@ function slash_global_data(&$data)
 * @param    string  $config_value
 * @return   bool
 */
-function config_set($config_name, $config_value='', $db = null)
+function config_set($config_name, $config_value='', $db = null, $config_table = false)
 {
     if ( is_null($db) )
     {
@@ -343,8 +343,19 @@ function config_set($config_name, $config_value='', $db = null)
             {
                 return false;
             }
+			if ( $config_table == false )
+			{
+				if ( defined('CONFIG_TABLE') )
+				{
+					$config_table = CONFIG_TABLE;
+				}
+				else
+				{
+					return false;
+				}
+			}
 
-            $sql = 'UPDATE ' . CONFIG_TABLE . "
+            $sql = 'UPDATE ' . $config_table . "
                     SET config_value='" . strip_tags(htmlspecialchars($config_value)) . "'
                     WHERE config_name='" . $config_name . "'";
             $db->query($sql);
@@ -354,124 +365,6 @@ function config_set($config_name, $config_value='', $db = null)
     }
 
     return false;
-}
-
-
-/**
-* set_var
-*
-* Set variable, used by {@link request_var the request_var function}
-*
-* @access private
-*/
-function set_var(&$result, $var, $type, $multibyte = false)
-{
-    settype($var, $type);
-    $result = $var;
-
-    if ($type == 'string')
-    {
-        $result = trim(htmlspecialchars(str_replace(array("\r\n", "\r"), array("\n", "\n"), $result), ENT_COMPAT, 'UTF-8'));
-
-        if (!empty($result))
-        {
-            // Make sure multibyte characters are wellformed
-            if ($multibyte)
-            {
-                if (!preg_match('/^./u', $result))
-                {
-                    $result = '';
-                }
-            }
-            else
-            {
-                // no multibyte, allow only ASCII (0-127)
-                $result = preg_replace('/[\x80-\xFF]/', '?', $result);
-            }
-        }
-
-        $result = (STRIP) ? stripslashes($result) : $result;
-    }
-}
-
-
-/**
-* request_var
-*
-* Used to get passed variable
-*/
-function request_var($var_name, $default, $multibyte = false, $cookie = false)
-{
-    if (!$cookie && isset($_COOKIE[$var_name]))
-    {
-        if (!isset($_GET[$var_name]) && !isset($_POST[$var_name]))
-        {
-            return (is_array($default)) ? array() : $default;
-        }
-        $_REQUEST[$var_name] = isset($_POST[$var_name]) ? $_POST[$var_name] : $_GET[$var_name];
-    }
-
-    if (!isset($_REQUEST[$var_name]) || (is_array($_REQUEST[$var_name]) && !is_array($default)) || (is_array($default) && !is_array($_REQUEST[$var_name])))
-    {
-        return (is_array($default)) ? array() : $default;
-    }
-
-    $var = $_REQUEST[$var_name];
-    if (!is_array($default))
-    {
-        $type = gettype($default);
-    }
-    else
-    {
-        list($key_type, $type) = each($default);
-        $type = gettype($type);
-        $key_type = gettype($key_type);
-        if ($type == 'array')
-        {
-            reset($default);
-            list($sub_key_type, $sub_type) = each(current($default));
-            $sub_type = gettype($sub_type);
-            $sub_type = ($sub_type == 'array') ? 'NULL' : $sub_type;
-            $sub_key_type = gettype($sub_key_type);
-        }
-    }
-
-    if (is_array($var))
-    {
-        $_var = $var;
-        $var = array();
-
-        foreach ($_var as $k => $v)
-        {
-            set_var($k, $k, $key_type);
-            if ($type == 'array' && is_array($v))
-            {
-                foreach ($v as $_k => $_v)
-                {
-                    if (is_array($_v))
-                    {
-                        $_v = null;
-                    }
-                    set_var($_k, $_k, $sub_key_type);
-                    set_var($var[$k][$_k], $_v, $sub_type, $multibyte);
-                }
-            }
-            else
-            {
-                if ($type == 'array' || is_array($v))
-                {
-                    $v = null;
-                }
-                set_var($var[$k], $v, $type, $multibyte);
-            }
-        }
-    }
-    else
-    {
-        set_var($var, $var, $type, $multibyte);
-    }
-
-    return $var;
 }
 
 /**

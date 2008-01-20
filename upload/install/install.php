@@ -1386,37 +1386,39 @@ class installer
      */
     function get_submitted_data()
     {
+		global $in;
+	
         return array(
-            'language'        => basename(request_var('language', '')),
+            'language'        => basename($in->get('language', '')),
 
-            'dbms'            => request_var('dbms', ''),
-            'dbhost'          => request_var('dbhost', ''),
-            'dbport'          => request_var('dbport', ''),
-            'dbuser'          => request_var('dbuser', ''),
+            'dbms'            => $in->get('dbms', ''),
+            'dbhost'          => $in->get('dbhost', ''),
+            'dbport'          => $in->get('dbport', ''),
+            'dbuser'          => $in->get('dbuser', ''),
             // FIXME: Previously using htmlspecialchars_decode(); had to add unsanitize to functions_admin.php
-            'dbpass'          => unsanitize(request_var('dbpass', '', true)),
-            'dbname'          => request_var('dbname', ''),
-            'table_prefix'    => request_var('table_prefix', ''),
+            'dbpass'          => unsanitize($in->get('dbpass', '', true)),
+            'dbname'          => $in->get('dbname', ''),
+            'table_prefix'    => $in->get('table_prefix', ''),
 
-            'default_lang'    => basename(request_var('default_lang', '')),
-            'default_locale'  => basename(request_var('default_locale', '')),
+            'default_lang'    => basename($in->get('default_lang', '')),
+            'default_locale'  => basename($in->get('default_locale', '')),
 
-            'admin_name'      => request_var('admin_name', '', true),
-            'admin_pass1'     => request_var('admin_pass1', '', true),
-            'admin_pass2'     => request_var('admin_pass2', '', true),
-            'admin_email1'    => strtolower(request_var('admin_email1', '')),
-            'admin_email2'    => strtolower(request_var('admin_email2', '')),
+            'admin_name'      => $in->get('admin_name', '', true),
+            'admin_pass1'     => $in->get('admin_pass1', '', true),
+            'admin_pass2'     => $in->get('admin_pass2', '', true),
+            'admin_email1'    => strtolower($in->get('admin_email1', '')),
+            'admin_email2'    => strtolower($in->get('admin_email2', '')),
             
-			'game_id'         => request_var('game_id', ''),
-			'guildtag'        => request_var('guildtag', '', true),
-			'dkp_name'        => request_var('dkp_name', ''),
+			'game_id'         => $in->get('game_id', ''),
+			'guildtag'        => $in->get('guildtag', '', true),
+			'dkp_name'        => $in->get('dkp_name', ''),
 			
-			'site_name'       => request_var('site_name', '', true),
-			'site_desc'       => request_var('site_desc', '', true),
+			'site_name'       => $in->get('site_name', '', true),
+			'site_desc'       => $in->get('site_desc', '', true),
 			
-            'server_name'     => request_var('server_name', ''),
-            'server_port'     => request_var('server_port', ''),
-            'server_path'     => request_var('server_path', ''),
+            'server_name'     => $in->get('server_name', ''),
+            'server_port'     => $in->get('server_port', ''),
+            'server_path'     => $in->get('server_path', ''),
         );
     } 
 

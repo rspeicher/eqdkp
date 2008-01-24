@@ -152,6 +152,7 @@ class EQdkp_Config extends EQdkp_Admin
     function display_form()
     {
         global $db, $eqdkp, $user, $tpl, $pm;
+        global $eqdkp_root_path;
 
         //
         // Find default auth settings
@@ -324,6 +325,7 @@ class EQdkp_Config extends EQdkp_Admin
         {
             $link = preg_replace('#\?' . URI_SESSION . '\=([0-9A-Za-z]{1,32})?#', '', $page['link']);
             $link = preg_replace('#\.php&amp;#', '.php?', $link);
+            $link = str_replace($eqdkp_root_path, '', $link);
             
             // Remove the username from the logout menu option
             $text = ( isset($user->data['username']) ) ? str_replace($user->data['username'], $user->lang['username'], $page['text']) : $page['text'];

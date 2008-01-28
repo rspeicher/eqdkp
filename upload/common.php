@@ -130,6 +130,7 @@ $user->setup($in->get('style', 0));
 
 // Initialize the Game Manager
 $gm = new Game_Manager();
+$gm->set_current_game($eqdkp->config['current_game']);
 
 // Start plugin management
 $pm = new EQdkp_Plugin_Manager(true, DEBUG);

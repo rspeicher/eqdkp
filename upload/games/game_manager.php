@@ -413,53 +413,7 @@ class Game_Manager
 		}
 		
 		return $this->factions;
-	}
-	
-    /**
-     * Retrieve the installed game's armor type information from the database
-     * 
-     * @param     string     $class_id         The class name to format
-     * @return    string                       The formatted class name for $class_id from $this->classes
-     */
-    function format_class_name($class_id)
-    {
-        if ( count($this->classes) == 0 )
-        {
-            $this->sql_classes();
-        }
-        
-        foreach ( $this->classes as $class )
-        {
-            if ( $class['id'] == $class_id )
-            {
-                return $this->_format_class_with_level($class['name'], $class['min_level'], $class['max_level']);
-            }
-        }
-    }
-    
-    /**
-     * This function is to provide compatibility with the retarded 1.3 method,
-     * expect to deprecate this when we Do It Better™
-     * 
-     * @deprecated
-     */
-    // TODO: Localize
-    function _format_class_with_level($class_name, $min_level = 0, $max_level = 0)
-    {
-        if ( empty($class_name) )
-        {
-            return '(None)';
-        }
-        
-        if ( intval($min_level) == 0 )
-        {
-            return sanitize($class_name) . " (Level {$min_level}-{$max_level})";
-        }
-        else
-        {
-            return sanitize($class_name) . " (Level {$min_level}+)";
-        }
-    }
+	}	
     
 	/** 
 	 * Parse a game log entry

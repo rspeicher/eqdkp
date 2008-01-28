@@ -293,18 +293,36 @@ class Game_Manager
     {
         global $db;
         
+		/*
         if ( count($this->armor_types) == 0 )
         {
             $sql = "SELECT class_armor_type FROM __classes
                     GROUP BY class_armor_type";
-            $result = $db->query($sql);
+            $result = $db->sql_query($sql);
             while ( $row = $db->fetch_record($result) )
             {
                 $this->armor_types[] = stripslashes($row['class_armor_type']);
             }
             $db->free_result($result);
         }
-        
+        */
+		if ( count($this->armor_types) == 0 )
+		{
+			$sql = "SELECT armor_type_id, armor_type_name, armor_type_key 
+			        FROM __armor_types
+			        ORDER BY armor_type_name";
+			$result = $db->sql_query($sql);
+			while ($row = $db->sql_fetchrow($result))
+			{
+				$this->armor_types[] = array(
+					'name'      => stripslashes($row['armor_type_name']),
+					'id'        => intval($row['armor_type_id']),
+					'key'       => stripslashes($row['armor_type_key']),
+				);
+			}
+			$db->sql_freeresult($result);
+		}
+		
         return $this->armor_types;
     }
     
@@ -319,20 +337,19 @@ class Game_Manager
         
         if ( count($this->classes) == 0 )
         {
-            $sql = "SELECT class_name, class_id, class_min_level, class_max_level 
+            $sql = "SELECT class_name, class_id, class_key 
                     FROM __classes
-                    ORDER BY class_name, class_min_level";
-            $result = $db->query($sql);
-            while ( $row = $db->fetch_record($result) )
+                    ORDER BY class_name";
+            $result = $db->sql_query($sql);
+            while ( $row = $db->sql_fetchrow($result) )
             {
                 $this->classes[] = array(
                     'name'      => stripslashes($row['class_name']),
                     'id'        => intval($row['class_id']),
-                    'min_level' => intval($row['class_min_level']),
-                    'max_level' => intval($row['class_max_level'])
+					'key'       => stripslashes($row['class_key']),
                 );
             }
-            $db->free_result($result);
+            $db->sql_freeresult($result);
         }
 
         return $this->classes;
@@ -349,25 +366,55 @@ class Game_Manager
         
         if ( count($this->races) == 0 )
         {
-            $sql = "SELECT race_id, race_name, race_faction_id, race_hide
+            $sql = "SELECT race_id, race_name, race_key, race_faction_id, race_hide
                     FROM __races 
                     GROUP BY race_name";
-            $result = $db->query($sql);
-            while ( $row = $db->fetch_record($result) )
+            $result = $db->sql_query($sql);
+            while ( $row = $db->sql_fetchrow($result) )
             {
                 $this->races[] = array(
                     'name'       => stripslashes($row['race_name']),
                     'id'         => intval($row['race_id']),
+					'key'        => stripslashes($row['race_key']),
                     'faction_id' => intval($row['race_faction_id']),
                     'hide'       => intval($row['race_hide'])
                 );
             }
-            $db->free_result($result);
+            $db->sql_freeresult($result);
         }
         
         return $this->races;
     }
-    
+    	
+    /**
+     * Retrieve the installed game's faction information from the database
+     * 
+     * @return    array
+     */
+	function sql_factions()
+	{
+		global $db;
+		
+		if (count($this->factions) == 0)
+		{
+			$sql = "SELECT faction_id, faction_name, faction_key
+			        FROM __factions
+			        ORDER BY faction_name";
+			$result = $db->sql_query($sql);
+			while ($row = $db->sql_fetchrow($result))
+			{
+				$this->factions[] = array(
+					'name'        => stripslashes($row['faction_name']),
+					'id'          => intval($row['faction_id']),
+					'key'         => stripslashes($row['faction_key']),
+				);
+			}
+			$db->sql_freeresult($result);
+		}
+		
+		return $this->factions;
+	}
+	
     /**
      * Retrieve the installed game's armor type information from the database
      * 

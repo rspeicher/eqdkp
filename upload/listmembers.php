@@ -30,7 +30,7 @@ $sort_order = array(
     6 => array('member_level desc', 'member_level'),
     7 => array('member_class', 'member_class desc'),
     8 => array('rank_name', 'rank_name desc'),
-    9 => array('class_armor_type', 'class_armor_type desc')
+    9 => array('armor_type', 'armor_type desc')
 );
 
 $current_order = switch_order($sort_order);
@@ -153,15 +153,16 @@ else
     $filter_options = array(
         // TODO: Localize this string
         array('VALUE' => '', 'SELECTED' => '', 'OPTION' => 'None'),
-        array('VALUE' => '', 'SELECTED' => '', 'OPTION' => '---------')
     );
+
+	$filter_options[] = array('VALUE' => '', 'SELECTED' => '', 'OPTION' => '---------');
     
-    foreach ( $gm->sql_armor_types() as $type )
+    foreach ( $gm->sql_armor_types() as $armor_type )
     {
         $filter_options[] = array(
-            'VALUE'    => sanitize("armor_" . $type, ENT),
-            'SELECTED' => option_selected($filter == "armor_{$type}"),
-            'OPTION'   => str_replace('_', ' ', $type)
+            'VALUE'    => sanitize("armor_" . $armor_type['name'], ENT),
+            'SELECTED' => option_selected($filter == "armor_{$armor_type['name']}"),
+            'OPTION'   => str_replace('_', ' ', $armor_type['name'])
         );
     }
     
@@ -189,7 +190,7 @@ else
     if ( preg_match('/^armor_.+/', $filter) )
     {
         $input = $db->escape(str_replace('armor_', '', $in->get('filter')));
-        $filter_by = " AND (`class_armor_type` = '{$input}')";
+        $filter_by = " AND (`armor_type_name` = '{$input}')";
     }
     elseif ( empty($filter) )
     {
@@ -201,19 +202,30 @@ else
         $filter_by = " AND (`class_name` = '{$input}')";
     }
 
+	// NOTE: We currently prevent duplicate entries for the same person, by filtering out the lowest *armor type IDs* for each member's class.
     $sql = "SELECT m.*, (m.member_earned-m.member_spent+m.member_adjustment) AS member_current, 
                 m.member_status, CONCAT(r.rank_prefix, '%s', r.rank_suffix) AS member_sname, 
-                r.rank_name, r.rank_hide, r.rank_id, c.class_name AS member_class, 
-                c.class_armor_type AS armor_type, c.class_min_level AS min_level, 
-                c.class_max_level AS max_level
-            FROM __members AS m, __member_ranks AS r, __classes AS c
+                r.rank_name, r.rank_hide, r.rank_id, 
+				c.class_name AS member_class, 
+                at.armor_type_name AS armor_type, 
+				MAX(ca.armor_type_id) AS armor_type_id,
+				ca.armor_min_level AS min_level, 
+                ca.armor_max_level AS max_level
+            FROM __members AS m, __member_ranks AS r, __classes AS c, __armor_types AS at, __class_armor AS ca
             WHERE (c.class_id = m.member_class_id)
+			AND (ca.class_id = m.member_class_id)
+			AND (at.armor_type_id = ca.armor_type_id)
             AND (m.member_rank_id = r.rank_id)
             {$filter_by}";
+	
     if ( $in->exists('rank') )
     {
         $sql .= " AND (r.`rank_id` = '" . $in->get('rank', 0) . "')";
     }
+	
+	// NOTE: As per the conditions of using MAX(), we need to group by something. We'll group by member ID, because it's essentially a transparent grouping.
+	$sql .= " GROUP BY m.member_id";
+	
     $sql .= " ORDER BY {$current_order['sql']}";
     
     if ( !($members_result = $db->query($sql)) )

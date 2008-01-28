@@ -356,7 +356,7 @@ function config_set($config_name, $config_value='', $db = null, $config_table = 
 			}
 
             $sql = 'UPDATE ' . $config_table . "
-                    SET config_value='" . strip_tags(htmlspecialchars($config_value)) . "'
+                    SET config_value='" . $db->escape($config_value) . "'
                     WHERE config_name='" . $config_name . "'";
             $db->query($sql);
 

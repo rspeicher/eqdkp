@@ -72,7 +72,6 @@ class Game_Installer extends Game_Manager
      * @access   private
      */
     // TODO: Provide an array of mappings from the old game settings to the new ones (eg: WoW class ID -> EQ class ID)
-    // TODO: Take into account the need to UPDATE instead of INSERT for any IDs that already exist in the database.
     // FIXME: Remove the echo_sql parameter when we're ready to release. It's useful for testing rather than doing.
     function _create_database_tables($echo_sql = false)
     {
@@ -97,15 +96,12 @@ class Game_Installer extends Game_Manager
          *
          * TODO: Use $games[$game_id]['available'] information to only bother working with what we have.
          * TODO: Replace use of $info['name'] with the keys themselves. Then upon retrieval from the db, the 'name' can be replaced with the language string.
-         *
+         * FIXME: properly escape input.
+		 *
          * FIXME: ID information. Right now, if ID isn't provided in the game info file OR the IDs aren't unique, this will all fail horribly. 
          *        A new method is going to have to be added somewhere (perhaps in the install_game method, before this one is called) where the IDs 
          *        are checked, and if they aren't provided or valid, simply rewrite all of them. Hell, we have to make mappings between IDs, so
          *        it won't matter so much for gameA->gameB installs. However, it might matter for gameA->gameA (upgrading EQdkp or similar).
-         *
-         * FIXME: Foreign key constraints will ruin this at the moment. UPDATEs are required for cases where the ID already exists.
-         *        Efficiency in determining whether an UPDATE or INSERT is required can be achieved by retrieving COUNT(id) and MAX(id) from the table in question.
-         *
          */
         $game_sql = array(
             'factions'      => array(),
@@ -116,12 +112,12 @@ class Game_Installer extends Game_Manager
         );
 
         // Generics for all games
-        $game_sql['factions'][]      = $db->sql_build_query('INSERT',array('faction_id' => 0, 'faction_name' => 'Unknown'));
-        $game_sql['races'][]         = $db->sql_build_query('INSERT',array('race_id' => 0, 'race_name' => 'Unknown', 'race_faction_id' => 0));
-#        $game_sql['armor_types'][]   = $db->sql_build_query('INSERT',array('armor_type_id' => 0, 'armor_type_name' => 'None'));
-#        $game_sql['classes'][]       = $db->sql_build_query('INSERT',array('class_id' => 0, 'class_name' => 'Unknown'));
-        $game_sql['classes'][]       = $db->sql_build_query('INSERT',array('class_id' => 0, 'class_name' => 'Unknown', 'class_armor_type' => 'Unknown', 'class_min_level' => 0, 'class_max_level' => $max_level));
-        // No generics for armor_classes
+        $game_sql['factions'][]      = $db->sql_build_query('INSERT',array('faction_id' => 0, 'faction_name' => 'Unknown', 'faction_key' => 'unknown'));
+        $game_sql['races'][]         = $db->sql_build_query('INSERT',array('race_id' => 0, 'race_name' => 'Unknown', 'race_key' => 'unknown', 'race_faction_id' => 0));
+        $game_sql['armor_types'][]   = $db->sql_build_query('INSERT',array('armor_type_id' => 0, 'armor_type_name' => 'None', 'armor_type_key' => 'none'));
+        $game_sql['classes'][]       = $db->sql_build_query('INSERT',array('class_id' => 0, 'class_name' => 'Unknown', 'class_key' => 'unknown'));
+#        $game_sql['classes'][]       = $db->sql_build_query('INSERT',array('class_id' => 0, 'class_name' => 'Unknown', 'class_armor_type' => 'Unknown', 'class_min_level' => 0, 'class_max_level' => $max_level));
+        $game_sql['class_armor'][]   = $db->sql_build_query('INSERT',array('class_id' => 0, 'armor_type_id' => 0)); // Default value for armor_min_level = 0. Default value for armor_max_level is null.
         
         // Factions
         foreach ($data['factions'] as $faction => $info)
@@ -129,6 +125,7 @@ class Game_Installer extends Game_Manager
             $sql_data = array(
                 'faction_id'   => intval($info['id']),
                 'faction_name' => $info['name'],
+				'faction_key'  => str_replace(' ','_',$faction),
             );
             $game_sql['factions'][] = $db->sql_build_query('INSERT',$sql_data);
         }
@@ -139,15 +136,35 @@ class Game_Installer extends Game_Manager
             $sql_data = array(
                 'race_id'         => intval($info['id']),
                 'race_name'       => $info['name'],
+				'race_key'        => str_replace(' ','_',$race),
                 'race_faction_id' => (is_numeric($info['faction'])) ? intval($info['faction']) : intval($data['factions'][$info['faction']]['id']),
             );
             $game_sql['races'][] = $db->sql_build_query('INSERT',$sql_data);
         }
         
         // Armor Types
-        // TODO: Update database structure before this can be done explicitly
+        foreach ($data['armor_types'] as $armor_type => $info)
+		{
+			$sql_data = array(
+				'armor_type_id'   => intval($info['id']),
+				'armor_type_name' => $info['name'],
+				'armor_type_key'  => str_replace(' ','_',$armor_type),
+			);
+			$game_sql['armor_types'][] = $db->sql_build_query('INSERT',$sql_data);
+		}
 
         // Classes
+		foreach ($data['classes'] as $class => $info)
+		{
+			$sql_data = array(
+				'class_id'        => intval($info['id']),
+				'class_name'      => $info['name'],
+				'class_key'       => str_replace(' ','_',$class),
+			);
+			$game_sql['classes'][] = $db->sql_build_query('INSERT',$sql_data);
+		}
+			
+		/*
         $id_fix = 0;
         foreach ($data['classes'] as $class => $info)
         {
@@ -188,11 +205,13 @@ class Game_Installer extends Game_Manager
                 $iteration++;
             }
         }
-
-        // Armor-Class mappings
-        // TODO: Update database structure before this can be done explicitly
-
+		*/
+		
+		// Class to Armor mappings have to be done a little later on.
+		
+		//
         // Time to start assaulting the database!
+		//
         // TODO: Being able to rollback a database transaction would be *really* useful about here
 
         // Discard the old table information
@@ -205,17 +224,17 @@ class Game_Installer extends Game_Manager
             $db->sql_query("TRUNCATE TABLE __class_armor");
         }
 
-        // FIXME: TRUNCATE TABLE will not work if there are foreign key dependencies in the table.
-        //        In other words, REPLACE INTO statements are required.
-        //        However, there may be a possibility of creating temporary tables, adding the old + new classes to that, 
-        //        then mapping back to the values in the real tables.
-        //        That way would probably take a hell of a lot longer though. Still, either way there needs to be one additional 
-        //        'swap' id row so you can switch from the old class ID to the new ones without accidentally losing class values.
+        // NOTE: TRUNCATE TABLE will not work if there are foreign key dependencies in the table.
+        //       In other words, REPLACE INTO statements are required.
+        //       To map the old-to-new game information, there is the option of creating temporary tables, 
+		//       adding the old + new classes to that, then replacing back to the values in the real tables.
+        //       That way would probably take a hell of a lot longer though. Still, at some point there needs to be one additional 
+        //       'swap' id row so you can switch from the old class ID to the new ones without accidentally losing class values.
 #        $db->sql_query("TRUNCATE TABLE __classes");
 #        $db->sql_query("TRUNCATE TABLE __races");
 #        $db->sql_query("TRUNCATE TABLE __factions");
         
-        // Execute the INSERTs for the new information
+        // Execute the database entries for the new information
         foreach ($game_sql as $table => $tabledata)
         {
             foreach ($tabledata as $sqldata)
@@ -237,11 +256,12 @@ class Game_Installer extends Game_Manager
         if ($echo_sql) echo "<br />\n";
         
         // FIXME: Method of choice - strip all old class IDs.
-        // FIXME: At this point, user classes and such will start going haywire.
+        // FIXME: At this point, user classes and such will start going haywire (foreign key associations and such).
         // FIXME: I am currently assuming the class IDs are incremental. They have to be checked up above still, so it makes life easier for me down here.
         $class_count = count($game_sql['classes']);
         $faction_count = count($game_sql['factions']);
         $race_count = count($game_sql['races']);
+		$armor_type_count = count($game_sql['armor_types']);
         
         // Remove old classes
         $sql = "DELETE FROM __classes
@@ -279,7 +299,54 @@ class Game_Installer extends Game_Manager
             $db->sql_query($sql);
         }
         
+		// Remove old armor
+		$sql = "DELETE FROM __armor_types
+		        WHERE armor_type_id > '" . intval($armor_type_count - 1) . "'";
+		if ($echo_sql)
+		{
+			echo $sql . "<br />\n";
+		}
+		else
+		{
+			$db->sql_query($sql);
+		}
+		
         
+        // Class-Armor mappings
+        foreach ($data['class_armor'] as $class_armor => $info)
+		{
+			// NOTE: There is the option of retrieving this info from the database here to ensure valid FKs are attained,
+			// but the data held in the $game_data array should be valid enough.
+			
+			$sql_data = array(
+				'class_id' => $data['classes'][$info['class']]['id'],
+				'armor_type_id' => $data['armor_types'][$info['armor']]['id'],
+			);
+			
+			if (isset($info['min']))
+			{
+				$sql_data['armor_min_level'] = intval($info['min']);
+			}
+			
+			if (isset($info['max']))
+			{
+				$sql_data['armor_max_level'] = intval($info['max']);
+			}
+			
+			$sql = $db->sql_build_query('INSERT',$sql_data);
+			
+			if ($echo_sql)
+			{
+				echo "INSERT INTO __class_armor" . $sql . "<br />\n";
+			}
+			else
+			{
+				$db->sql_query("INSERT INTO __class_armor" . $sql);
+			}
+		}
+
+
+		
         // Other game-related information updates
         // FIXME: Remove echo_sql calls when we're ready to release.
         // Max level update

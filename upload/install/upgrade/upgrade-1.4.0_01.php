@@ -99,7 +99,7 @@ if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
         // Update the default game values
         "INSERT INTO __config (`config_name`, `config_value`) VALUES ('current_game_name', '" . $game_name . "')",
         "UPDATE __config SET `config_name` = 'current_game' WHERE `config_name` = 'default_game' LIMIT 1",
-        
+		
         // New session and user management
         "DELETE FROM __config WHERE (config_name IN ('session_cleanup','cookie_domain','cookie_path')", // Unused config values
         "ALTER TABLE __users CHANGE `username` `user_name` VARCHAR( 30 ) NOT NULL", // username to user_name
@@ -109,6 +109,35 @@ if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
         "ALTER TABLE __users ADD `user_salt` VARCHAR( 40 ) NOT NULL AFTER `user_password`",
         "ALTER TABLE __sessions DROP INDEX `session_current`",
         "ALTER TABLE __sessions DROP `session_last_visit`",
+		
+		// Add the new game tables
+		"CREATE TABLE IF NOT EXISTS `eqdkp_armor_types` (
+		  `armor_type_id` smallint(3) unsigned NOT NULL UNIQUE,
+		  `armor_type_name` varchar(50) NOT NULL,
+		  `armor_type_key` varchar(30) NOT NULL,
+		  PRIMARY KEY (`armor_type_id`)
+		)TYPE=InnoDB;",
+		
+		"CREATE TABLE IF NOT EXISTS `eqdkp_class_armor` (
+		  `class_id` smallint(3) unsigned NOT NULL,
+		  `armor_type_id` smallint(3) unsigned NOT NULL,
+		  `armor_min_level` smallint(3) NOT NULL DEFAULT '0',
+		  `armor_max_level` smallint(3),
+		  PRIMARY KEY (`class_id`, `armor_type_id`),
+		  INDEX classes (`class_id`),
+		  INDEX armor_types (`armor_type_id`),
+		)TYPE=InnoDB;",
+		
+		// Update the other game tables
+		// TODO: Tsigo, because I haven't familiarized myself with the upgrade module's structure, I need you to do this part:
+		// - Add the 'key' values for each of the (3) game tables. These can probably default to something... preg_replace("#[^a-zA-Z0-9]#","_",$old_name).
+		//   The problem with this is that for a field that can't be null (aside: should these fields be nullable?), adding the column and then populating the values
+		//   may prove to be a challenge.
+#		"ALTER TABLE __classes ADD `class_key` VARCHAR( 30 ) NOT NULL",
+#		"ALTER TABLE __races ADD `race_key` VARCHAR( 30 ) NOT NULL",
+#		"ALTER TABLE __factions ADD `faction_key` VARCHAR( 30 ) NOT NULL",
+		
+		
     ));
     
     // Generate an installation-specific unique salt value

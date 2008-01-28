@@ -269,6 +269,7 @@ DROP TABLE IF EXISTS eqdkp_factions;
 CREATE TABLE `eqdkp_factions` (
   `faction_id` smallint(3) unsigned NOT NULL,
   `faction_name` varchar(50) NOT NULL,
+  `faction_key` varchar(30) NOT NULL,
   `faction_hide` enum('0','1') NOT NULL DEFAULT '0',
   PRIMARY KEY (`faction_id`)
 )TYPE=InnoDB;
@@ -276,6 +277,7 @@ CREATE TABLE `eqdkp_factions` (
 CREATE TABLE `eqdkp_races` (
   `race_id` smallint(3) unsigned NOT NULL UNIQUE,
   `race_name` varchar(50) NOT NULL,
+  `race_key` varchar(30) NOT NULL,
   `race_faction_id` smallint(3) NOT NULL DEFAULT '0',
   `race_hide` enum('0','1') NOT NULL DEFAULT '0',
   PRIMARY KEY (`race_id`)
@@ -284,9 +286,7 @@ CREATE TABLE `eqdkp_races` (
 CREATE TABLE `eqdkp_classes` (
   `class_id` smallint(3) unsigned NOT NULL,
   `class_name` varchar(50) NOT NULL,
-  `class_min_level` smallint(3) NOT NULL DEFAULT '0',
-  `class_max_level` smallint(3) NOT NULL DEFAULT '999',
-  `class_armor_type` varchar(50) NOT NULL,
+  `class_key` varchar(30) NOT NULL,
   `class_hide` enum('0','1') NOT NULL DEFAULT '0',
   PRIMARY KEY (`class_id`)
 )TYPE=InnoDB;
@@ -294,6 +294,7 @@ CREATE TABLE `eqdkp_classes` (
 CREATE TABLE `eqdkp_armor_types` (
   `armor_type_id` smallint(3) unsigned NOT NULL UNIQUE,
   `armor_type_name` varchar(50) NOT NULL,
+  `armor_type_key` varchar(30) NOT NULL,
   PRIMARY KEY (`armor_type_id`)
 )TYPE=InnoDB;
 

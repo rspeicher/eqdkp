@@ -1026,39 +1026,6 @@ class Add_Raid extends EQdkp_Admin
             // Inactive -> Active
             $db->query("UPDATE __members SET `member_status` = '1' WHERE (`member_lastraid` >= {$inactive_time}) AND (`member_status` = 0)");
         }
-
-        /*
-        // If your class_id doesn't match your level, update your class ID to the one that has
-        // the same class_name, but the correct min and max level.
-        // TODO: 1.3 cleanup
-        $sql = "SELECT m.member_name, m.member_level, c.class_name, c.class_id, c.class_min_level, c.class_max_level
-                FROM __members AS m, __classes AS c
-                WHERE m.`member_class_id` = c.`class_id`";
-        $result = $db->query($sql);
-
-        while ( $row = $db->fetch_record($result) )
-        {
-            if ( isset($row['member_level']) && ($row['member_level'] > $row['class_max_level'] || $row['member_level'] < $row['class_min_level']))
-            {
-                $sql = "SELECT class_id
-                        FROM __classes
-                        WHERE `class_name` = '{$row['class_name']}'
-                        AND `class_min_level` < '{$row['member_level']}'
-                        AND `class_max_level` >= '{$row['member_level']}'";
-                $new_class_id = $db->query_first($sql);
-
-                if (!isset($new_class_id))
-                {
-                    $new_class_id = 0;
-                }
-
-                $sql = "UPDATE __members
-                        SET `member_class_id` = '{$new_class_id}'
-                        WHERE `member_name` = '{$row['member_name']}'";
-                $db->query($sql);
-            }
-        }
-        */
     }
     
     // ---------------------------------------------------------

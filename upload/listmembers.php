@@ -30,7 +30,7 @@ $sort_order = array(
     6 => array('member_level desc', 'member_level'),
     7 => array('member_class', 'member_class desc'),
     8 => array('rank_name', 'rank_name desc'),
-    9 => array('armor_type', 'armor_type desc')
+    9 => array('armor_type_id', 'armor_type_id desc')
 );
 
 $current_order = switch_order($sort_order);
@@ -225,7 +225,6 @@ else
 	
 	// NOTE: As per the conditions of using MAX(), we need to group by something. We'll group by member ID, because it's essentially a transparent grouping.
 	$sql .= " GROUP BY m.member_id";
-	
     $sql .= " ORDER BY {$current_order['sql']}";
     
     if ( !($members_result = $db->query($sql)) )

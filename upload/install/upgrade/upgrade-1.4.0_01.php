@@ -50,7 +50,10 @@ if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
         '/admin/WoW-german.php',
         '/admin/WoW.php',
         '/dbal/',
+        '/games/DAoC.php',
         '/games/Everquest.php',
+        '/games/Everquest2.php',
+        '/games/Vanguard-SoH.php',
         '/games/WoW-german.php',
         '/games/WoW.php',
         '/includes/lib/',
@@ -111,14 +114,14 @@ if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
         "ALTER TABLE __sessions DROP `session_last_visit`",
 		
 		// Add the new game tables
-		"CREATE TABLE IF NOT EXISTS `eqdkp_armor_types` (
+		"CREATE TABLE IF NOT EXISTS `__armor_types` (
 		  `armor_type_id` smallint(3) unsigned NOT NULL UNIQUE,
 		  `armor_type_name` varchar(50) NOT NULL,
 		  `armor_type_key` varchar(30) NOT NULL,
 		  PRIMARY KEY (`armor_type_id`)
 		)TYPE=InnoDB;",
 		
-		"CREATE TABLE IF NOT EXISTS `eqdkp_class_armor` (
+		"CREATE TABLE IF NOT EXISTS `__class_armor` (
 		  `class_id` smallint(3) unsigned NOT NULL,
 		  `armor_type_id` smallint(3) unsigned NOT NULL,
 		  `armor_min_level` smallint(3) NOT NULL DEFAULT '0',
@@ -136,8 +139,6 @@ if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
 #		"ALTER TABLE __classes ADD `class_key` VARCHAR( 30 ) NOT NULL",
 #		"ALTER TABLE __races ADD `race_key` VARCHAR( 30 ) NOT NULL",
 #		"ALTER TABLE __factions ADD `faction_key` VARCHAR( 30 ) NOT NULL",
-		
-		
     ));
     
     // Generate an installation-specific unique salt value

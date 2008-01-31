@@ -114,14 +114,14 @@ if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
         "ALTER TABLE __sessions DROP `session_last_visit`",
 		
 		// Add the new game tables
-		"CREATE TABLE IF NOT EXISTS `__armor_types` (
+		"CREATE TABLE IF NOT EXISTS __armor_types (
 		  `armor_type_id` smallint(3) unsigned NOT NULL UNIQUE,
 		  `armor_type_name` varchar(50) NOT NULL,
 		  `armor_type_key` varchar(30) NOT NULL,
 		  PRIMARY KEY (`armor_type_id`)
 		)TYPE=InnoDB;",
 		
-		"CREATE TABLE IF NOT EXISTS `__class_armor` (
+		"CREATE TABLE IF NOT EXISTS __class_armor (
 		  `class_id` smallint(3) unsigned NOT NULL,
 		  `armor_type_id` smallint(3) unsigned NOT NULL,
 		  `armor_min_level` smallint(3) NOT NULL DEFAULT '0',
@@ -131,15 +131,16 @@ if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
 		  INDEX armor_types (`armor_type_id`),
 		)TYPE=InnoDB;",
 		
-		// Update the other game tables
-		// TODO: Tsigo, because I haven't familiarized myself with the upgrade module's structure, I need you to do this part:
-		// - Add the 'key' values for each of the (3) game tables. These can probably default to something... preg_replace("#[^a-zA-Z0-9]#","_",$old_name).
-		//   The problem with this is that for a field that can't be null (aside: should these fields be nullable?), adding the column and then populating the values
-		//   may prove to be a challenge.
-#		"ALTER TABLE __classes ADD `class_key` VARCHAR( 30 ) NOT NULL",
-#		"ALTER TABLE __races ADD `race_key` VARCHAR( 30 ) NOT NULL",
-#		"ALTER TABLE __factions ADD `faction_key` VARCHAR( 30 ) NOT NULL",
+		// Create game data language key fields
+		"ALTER TABLE __classes ADD `class_key` VARCHAR( 30 ) NOT NULL",
+		"ALTER TABLE __factions ADD `faction_key` VARCHAR( 30 ) NOT NULL",
+		"ALTER TABLE __races ADD `race_key` VARCHAR( 30 ) NOT NULL",
     ));
+    
+    // Populate the game data language key field values
+    game_keys('class');
+    game_keys('faction');
+    game_keys('race');
     
     // Generate an installation-specific unique salt value
     $eqdkp->config_set('auth_salt', generate_salt());
@@ -147,4 +148,31 @@ if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
     // Finalize
     Upgrade::set_version($VERSION);
     Upgrade::progress($VERSION);
+}
+
+/**
+ * Populates one of the class/faction/race language key fields
+ *
+ * @param string $type class | faction | race
+ * @return void
+ */
+function game_keys($type)
+{
+    global $db;
+    
+    // Pluralize table name
+    $table = ( $type == 'class' ) ? 'classes' : $type . 's';
+    $name  = "{$type}_name";
+    $key   = "{$type}_key";
+    
+    $sql = "SELECT {$name} FROM __{$table} ORDER BY {$name}";
+    $result = $db->query($sql);
+    while ( $row = $db->fetch_record($result) )
+    {
+        $key_val = preg_replace('/[^\w]/', '_', $row[$name]);
+        $db->query("UPDATE __{$table} SET :params WHERE ({$name} = '" . $db->escape($row[$name]) . "')", array(
+            $key => $key_val
+        ));
+    }
+    $db->free_result($result);
 }

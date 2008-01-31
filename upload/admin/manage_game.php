@@ -137,7 +137,7 @@ class EQdkp_Manage_Game extends EQdkp_Admin
         {
             $tpl->assign_block_vars('game_row', array(
                 'VALUE'    => $game_id,
-                'SELECTED' => option_selected($eqdkp->config['default_game'] == $game_id),
+                'SELECTED' => option_selected($eqdkp->config['current_game'] == $game_id),
                 'OPTION'   => $game_info['name'],
             ));
         }

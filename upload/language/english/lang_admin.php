@@ -104,6 +104,7 @@ $lang = array_merge($lang, array(
     'found_members'         => "Parsed %1\$d lines, found %2\$d members",
     'headline'              => 'Headline',
     'hide'                  => 'Hide?',
+    'include_roleplay'      => 'Include Roleplay',
     'install'               => 'Install',
     'item_search'           => 'Item Search',
     'list_prefix'           => 'List Prefix',

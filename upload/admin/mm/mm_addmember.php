@@ -157,7 +157,7 @@ class MM_Addmember extends EQdkp_Admin
             $sql = "SELECT member_id FROM __members WHERE (`member_name` = '" . $db->escape($in->get('member_name')) . "') LIMIT 1";
             if ( $db->num_rows($db->query($sql)) == 1 )
             {
-                $this->fv->errors['member_name'] = "Member already exists."; // TODO: Localize string
+                $this->fv->errors['member_name'] = $user->lang['error_member_exists'];
             }
         }
 
@@ -455,8 +455,8 @@ class MM_Addmember extends EQdkp_Admin
             $tpl->assign_block_vars('rank_row', array(
                 'VALUE'    => $row['rank_id'],
                 'SELECTED' => option_selected($this->member['member_rank_id'] == $row['rank_id']),
-                'OPTION'   => ( !empty($row['rank_name']) ) ? stripslashes($row['rank_name']) : '(None)') // TODO: Localize
-            );
+                'OPTION'   => ( !empty($row['rank_name']) ) ? stripslashes($row['rank_name']) : "({$user->lang['none']})"
+            ));
         }
         $db->free_result($result);
 

@@ -151,8 +151,7 @@ else
     $filter = $in->get('filter');
     
     $filter_options = array(
-        // TODO: Localize this string
-        array('VALUE' => '', 'SELECTED' => '', 'OPTION' => 'None'),
+        array('VALUE' => '', 'SELECTED' => '', 'OPTION' => $user->lang['none']),
     );
 
 	$filter_options[] = array('VALUE' => '', 'SELECTED' => '', 'OPTION' => '---------');

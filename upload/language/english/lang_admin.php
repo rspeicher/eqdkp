@@ -96,6 +96,7 @@ $lang = array_merge($lang, array(
     
     // Misc
     'account_enabled'       => 'Account Enabled',
+    'active_adjustment'     => 'Active adjustment',
     'adjustment_value'      => 'Adjustment Value',
     'adjustment_value_note' => 'May be negative',
     'code'                  => 'Code',
@@ -104,6 +105,7 @@ $lang = array_merge($lang, array(
     'found_members'         => "Parsed %1\$d lines, found %2\$d members",
     'headline'              => 'Headline',
     'hide'                  => 'Hide?',
+    'inactive_adjustment'   => 'Inactive adjustment',
     'include_roleplay'      => 'Include Roleplay',
     'install'               => 'Install',
     'item_search'           => 'Item Search',
@@ -281,7 +283,6 @@ $lang = array_merge($lang, array(
     'point_name'                => 'Point Name',
     'point_name_note'           => 'Ex: DKP, RP, etc.',
     'enable_account_activation' => 'Enable Account Activation',
-    'none'                      => 'None',
     'admin'                     => 'Admin',
     'default_language'          => 'Default Language',
     'default_locale'            => 'Default Locale (character set only, does not affect language)',
@@ -316,7 +317,6 @@ $lang = array_merge($lang, array(
     'current_game'              => 'Current Game',
     'game'                      => 'Game',
     'new_game'                  => 'New Game',
-
 
     // Admin Index
     'anonymous'          => 'Anonymous',
@@ -396,6 +396,7 @@ $lang = array_merge($lang, array(
     'error_invalid_adjustment' => 'A valid adjustment was not provided.',
     'error_invalid_plugin'     => 'A valid plugin was not provided.',
     'error_invalid_style'      => 'A valid style was not provided.',
+    'error_member_exists'      => 'A member by that name already exists.',
     
     // Verbose log entry lines
     'new_actions'           => 'Newest Admin Actions',

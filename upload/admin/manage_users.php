@@ -655,7 +655,7 @@ class Manage_Users extends EQdkp_Admin
         }
 
         $eqdkp->set_vars(array(
-            'page_title'    => page_title('Manage Users'), // TODO: Localize
+            'page_title'    => page_title($user->lang['manage_users_title']),
             'template_file' => 'settings.html',
             'display'       => true
         ));

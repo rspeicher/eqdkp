@@ -121,9 +121,6 @@ setlocale(LC_ALL, $cur_locale);
 // Ensure that, if we're not upgrading, the install folder is gone or unreadable
 install_check();
 
-// TODO: Remove this, it's for legacy only
-// $SID = '?s=';
-
 // Start up the user/session management
 $user->start();
 $user->setup($in->get('style', 0));

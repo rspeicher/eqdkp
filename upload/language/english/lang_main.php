@@ -330,6 +330,7 @@ $lang = array_merge($lang, array(
     'list_news'                           => 'List News',
     'list_raids'                          => 'List Raids',
     'may_be_negative_note'                => 'may be negative',
+    'none'                                => 'None',
     'not_available'                       => 'Not Available',
     'no_news'                             => 'No news entries found.',
     'of_raids'                            => "%1\$d%% of raids",

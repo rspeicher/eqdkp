@@ -940,7 +940,7 @@ class Add_Raid extends EQdkp_Admin
                 if ( $inactive_adj > 0 && $row['member_status'] == '1' && $row['member_lastraid'] < $inactive_time )
                 {
                     $adj_value  = $eqdkp->config['inactive_point_adj'];
-                    $adj_reason = 'Inactive adjustment'; // TODO: Localize
+                    $adj_reason = $user->lang['inactive_adjustment'];
                     
                     $inactive_members[] = $row['member_name'];
                 }
@@ -948,7 +948,7 @@ class Add_Raid extends EQdkp_Admin
                 elseif ( $active_adj > 0 && $row['member_status'] == '0' && $row['member_lastraid'] >= $inactive_time )
                 {
                     $adj_value  = $eqdkp->config['active_point_adj'];
-                    $adj_reason = 'Active adjustment'; // TODO: Localize
+                    $adj_reason = $user->lang['active_adjustment'];
                     
                     $active_members[] = $row['member_name'];
                 }
@@ -986,7 +986,7 @@ class Add_Raid extends EQdkp_Admin
                     'header'         => '{L_ACTION_INDIVADJ_ADDED}',
                     '{L_ADJUSTMENT}' => $eqdkp->config['inactive_point_adj'],
                     '{L_MEMBERS}'    => implode(', ', $inactive_members),
-                    '{L_REASON}'     => 'Inactive adjustment', // TODO: Localize
+                    '{L_REASON}'     => $user->lang['inactive_adjustment'],
                     '{L_ADDED_BY}'   => $user->data['user_name']
                 );
                 $this->log_insert(array(
@@ -1007,7 +1007,7 @@ class Add_Raid extends EQdkp_Admin
                     'header'         => '{L_ACTION_INDIVADJ_ADDED}',
                     '{L_ADJUSTMENT}' => $eqdkp->config['active_point_adj'],
                     '{L_MEMBERS}'    => implode(', ', $active_members),
-                    '{L_REASON}'     => 'Active adjustment', // TODO: Localize
+                    '{L_REASON}'     => $user->lang['active_adjustment'],
                     '{L_ADDED_BY}'   => $user->data['user_name']
                 );
                 $this->log_insert(array(

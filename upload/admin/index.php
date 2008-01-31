@@ -536,10 +536,11 @@ else
         'general' => array(
             0 => $user->lang['general_admin'],
             1 => array('link' => path_default('admin/settings.php'),       'text' => $user->lang['configuration'],  'check' => 'a_config_man'),
-            2 => array('link' => path_default('admin/manage_members.php'), 'text' => $user->lang['manage_members'], 'check' => 'a_members_man'),
-            3 => array('link' => path_default('admin/plugins.php'),        'text' => $user->lang['manage_plugins'], 'check' => 'a_plugins_man'),
-            4 => array('link' => path_default('admin/manage_users.php'),   'text' => $user->lang['manage_users'],   'check' => 'a_users_man'),
-            5 => array('link' => path_default('admin/logs.php'),           'text' => $user->lang['view_logs'],      'check' => 'a_logs_view')
+            2 => array('link' => path_default('admin/manage_game.php'),    'text' => $user->lang['game_settings'],  'check' => 'a_config_man'),
+            3 => array('link' => path_default('admin/manage_members.php'), 'text' => $user->lang['manage_members'], 'check' => 'a_members_man'),
+            4 => array('link' => path_default('admin/plugins.php'),        'text' => $user->lang['manage_plugins'], 'check' => 'a_plugins_man'),
+            5 => array('link' => path_default('admin/manage_users.php'),   'text' => $user->lang['manage_users'],   'check' => 'a_users_man'),
+            6 => array('link' => path_default('admin/logs.php'),           'text' => $user->lang['view_logs'],      'check' => 'a_logs_view')
         ),
         'styles' => array(
             0 => $user->lang['styles'],

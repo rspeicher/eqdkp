@@ -122,7 +122,6 @@ class EQdkp_Manage_Game extends EQdkp_Admin
             // Language
             'L_GAME'            => $user->lang['game'],
             'L_GAME_SETTINGS'   => $user->lang['game_settings'],
-            'L_DEFAULT_GAME'    => $user->lang['default_game'],
             'L_CURRENT_GAME'    => $user->lang['current_game'],
             'L_NEW_GAME'        => $user->lang['new_game'],
 

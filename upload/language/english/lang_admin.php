@@ -314,8 +314,6 @@ $lang = array_merge($lang, array(
     // Manage Game 
     'game_settings'             => 'Game Settings',
     'current_game'              => 'Current Game',
-    'default_game'              => 'Default Game', #TODO: Deprecate
-    'default_game_warn'         => 'Changing the default game may void other changes in this session.', #TODO: Deprecate
     'game'                      => 'Game',
     'new_game'                  => 'New Game',
 

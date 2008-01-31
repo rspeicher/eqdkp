@@ -346,6 +346,7 @@ class Session
     function _setup_language()
     {
         global $eqdkp_root_path;
+        global $eqdkp;
         
         $lang_name = '';
         $lang_path = '';
@@ -354,18 +355,21 @@ class Session
         $lang_name = ( file_exists($eqdkp_root_path . 'language/' . $this->data['user_lang']) ) 
             ? $this->data['user_lang'] 
             : $eqdkp->config['default_lang'];
-        $lang_path = $eqdkp_root_path . 'language/' . $lang_name . '/';
+
+        $lang_path = "language/{$lang_name}";
 
         // Include the common language strings
-        require_once("{$lang_path}lang_main.php");
+        require_once("{$eqdkp_root_path}{$lang_path}/lang_main.php");
         
         // Administrative language strings
         if ( defined('IN_ADMIN') )
         {
-            require_once("{$lang_path}lang_admin.php");
+            require_once("{$eqdkp_root_path}{$lang_path}/lang_admin.php");
         }
         
-        // TODO: Game language strings ?
+        // Game language strings
+        $game_path = "games/{$eqdkp->config['current_game']}";
+        require_once("{$eqdkp_root_path}{$game_path}/{$lang_path}/lang_game.php");
         
         $this->lang = $lang;
         unset($lang);

@@ -21,6 +21,11 @@ require_once($eqdkp_root_path . 'common.php');
 
 class Parse_Log extends EQdkp_Admin
 {
+    var $_ranks = array();
+    
+    var $input_guilds;
+    var $input_ranks;
+    
     function parse_log()
     {
         parent::eqdkp_admin();
@@ -46,17 +51,30 @@ class Parse_Log extends EQdkp_Admin
     {
         global $eqdkp, $gm, $in, $tpl, $user;
         
+        $gm->set_current_game($eqdkp->config['current_game']);
+        
+        // Store our input options and cache member->rank values
+        $this->_prepare_parse();
+        
         $log = $in->get('log');
         $log = explode("\n", $log);
         
+        // Prepare session storage
+        session_start();
+        $_SESSION['log'] = array();
+        
+        // Loop through each line of the log, performing a log parse on each and
+        // adding it to our array of member names if it matches the input options
+        $results = array();
         $members = array();
         foreach ( $log as $line )
         {
             $result = $gm->parse_log_entry($line);
             
-            // TODO: Need to Session-store the other values around here
-            // TODO: Need to ignore certain entries based on the form options
-            $members[] = $result['name'];
+            if ( $this->_session_store($result) )
+            {
+                $members[] = $result['name'];                
+            }
         }
         
         $members = array_unique($members);
@@ -85,6 +103,88 @@ class Parse_Log extends EQdkp_Admin
             'template_file'     => 'admin/parse_log.html',
             'display'           => true
         ));
+    }
+    
+    /**
+     * Populate the values of {@link $input_ranks}, {@link $input_guilds}
+     * and {@link $_ranks} to reduce overhead.
+     *
+     * @return void
+     * @access private
+     */
+    function _prepare_parse()
+    {
+        global $db, $in;
+        
+        $this->input_ranks  = $in->getArray('ranks', 'int', 2);
+        $this->input_guilds = $in->getArray('guilds', 'string', 2);
+        
+        $sql = "SELECT member_name, member_rank_id
+                FROM __members
+                ORDER BY member_name";
+        $result = $db->query($sql);
+        while ( $row = $db->fetch_record($result) )
+        {
+            $this->_ranks[$row['member_name']] = $row['member_rank_id'];
+        }
+        $db->free_result($result);
+    }
+    
+    /**
+     * Checks if a resulting entry from a log parse matches the user's specified
+     * options in order to be stored for data updating via AddRaid, and if so,
+     * stores the member's data in the current session.
+     *
+     * @param array $result Resulting data from Game_Manager::parse_log_entry()
+     * @return bool true if stored, false if not
+     * @access private
+     */
+    function _session_store($result)
+    {
+        global $in;
+        
+        if ( empty($result['name']) )
+        {
+            return false;
+        }
+        
+        $find_all    = $in->exists('findall');
+        $guild_check = false;
+        $rank_check  = false;
+        
+        $name  = $result['name'];
+        $guild = $result['guild'];
+        $rank  = ( isset($this->_ranks[$name]) ) ? $this->_ranks[$name] : 0;
+        
+        // See if this member's guild tag is enabled in our options
+        // NOTE: A member without a guild will never be included unless 'Find all' is checked. Do we want to change that?
+        foreach ( $this->input_guilds as $input_guild )
+        {
+            if ( unsanitize($input_guild) == unsanitize($guild) )
+            {
+                $guild_check = true;
+            }
+        }
+        
+        // See if this member's rank ID is enabled in our options
+        $rank_check = in_array($rank, $this->input_ranks);
+        
+        // 'Find all' overrides guild checks, but NOT rank checks
+        if ( ($find_all || $guild_check) && $rank_check )
+        {
+            $_SESSION['log'][$name] = array(
+                'name'  => $name,
+                'class' => $result['class'],
+                'race'  => $result['race'],
+                'level' => $result['level']
+            );
+            
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     // ---------------------------------------------------------
@@ -120,8 +220,8 @@ class Parse_Log extends EQdkp_Admin
             {
                 $guildtag = trim($guildtag);
                 $tagoptions[] = array(
-                    'CBNAME'    => 'g_' . str_replace(' ', '_', preg_replace('/[^\w]/', '', $guildtag)),
-                    'CBVALUE'   => '1',
+                    'CBNAME'    => 'guilds[]',
+                    'CBVALUE'   => sanitize($guildtag, ENT),
                     'CBCHECKED' => ' checked="checked"',
                     'OPTION'    => '&lt;' . sanitize($guildtag, ENT) . '&gt;'
                 );
@@ -161,7 +261,7 @@ class Parse_Log extends EQdkp_Admin
                 $format = ( $rank_count == 1 ) ? $user->lang['x_members_s'] : $user->lang['x_members_p'];
                 
                 $ranks[] = array(
-                    'CBNAME'    => 'r_' . str_replace(' ', '_', trim($row['rank_name'])),
+                    'CBNAME'    => 'ranks[]',
                     'CBVALUE'   => intval($row['rank_id']),
                     'CBCHECKED' => ' checked="checked"',
                     'OPTION'    => $user->lang['rank'] . ': ' . (( empty($row['rank_name']) ) ? '(None)' : $row['rank_prefix'] . $row['rank_name'] . $row['rank_suffix'])
@@ -190,6 +290,7 @@ class Parse_Log extends EQdkp_Admin
         
         $eqdkp->set_vars(array(
             'page_title'        => page_title($user->lang['parselog_title']),
+            // TODO: Remove after debug
             // 'gen_simple_header' => true,
             'template_file'     => 'admin/parse_Everquest.html',
             'display'           => true

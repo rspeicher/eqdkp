@@ -1159,7 +1159,8 @@ class Add_Raid extends EQdkp_Admin
             // Javascript messages
             'MSG_ATTENDEES_EMPTY' => $user->lang['fv_required_attendees'],
             'MSG_NAME_EMPTY'      => $user->lang['fv_required_event_name'],
-            'MSG_GAME_NAME'       => $eqdkp->config['current_game_name'],
+            // The file is now always parse_log.php, this provides legacy support in case someone doesn't update their HTML files
+            'MSG_GAME_NAME'       => 'log',
             
             // Buttons
             'S_ADD' => ( !$this->url_id ) ? true : false)

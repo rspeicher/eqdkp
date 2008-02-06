@@ -49,17 +49,17 @@ $previous_source = preg_replace('/( (asc|desc))?/i', '', $sort_order[$sort_index
 $sql = "SELECT m.*, (m.member_earned-m.member_spent+m.member_adjustment) AS member_current, 
             m.member_status, CONCAT(r.rank_prefix, '%s', r.rank_suffix) AS member_sname, 
             r.rank_name, r.rank_hide, r.rank_id, 
-			c.class_name AS member_class,
-			at.armor_type_name AS armor_type, 
-			MAX(ca.armor_type_id) AS armor_type_id,
-			ca.armor_min_level AS min_level, 
-			ca.armor_max_level AS max_level
+            c.class_name AS member_class,
+            at.armor_type_name AS armor_type, 
+            MAX(ca.armor_type_id) AS armor_type_id,
+            ca.armor_min_level AS min_level, 
+            ca.armor_max_level AS max_level
         FROM __members AS m, __member_ranks AS r, __classes AS c, __armor_types AS at, __class_armor AS ca
         WHERE (c.class_id = m.member_class_id)
-		AND (ca.class_id = m.member_class_id)
-		AND (at.armor_type_id = ca.armor_type_id)
+        AND (ca.class_id = m.member_class_id)
+        AND (at.armor_type_id = ca.armor_type_id)
         AND (m.member_rank_id = r.rank_id)
-		GROUP BY m.member_id
+        GROUP BY m.member_id
         ORDER BY {$current_order['sql']}";
 if ( !($members_result = $db->query($sql)) )
 {

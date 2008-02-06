@@ -113,7 +113,7 @@ class Backup extends EQdkp_Admin
         global $db, $dbhost, $table_prefix;
         global $SID;
 
-		include($eqdkp_root_path . 'includes/functions_install.php');
+        include($eqdkp_root_path . 'includes/functions_install.php');
 
         $tables = array();
 

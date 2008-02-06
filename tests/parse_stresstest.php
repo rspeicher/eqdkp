@@ -15,68 +15,68 @@ var_dump($games);
 
 $log_entries = array(
     //[__NAME__]: Level __LEVEL__ __RACE__ __CLASS__ <__GUILD__> - __ZONE__
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
-	'[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
-	'[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
+    '[Dazza]: Level 60 Night Elf Priest <Banimal> - Winterspring',
+    '[Kamien]: Level 70 Undead Rogue <Juggernaut> - Black Temple',
 );
 
 $results = array();
@@ -100,10 +100,10 @@ $start_time = microtime(1);
 
 for ($i=0; $i<$trials; $i++)
 {
-	foreach ($log_entries as $log)
-	{
-		$results[$i][] = $gm->parse_log_entry($log);
-	}
+    foreach ($log_entries as $log)
+    {
+        $results[$i][] = $gm->parse_log_entry($log);
+    }
 }
 
 $end_time = microtime(1);
@@ -119,7 +119,7 @@ echo "<p>Average time: " . (($end_time - $start_time)/$trials) . "</p>";
 echo "<pre>";
 foreach ($results as $result)
 {
-	print_r($result);
+    print_r($result);
 }
 echo "</pre>";
 */

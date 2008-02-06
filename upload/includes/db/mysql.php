@@ -92,7 +92,7 @@ class dbal_mysql extends dbal
             // Remove pre-existing query resources
             unset($this->query_id);
             
-			// FIXME: This should *only* replace at the start of a word boundary.
+            // FIXME: This should *only* replace at the start of a word boundary.
             $query = preg_replace('#__([^\s]+)#', $table_prefix . '\1', $query);
             
             if ( is_array($params) && count($params) > 0 )

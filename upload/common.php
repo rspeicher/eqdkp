@@ -151,7 +151,7 @@ if ( defined('IN_ADMIN') )
  */
 function install_check()
 {
-	global $user;
+    global $user;
 
     $path = dirname(__FILE__);
 

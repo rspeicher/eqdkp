@@ -104,8 +104,8 @@ $DEFAULTS = array(
     'version'       => '1.4.0 B1',
     'default_lang'  => 'English',
     'default_style' => '1',
-	'default_game'  => 'wow',
-	'dkp_name'      => 'DKP',
+    'default_game'  => 'wow',
+    'dkp_name'      => 'DKP',
     'table_prefix'  => 'eqdkp_',
     'dbal'          => 'mysql'
 );
@@ -162,24 +162,24 @@ class Template_Wrap extends Template
         $this->assign_vars(array(
             'MSG_TITLE' => '',
             'MSG_TEXT'  => '',
-			)
+            )
         );
 
         $this->set_filenames(array(
             'body' => $this->template_file
-		));
+        ));
     }
 
     function message_die($text = '', $title = '')
     {
         $this->set_filenames(array(
             'body' => 'install_message.html'
-		));
+        ));
 
         $this->assign_vars(array(
             'MSG_TITLE' => ( $title != '' ) ? $title : '&nbsp;',
             'MSG_TEXT'  => ( $text  != '' ) ? $text  : '&nbsp;',
-			)
+            )
         );
 
         if ( !$this->header_inc )
@@ -211,7 +211,7 @@ class Template_Wrap extends Template
             $this->assign_vars(array(
                 'MSG_TITLE' => 'Installation ' . (( sizeof($this->install_message) == 1 ) ? 'Note' : 'Notes'),
                 'MSG_TEXT'  => $install_message,
-				)
+                )
             );
         }
     }
@@ -258,9 +258,9 @@ class Template_Wrap extends Template
         */
 
         $this->assign_vars(array(
-			'EQDKP_ROOT_PATH' => $eqdkp_root_path,
+            'EQDKP_ROOT_PATH' => $eqdkp_root_path,
             'INSTALL_STEP' => $STEP,
-			)
+            )
         );
     }
 

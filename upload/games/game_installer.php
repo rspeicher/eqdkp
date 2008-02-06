@@ -97,7 +97,7 @@ class Game_Installer extends Game_Manager
          * TODO: Use $games[$game_id]['available'] information to only bother working with what we have.
          * TODO: Replace use of $info['name'] with the keys themselves. Then upon retrieval from the db, the 'name' can be replaced with the language string.
          * FIXME: properly escape input.
-		 *
+         *
          * FIXME: ID information. Right now, if ID isn't provided in the game info file OR the IDs aren't unique, this will all fail horribly. 
          *        A new method is going to have to be added somewhere (perhaps in the install_game method, before this one is called) where the IDs 
          *        are checked, and if they aren't provided or valid, simply rewrite all of them. Hell, we have to make mappings between IDs, so
@@ -125,7 +125,7 @@ class Game_Installer extends Game_Manager
             $sql_data = array(
                 'faction_id'   => intval($info['id']),
                 'faction_name' => $info['name'],
-				'faction_key'  => str_replace(' ','_',$faction),
+                'faction_key'  => str_replace(' ','_',$faction),
             );
             $game_sql['factions'][] = $db->sql_build_query('INSERT',$sql_data);
         }
@@ -136,7 +136,7 @@ class Game_Installer extends Game_Manager
             $sql_data = array(
                 'race_id'         => intval($info['id']),
                 'race_name'       => $info['name'],
-				'race_key'        => str_replace(' ','_',$race),
+                'race_key'        => str_replace(' ','_',$race),
                 'race_faction_id' => (is_numeric($info['faction'])) ? intval($info['faction']) : intval($data['factions'][$info['faction']]['id']),
             );
             $game_sql['races'][] = $db->sql_build_query('INSERT',$sql_data);
@@ -144,27 +144,27 @@ class Game_Installer extends Game_Manager
         
         // Armor Types
         foreach ($data['armor_types'] as $armor_type => $info)
-		{
-			$sql_data = array(
-				'armor_type_id'   => intval($info['id']),
-				'armor_type_name' => $info['name'],
-				'armor_type_key'  => str_replace(' ','_',$armor_type),
-			);
-			$game_sql['armor_types'][] = $db->sql_build_query('INSERT',$sql_data);
-		}
+        {
+            $sql_data = array(
+                'armor_type_id'   => intval($info['id']),
+                'armor_type_name' => $info['name'],
+                'armor_type_key'  => str_replace(' ','_',$armor_type),
+            );
+            $game_sql['armor_types'][] = $db->sql_build_query('INSERT',$sql_data);
+        }
 
         // Classes
-		foreach ($data['classes'] as $class => $info)
-		{
-			$sql_data = array(
-				'class_id'        => intval($info['id']),
-				'class_name'      => $info['name'],
-				'class_key'       => str_replace(' ','_',$class),
-			);
-			$game_sql['classes'][] = $db->sql_build_query('INSERT',$sql_data);
-		}
-			
-		/*
+        foreach ($data['classes'] as $class => $info)
+        {
+            $sql_data = array(
+                'class_id'        => intval($info['id']),
+                'class_name'      => $info['name'],
+                'class_key'       => str_replace(' ','_',$class),
+            );
+            $game_sql['classes'][] = $db->sql_build_query('INSERT',$sql_data);
+        }
+            
+        /*
         $id_fix = 0;
         foreach ($data['classes'] as $class => $info)
         {
@@ -205,13 +205,13 @@ class Game_Installer extends Game_Manager
                 $iteration++;
             }
         }
-		*/
-		
-		// Class to Armor mappings have to be done a little later on.
-		
-		//
+        */
+        
+        // Class to Armor mappings have to be done a little later on.
+        
+        //
         // Time to start assaulting the database!
-		//
+        //
         // TODO: Being able to rollback a database transaction would be *really* useful about here
 
         // Discard the old table information
@@ -227,7 +227,7 @@ class Game_Installer extends Game_Manager
         // NOTE: TRUNCATE TABLE will not work if there are foreign key dependencies in the table.
         //       In other words, REPLACE INTO statements are required.
         //       To map the old-to-new game information, there is the option of creating temporary tables, 
-		//       adding the old + new classes to that, then replacing back to the values in the real tables.
+        //       adding the old + new classes to that, then replacing back to the values in the real tables.
         //       That way would probably take a hell of a lot longer though. Still, at some point there needs to be one additional 
         //       'swap' id row so you can switch from the old class ID to the new ones without accidentally losing class values.
 #        $db->sql_query("TRUNCATE TABLE __classes");
@@ -261,7 +261,7 @@ class Game_Installer extends Game_Manager
         $class_count = count($game_sql['classes']);
         $faction_count = count($game_sql['factions']);
         $race_count = count($game_sql['races']);
-		$armor_type_count = count($game_sql['armor_types']);
+        $armor_type_count = count($game_sql['armor_types']);
         
         // Remove old classes
         $sql = "DELETE FROM __classes
@@ -299,54 +299,54 @@ class Game_Installer extends Game_Manager
             $db->sql_query($sql);
         }
         
-		// Remove old armor
-		$sql = "DELETE FROM __armor_types
-		        WHERE armor_type_id > '" . intval($armor_type_count - 1) . "'";
-		if ($echo_sql)
-		{
-			echo $sql . "<br />\n";
-		}
-		else
-		{
-			$db->sql_query($sql);
-		}
-		
+        // Remove old armor
+        $sql = "DELETE FROM __armor_types
+                WHERE armor_type_id > '" . intval($armor_type_count - 1) . "'";
+        if ($echo_sql)
+        {
+            echo $sql . "<br />\n";
+        }
+        else
+        {
+            $db->sql_query($sql);
+        }
+        
         
         // Class-Armor mappings
         foreach ($data['class_armor'] as $class_armor => $info)
-		{
-			// NOTE: There is the option of retrieving this info from the database here to ensure valid FKs are attained,
-			// but the data held in the $game_data array should be valid enough.
-			
-			$sql_data = array(
-				'class_id' => $data['classes'][$info['class']]['id'],
-				'armor_type_id' => $data['armor_types'][$info['armor']]['id'],
-			);
-			
-			if (isset($info['min']))
-			{
-				$sql_data['armor_min_level'] = intval($info['min']);
-			}
-			
-			if (isset($info['max']))
-			{
-				$sql_data['armor_max_level'] = intval($info['max']);
-			}
-			
-			$sql = $db->sql_build_query('INSERT',$sql_data);
-			
-			if ($echo_sql)
-			{
-				echo "INSERT INTO __class_armor" . $sql . "<br />\n";
-			}
-			else
-			{
-				$db->sql_query("INSERT INTO __class_armor" . $sql);
-			}
-		}
+        {
+            // NOTE: There is the option of retrieving this info from the database here to ensure valid FKs are attained,
+            // but the data held in the $game_data array should be valid enough.
+            
+            $sql_data = array(
+                'class_id' => $data['classes'][$info['class']]['id'],
+                'armor_type_id' => $data['armor_types'][$info['armor']]['id'],
+            );
+            
+            if (isset($info['min']))
+            {
+                $sql_data['armor_min_level'] = intval($info['min']);
+            }
+            
+            if (isset($info['max']))
+            {
+                $sql_data['armor_max_level'] = intval($info['max']);
+            }
+            
+            $sql = $db->sql_build_query('INSERT',$sql_data);
+            
+            if ($echo_sql)
+            {
+                echo "INSERT INTO __class_armor" . $sql . "<br />\n";
+            }
+            else
+            {
+                $db->sql_query("INSERT INTO __class_armor" . $sql);
+            }
+        }
 
 
-		
+        
         // Other game-related information updates
         // FIXME: Remove echo_sql calls when we're ready to release.
         // Max level update

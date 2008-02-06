@@ -139,18 +139,18 @@ function inst_locale_select($default = '')
 
 function game_select($default = '')
 {
-	global $eqdkp_root_path, $lang, $LOCALES, $DEFAULTS;
-	
-	if (empty($default))
-	{
-		$default = $DEFAULTS['default_game'];
-	}
-	
-	if (!class_exists('Game_Installer'))
-	{
-		include($eqdkp_root_path . 'games/game_installer.php');
-	}
-	$gm = new Game_Installer();	
+    global $eqdkp_root_path, $lang, $LOCALES, $DEFAULTS;
+    
+    if (empty($default))
+    {
+        $default = $DEFAULTS['default_game'];
+    }
+    
+    if (!class_exists('Game_Installer'))
+    {
+        include($eqdkp_root_path . 'games/game_installer.php');
+    }
+    $gm = new Game_Installer();    
 
     $available_games = $gm->list_games();
 
@@ -343,17 +343,17 @@ function config_set($config_name, $config_value='', $db = null, $config_table = 
             {
                 return false;
             }
-			if ( $config_table == false )
-			{
-				if ( defined('CONFIG_TABLE') )
-				{
-					$config_table = CONFIG_TABLE;
-				}
-				else
-				{
-					return false;
-				}
-			}
+            if ( $config_table == false )
+            {
+                if ( defined('CONFIG_TABLE') )
+                {
+                    $config_table = CONFIG_TABLE;
+                }
+                else
+                {
+                    return false;
+                }
+            }
 
             $sql = 'UPDATE ' . $config_table . "
                     SET config_value='" . $db->escape($config_value) . "'

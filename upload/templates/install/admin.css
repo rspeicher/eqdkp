@@ -187,7 +187,7 @@ a:active {
   clear: both;
   text-align: right;
   background: url("images/eqdkp_logo.gif") top left no-repeat;
-  height: 49px;
+  height: 63px;
   font-size: 0.85em;
   margin-bottom: 10px;
 }
@@ -195,7 +195,8 @@ a:active {
 #page-header h1 {
   color: #CECFEF;
   font-family: Verdana, Tahoma, Arial;
-  font-size: 1.70em;
+  font-size: 1.65em;
+  font-weight: bold;
   padding-top: 10px;
 }
 
@@ -299,7 +300,6 @@ span.corners-top span, span.corners-bottom span {
   list-style: none;
   margin: 0;
   padding: 0;
-  padding-left: 20px;
 }
 
 /* Default list state */
@@ -314,11 +314,11 @@ span.corners-top span, span.corners-bottom span {
 /* Link styles for the sub-section links */
 #menu li span {
   display: block;
-  padding: 6px 3px 6px 8px;
+  padding: 6px 3px 6px 18px;
   margin: 1px 0;
   text-decoration: none;
   font-weight: normal;
-  color: #138ECB;
+  color: #33309C;
 }
 
 #menu li a:hover, #menu li a:hover span {
@@ -336,14 +336,16 @@ span.corners-top span, span.corners-bottom span {
   text-decoration: none;
   font-weight: bold;
   color: #1180B7;
-  background: transparent url("images/arrow_right.gif") 0% 50% no-repeat;
+  padding-left: 22px;
+  background: transparent url("images/arrow_right.gif") 6px 50% no-repeat;
 }
 
 #menu li#activemenu a:hover span, #menu li#activemenu span {
   text-decoration: none;
   font-weight: bold;
   color: #BC2A4D;
-  background: #FFFFFF url("images/arrow_right.gif") 1% 50% no-repeat;
+  padding-left: 22px;
+  background: #FFFFFF url("images/arrow_right.gif") 8px 50% no-repeat;
 }
 
 #menu li a:active, #menu li a:active span, #menu li#activemenu a:active span {
@@ -352,8 +354,10 @@ span.corners-top span, span.corners-bottom span {
 
 #menu li span.completed {
   text-decoration: none;
-  padding: 6px 3px 6px 12px;
-  background: url("images/arrow_down.gif") 1% 50% no-repeat;
+  padding: 6px 3px 6px 18px;
+  background: url("images/arrow_down.gif") 6px 50% no-repeat;
+  color: #292860;
+  font-weight: bold;
 }
 
 #menu li.header {
@@ -366,6 +370,18 @@ span.corners-top span, span.corners-bottom span {
   margin-top: 15px;
   text-transform: uppercase;
   font-size: 0.75em;
+}
+
+/* Footer styles
+---------------------------------------- */
+
+#page-footer p {
+	font-size: 0.85em;
+	color: #CECFEF;
+}
+
+#page-footer a {
+	color: #999BEF;
 }
 
 /* Table styles
@@ -394,65 +410,6 @@ td {
   font-size: 0.85em;
   padding: 4px;
   line-height: 1.20em;
-}
-
-table.type2 {
-  border: none;
-  background: none;
-  padding: 0;
-}
-
-table.type2 th {
-  background: none;
-  border-top: none;
-  text-align: center;
-  color: #115098;
-  padding: 2px 0;
-}
-
-table.type2 td {
-  padding: 0;
-  font-size: 1em;
-}
-
-table.type2 td.name {
-  padding: 2px;
-  vertical-align: middle;
-}
-
-table.type3  {
-  float: right;
-  width: 300px;
-  border: none;
-  background-color: transparent;
-  padding: 0;
-}
-
-table.type3 thead th {
-  background-color: transparent;
-  border-top: none;
-  text-align: center;
-  color: #115098;
-  padding: 0 3px;
-  font-size: 0.85em;
-  font-weight: normal;
-  text-transform: none;
-}
-
-table.type3 tbody th {
-  border-top: none;
-  text-align: left;
-  text-transform: none;
-  padding: 0;
-  border: none;
-  font-size: 0.90em;
-  font-weight: normal;
-  width: 100%;
-}
-
-table.type3 td {
-  text-align: center;
-  padding: 1px;
 }
 
 th.name {
@@ -496,13 +453,6 @@ fieldset {
   position: relative;
 }
 
-.rtl fieldset {
-  border-top: 1px solid #D7D7D7;
-  border-right: 1px solid #D7D7D7;
-  border-bottom: 1px solid #CCCCCC;
-  border-left: 1px solid #CCCCCC;
-}
-
 * html fieldset {
   padding: 0 10px 5px 10px;
 }
@@ -516,7 +466,7 @@ legend {
   font-family: Tahoma,arial,Verdana,Sans-serif;
   font-size: .9em;
   font-weight: bold;
-  color: #115098;
+  color: #44428A;
   margin-top: -.4em;
   position: relative;
   text-transform: none;
@@ -535,12 +485,6 @@ legend { top: -1.2em; }
   font-size: .85em;
 }
 
-/* Holly hack, .rtl comes after html */
-* html .rtl legend {
-  margin: 0;
-  margin-right: -7px;
-}
-
 input, textarea {
   font-family: Verdana, Helvetica, Arial, sans-serif;
   font-size: 0.90em;
@@ -554,13 +498,6 @@ input, textarea {
   border-right: 1px solid #D5D5C8;
   border-bottom: 1px solid #D5D5C8;
   background-color: #E3DFD8;
-}
-
-.rtl input, .rtl textarea {
-  border-left: 1px solid #D5D5C8;
-  border-top: 1px solid #AFAEAA;
-  border-right: 1px solid #AFAEAA;
-  border-bottom: 1px solid #D5D5C8;
 }
 
 input:hover, textarea:hover {
@@ -600,10 +537,6 @@ option.disabled-option {
   color: graytext;
 }
 
-.rtl option {
-  padding: 0 0 0 1em;
-}
-
 .sep {
   font-weight: bold;
 }
@@ -625,10 +558,6 @@ label {
   padding: 0 5px 0 0;
 }
 
-.rtl label {
-  padding: 0 0 0 5px;
-}
-
 label input {
   font-size: 1.00em;
   vertical-align: middle;
@@ -644,10 +573,6 @@ fieldset.quick, p.quick {
   border: none;
   background-color: transparent;
   text-align: right;
-}
-
-.rtl fieldset.quick, .rtl p.quick {
-  text-align: left;
 }
 
 fieldset.quick legend {
@@ -711,14 +636,9 @@ dt {
   width: auto;
 }
 
-.rtl dt {
-  float: right;
-}
-
 dd { color: #666666;}
 dd + dd { padding-top: 5px;}
 dt span { padding: 0 5px 0 0;}
-.rtl dt span { padding: 0 0 0 5px;}
 
 dt .explain { font-style: italic;}
 
@@ -729,19 +649,11 @@ dt label {
   color: #4A5A73;
 }
 
-.rtl dt label {
-  text-align: right;
-}
-
 dd label {
   font-size: 1.00em;
   white-space: nowrap;
   margin: 0 10px 0 0;
   color: #4A5A73;
-}
-
-.rtl dd label {
-  margin: 0 0 0 10px;
 }
 
 html>body dd label input { vertical-align: text-bottom;}  /* Tweak for Moz to align checkboxes/radio buttons nicely */
@@ -780,12 +692,6 @@ fieldset dt {
   padding-top: 3px;
 }
 
-.rtl fieldset dt {
-  text-align: right;
-  border: none;
-  border-left: 1px solid #CCCCCC;
-}
-
 fieldset dd {
   margin: 0 0 0 45%;
   padding: 0 0 0 5px;
@@ -793,13 +699,6 @@ fieldset dd {
   border-left: 1px solid #CCCCCC;
   vertical-align: top;
   font-size: 1.00em;
-}
-
-.rtl fieldset dd {
-  margin: 0 45% 0 0;
-  padding: 0 5px 0 0;
-  border: none;
-  border-right: 1px solid #CCCCCC;
 }
 
 dd.full, .rtl dd.full {
@@ -887,18 +786,22 @@ a.button2, input.button2 {
   font-family: "Lucida Grande", Verdana, Helvetica, Arial, sans-serif;
   color: #000;
   font-size: 0.85em;
-  background: #EFEFEF url("images/bg_button.gif") repeat-x top;
+  background: #F6F6F6 url("images/bg_button.gif") repeat-x top;
   cursor: pointer;
 }
 
 a.button1, input.button1 {
   font-weight: bold;
-  border: 1px solid #666666;
+  border: 1px solid #88898C;
+  border-left-color: #AAABAF;
+  border-top-color: #AAABAF;
 }
 
 /* Alternative button */
 a.button2, input.button2 {
-  border: 1px solid #666666;
+  border: 1px solid #88898C;
+  border-left-color: #AAABAF;
+  border-top-color: #AAABAF;
 }
 
 /* <a> button in the style of the form buttons */
@@ -912,8 +815,10 @@ a.button2, a.button2:link, a.button2:visited, a.button2:active {
 /* Hover states */
 a.button1:hover, input.button1:hover,
 a.button2:hover, input.button2:hover {
-  border: 1px solid #BC2A4D;
-  background: #EFEFEF url("images/bg_button.gif") repeat bottom;
+  border: 1px solid #88010A;
+  border-left-color: #C54B6A;
+  border-top-color: #C54B6A;
+  background: #FAFAFA url("images/bg_button.gif") repeat bottom;
   color: #BC2A4D;
 }
 
@@ -921,63 +826,6 @@ input.disabled {
   font-weight: normal;
   color: #666666;
 }
-
-/* Pagination
----------------------------------------- */
-.pagination {
-  height: 1%; /* IE tweak (holly hack) */
-  width: auto;
-  text-align: right;
-  margin-top: 5px;
-  font-size: 0.85em;
-  padding-bottom: 2px;
-}
-
-.rtl .pagination {
-  text-align: left;
-}
-
-.pagination strong,
-.pagination b {
-  font-weight: normal;
-}
-
-.pagination span.page-sep {
-  display:none;
-}
-
-.pagination span strong {
-  padding: 0 2px;
-  margin: 0 2px;
-  font-weight: normal;
-  font-size: 0.85em;
-  color: #FFFFFF;
-  background: #4692BF;
-  border: 1px solid #4692BF;
-}
-
-.pagination span a, .pagination span a:link, .pagination span a:visited, .pagination span a:active {
-  font-weight: normal;
-  font-size: 0.85em;
-  text-decoration: none;
-  color: #5C758C;
-  margin: 0 2px;
-  padding: 0 2px;
-  background: #ECEDEE;
-  border: 1px solid #B4BAC0;
-}
-
-.pagination span a:hover {
-  border-color: #368AD2;
-  background: #368AD2;
-  color: #FFFFFF;
-  text-decoration: none;
-}
-
-.pagination img {
-  vertical-align: middle;
-}
-
 
 /* Action Highlighting
 ---------------------------------------- */

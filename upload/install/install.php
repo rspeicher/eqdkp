@@ -1241,6 +1241,9 @@ class installer
         config_set('default_lang', $data['default_lang']);
         config_set('default_locale', $data['default_locale']);
         
+		config_set('current_game', $gm->current_game);
+		config_set('current_game_name', $gm->games[$gm->current_game]['name']);
+		
         config_set('main_title', $data['site_name']);
         config_set('sub_title', $data['site_desc']);
         config_set('dkp_name', $data['dkp_name']);
@@ -1250,6 +1253,11 @@ class installer
         $data['auth_salt'] = generate_salt();
         config_set('auth_salt', $data['auth_salt']);
         
+		// NOTE: In the normal flow of EQdkp, the $eqdkp object would be populated with - among other things - an array of config values.
+		// Because we don't have such an object right now, we need to "create", then add information to a new $eqdkp object so that the hash_password() function will work correctly.
+		global $eqdkp;
+		$eqdkp->config = array('auth_salt' => $data['auth_salt']);
+		
         //
         // Update admin account
         //
@@ -1257,6 +1265,9 @@ class installer
         $admin_salt = generate_salt();
         $admin_password = hash_password($data['admin_pass1'], $admin_salt);
         
+		// And now we're done with the $eqdkp object, so let's clean up after ourselves.
+		unset($eqdkp);
+		
         $query = $db->build_query('UPDATE', array(
             'user_name'          => $data['admin_name'],
             'user_password'      => $admin_password,
@@ -1395,26 +1406,25 @@ class installer
             'dbhost'          => $in->get('dbhost', ''),
             'dbport'          => $in->get('dbport', ''),
             'dbuser'          => $in->get('dbuser', ''),
-            // FIXME: Previously using htmlspecialchars_decode(); had to add unsanitize to functions_admin.php
-            'dbpass'          => unsanitize($in->get('dbpass', '', true)),
+            'dbpass'          => $in->get('dbpass', ''),
             'dbname'          => $in->get('dbname', ''),
             'table_prefix'    => $in->get('table_prefix', ''),
 
             'default_lang'    => basename($in->get('default_lang', '')),
             'default_locale'  => basename($in->get('default_locale', '')),
 
-            'admin_name'      => $in->get('admin_name', '', true),
-            'admin_pass1'     => $in->get('admin_pass1', '', true),
-            'admin_pass2'     => $in->get('admin_pass2', '', true),
+            'admin_name'      => $in->get('admin_name', ''),
+            'admin_pass1'     => $in->get('admin_pass1', ''),
+            'admin_pass2'     => $in->get('admin_pass2', ''),
             'admin_email1'    => strtolower($in->get('admin_email1', '')),
             'admin_email2'    => strtolower($in->get('admin_email2', '')),
             
             'game_id'         => $in->get('game_id', ''),
-            'guildtag'        => $in->get('guildtag', '', true),
+            'guildtag'        => $in->get('guildtag', ''),
             'dkp_name'        => $in->get('dkp_name', ''),
             
-            'site_name'       => $in->get('site_name', '', true),
-            'site_desc'       => $in->get('site_desc', '', true),
+            'site_name'       => $in->get('site_name', ''),
+            'site_desc'       => $in->get('site_desc', ''),
             
             'server_name'     => $in->get('server_name', ''),
             'server_port'     => $in->get('server_port', ''),

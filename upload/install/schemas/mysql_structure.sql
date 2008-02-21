@@ -305,12 +305,18 @@ CREATE TABLE `eqdkp_class_armor` (
   `armor_max_level` smallint(3),
   PRIMARY KEY (`class_id`, `armor_type_id`),
   INDEX classes (`class_id`),
-  INDEX armor_types (`armor_type_id`),
-  FOREIGN KEY classes(`class_id`) REFERENCES eqdkp_classes(`class_id`) 
-    ON DELETE RESTRICT
-    ON UPDATE CASCADE,
-  FOREIGN KEY armor_types(`armor_type_id`) REFERENCES eqdkp_armor_types(`armor_type_id`)
-    ON DELETE RESTRICT
-    ON UPDATE CASCADE
+  INDEX armor_types (`armor_type_id`)
 )TYPE=InnoDB;
 
+# --------------------------------------------------------
+### Game Foreign-key constraints
+
+#ALTER TABLE `eqdkp_class_armor`
+#  ADD CONSTRAINT `eqdkp_game_classes_fk` FOREIGN KEY (`class_id`) REFERENCES `eqdkp_classes` (`class_id`) 
+#    ON DELETE RESTRICT
+#    ON UPDATE CASCADE;
+
+#ALTER TABLE `eqdkp_class_armor`
+#  ADD CONSTRAINT `eqdkp_game_armor_types_fk` FOREIGN KEY (`armor_type_id`) REFERENCES `eqdkp_armor_types` (`armor_type_id`)
+#    ON DELETE RESTRICT
+#    ON UPDATE CASCADE;

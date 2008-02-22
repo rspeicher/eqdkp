@@ -369,7 +369,11 @@ class Session
         
         // Game language strings
         $game_path = "games/{$eqdkp->config['current_game']}";
-        require_once("{$eqdkp_root_path}{$game_path}/{$lang_path}/lang_game.php");
+        $game_lang_name = "{$eqdkp_root_path}{$game_path}/{$lang_path}/lang_game.php";
+        if (is_file($game_lang_name))
+        {
+            include($game_lang_name);
+        }
         
         $this->lang = $lang;
         unset($lang);

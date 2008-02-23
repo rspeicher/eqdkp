@@ -291,21 +291,8 @@ class Game_Manager
      */
     function sql_armor_types()
     {
-        global $db;
+        global $db, $lang;
         
-        /*
-        if ( count($this->armor_types) == 0 )
-        {
-            $sql = "SELECT class_armor_type FROM __classes
-                    GROUP BY class_armor_type";
-            $result = $db->sql_query($sql);
-            while ( $row = $db->fetch_record($result) )
-            {
-                $this->armor_types[] = stripslashes($row['class_armor_type']);
-            }
-            $db->free_result($result);
-        }
-        */
         if ( count($this->armor_types) == 0 )
         {
             $sql = "SELECT armor_type_id, armor_type_name, armor_type_key 
@@ -314,10 +301,13 @@ class Game_Manager
             $result = $db->sql_query($sql);
             while ($row = $db->sql_fetchrow($result))
             {
+				$base_key = stripslashes($row['armor_type_key']);
+				$lang_key = strtoupper('ARMOR_' . $lang_key);
+			
                 $this->armor_types[] = array(
-                    'name'      => stripslashes($row['armor_type_name']),
+                    'name'      => isset($lang[$lang_key]) ? $lang[$lang_key] : stripslashes($row['armor_type_name']),
                     'id'        => intval($row['armor_type_id']),
-                    'key'       => stripslashes($row['armor_type_key']),
+                    'key'       => $base_key,
                 );
             }
             $db->sql_freeresult($result);
@@ -333,7 +323,7 @@ class Game_Manager
      */
     function sql_classes()
     {
-        global $db;
+        global $db, $lang;
         
         if ( count($this->classes) == 0 )
         {
@@ -343,10 +333,13 @@ class Game_Manager
             $result = $db->sql_query($sql);
             while ( $row = $db->sql_fetchrow($result) )
             {
+				$base_key = stripslashes($row['class_key']);
+				$lang_key = strtoupper('ARMOR_' . $lang_key);
+			
                 $this->classes[] = array(
-                    'name'      => stripslashes($row['class_name']),
+                    'name'      => isset($lang[$lang_key]) ? $lang[$lang_key] : stripslashes($row['class_name']),
                     'id'        => intval($row['class_id']),
-                    'key'       => stripslashes($row['class_key']),
+                    'key'       => $base_key,
                 );
             }
             $db->sql_freeresult($result);
@@ -362,7 +355,7 @@ class Game_Manager
      */
     function sql_races()
     {
-        global $db;
+        global $db, $lang;
         
         if ( count($this->races) == 0 )
         {
@@ -372,10 +365,13 @@ class Game_Manager
             $result = $db->sql_query($sql);
             while ( $row = $db->sql_fetchrow($result) )
             {
-                $this->races[] = array(
-                    'name'       => stripslashes($row['race_name']),
+ 				$base_key = stripslashes($row['race_key']);
+				$lang_key = strtoupper('ARMOR_' . $lang_key);
+			
+               $this->races[] = array(
+                    'name'       => isset($lang[$lang_key]) ? $lang[$lang_key] : stripslashes($row['race_name']),
                     'id'         => intval($row['race_id']),
-                    'key'        => stripslashes($row['race_key']),
+                    'key'        => $base_key,
                     'faction_id' => intval($row['race_faction_id']),
                     'hide'       => intval($row['race_hide'])
                 );
@@ -403,10 +399,13 @@ class Game_Manager
             $result = $db->sql_query($sql);
             while ($row = $db->sql_fetchrow($result))
             {
+ 				$base_key = stripslashes($row['faction_key']);
+				$lang_key = strtoupper('ARMOR_' . $lang_key);
+			
                 $this->factions[] = array(
-                    'name'        => stripslashes($row['faction_name']),
+                    'name'        => isset($lang[$lang_key]) ? $lang[$lang_key] : stripslashes($row['faction_name']),
                     'id'          => intval($row['faction_id']),
-                    'key'         => stripslashes($row['faction_key']),
+                    'key'         => $base_key,
                 );
             }
             $db->sql_freeresult($result);

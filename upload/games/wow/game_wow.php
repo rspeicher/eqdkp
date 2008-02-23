@@ -98,7 +98,7 @@ if (!isset($get_gameinfo))
                 'name'     => 'Warrior', 
                 'color'    => 'C79C6E',
             ),
-/*           'deathknight'  => array(
+/*           'death_knight'    => array(
                 'id'       => 10, 
                 'name'     => 'Death Knight', 
                 'color'    => '000000',
@@ -124,13 +124,13 @@ if (!isset($get_gameinfo))
         
         // Factions
         'factions'     => array(
-            'alliance' => array('id' => 1, 'name' => 'Alliance', 'races' => array('human','draenei','dwarf','gnome','nightelf')),
-            'horde'    => array('id' => 2, 'name' => 'Horde', 'races' => array('bloodelf','orc','tauren','troll','undead')),
+            'alliance' => array('id' => 1, 'name' => 'Alliance', 'races' => array('human','draenei','dwarf','gnome','night_elf')),
+            'horde'    => array('id' => 2, 'name' => 'Horde', 'races' => array('blood_elf','orc','tauren','troll','undead')),
         ),
 
         // Races
         'races'        => array(
-            'bloodelf' => array(
+            'blood_elf'  => array(
                 'id'       => 10, 
                 'name'     => 'Blood Elf', 
                 'faction'  => 'horde',
@@ -160,7 +160,7 @@ if (!isset($get_gameinfo))
                 'faction'  => 'alliance',
                 'classes'  => array('rogue','warrior','mage','warlock')
             ),
-            'nightelf' => array(
+            'night_elf'  => array(
                 'id'       => 4, 
                 'name'     => 'Night Elf', 
                 'faction'  => 'alliance',

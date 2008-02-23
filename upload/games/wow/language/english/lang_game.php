@@ -34,14 +34,17 @@ $lang = array_merge($lang, array(
     'GAME_NAME'         => 'World of Warcraft',
     'GAME_ID'           => 'WoW',
 
+	'GAME_ARMOR'        => 'Armor',
     'GAME_CLASS'        => 'Class',
     'GAME_RACE'         => 'Race',
+	'GAME_FACTION'      => 'Faction',
 
     'ARMOR_CLOTH'       => 'Cloth',
     'ARMOR_LEATHER'     => 'Leather',
     'ARMOR_CHAIN'       => 'Chain',
     'ARMOR_PLATE'       => 'Plate',
 
+	'CLASS_DEATH_KNIGHT'=> 'Death Knight',
     'CLASS_DRUID'       => 'Druid',
     'CLASS_HUNTER'      => 'Hunter',
     'CLASS_MAGE'        => 'Mage',
@@ -55,12 +58,12 @@ $lang = array_merge($lang, array(
     'FACTION_HORDE'     => 'Horde',
     'FACTION_ALLIANCE'  => 'Alliance',
 
-    'RACE_BLOODELF'     => 'Blood Elf',
+    'RACE_BLOOD_ELF'    => 'Blood Elf',
     'RACE_DRAENEI'      => 'Draenei',
     'RACE_DWARF'        => 'Dwarf',
     'RACE_GNOME'        => 'Gnome',
     'RACE_HUMAN'        => 'Human',
-    'RACE_NIGHTELF'     => 'Night Elf',
+    'RACE_NIGHT_ELF'    => 'Night Elf',
     'RACE_ORC'          => 'Orc',
     'RACE_TAUREN'       => 'Tauren',
     'RACE_TROLL'        => 'Troll',

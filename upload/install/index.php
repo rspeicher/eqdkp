@@ -124,6 +124,14 @@ $LOCALES = array(
     ),
 );
 
+// Modes
+// NOTE: As we probably won't be adding any of these any time soon, these are hard-coded
+$MODES = array(
+	'start'   => array('name' => 'Start'),
+	'install' => array('name' => 'Install'),
+	'upgrade' => array('name' => 'Upgrade'),
+);
+
 // NOTE: the language includes should be changed eventually so that they can be set dynamically
 $language = strtolower($DEFAULTS['default_lang']);
 
@@ -181,6 +189,8 @@ class Template_Wrap extends Template
             'MSG_TEXT'  => ( $text  != '' ) ? $text  : '&nbsp;',
             )
         );
+
+		$this->generate_navigation('',array());
 
         if ( !$this->header_inc )
         {
@@ -295,10 +305,24 @@ class Template_Wrap extends Template
     /**
     * Generate the navigation tabs
     */
-    function generate_navigation($subs, $selected = 'intro')
+    function generate_navigation($mode, $subs, $selected = 'intro')
     {
-        global $lang;
-    
+        global $lang, $MODES;
+    	
+		// Create the menu tabs
+		foreach ($MODES as $key => $option)
+		{
+			$cat   = $key;
+			$l_cat = $option['name'];
+			$url   = "index.php?mode={$cat}";
+
+			$this->assign_block_vars('t_block1',array(
+				'L_TITLE'		=> $l_cat,
+				'S_SELECTED'	=> ($mode == $cat) ? true : false,
+				'U_TITLE'		=> $url,
+			));
+		}
+
         $matched = false;
         foreach ($subs as $option)
         {
@@ -315,25 +339,81 @@ class Template_Wrap extends Template
     }
 }
 
-// If EQdkp is already installed, don't let them install it again
-if (@file_exists($eqdkp_root_path . 'config.php') && !file_exists($eqdkp_root_path . 'templates/cache/install_lock'))
-{
-    include_once($eqdkp_root_path . 'config.php');
-
-    if ( defined('EQDKP_INSTALLED') )
-    {
-        $tpl = new Template_Wrap('install_message.html');
-        $tpl->message_die('EQdkp is already installed - please remove the <b>install</b> directory.', 'Installation Error');
-        exit;
-    }
-}
-
+// Let's find out what we're doing.
 $in = new Input();
 
 include($eqdkp_root_path . 'install/install.php');
+include($eqdkp_root_path . 'install/upgrade.php');
 
-$mode = 'install'; // NOTE: For now, there are no alternate methods of installation.
+$mode = $in->get('mode','start');
 $sub  = $in->get('sub','');
 
-$install = new installer("index.php");
-$install->main($mode, $sub);
+switch ($mode)
+{
+	case 'start':
+		$tpl = new Template_Wrap('install_install.html');
+		$tpl->assign_vars(array(
+			'TITLE'   => 'Let\'s Get Started',
+			'BODY'    => 'Please choose an option above.',
+		));
+
+		$tpl->generate_navigation($mode, array());
+
+        $tpl->page_header();
+        $tpl->page_tail();
+		break;
+
+	case 'install':
+		// If EQdkp is already installed, don't let them install it again
+		if (@file_exists($eqdkp_root_path . 'config.php') && !file_exists($eqdkp_root_path . 'templates/cache/install_lock'))
+		{
+			include_once($eqdkp_root_path . 'config.php');
+		
+			if ( defined('EQDKP_INSTALLED') )
+			{
+				$tpl = new Template_Wrap('install_message.html');
+				$tpl->message_die('EQdkp is already installed - please remove the <b>install</b> directory.', 'Installation Error');
+				exit;
+			}
+		}
+
+		$install = new installer("index.php");
+		$install->main($mode, $sub);
+		break;
+	
+	case 'upgrade':
+		// We can't upgrade if there's no configuration file.
+		if (@file_exists($eqdkp_root_path . 'config.php'))
+		{
+			include_once($eqdkp_root_path . 'config.php');
+			
+			if ( !defined('EQDKP_INSTALLED') )
+			{
+				$tpl = new Template_Wrap('install_message.html');
+				$tpl->message_die($lang['error_upgrade_no_config'], 'Upgrade Error');
+				exit;
+			}
+		}
+
+		// Retrieve the appropriate database abstraction layer
+        $dbal_file = $eqdkp_root_path . 'includes/db/' . $dbms . '.php';
+        if ( !file_exists($dbal_file) )
+        {
+            $tpl->message_die('Unable to find the database abstraction layer for <b>' . $dbms . '</b>, check to make sure ' . $dbal_file . ' exists.');
+        }
+        include($dbal_file);
+
+        // Connect to our database
+        $sql_db = 'dbal_' . $dbms;
+        $db = new $sql_db();
+        $db->sql_connect($dbhost, $dbname, $dbuser, $dbpass, false);
+	
+		$install = new Upgrade("index.php");
+		$install->main($mode, $sub);
+		break;
+
+	default:
+		$tpl = new Template_Wrap('install_message.html');
+		$tpl->message_die('Invalid mode specified.', 'Installation Error');
+		break;
+}

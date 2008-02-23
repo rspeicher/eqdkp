@@ -391,4 +391,6 @@ $lang = array_merge($lang, array(
     'upgrade_started'     => "Upgrading from <b>%s</b>...",
     'upgrade_progress'    => "Completed upgrade to <b>%s</b>.",
     'upgrade_delete'      => "Please delete the following file before continuing:",
+
+	'error_upgrade_no_config'   => "The <b>config.php</b> file could not be found. You cannot run an upgrade unless there is a pre-existing installation and <b>config.php</b> is available.",
 ));

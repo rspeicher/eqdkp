@@ -94,7 +94,7 @@ class installer
             'U_ACTION'            => $this->install_url . "?mode=$mode&amp;sub=requirements",
         ));
 
-        $tpl->generate_navigation($this->submenu_ary, $sub);
+        $tpl->generate_navigation($mode, $this->submenu_ary, $sub);
     
         $tpl->page_header();
         $tpl->page_tail();
@@ -387,7 +387,7 @@ class installer
             'U_ACTION'        => $url,
         ));
 
-        $tpl->generate_navigation($this->submenu_ary, $sub);
+        $tpl->generate_navigation($mode, $this->submenu_ary, $sub);
             
         $tpl->page_header();
         $tpl->page_tail();
@@ -589,7 +589,7 @@ class installer
             'U_ACTION'          => $url,
         ));
 
-        $tpl->generate_navigation($this->submenu_ary, $sub);
+        $tpl->generate_navigation($mode, $this->submenu_ary, $sub);
 
         $tpl->page_header();
         $tpl->page_tail();
@@ -782,7 +782,7 @@ class installer
             'U_ACTION'        => $url,
         ));
 
-        $tpl->generate_navigation($this->submenu_ary, $sub);
+        $tpl->generate_navigation($mode, $this->submenu_ary, $sub);
 
         $tpl->page_header();
         $tpl->page_tail();
@@ -943,7 +943,7 @@ class installer
             'U_ACTION'               => $url,
         ));
 
-        $tpl->generate_navigation($this->submenu_ary, $sub);
+        $tpl->generate_navigation($mode, $this->submenu_ary, $sub);
 
         $tpl->page_header();
         $tpl->page_tail();
@@ -1095,7 +1095,7 @@ class installer
             'U_ACTION'               => $url,
         ));
 
-        $tpl->generate_navigation($this->submenu_ary, $sub);
+        $tpl->generate_navigation($mode, $this->submenu_ary, $sub);
 
         $tpl->page_header();
         $tpl->page_tail();
@@ -1234,7 +1234,11 @@ class installer
         // Update some config settings
         //
         // FIXME: No way to roll back changes if any particular query fails.
-        $db->query('UPDATE ' . CONFIG_TABLE . " SET config_name='eqdkp_start' WHERE config_name='" . $data['table_prefix'] . "start'"); // FIXME: Necessary evil because of the find-replace for database table prefix done above
+
+		// FIXME: Necessary evil because of the find-replace for database table prefix done above
+        $db->query('UPDATE ' . CONFIG_TABLE . " SET config_name='eqdkp_start' WHERE config_name='" . $data['table_prefix'] . "start'");
+		$db->query('UPDATE ' . CONFIG_TABLE . " SET config_name='eqdkp_version' WHERE config_name='" . $data['table_prefix'] . "version'");
+
         config_set('server_name', $data['server_name']);
         config_set('server_port', $data['server_port']);
         config_set('server_path', $data['server_path']);
@@ -1299,7 +1303,7 @@ class installer
             'U_ACTION'               => $url,
         ));
 
-        $tpl->generate_navigation($this->submenu_ary, $sub);
+        $tpl->generate_navigation($mode, $this->submenu_ary, $sub);
 
         $tpl->page_header();
         $tpl->page_tail();
@@ -1341,7 +1345,7 @@ class installer
             'U_ACTION'               => $eqdkp_root_path . "login.php?redirect=" . urlencode('admin/settings.php'),
         ));
     
-        $tpl->generate_navigation($this->submenu_ary, $sub);
+        $tpl->generate_navigation($mode, $this->submenu_ary, $sub);
 
         $tpl->page_header();
         $tpl->page_tail();

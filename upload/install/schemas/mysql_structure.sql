@@ -267,7 +267,7 @@ DROP TABLE IF EXISTS eqdkp_races;
 DROP TABLE IF EXISTS eqdkp_factions;
 
 CREATE TABLE `eqdkp_factions` (
-  `faction_id` smallint(3) unsigned NOT NULL,
+  `faction_id` smallint(3) unsigned NOT NULL UNIQUE,
   `faction_name` varchar(50) NOT NULL,
   `faction_key` varchar(30) NOT NULL,
   `faction_hide` enum('0','1') NOT NULL DEFAULT '0',
@@ -284,7 +284,7 @@ CREATE TABLE `eqdkp_races` (
 )TYPE=InnoDB;
 
 CREATE TABLE `eqdkp_classes` (
-  `class_id` smallint(3) unsigned NOT NULL,
+  `class_id` smallint(3) unsigned NOT NULL UNIQUE,
   `class_name` varchar(50) NOT NULL,
   `class_key` varchar(30) NOT NULL,
   `class_hide` enum('0','1') NOT NULL DEFAULT '0',

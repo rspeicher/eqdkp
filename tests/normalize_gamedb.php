@@ -3,17 +3,21 @@ define('EQDKP_INC', true);
 $eqdkp_root_path = '../upload/';
 include($eqdkp_root_path . 'common.php');
 
-$table_prefix = 'eqdkp_inputsec_testing_500_';
+$temp_prefix = 'eqdkp_inputsec_testing_500_';
 
-$old_class_dbtable      = $table_prefix . 'old_classes';
-$new_class_dbtable      = $table_prefix . 'new_classes';
-$new_armor_dbtable      = $table_prefix . 'new_armor_types';
-$new_classarmor_dbtable = $table_prefix . 'new_class_armor';
+$old_class_dbtable      = $temp_prefix  . 'old_classes';
+$new_class_dbtable      = $temp_prefix  . 'new_classes';
+$new_armor_dbtable      = $temp_prefix  . 'new_armor_types';
+$new_classarmor_dbtable = $temp_prefix  . 'new_class_armor';
 
 // This is the thing that controls what we're doing.
 $action = '';
 
-if (isset($_REQUEST['normalize_old_tables']))
+if (isset($_REQUEST['update_member_classes']))
+{
+	$action = 'update_member_classes';
+}
+else if (isset($_REQUEST['normalize_old_tables']))
 {
 	$action = 'normalize_old_tables';
 }
@@ -119,26 +123,28 @@ function normalize_dbtable()
 	$db->sql_query("TRUNCATE TABLE " . $new_armor_dbtable);
 	$db->sql_query("TRUNCATE TABLE " . $new_classarmor_dbtable);
 
-	//
-	// Start populating the new armor and class tables
-	//
+
+
+
 	
-	$armortype_sql = array();
-	$class_sql = array();
+	$armortype_sql = array("INSERT INTO `" . $new_armor_dbtable . "` (`armor_type_id`, `armor_type_name`, `armor_type_key`) VALUES ('0', 'None', 'none')");
+	$class_sql     = array("INSERT INTO `" . $new_class_dbtable . "` (`class_id`, `class_name`, `class_key`) VALUES ('0', 'Unknown', 'unknown')");
 	
-	// Armor
-	$sql = "SELECT DISTINCT `class_armor_type` FROM `" . $old_class_dbtable . "` ORDER BY `c_index`";
-	$result = $db->sql_query($sql);
+	//
+	// Get all the unique armor types, and add them to the armor type SQL array
+	//
+	$result = $db->sql_query("SELECT DISTINCT `class_armor_type` FROM `" . $old_class_dbtable . "` ORDER BY `c_index`");
 
 	$armor_type_count = 1;	
 	while ($row = $db->sql_fetchrow($result))
 	{
+		// There's a special case for the 'Unknown' armor type. We'll be calling this armor type 'None'.
 		if (strcasecmp($row['class_armor_type'], 'Unknown') == 0)
 		{
-			$armortype_sql[] = "INSERT INTO `" . $new_armor_dbtable . "` (`armor_type_id`, `armor_type_name`, `armor_type_key`) VALUES ('0', 'None', 'none')";
 			continue;
 		}
 	
+		// Create the armor type SQL
 		$armortype_sql[] = "INSERT INTO `" . $new_armor_dbtable . "` (
 						`armor_type_id`, 
 						`armor_type_name`, 
@@ -147,31 +153,27 @@ function normalize_dbtable()
 		            VALUES (
 					    '" . $armor_type_count . "', 
 						'" . $row['class_armor_type'] . "', 
-						'" . preg_replace("/[^\w0-9]/", "_", strtolower($row['class_armor_type'])) . "'
+						'" . game_key_value($row['class_armor_type']) . "'
 					)";
 		$armor_type_count++;
 	}
 	$db->sql_freeresult($result);
 	
-	foreach ($armortype_sql as $sql)
-	{
-		$db->sql_query($sql);
-	}
-	
-	// Classes
-	$sql = "SELECT DISTINCT `class_name` FROM `" . $old_class_dbtable . "` ORDER BY `c_index`";
-	$result = $db->sql_query($sql);
+	//
+	// Get all the unique classes, and add them to the class SQL array
+	//
+	$result = $db->sql_query("SELECT DISTINCT `class_name` FROM `" . $old_class_dbtable . "` ORDER BY `c_index`");
 
 	$class_count = 1;	
 	while ($row = $db->sql_fetchrow($result))
 	{
-		// We've already added Unknown.
+		// Spacial case for the Unknown class type.
 		if (strcasecmp($row['class_name'], 'Unknown') == 0)
 		{
-			$class_sql[] = "INSERT INTO `" . $new_class_dbtable . "` (`class_id`, `class_name`, `class_key`) VALUES ('0', 'Unknown', 'unknown')";
 			continue;
 		}
 	
+		// Create the class SQL
 		$class_sql[] = "INSERT INTO `" . $new_class_dbtable . "` (
 						`class_id`, 
 						`class_name`, 
@@ -180,20 +182,26 @@ function normalize_dbtable()
 		            VALUES (
 					    '" . $class_count . "', 
 						'" . $row['class_name'] . "', 
-						'" . preg_replace("/[^\w0-9]/", "_", strtolower($row['class_name'])) . "'
+						'" . game_key_value($row['class_name']) . "'
 					)";
 		$class_count++;
 	}
 	$db->sql_freeresult($result);
 	
-	foreach ($class_sql as $sql)
+	
+	//
+	// Insert all the unique classes and armor types into the new tables
+	//
+	foreach (array_merge($class_sql, $armortype_sql) as $sql)
 	{
 		$db->sql_query($sql);
 	}
 	
 	
+	//
 	// Now we'll do a few table joins to get our class-armor mappings.
-	$classarmor_sql = array();
+	//
+	$classarmor_sql = array("REPLACE INTO " . $new_classarmor_dbtable . " (class_id, armor_type_id, armor_min_level, armor_max_level) VALUES ('0', '0', '0', NULL)");
 	
 	$sql = "SELECT oldclass.`class_min_level`, oldclass.`class_max_level`, at.`armor_type_id` AS new_armor_type_id, class.`class_id` AS new_class_id 
 				FROM `" . $old_class_dbtable . "` AS oldclass
@@ -204,19 +212,20 @@ function normalize_dbtable()
 	// Construct the SQL for the class-armor mappings, and add it to an array of SQL statements to execute later.
 	while ($row = $db->sql_fetchrow($result))
 	{
+		// Special case for the unknown class type
 		if ($row['new_class_id'] == 0)
 		{
-#			$classarmor_sql[] = 'INSERT INTO ' . $new_classarmor_dbtable . " (class_id, armor_type_id, armor_min_level, armor_max_level) VALUES ('0', '0', '0', NULL)";
 			continue;
 		}
 
+		// Construct the class-armor mapping SQL
 		$query = $db->build_query('INSERT', array(
 			'class_id'        => $row['new_class_id'],
 			'armor_type_id'   => $row['new_armor_type_id'],
 			'armor_min_level' => $row['class_min_level'],
 			'armor_max_level' => $row['class_max_level'],
 		));
-		$classarmor_sql[] = 'INSERT INTO ' . $new_classarmor_dbtable . ' ' . $query;
+		$classarmor_sql[] = "REPLACE INTO {$new_classarmor_dbtable} {$query}";
 	}
 	$db->sql_freeresult($result);
 
@@ -237,7 +246,7 @@ function normalize_dbtable()
 			'armor_min_level' => 0,
 			'armor_max_level' => NULL,
 		));
-		$classarmor_sql[] = 'INSERT INTO ' . $new_classarmor_dbtable . ' ' . $query;
+		$classarmor_sql[] = "REPLACE INTO {$new_classarmor_dbtable} {$query}";
 	}
 	$db->sql_freeresult($result);
 
@@ -249,21 +258,69 @@ function normalize_dbtable()
 	}
 	
 	// And we're done!
+?><html><body>
+<form action="normalize_gamedb.php" method="post" id="gamedb">
+<input type="submit" id="update_member_classes" name="update_member_classes" value="Update Member Classes" />
+</form>
+</body></html><?php
 }
 
 
-function add_armor_type_id(&$class_armor_mappings, $armor_types = array())
+function update_member_classes()
 {
-	foreach ($class_armor_mappings as $item)
+	global $db, $table_prefix;
+	global $old_class_dbtable, $new_class_dbtable, $new_armor_dbtable, $new_classarmor_dbtable;
+	
+	// Find out how many old 'unique' classes there were, and the class ID with the highest value
+	$old_class_count = $db->query_first("SELECT COUNT(`class_id`) FROM " . $old_class_dbtable);
+	$max_class_id    = $db->query_first("SELECT MAX(`class_id`) FROM " . $old_class_dbtable);
+
+	/*	
+	// Set the member class IDs to a new, unique, non-conflicting value
+	for($i = 0; $i < $old_class_count; $i++)
 	{
-		
+		$new_id = ($i + $max_class_id) + 1;
+		$db->sql_query("UPDATE __members SET `member_class_id` = '{$new_id}' WHERE `member_class_id` = '{$i}'");
 	}
+	*/
+	
+	$table_prefix = 'eqdkp_inputsec_478_';
+	
+	// Select all the members, and get the old -> new class ID for each.
+	$sql = "SELECT member.`member_id`, oldclass.`class_id` AS old_class_id, newclass.`class_id` AS new_class_id
+				FROM __members AS member 
+				LEFT JOIN " . $old_class_dbtable . " AS oldclass ON member.`member_class_id` = oldclass.`class_id`
+				LEFT JOIN " . $new_class_dbtable . " AS newclass ON oldclass.`class_name` = newclass.`class_name`";
+	$result = $db->sql_query($sql);
+	
+	// Build a list of update queries to set all the member's class IDs to their new values.
+	$member_class_sql = array();
+	while ($row = $db->sql_fetchrow($result))
+	{
+		$member_class_sql[] = "UPDATE __members SET member_class_id = '" . $row['new_class_id'] . "' WHERE member_id = '" . $row['member_id'] . "'";
+	}
+	$db->sql_freeresult($result);
+	
+	// Execute the updates
+	foreach($member_class_sql as $sql)
+	{
+		$db->sql_query($sql);
+	}
+}
+
+function game_key_value($name)
+{
+	return preg_replace('/[^\w]/', '_', strtolower($name));
 }
 
 // Main procedure
 // --------------
 switch($action)
 {
+	default:
+		the_start();
+		break;
+
 	case 'create_old_tables':
 		create_dbtable();
 		break;
@@ -272,8 +329,8 @@ switch($action)
 		normalize_dbtable();
 		break;
 		
-	default:
-		the_start();
+	case 'update_member_classes':
+		update_member_classes();
 		break;
 }
 

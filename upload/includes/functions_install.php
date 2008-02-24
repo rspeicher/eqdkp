@@ -14,6 +14,40 @@
  * @version     $Rev$
  */
 
+/**
+ * Get the latest eqdkp version
+ */
+function get_latest_eqdkp_version()
+{
+	global $lang;
+
+	$result = $lang['UNKNOWN'];
+	$sh = @fsockopen('eqdkp.com', 80, $errno, $error, 5);
+	if ( !$sh )
+	{
+		$result = $lang['EQDKP_VER_CHECK_CONN_FAIL'];
+	}
+	else
+	{
+		@fputs($sh, "GET /version.php HTTP/1.1\r\nHost: eqdkp.com\r\nConnection: close\r\n\r\n");
+		while ( !@feof($sh) )
+		{
+			$content = @fgets($sh, 512);
+			if ( preg_match('#<version>(.+)</version>#i', $content, $version) )
+			{
+				$result = $version[1];
+				break;
+			}
+			else
+			{
+				$result = $lang['EQDKP_VER_CHECK_FAIL'];
+			}
+		}
+	}
+	@fclose($sh);
+
+	return $result;
+}
 
 /**
 * Returns an array of available DBMS with some data, if a DBMS is specified it will only

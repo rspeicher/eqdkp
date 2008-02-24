@@ -136,7 +136,14 @@ class installer
             'S_LEGEND'            => false,
         ));
 
-        // get_latest_eqdkp_version();
+#        get_latest_eqdkp_version();
+#        $tpl->assign_block_vars('checks', array(
+#            'TITLE'           => $lang['EQDKP_VER_LATEST'],
+#            'RESULT'          => $result,
+#
+#            'S_EXPLAIN'       => false,
+#            'S_LEGEND'        => false,
+#        ));
 
         // Test for basic PHP settings
         $php_version_reqd = '4.2.0';
@@ -1354,48 +1361,7 @@ class installer
     ## ########################################################################
     ## Helper methods
     ## ########################################################################
- 
-    /**
-     * Get latest eqdkp version
-     */
-    function get_latest_eqdkp_version()
-    {
-        $result = $lang['UNKNOWN'];
-        $sh = @fsockopen('eqdkp.com', 80, $errno, $error, 5);
-        if ( !$sh )
-        {
-            $result = $lang['EQDKP_VER_CHECK_CONN_FAIL'];
-        }
-        else
-        {
-            @fputs($sh, "GET /version.php HTTP/1.1\r\nHost: eqdkp.com\r\nConnection: close\r\n\r\n");
-            while ( !@feof($sh) )
-            {
-                $content = @fgets($sh, 512);
-                if ( preg_match('#<version>(.+)</version>#i', $content, $version) )
-                {
-                    $result = $version[1];
-                    break;
-                }
-                else
-                {
-                    $result = $lang['EQDKP_VER_CHECK_FAIL'];
-                }
-            }
-        }
-        @fclose($sh);
 
-        $tpl->assign_block_vars('checks', array(
-            'TITLE'           => $lang['EQDKP_VER_LATEST'],
-            'RESULT'          => $result,
-
-            'S_EXPLAIN'       => false,
-            'S_LEGEND'        => false,
-        ));
-        
-        return $result;
-    }
- 
     /**
      * Get submitted data
      */

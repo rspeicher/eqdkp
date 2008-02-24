@@ -337,6 +337,20 @@ class Template_Wrap extends Template
             ));
         }
     }
+	
+	/**
+	 * Perform a clean redirect via meta refresh after a defined delay
+	 * 
+	 * @param string $time Time delay
+	 * @param string $url URL to redirect to
+	 * @return void
+	 */
+	function meta_refresh($time, $url)
+	{
+		$this->assign_vars(array(
+			'META' => '<meta http-equiv="refresh" content="' . $time . ';url=' . $url . '" />'
+		));
+	}
 }
 
 // Let's find out what we're doing.
@@ -396,9 +410,11 @@ switch ($mode)
 		}
 
 		// Retrieve the appropriate database abstraction layer
+		$dbms = (isset($dbms)) ? $dbms : ( (isset($dbtype)) ? $dbtype : 'mysql' ); 
         $dbal_file = $eqdkp_root_path . 'includes/db/' . $dbms . '.php';
         if ( !file_exists($dbal_file) )
         {
+			$tpl = new Template_Wrap('install_message.html');
             $tpl->message_die('Unable to find the database abstraction layer for <b>' . $dbms . '</b>, check to make sure ' . $dbal_file . ' exists.');
         }
         include($dbal_file);

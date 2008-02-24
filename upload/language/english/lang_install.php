@@ -105,6 +105,8 @@ $lang = array_merge($lang, array(
     'EQDKP_VER_LATEST'                        => 'EQDKP Latest Version',
     'EQDKP_VER_CHECK_CONN_FAIL'               => 'Unknown [Connection to EQdkp.com failed.]',
     'EQDKP_VER_CHECK_FAIL'                    => 'Unknown [Version retrieval from EQdkp.com failed.]',
+    'EQDKP_VERSION'                           => 'EQDKP Version',
+    'EQDKP_VERSION_EXPLAIN'                   => 'Select the version of EQDKP you are upgrading from.',
 
     'FILES_OPTIONAL'                          => 'Optional files and directories',
     'FILES_OPTIONAL_EXPLAIN'                  => '<strong>Optional</strong> - These files, directories or permission settings are not required. The installation system will attempt to use various techniques to create them if they do not exist or cannot be written to. However, the presence of these will speed installation.',
@@ -246,8 +248,26 @@ $lang = array_merge($lang, array(
     'UNWRITABLE'                    => 'Unwritable',
     'UNKNOWN'                       => 'Unknown',
     'UNWRITABLE'                    => 'Unwritable',
+    'UPGRADE'                       => 'Upgrade',
 
     'VERSION'                       => 'Version',
 
     'WRITABLE'                      => 'Writable',
+    
+    // Upgrade
+    'eqdkp_upgrade'           => 'EQdkp Upgrade',
+    'eqdkp_upgrade_explain'   => 'EQdkp will attempt to automatically determine the version to upgrade from. Depending on what version of EQdkp you currently have installed, you may need to manually select the version to upgrade from below.
+                                  <br />
+                                  Once the appropriate version is selected, click the \'Upgrade\' button to begin the upgrade process.',
+
+    'upgrade_complete'    => "You are already running EQdkp <b>%s</b>, no upgrade is necessary. <b>Delete the /install/ folder before continuing.</b>",
+    'upgrade_continue'    => "Continue",
+    'upgrade_continuing'  => "Continuing in %d seconds...",
+    'upgrade_instruction' => "You are currently running EQdkp <b>%1\$s</b>. Click 'Upgrade' below to upgrade to <b>%2\$s</b>.",
+    'upgrade_selversion'  => "Please select the EQdkp version from which you are upgrading",
+    'upgrade_started'     => "Upgrading from <b>%s</b>...",
+    'upgrade_progress'    => "Completed upgrade to <b>%s</b>.",
+    'upgrade_delete'      => "Please delete the following file before continuing:",
+
+    'error_upgrade_no_config'   => "The <b>config.php</b> file could not be found. You cannot run an upgrade unless there is a pre-existing installation and <b>config.php</b> is available.",
 ));

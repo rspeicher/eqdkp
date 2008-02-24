@@ -67,26 +67,35 @@ class Upgrade
 		
         $tpl->assign_vars(array(
             'TITLE'               => $lang['eqdkp_upgrade'],
-            'BODY'                => false,
+            'BODY'                => $lang['eqdkp_upgrade_explain'],
         ));
 
         // Obtain any submitted data
 		$data = $this->get_submitted_data();
 				
+        $result = get_latest_eqdkp_version();
+        $tpl->assign_block_vars('checks', array(
+            'TITLE'           => $lang['EQDKP_VER_LATEST'],
+            'RESULT'          => $result,
+
+            'S_EXPLAIN'       => false,
+            'S_LEGEND'        => false,
+        ));
+
 		// Retrieve the installed version number of EQdkp
+		// NOTE: This key will not exist in the database in versions earlier than 1.3.2
 		$eqdkp_version = Upgrade::get_version();
 		
         if ( $eqdkp_version == false )
         {
+			// FIXME: If eqdkp_version doesn't exist in the database here, we need to do something about that now.
+			// The upgrade process seems to call on that key a lot...
+			// FIXME: Perhaps the current upgrade version shouldn't be retrieved from the database, and instead should
+			// be passed as a hidden variable between pages using hidden form fields...
+		
             // No version configuration variable, meaning the installed version is 
 			// 1.3.2 or lower, so have the user select their version (just this once).
 			$config_key = 'eqdkp_version';
-
-            $tpl->assign_block_vars('checks',array(
-				'S_LEGEND'       => true,
-				'LEGEND'         => $lang['upgrade'],
-				'LEGEND_EXPLAIN' => $lang['upgrade_selversion'],
-			));
 
 			$tpl->assign_vars(array(
 	            'S_OPTIONS'              => true,
@@ -134,7 +143,7 @@ class Upgrade
 
         // Figure out where we're bound for next
         $url    = $this->install_url . "?mode=$mode&amp;sub=upgrade";
-        $submit = $lang['NEXT_STEP'];
+        $submit = $lang['UPGRADE'];
 
         //
         // Output the page
@@ -242,26 +251,31 @@ class Upgrade
      */
     function progress($message, $auto_refresh = true)
     {
-        global $user;
+        global $lang, $tpl;
         
+		if (!is_object($tpl))
+		{
+			$tpl = new Template_Wrap('install_message.html');
+		}
+		
         if ( preg_match('/^[\w\.]+$/', $message) )
         {
             $message = sprintf($user->lang['upgrade_progress'], $message);
         }
         
-		// TODO: Because this is a static method, this may not be appropriate should we add more steps to the upgrade process...
+		// FIXME: Because this is a static method, this may not be appropriate should we add more steps to the upgrade process...
 		$url = path_default('install/index.php') . path_params(array('mode' => 'upgrade', 'sub' => 'upgrade', 'run' => ''));
 		
         if ( $auto_refresh )
         {
             $delay = 2;
-            meta_refresh($delay, $url);
-            message_die($message . "<br /><br />" . sprintf($user->lang['upgrade_continuing'], $delay));
+            $tpl->meta_refresh($delay, $url);
+            $tpl->message_die($message . "<br /><br />" . sprintf($lang['upgrade_continuing'], $delay));
         }
         else
         {
-            $message = $message . '<br /><a href="' . $url . '">' . $user->lang['upgrade_continue'] . '</a>';
-            message_die($message);
+            $message = $message . '<br /><a href="' . $url . '">' . $lang['upgrade_continue'] . '</a>';
+            $tpl->message_die($message);
         }
     }
     
@@ -276,9 +290,13 @@ class Upgrade
     {
 		global $db;
 	
+		// FIXME: This will not work in the event that EQdkp's version is 1.3.2 or lower.
         $db->sql_query("UPDATE __config SET config_value = '" . $version . "' WHERE config_name = 'eqdkp_version'");
     }
     
+	/**
+	 * Retrieves EQdkp's version from the database
+	 */
 	function get_version()
 	{
 		global $db;
@@ -299,12 +317,14 @@ class Upgrade
     {
         global $db, $in;
         
+		// FIXME: In some versions of EQdkp, the version will not be set in the database.
 		$eqdkp_version = Upgrade::get_version();
 		
         if ( $eqdkp_version == false )
         {
             // If we included an upgrade file and we don't have a prior version set,
             // something went wrong. Bounce them back to the selection page.
+			// FIXME: Need to redirect to a different location now... an upgrade error page perhaps.
             header('Location: ' . path_default('install/upgrade.php'));
             exit;
         }

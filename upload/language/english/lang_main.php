@@ -103,7 +103,6 @@ $lang = array_merge($lang, array(
     'earned'                        => 'Earned',
     'enter_dates'                   => 'Enter Dates',
     'eqdkp_index'                   => 'EQdkp Index',
-    'eqdkp_upgrade'                 => 'EQdkp Upgrade',
     'event'                         => 'Event',
     'events'                        => 'Events',
     'filter'                        => 'Filter',
@@ -381,16 +380,4 @@ $lang = array_merge($lang, array(
     'register_activation_self'  => "Your account has been created, but before you can use it you need to activate it.<br /><br />An e-mail has been sent to %1\$s with information on how to activate your account.",
     'register_activation_admin' => "Your account has been created, but before you can use it an administrator needs to activate it.<br /><br />An e-mail has been sent to %1\$s with more information.",
     'register_activation_none'  => "Your account has been created and you can now %1\$slog in%2\$s.<br /><br />An e-mail has been sent to %3\$s with more information.",
-    
-    // Upgrade
-    'upgrade_complete'    => "You are already running EQdkp <b>%s</b>, no upgrade is necessary. <b>Delete the /install/ folder before continuing.</b>",
-    'upgrade_continue'    => "Continue",
-    'upgrade_continuing'  => "Continuing in %d seconds...",
-    'upgrade_instruction' => "You are currently running EQdkp <b>%1\$s</b>. Click 'Upgrade' below to upgrade to <b>%2\$s</b>.",
-    'upgrade_selversion'  => "Please select the EQdkp version from which you are upgrading",
-    'upgrade_started'     => "Upgrading from <b>%s</b>...",
-    'upgrade_progress'    => "Completed upgrade to <b>%s</b>.",
-    'upgrade_delete'      => "Please delete the following file before continuing:",
-
-	'error_upgrade_no_config'   => "The <b>config.php</b> file could not be found. You cannot run an upgrade unless there is a pre-existing installation and <b>config.php</b> is available.",
 ));

@@ -24,15 +24,22 @@ $VERSION = '1.3.2';
 
 if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
 {
-    global $eqdkp;
-    
     $queries = array();
     
-    if ( isset($eqdkp->config['default_game']) && $eqdkp->config['default_game'] == 'WoW' )
+    // Determine what the currently installed game is
+    $sql = "SELECT * 
+            FROM __config
+            WHERE `config_name` = 'default_game'";
+    $result = $db->query($sql);
+    $game_name = $db->fetch_record($result);
+		
+    switch (strtolower($game_name))
     {
-        $queries[] = "INSERT IGNORE INTO __races (race_id, race_name) VALUES (9, 'Draenei')";
-        $queries[] = "INSERT IGNORE INTO __races (race_id, race_name) VALUES (10, 'Blood Elf')";
-        $queries[] = "UPDATE __classes SET class_max_level = 70 WHERE class_max_level = 60";
+		case 'WoW':
+			$queries[] = "INSERT IGNORE INTO __races (race_id, race_name) VALUES (9, 'Draenei')";
+			$queries[] = "INSERT IGNORE INTO __races (race_id, race_name) VALUES (10, 'Blood Elf')";
+			$queries[] = "UPDATE __classes SET class_max_level = 70 WHERE class_max_level = 60";
+			break;
     }
     
     $queries[] = "UPDATE __auth_options SET auth_value = 'a_backup' WHERE (auth_id = '36')";

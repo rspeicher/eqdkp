@@ -24,14 +24,24 @@ $VERSION = '1.3.1';
 
 if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
 {
-    global $db, $eqdkp;
+    global $db;
     
     Upgrade::prepare_uniquekey('members', array('member_name'));
     
     $queries = array();
-    if ( isset($eqdkp->config['default_game']) && $eqdkp->config['default_game'] == 'WoW' )
+	
+    // Determine what the currently installed game is
+    $sql = "SELECT * 
+            FROM __config
+            WHERE `config_name` = 'default_game'";
+    $result = $db->query($sql);
+    $game_name = $db->fetch_record($result);
+		
+    switch (strtolower($game_name))
     {
-        $queries[] = "UPDATE __classes SET class_armor_type = 'Mail' WHERE (LOWER(`class_armor_type`) = 'chain')";
+		case 'WoW':
+        	$queries[] = "UPDATE __classes SET class_armor_type = 'Mail' WHERE (LOWER(`class_armor_type`) = 'chain')";
+			break;
     }
     $queries[] = "CREATE UNIQUE INDEX member_idx ON __members (member_name)";
 

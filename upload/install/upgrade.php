@@ -22,7 +22,7 @@ if ( !defined('IN_INSTALL') )
 class Upgrade
 {
 	
-	var $submenu_ary = array('INTRO', 'UPGRADE', 'FINAL');
+	var $submenu_ary = array('INTRO', 'VERSION_CHECK', 'UPGRADE', 'FINAL');
 	var $install_url = '';
 
 	function upgrader($url)
@@ -39,6 +39,10 @@ class Upgrade
         {
 			case 'intro':
 				$this->introduction($mode, $sub);
+				break;
+				
+			case 'version_check':
+				$this->version_check($mode, $sub);
 				break;
 				
 			case 'upgrade':
@@ -59,8 +63,8 @@ class Upgrade
     /**
      * Introductory Step
      */
-    function introduction($mode, $sub)
-    {
+	function introduction($mode, $sub)
+	{
         global $db, $in, $lang, $eqdkp_root_path, $DEFAULTS;
         
 		$tpl = new Template_Wrap('install_install.html');
@@ -68,6 +72,33 @@ class Upgrade
         $tpl->assign_vars(array(
             'TITLE'               => $lang['eqdkp_upgrade'],
             'BODY'                => $lang['eqdkp_upgrade_explain'],
+        ));
+
+        //
+        // Output the page
+        //
+        $tpl->assign_vars(array(
+            'L_SUBMIT'               => $lang['NEXT_STEP'],
+
+			'S_CHECKS'               => false,
+            'U_ACTION'               => $this->install_url . "?mode=$mode&amp;sub=version_check",
+        ));
+
+        $tpl->generate_navigation($mode, $this->submenu_ary, $sub);
+
+		$tpl->page_header();
+		$tpl->page_tail();
+	}
+
+    function version_check($mode, $sub)
+    {
+        global $db, $in, $lang, $eqdkp_root_path, $DEFAULTS;
+        
+		$tpl = new Template_Wrap('install_install.html');
+		
+        $tpl->assign_vars(array(
+            'TITLE'               => $lang['VERSION_CHECK'],
+            'BODY'                => $lang['VERSION_CHECK_EXPLAIN'],
         ));
 
         // Obtain any submitted data
@@ -125,7 +156,7 @@ class Upgrade
 				'CONTENT'         => '<select id="' . $config_key . '" name="' . $config_key . '">' . $eqdkp_version_options . '</select>',
 			));
         }
-        else if ( strcasecmp($eqdkp_version, $DEFAULTS['version']) != 0)
+        else if ( version_compare($eqdkp_version, $DEFAULTS['version'], '<'))
 		{
 			// Upgrade from a version newer than 1.4.0 B1			
             $tpl->assign_block_vars('checks',array(
@@ -136,24 +167,20 @@ class Upgrade
         }
 		else
 		{
-			// The current version matches the upgrade version; no upgrade necessary.
-			$message = sprintf($lang['upgrade_complete'], $eqdkp_version);
-			$tpl->message_die($message,'');
+			// The installed version is up-to-date; no upgrade necessary.
+			header('Location: ' . $this->install_url . "?mode=$mode&sub=final");
+			exit;
 		}
-
-        // Figure out where we're bound for next
-        $url    = $this->install_url . "?mode=$mode&amp;sub=upgrade";
-        $submit = $lang['UPGRADE'];
 
         //
         // Output the page
         //
-        $tpl->assign_vars(array(
-            'L_SUBMIT'               => $submit,
+		$tpl->assign_vars(array(
+			'L_SUBMIT'               => $lang['UPGRADE'],
 
 			'S_CHECKS'               => true,
-            'U_ACTION'               => $url,
-        ));
+			'U_ACTION'               => $this->install_url . "?mode=$mode&amp;sub=upgrade",
+		));
 
         $tpl->generate_navigation($mode, $this->submenu_ary, $sub);
 
@@ -186,6 +213,25 @@ class Upgrade
     }
 
     
+	function finalize($mode, $sub)
+	{
+        global $db, $in, $lang, $eqdkp_root_path, $DEFAULTS;
+        
+		$tpl = new Template_Wrap('install_install.html');
+		
+        $tpl->assign_vars(array(
+            'TITLE'               => $lang['eqdkp_upgrade'],
+			'BODY'                => sprintf($lang['upgrade_complete'], $eqdkp_version),
+		));
+
+		$eqdkp_version = Upgrade::get_version();
+
+        $tpl->generate_navigation($mode, $this->submenu_ary, $sub);
+
+		$tpl->page_header();
+		$tpl->page_tail();
+	}
+	
     ## ########################################################################
     ## Helper methods
     ## ########################################################################
@@ -290,8 +336,7 @@ class Upgrade
     {
 		global $db;
 	
-		// FIXME: This will not work in the event that EQdkp's version is 1.3.2 or lower.
-        $db->sql_query("UPDATE __config SET config_value = '" . $version . "' WHERE config_name = 'eqdkp_version'");
+        $db->sql_query("REPLACE INTO __config (config_name, config_value) VALUES ('eqdkp_version', '" . $version . "')");
     }
     
 	/**
@@ -317,15 +362,15 @@ class Upgrade
     {
         global $db, $in;
         
-		// FIXME: In some versions of EQdkp, the version will not be set in the database.
+		// In some versions of EQdkp, the version will not be set in the database.
 		$eqdkp_version = Upgrade::get_version();
 		
         if ( $eqdkp_version == false )
         {
             // If we included an upgrade file and we don't have a prior version set,
             // something went wrong. Bounce them back to the selection page.
-			// FIXME: Need to redirect to a different location now... an upgrade error page perhaps.
-            header('Location: ' . path_default('install/upgrade.php'));
+			// TODO: Hard-coded modes and such.
+            header('Location: ' . $this->install_url . '?mode=upgrade&sub=version_check');
             exit;
         }
         

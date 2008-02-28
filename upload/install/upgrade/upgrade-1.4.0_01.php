@@ -25,7 +25,7 @@ $VERSION = '1.4.0 B1';
 
 if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
 {
-    global $db, $eqdkp;
+    global $db;
     
     // Make sure the files that were deleted for this version are, in fact, missing
     Upgrade::assert_deleted(array(
@@ -91,16 +91,16 @@ if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
         "ALTER TABLE __raid_attendees ADD UNIQUE `raid_member` ( `raid_id` , `member_name` )",
 
         // Update the size of all of our float values to larger doubles, since the 1.3 upgrade failed at this
-        "ALTER TABLE __adjustments CHANGE `adjustment_value` `adjustment_value` DOUBLE( 11, 2 ) NOT NULL DEFAULT '0.00",
-        "ALTER TABLE __events CHANGE `event_value` `event_value` DOUBLE( 11, 2 ) NOT NULL DEFAULT '0.00",
-        "ALTER TABLE __items CHANGE `item_value` `item_value` DOUBLE( 11, 2 ) NOT NULL DEFAULT '0.00",
-        "ALTER TABLE __members CHANGE `member_earned` `member_earned` DOUBLE( 11, 2 ) NOT NULL DEFAULT '0.00",
-        "ALTER TABLE __members CHANGE `member_spent` `member_spent` DOUBLE( 11, 2 ) NOT NULL DEFAULT '0.00",
-        "ALTER TABLE __members CHANGE `member_adjustment` `member_adjustment` DOUBLE( 11, 2 ) NOT NULL DEFAULT '0.00",
+        "ALTER TABLE __adjustments CHANGE `adjustment_value` `adjustment_value` DOUBLE( 11, 2 ) NOT NULL DEFAULT '0.00'",
+        "ALTER TABLE __events CHANGE `event_value` `event_value` DOUBLE( 11, 2 ) NOT NULL DEFAULT '0.00'",
+        "ALTER TABLE __items CHANGE `item_value` `item_value` DOUBLE( 11, 2 ) NOT NULL DEFAULT '0.00'",
+        "ALTER TABLE __members CHANGE `member_earned` `member_earned` DOUBLE( 11, 2 ) NOT NULL DEFAULT '0.00'",
+        "ALTER TABLE __members CHANGE `member_spent` `member_spent` DOUBLE( 11, 2 ) NOT NULL DEFAULT '0.00'",
+        "ALTER TABLE __members CHANGE `member_adjustment` `member_adjustment` DOUBLE( 11, 2 ) NOT NULL DEFAULT '0.00'",
         "ALTER TABLE __raids CHANGE `raid_value` `raid_value` DOUBLE( 11, 2 ) NOT NULL DEFAULT '0.00'",
         
         // New session and user management
-        "DELETE FROM __config WHERE (config_name IN ('session_cleanup','cookie_domain','cookie_path')", // Unused config values
+        "DELETE FROM __config WHERE (config_name IN ('session_cleanup','cookie_domain','cookie_path'))", // Unused config values
         "ALTER TABLE __users CHANGE `username` `user_name` VARCHAR( 30 ) NOT NULL", // username to user_name
         "ALTER TABLE __sessions CHANGE `session_user_id` `user_id` SMALLINT( 5 ) NOT NULL DEFAULT '-1'", // session_user_id to user_id
         "ALTER TABLE __users CHANGE `user_password` `user_password` VARCHAR( 40 ) NOT NULL", // Increase user_password length to 40, for SHA1 hashes
@@ -170,7 +170,10 @@ if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
     game_keys('race');
     
     // Generate an installation-specific unique salt value
-    $eqdkp->config_set('auth_salt', generate_salt());
+	$auth_salt = generate_salt();
+    Upgrade::execute(array(
+		"REPLACE INTO __config (config_key, config_value) VALUES ('auth_salt', '{$auth_salt}')",
+	));
     
     // Finalize
     Upgrade::set_version($VERSION);

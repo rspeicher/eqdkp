@@ -190,6 +190,8 @@ class Upgrade
 
     function upgrade_run($mode, $sub)
     {
+		global $db;
+	
 		$data = $this->get_submitted_data();
 		
         if ( $data['eqdkp_version'] != '' )
@@ -206,6 +208,8 @@ class Upgrade
         
             foreach ( $upgrade_files as $file )
             {
+				$db->sql_transaction('begin');
+				
                 unset($VERSION);
                 include_once("upgrade/{$file}");
             }
@@ -297,7 +301,7 @@ class Upgrade
      */
     function progress($message, $auto_refresh = true)
     {
-        global $lang, $tpl;
+        global $lang, $tpl, $db;
         
 		if (!is_object($tpl))
 		{
@@ -308,7 +312,13 @@ class Upgrade
         {
             $message = sprintf($user->lang['upgrade_progress'], $message);
         }
-        
+
+		// Commit all the changes from the upgrade file that has been run.
+		if ($db->transaction)
+		{
+			$db->sql_transaction('commit');
+		}
+		
 		// FIXME: Because this is a static method, this may not be appropriate should we add more steps to the upgrade process...
 		$url = path_default('install/index.php') . path_params(array('mode' => 'upgrade', 'sub' => 'upgrade', 'run' => ''));
 		

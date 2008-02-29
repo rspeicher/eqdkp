@@ -236,6 +236,11 @@ class dbal
     {
         $error = $this->_sql_error();
         
+		if ($this->transaction)
+		{
+			$this->sql_transaction('rollback');
+		}
+		
         $message  = 'SQL ERROR<br /><br />';
         $message .= 'Query: '   . (($sql) ? $sql : 'null') . '<br />';
         $message .= 'Message: ' . $error['message'] . '<br />';

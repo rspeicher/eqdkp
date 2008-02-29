@@ -56,7 +56,7 @@ class dbal_mysql extends dbal
         $this->dbname = $dbname;
         $this->dbuser = $dbuser;
         
-        // NOTE: I don't think it should matter whether the password is empty or not; it has no bearing on how mysql_xconnect functions
+		// Attempt to make a database connection
         $this->link_id = ($this->pconnect) ? @mysql_pconnect($this->dbhost, $this->dbuser, $dbpass) : @mysql_connect($this->dbhost, $this->dbuser, $dbpass);
 
         // NOTE: It doesn't matter if it's null or not - if it's null, then it's not a resource        
@@ -67,13 +67,33 @@ class dbal_mysql extends dbal
                 return $this->link_id;
             }
         }
-// NOTE: I don't believe that it matters if the connection is closed or not here
-//        @mysql_close($this->link_id);
-//        $this->link_id = false;
 
         return $this->sql_error('');
     }
     
+	/**
+	* SQL Transaction
+	* @access private
+	*/
+	function _sql_transaction($status = 'begin')
+	{
+		switch ($status)
+		{
+			case 'begin':
+				return @mysql_query('BEGIN', $this->link_id);
+			break;
+
+			case 'commit':
+				return @mysql_query('COMMIT', $this->link_id);
+			break;
+
+			case 'rollback':
+				return @mysql_query('ROLLBACK', $this->link_id);
+			break;
+		}
+
+		return true;
+	}
 
     /**
      * Basic query function

@@ -40,6 +40,10 @@ class dbal
      */
     var $sql_layer = '';
 
+	// Transactions
+	var $transaction       = false;
+	var $transaction_count = 0;
+
     /**
      * Wildcards for matching any (%) or exactly one (_) character within LIKE expressions
      */
@@ -166,6 +170,64 @@ class dbal
         return $query;
     }
 
+	/**
+	* SQL Transaction
+	* 
+	*/
+	function sql_transaction($status = 'begin')
+	{
+		switch ($status)
+		{
+			case 'begin':
+				// If we are within a transaction we will not open another one, but enclose the current one to not loose data (prevening auto commit)
+				if ($this->transaction)
+				{
+					$this->transaction_count++;
+					return true;
+				}
+
+				$result = $this->_sql_transaction('begin');
+
+				if (!$result)
+				{
+					$this->sql_error();
+				}
+
+				$this->transaction = true;
+			break;
+
+			case 'commit':
+				// If there was a previously opened transaction we do not commit yet... but count back the number of inner transactions
+				if ($this->transaction && $this->transaction_count)
+				{
+					$this->transactions--;
+					return true;
+				}
+
+				$result = $this->_sql_transaction('commit');
+
+				if (!$result)
+				{
+					$this->sql_error();
+				}
+
+				$this->transaction = false;
+				$this->transaction_count = 0;
+			break;
+
+			case 'rollback':
+				$result = $this->_sql_transaction('rollback');
+				$this->transaction = false;
+				$this->transaction_count = 0;
+			break;
+
+			default:
+				$result = $this->_sql_transaction($status);
+			break;
+		}
+
+		return $result;
+	}
 
     /**
      * display sql error page

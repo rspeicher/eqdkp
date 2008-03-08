@@ -302,7 +302,7 @@ class Game_Manager
             while ($row = $db->sql_fetchrow($result))
             {
 				$base_key = stripslashes($row['armor_type_key']);
-				$lang_key = strtoupper('ARMOR_' . $lang_key);
+				$lang_key = strtoupper('ARMOR_' . $base_key);
 			
                 $this->armor_types[] = array(
                     'name'      => isset($lang[$lang_key]) ? $lang[$lang_key] : stripslashes($row['armor_type_name']),
@@ -334,7 +334,7 @@ class Game_Manager
             while ( $row = $db->sql_fetchrow($result) )
             {
 				$base_key = stripslashes($row['class_key']);
-				$lang_key = strtoupper('ARMOR_' . $lang_key);
+				$lang_key = strtoupper('ARMOR_' . $base_key);
 			
                 $this->classes[] = array(
                     'name'      => isset($lang[$lang_key]) ? $lang[$lang_key] : stripslashes($row['class_name']),
@@ -366,7 +366,7 @@ class Game_Manager
             while ( $row = $db->sql_fetchrow($result) )
             {
  				$base_key = stripslashes($row['race_key']);
-				$lang_key = strtoupper('ARMOR_' . $lang_key);
+				$lang_key = strtoupper('ARMOR_' . $base_key);
 			
                $this->races[] = array(
                     'name'       => isset($lang[$lang_key]) ? $lang[$lang_key] : stripslashes($row['race_name']),

@@ -414,7 +414,7 @@ class MM_Addmember extends EQdkp_Admin
             $tpl->assign_block_vars('class_row', array(
                 'VALUE'    => $class['id'],
                 'SELECTED' => option_selected($class['id'] == $this->member['member_class_id']),
-                'OPTION'   => $gm->format_class_name($class['id']),
+                'OPTION'   => $class['name'],
             ));
         }
 

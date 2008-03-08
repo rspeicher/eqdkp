@@ -27,19 +27,18 @@ if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
     $queries = array();
     
     // Determine what the currently installed game is
-    $sql = "SELECT * 
+    $sql = "SELECT config_value 
             FROM __config
             WHERE `config_name` = 'default_game'";
-    $result = $db->query($sql);
-    $game_name = $db->fetch_record($result);
-		
+    $game_name = $db->query_first($sql);
+        
     switch (strtolower($game_name))
     {
-		case 'WoW':
-			$queries[] = "INSERT IGNORE INTO __races (race_id, race_name) VALUES (9, 'Draenei')";
-			$queries[] = "INSERT IGNORE INTO __races (race_id, race_name) VALUES (10, 'Blood Elf')";
-			$queries[] = "UPDATE __classes SET class_max_level = 70 WHERE class_max_level = 60";
-			break;
+        case 'wow':
+            $queries[] = "INSERT IGNORE INTO __races (race_id, race_name) VALUES (9, 'Draenei')";
+            $queries[] = "INSERT IGNORE INTO __races (race_id, race_name) VALUES (10, 'Blood Elf')";
+            $queries[] = "UPDATE __classes SET class_max_level = 70 WHERE class_max_level = 60";
+            break;
     }
     
     $queries[] = "UPDATE __auth_options SET auth_value = 'a_backup' WHERE (auth_id = '36')";

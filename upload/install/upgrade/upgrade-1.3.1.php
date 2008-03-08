@@ -29,19 +29,18 @@ if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
     Upgrade::prepare_uniquekey('members', array('member_name'));
     
     $queries = array();
-	
+    
     // Determine what the currently installed game is
-    $sql = "SELECT * 
+    $sql = "SELECT config_value 
             FROM __config
             WHERE `config_name` = 'default_game'";
-    $result = $db->query($sql);
-    $game_name = $db->fetch_record($result);
-		
+    $game_name = $db->query_first($sql);
+        
     switch (strtolower($game_name))
     {
-		case 'WoW':
-        	$queries[] = "UPDATE __classes SET class_armor_type = 'Mail' WHERE (LOWER(`class_armor_type`) = 'chain')";
-			break;
+        case 'wow':
+            $queries[] = "UPDATE __classes SET class_armor_type = 'Mail' WHERE (LOWER(`class_armor_type`) = 'chain')";
+            break;
     }
     $queries[] = "CREATE UNIQUE INDEX member_idx ON __members (member_name)";
 

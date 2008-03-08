@@ -29,7 +29,7 @@ Replace With:
  * Date:        $Date: $8 $9 +1000 (D, d m Y) $
  * -----------------------------------------------------------------------
  * @author      $Author: $10 $
- * @copyright   2002-2007 The EQdkp Project Team
+ * @copyright   2002-2008 The EQdkp Project Team
  * @link        http://eqdkp.com/
  * @package     eqdkp
  * @version     $Rev: $7 $

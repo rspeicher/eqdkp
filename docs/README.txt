@@ -1,5 +1,5 @@
 EQdkp OpenSource DKP
-Copyright (C) 2002-2007 The EQdkp Project Team
+Copyright (C) 2002-2008 The EQdkp Project Team
 
 Introduction:
 -------------

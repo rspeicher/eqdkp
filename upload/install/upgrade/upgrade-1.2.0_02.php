@@ -8,7 +8,7 @@
  * Date:        $Date$
  * -----------------------------------------------------------------------
  * @author      $Author$
- * @copyright   2002-2007 The EQdkp Project Team
+ * @copyright   2002-2008 The EQdkp Project Team
  * @link        http://eqdkp.com/
  * @package     upgrade
  * @version     $Rev$

@@ -8,7 +8,7 @@
  * Date:        $Date: 2007-06-19 07:29:11 +1000 (D, d m Y) $
  * -----------------------------------------------------------------------
  * @author      $Author: tsigo $
- * @copyright   2002-2007 The EQdkp Project Team
+ * @copyright   2002-2008 The EQdkp Project Team
  * @link        http://eqdkp.com/
  * @package     eqdkp
  * @version     $Rev: 46 $

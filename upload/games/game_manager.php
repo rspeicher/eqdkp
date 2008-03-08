@@ -93,6 +93,33 @@ class Game_Manager
         return true;
     }
     
+	/**
+	 * Returns a language-specific string from either the user's language (if the user is set) 
+	 * or the language array (if the user isn't set and $lang is).
+	 * Returns false if neither exist, or the specified key isn't set.
+	 */
+	function get_lang_string($key)
+	{
+		global $user, $lang;
+		
+		$lang_string = '';
+
+		// Check the user's language values
+		if (isset($user) && isset($user->lang) && is_array($user->lang))
+		{
+			$lang_string = isset($user->lang[$key]) ? $user->lang[$key] : $lang_string;
+			
+		}
+		
+		// Check any global language values
+		if (!$lang_string && isset($lang) && is_array($lang))
+		{
+			$lang_string = isset($lang[$key]) ? $lang[$key] : $lang_string;
+		}
+		
+		return ($lang_string) ? $lang_string : false;
+	}
+	
     /**
      * List all valid games available for use by EQdkp.
      * 
@@ -302,10 +329,10 @@ class Game_Manager
             while ($row = $db->sql_fetchrow($result))
             {
 				$base_key = stripslashes($row['armor_type_key']);
-				$lang_key = strtoupper('ARMOR_' . $base_key);
+				$lang_key = $this->get_lang_string(strtoupper('ARMOR_' . $base_key));
 			
                 $this->armor_types[] = array(
-                    'name'      => isset($lang[$lang_key]) ? $lang[$lang_key] : stripslashes($row['armor_type_name']),
+                    'name'      => ($lang_key !== false) ? $lang_key : stripslashes($row['armor_type_name']),
                     'id'        => intval($row['armor_type_id']),
                     'key'       => $base_key,
                 );
@@ -324,7 +351,7 @@ class Game_Manager
     function sql_classes()
     {
         global $db, $lang;
-        
+
         if ( count($this->classes) == 0 )
         {
             $sql = "SELECT class_name, class_id, class_key 
@@ -334,10 +361,10 @@ class Game_Manager
             while ( $row = $db->sql_fetchrow($result) )
             {
 				$base_key = stripslashes($row['class_key']);
-				$lang_key = strtoupper('ARMOR_' . $base_key);
+				$lang_key = $this->get_lang_string(strtoupper('CLASS_' . $base_key));
 			
                 $this->classes[] = array(
-                    'name'      => isset($lang[$lang_key]) ? $lang[$lang_key] : stripslashes($row['class_name']),
+                    'name'      => ($lang_key !== false) ? $lang_key : stripslashes($row['class_name']),
                     'id'        => intval($row['class_id']),
                     'key'       => $base_key,
                 );
@@ -366,10 +393,10 @@ class Game_Manager
             while ( $row = $db->sql_fetchrow($result) )
             {
  				$base_key = stripslashes($row['race_key']);
-				$lang_key = strtoupper('ARMOR_' . $base_key);
+				$lang_key = $this->get_lang_string(strtoupper('RACE_' . $base_key));
 			
                $this->races[] = array(
-                    'name'       => isset($lang[$lang_key]) ? $lang[$lang_key] : stripslashes($row['race_name']),
+                    'name'       => ($lang_key !== false) ? $lang_key : stripslashes($row['race_name']),
                     'id'         => intval($row['race_id']),
                     'key'        => $base_key,
                     'faction_id' => intval($row['race_faction_id']),
@@ -400,10 +427,10 @@ class Game_Manager
             while ($row = $db->sql_fetchrow($result))
             {
  				$base_key = stripslashes($row['faction_key']);
-				$lang_key = strtoupper('ARMOR_' . $lang_key);
+				$lang_key = $this->get_lang_string(strtoupper('FACTION_' . $base_key));
 			
                 $this->factions[] = array(
-                    'name'        => isset($lang[$lang_key]) ? $lang[$lang_key] : stripslashes($row['faction_name']),
+                    'name'        => ($lang_key !== false) ? $lang_key : stripslashes($row['faction_name']),
                     'id'          => intval($row['faction_id']),
                     'key'         => $base_key,
                 );

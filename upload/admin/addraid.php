@@ -27,7 +27,6 @@ class Add_Raid extends EQdkp_Admin
     function add_raid()
     {
         global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $SID;
         
         parent::eqdkp_admin();
         
@@ -112,13 +111,11 @@ class Add_Raid extends EQdkp_Admin
     {
         global $user, $in;
         
-        //setlocale(LC_ALL, 'de_DE'); // NOTE: I have no idea why this is here either. Thanks, 1.3!
-        // $this->fv->is_alpha('raid_attendees',  $user->lang['fv_alpha_attendees']);
         $this->fv->is_filled('raid_attendees', $user->lang['fv_required_attendees']);
     
         $this->fv->is_within_range('mo', 1, 12,      $user->lang['fv_range_month']);
         $this->fv->is_within_range('d',  1, 31,      $user->lang['fv_range_day']);
-        $this->fv->is_within_range('y',  1998, 2010, $user->lang['fv_range_year']); // How ambitious
+        $this->fv->is_within_range('y',  1998, 2020, $user->lang['fv_range_year']); // How ambitious
         $this->fv->is_within_range('h',  0, 23,      $user->lang['fv_range_hour']);
         $this->fv->is_within_range('mi', 0, 59,      $user->lang['fv_range_minute']);
         $this->fv->is_within_range('s',  0, 59,      $user->lang['fv_range_second']);
@@ -148,8 +145,7 @@ class Add_Raid extends EQdkp_Admin
     // ---------------------------------------------------------
     function process_add()
     {
-        global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $SID;
+        global $db, $user, $pm, $in;
         
         $success_message = '';
         $this_raid_id    = 0;
@@ -161,27 +157,26 @@ class Add_Raid extends EQdkp_Admin
         foreach ( $raid_names as $raid_name )
         {
             // Get the raid value
-            $raid_value = $this->get_raid_value($raid_name);
+            $raid_value = $this->_get_raid_value($raid_name);
             
             // Insert the raid to get the raid's ID for attendees
-            $query = $db->build_query('INSERT', array(
+            $db->query("INSERT INTO __raids :params", array(
                 'raid_name'     => $raid_name,
                 'raid_date'     => $this->time,
                 'raid_note'     => $in->get('raid_note'),
                 'raid_value'    => $raid_value,
                 'raid_added_by' => $this->admin_user
             ));
-            $db->query("INSERT INTO __raids {$query}");
             $this_raid_id = $db->insert_id();
             
             // Attendee handling
-            $raid_attendees = $this->prepare_attendees();
+            $raid_attendees = $this->_prepare_attendees();
             
             // Adds attendees to __raid_attendees; adds/updates Member entries as necessary
-            $this->process_attendees($raid_attendees, $this_raid_id, $raid_value);
+            $this->_process_attendees($raid_attendees, $this_raid_id, $raid_value);
             
             // Update firstraid / lastraid / raidcount
-            $this->update_member_cache($raid_attendees);
+            $this->_update_member_cache($raid_attendees);
             
             // Call plugin add hooks
             $pm->do_hooks('/admin/addraid.php?action=add');
@@ -211,23 +206,16 @@ class Add_Raid extends EQdkp_Admin
             unset($raid_value);
         } // Raid loop
         
-        //
-        // Update player status if needed
-        //
-        if ( $eqdkp->config['hide_inactive'] == 1 )
-        {
-            $success_message .= '<br /><br />' . $user->lang['admin_raid_success_hideinactive'];
-            $this->update_member_status();
-            $success_message .= ' ' . strtolower($user->lang['done']);
-        }
+        // Update member active/inactive status if necessary
+        $success_message .= $this->_update_member_status();
         
         //
         // Success message
         //
         $link_list = array(
-            $user->lang['add_items_from_raid'] => 'additem.php' . $SID . '&amp;raid_id=' . $this_raid_id,
-            $user->lang['add_raid']            => 'addraid.php' . $SID,
-            $user->lang['list_raids']          => 'listraids.php' . $SID
+            $user->lang['add_items_from_raid'] => edit_item_path() . path_params('raid_id', $this_raid_id),
+            $user->lang['add_raid']            => edit_raid_path(),
+            $user->lang['list_raids']          => raid_path()
         );
         $this->admin_die($success_message, $link_list);
     }
@@ -237,18 +225,17 @@ class Add_Raid extends EQdkp_Admin
     // ---------------------------------------------------------
     function process_update()
     {
-        global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $SID;
+        global $db, $user, $pm, $in;
         
         // Get the old data
-        $this->get_old_data();
+        $this->_get_old_data();
         $old_raid_attendees = explode(',', $this->old_raid['raid_attendees']);
         
         // Get the raid value
-        $raid_value = $this->get_raid_value($in->get('raid_name'));
+        $raid_value = $this->_get_raid_value($in->get('raid_name'));
         
         // Attendee handling
-        $raid_attendees = $this->prepare_attendees();
+        $raid_attendees = $this->_prepare_attendees();
         
         // NOTE: When $old is the first argument, we will not needlessly delete new attendees that aren't in the table to begin with
         $remove_attendees = array_diff($old_raid_attendees, $raid_attendees);
@@ -276,21 +263,20 @@ class Add_Raid extends EQdkp_Admin
         //
         // Update the raid
         //
-        $query = $db->build_query('UPDATE', array(
+        $db->query("UPDATE __raids SET :params WHERE (`raid_id` = '{$this->url_id}')", array(
             'raid_date'       => $this->time,
             'raid_note'       => $in->get('raid_note'),
             'raid_value'      => $raid_value,
             'raid_name'       => $in->get('raid_name'),
             'raid_updated_by' => $this->admin_user
         ));
-        $db->query("UPDATE __raids SET {$query} WHERE (`raid_id` = '{$this->url_id}')");
         
         // Replaces attendee entries in __raid_attendees; adds/updates Member entries as necessary
-        $this->process_attendees($raid_attendees, $this->url_id, $raid_value);
+        $this->_process_attendees($raid_attendees, $this->url_id, $raid_value);
         
         // Update firstraid / lastraid / raidcount
         // NOTE: Merge these because if we delete someone, we want their cache udpated as well!
-        $this->update_member_cache(array_merge($raid_attendees, $remove_attendees));
+        $this->_update_member_cache(array_merge($raid_attendees, $remove_attendees));
         
         // Call plugin update hooks
         $pm->do_hooks('/admin/addraid.php?action=update');
@@ -319,18 +305,13 @@ class Add_Raid extends EQdkp_Admin
         //
         $success_message = sprintf($user->lang['admin_update_raid_success'], date($user->style['date_notime_short'], $this->time), sanitize($in->get('raid_name')));
         
-        // Update player status if needed
-        if ( $eqdkp->config['hide_inactive'] == 1 )
-        {
-            $success_message .= '<br /><br />' . $user->lang['admin_raid_success_hideinactive'];
-            $this->update_member_status();
-            $success_message .= ' ' . strtolower($user->lang['done']);
-        }
+        // Update member active/inactive status if necessary
+        $success_message .= $this->_update_member_status();
         
         $link_list = array(
-            $user->lang['add_items_from_raid'] => 'additem.php' . $SID . '&amp;raid_id=' . $this->url_id,
-            $user->lang['add_raid']            => 'addraid.php' . $SID,
-            $user->lang['list_raids']          => 'listraids.php' . $SID
+            $user->lang['add_items_from_raid'] => edit_item_path() . path_params('raid_id', $this->url_id),
+            $user->lang['add_raid']            => edit_raid_path(),
+            $user->lang['list_raids']          => raid_path()
         );
         $this->admin_die($success_message, $link_list);
     }
@@ -340,13 +321,12 @@ class Add_Raid extends EQdkp_Admin
     // ---------------------------------------------------------
     function process_confirm()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
-        global $SID;
+        global $db, $user, $pm;
         
         //
         // Get the old data
         //
-        $this->get_old_data();
+        $this->_get_old_data();
         $raid_attendees = explode(',', $this->old_raid['raid_attendees']);
         
         //
@@ -390,7 +370,7 @@ class Add_Raid extends EQdkp_Admin
         $db->query("DELETE FROM __raids WHERE (`raid_id` = '{$this->url_id}')");
         
         // Update firstraid / lastraid / raidcount
-        $this->update_member_cache($raid_attendees);
+        $this->_update_member_cache($raid_attendees);
         
         // Call plugin delete hooks
         $pm->do_hooks('/admin/addraid.php?action=delete');
@@ -416,17 +396,13 @@ class Add_Raid extends EQdkp_Admin
         //
         $success_message = $user->lang['admin_delete_raid_success'];
         
-        // Update player status if needed
-        if ( $eqdkp->config['hide_inactive'] == 1 )
-        {
-            $success_message .= '<br /><br />' . $user->lang['admin_raid_success_hideinactive'];
-            $this->update_member_status();
-            $success_message .= ' ' . strtolower($user->lang['done']);
-        }
+        // Update member active/inactive status if necessary
+        $success_message .= $this->_update_member_status();
         
         $link_list = array(
-            $user->lang['add_raid']   => 'addraid.php' . $SID,
-            $user->lang['list_raids'] => 'listraids.php' . $SID);
+            $user->lang['add_raid']   => edit_raid_path(),
+            $user->lang['list_raids'] => raid_path()
+        );
         $this->admin_die($success_message, $link_list);
     }
     
@@ -434,13 +410,14 @@ class Add_Raid extends EQdkp_Admin
     // Process helper methods
     // ---------------------------------------------------------
     /**
-     * Populate the old_raid array
+     * Populate the {@link $old_raid} array
      * 
      * @return void
+     * @access private
      */
-    function get_old_data()
+    function _get_old_data()
     {
-        global $db, $eqdkp, $pm;
+        global $db, $pm;
         
         $sql = "SELECT raid_name, raid_value, raid_note, raid_date
                 FROM __raids
@@ -478,8 +455,9 @@ class Add_Raid extends EQdkp_Admin
      *
      * @param string $raid_name Raid (event) name
      * @return float
+     * @access private
      */
-    function get_raid_value($raid_name)
+    function _get_raid_value($raid_name)
     {
         global $db, $in;
         
@@ -503,9 +481,11 @@ class Add_Raid extends EQdkp_Admin
     * 
     * @param $member_name
     * @return Array
+    * @access private
+    * @deprecated
     */
     // TODO: Refactor
-    function get_member_info($member_name)
+    function _get_member_info($member_name)
     {
         global $db, $eqdkp;
         
@@ -593,8 +573,9 @@ class Add_Raid extends EQdkp_Admin
      * elsewhere in the class.
      *
      * @return array
+     * @access private
      */
-    function prepare_attendees()
+    function _prepare_attendees()
     {
         global $in;
         
@@ -628,16 +609,27 @@ class Add_Raid extends EQdkp_Admin
     }
     
     // TODO: Refactor
-    function process_attendees($att_array, $raid_id, $raid_value)
+    /**
+     * For each attendee on a raid, add a record in __raid_attendees and add or 
+     * update their __members row
+     *
+     * @param string $att_array Array of attendees as prepared by {@link _prepare_attendees}
+     * @param string $raid_id Raid ID
+     * @param string $raid_value Raid value to give each attendee
+     * @return void
+     * @access private
+     */
+    function _process_attendees($att_array, $raid_id, $raid_value)
     {
-        global $db, $eqdkp, $user;
+        global $db, $user;
         
         $raid_id    = intval($raid_id);
         $raid_value = floatval($raid_value);
         
         // Gather data about our attendees that we'll need to rebuild their records
-        // This has to be done because REPLACE INTO deletes the record before re-inserting it,
-        // meaning we lose the member's data and the default values get used (BAD!)
+        // This has to be done instead of using REPLACE INTO deletes the record 
+        // before re-inserting it, meaning we lose the member's data and the 
+        // default database values get used (BAD!)
         $att_data = array();
         $sql = "SELECT *
                 FROM __members
@@ -662,31 +654,40 @@ class Add_Raid extends EQdkp_Admin
                 'member_name' => $attendee,
             );
             
+            ## ################################################################
+            ## Update existing member data
+            ## ################################################################
             if ( isset($att_data[$attendee]) )
             {
-                // Data exists - Update member's values
-                
                 // Inject our saved data into our row that gets updated
                 $row = array_merge($row, $att_data[$attendee]);
+                
+                // Merge SESSION data from a log parse if it exists
+                if ( isset($_SESSION['log']) )
+                {
+                    $row = array_merge($row, $this->_get_session_data($row));
+                }
                 
                 // Some of our values need to be updated, so do that!
                 $row['member_earned'] = floatval($row['member_earned']) + $raid_value;
                 
-                $query = $db->build_query('UPDATE', $row);
-                $sql = "UPDATE __members SET {$query} WHERE (`member_name` = '" . $db->escape($attendee) . "')";
-                $db->query($sql);
+                $db->query("UPDATE __members SET :params WHERE (`member_name` = '" . $db->escape($attendee) . "')", $row);
             }
+            ## ################################################################
+            ## Add new member
+            ## ################################################################
             else
             {
-                // No data exists - Insert member
                 $row['member_earned'] = $raid_value;
                 
-                $query = $db->build_query('INSERT', $row);
-                $sql = "INSERT INTO __members {$query}";
-                $db->query($sql);
+                // Merge SESSION data from a log parse if it exists
+                if ( isset($_SESSION['log']) )
+                {
+                    $row = array_merge($row, $this->_get_session_data($row));
+                }
+                
+                $db->query("INSERT INTO __members :params", $row);
             }
-            
-            // TODO: SESSION-based Race/Class/Level shit goes here (or likely above, since it will vary with insert/update), since it's per-member
         }
         
         // ---------------------------------------------------------------------
@@ -743,7 +744,7 @@ class Add_Raid extends EQdkp_Admin
             
             // Check for race/class/level data for this member
             // TODO: Can't even tell how this works anymore. That's a bad sign.
-            $member_data = $this->get_member_info($member_name);
+            $member_data = $this->_get_member_info($member_name);
 
             if ( (!(isset($member_data['race']) )) ||  $member_data['race'] == 'Unknown'  )
             {
@@ -826,7 +827,7 @@ class Add_Raid extends EQdkp_Admin
             $member_name = trim($member_name);
             if ( $member_name != '' )
             {
-                $member_data2 = $this->get_member_info($member_name);
+                $member_data2 = $this->_get_member_info($member_name);
                 
                 // TODO: 1.3 cleanup
 
@@ -873,13 +874,61 @@ class Add_Raid extends EQdkp_Admin
     }
     
     /**
+     * Get member character data from SESSION, stored during a log parse
+     *
+     * @param array $member Member row
+     * @return array Updated data ready to be inserted into __members
+     * @access private
+     */
+    function _get_session_data($member)
+    {
+        if ( !is_array($member) )
+        {
+            return;
+        }
+        
+        $name = $member['name'];
+        
+        if ( isset($_SESSION['log'][$name]) )
+        {
+            $srow = $_SESSION['log'][$name];
+            
+            // Only update their level if it went up
+            // TODO: Is there a sick game where a member could legitimately lose a level?
+            if ( !isset($member['member_level']) || intval($srow['level']) > $member['member_level'] )
+            {
+                $member['member_level'] = $srow['level'];
+            }
+            
+            // TODO: __members now stores class and race IDs, whereas log parses give us a string
+            // We need an API to give GameManager a string and get an ID (and vice-versa?)
+            
+            // Member races and classes don't (shouldn't) change; only update these if previous values were blank
+            if ( $member['member_race_id'] == 0 )
+            {
+                // TODO: Implement this method, or something like it
+                //$member['member_race_id'] = $gm->get_race_id($srow['race']);
+            }
+            
+            if ( $member['member_class_id'] == 0 )
+            {
+                // TODO: Implement this method, or something like it
+                //$member['member_class_id'] = $gm->get_class_id($srow['class']);
+            }
+        }
+        
+        return $member;
+    }
+    
+    /**
      * Recalculates and updates the first and last raids and raid counts for each
      * member in $att_array
      *
      * @param string $att_array Array of raid attendees
      * @return void
+     * @access private
      */
-    function update_member_cache($att_array)
+    function _update_member_cache($att_array)
     {
         global $db;
         
@@ -910,11 +959,17 @@ class Add_Raid extends EQdkp_Admin
     /**
      * Update active/inactive player status, inserting adjustments if necessary
      * 
-     * @return void
+     * @return string Success message
+     * @access private
      */
-    function update_member_status()
+    function _update_member_status()
     {
         global $db, $eqdkp, $user;
+        
+        if ( $eqdkp->config['hide_inactive'] == 0 )
+        {        
+            return;
+        }
         
         // Timestamp for the active/inactive threshold; members with a lastraid before this date are inactive
         $inactive_time = strtotime(date('Y-m-d', time() - 60 * 60 * 24 * $eqdkp->config['inactive_period']));
@@ -960,7 +1015,7 @@ class Add_Raid extends EQdkp_Admin
                 {
                     $group_key = $this->gen_group_key($current_time, $adj_reason, $adj_value);
 
-                    $query = $db->build_query('INSERT', array(
+                    $db->query("INSERT INTO __adjustments :params", array(
                         'adjustment_value'     => $adj_value,
                         'adjustment_date'      => $current_time,
                         'member_name'          => $row['member_name'],
@@ -968,7 +1023,6 @@ class Add_Raid extends EQdkp_Admin
                         'adjustment_group_key' => $group_key,
                         'adjustment_added_by'  => $user->data['user_name']
                     ));
-                    $db->query("INSERT INTO __adjustments {$query}");
                 }
             }
             
@@ -1026,6 +1080,11 @@ class Add_Raid extends EQdkp_Admin
             // Inactive -> Active
             $db->query("UPDATE __members SET `member_status` = '1' WHERE (`member_lastraid` >= {$inactive_time}) AND (`member_status` = 0)");
         }
+        
+        $retval  = '<br /><br />' . $user->lang['admin_raid_success_hideinactive'];
+        $retval .= ' ' . strtolower($user->lang['done']);
+        
+        return $retval;
     }
     
     // ---------------------------------------------------------
@@ -1034,7 +1093,6 @@ class Add_Raid extends EQdkp_Admin
     function display_form()
     {
         global $db, $eqdkp, $user, $tpl, $pm;
-        global $SID;
         
         //
         // Find the value of the event, or use the one-time value from the form
@@ -1071,8 +1129,8 @@ class Add_Raid extends EQdkp_Admin
         {
             $tpl->assign_block_vars('members_row', array(
                 'VALUE'  => sanitize($row['member_name'], ENT),
-                'OPTION' => $row['member_name'])
-            );
+                'OPTION' => $row['member_name']
+            ));
         }
         $db->free_result($result);
         
@@ -1104,16 +1162,16 @@ class Add_Raid extends EQdkp_Admin
                 'VALUE'    => sanitize($row['event_name'], ENT),
                 'SELECTED' => $selected,
                 // NOTE: Kinda pointless since the select box isn't fixed width!
-                'OPTION'   => str_pad($event_value, $max_length, ' ', STR_PAD_LEFT) . ' - ' . sanitize($row['event_name'])
+                'OPTION'   => str_pad($event_value, $max_length, ' ', STR_PAD_LEFT) . ' - ' . $row['event_name']
             ));
         }
         $db->free_result($result);
         
         $tpl->assign_vars(array(
             // Form vars
-            'F_ADD_RAID'       => 'addraid.php' . $SID,
+            'F_ADD_RAID'       => edit_raid_path(),
             'RAID_ID'          => $this->url_id,
-            'U_ADD_EVENT'      => 'addevent.php'.$SID,
+            'U_ADD_EVENT'      => edit_event_path(),
             'S_EVENT_MULTIPLE' => ( !$this->url_id ) ? true : false,
             
             // Form values

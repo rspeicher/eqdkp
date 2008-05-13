@@ -115,7 +115,6 @@ class Game_Installer extends Game_Manager
         $game_sql['races'][]         = $db->sql_build_query('INSERT',array('race_id' => 0, 'race_name' => 'Unknown', 'race_key' => 'unknown', 'race_faction_id' => 0));
         $game_sql['armor_types'][]   = $db->sql_build_query('INSERT',array('armor_type_id' => 0, 'armor_type_name' => 'None', 'armor_type_key' => 'none'));
         $game_sql['classes'][]       = $db->sql_build_query('INSERT',array('class_id' => 0, 'class_name' => 'Unknown', 'class_key' => 'unknown'));
-#        $game_sql['classes'][]       = $db->sql_build_query('INSERT',array('class_id' => 0, 'class_name' => 'Unknown', 'class_armor_type' => 'Unknown', 'class_min_level' => 0, 'class_max_level' => $max_level));
         $game_sql['class_armor'][]   = $db->sql_build_query('INSERT',array('class_id' => 0, 'armor_type_id' => 0)); // Default value for armor_min_level = 0. Default value for armor_max_level is null.
         
         // Factions
@@ -163,49 +162,6 @@ class Game_Installer extends Game_Manager
             $game_sql['classes'][] = $db->sql_build_query('INSERT',$sql_data);
         }
             
-        /*
-        $id_fix = 0;
-        foreach ($data['classes'] as $class => $info)
-        {
-            // 1.3 compatibility (this makes baby jesus cry you know)
-            // Search through the class to armor mappings, and if there's one for this class, add it to a short-list
-            $class_armor_types = array();
-            foreach ($data['class_armor'] as $mapping)
-            {
-                if (false !== strpos(strtolower($mapping['class']), strtolower($class)))
-                {
-                    $class_armor_types[] = $mapping;
-                }
-            }
-
-            $num = count($class_armor_types);            
-            $id_fix += ($num - 1);
-
-            $iteration = 0;
-            // Now, for every class-armor mapping for this class, we create a new 'class'
-            foreach($class_armor_types as $key => $class_armor_type)
-            {
-                $armor_name = $data['armor_types'][$class_armor_type['armor']]['name']; // Get armor's default name from the armor_type data
-                $armor_min  = isset($class_armor_type['min']) ? intval($class_armor_type['min']) : 0;
-                $armor_max  = isset($class_armor_type['max']) ? intval($class_armor_type['max']) : $max_level;
-                
-                $fix_value  = $id_fix - ($num - intval($key)) + 1;
-                
-                $sql_data = array(
-                    'class_id'        => intval($info['id']) + $fix_value,
-                    'class_name'      => $info['name'],
-                    'class_armor_type'=> $armor_name,
-                    'class_min_level' => $armor_min,
-                    'class_max_level' => $armor_max,
-#                    'class_hide'      => ($num > 0 && $iteration > 0) ? '1' : '0',
-                );
-                $game_sql['classes'][] = $db->sql_build_query('INSERT',$sql_data);
-                
-                $iteration++;
-            }
-        }
-        */
-        
         // Class to Armor mappings have to be done a little later on.
         
         //
@@ -222,9 +178,6 @@ class Game_Installer extends Game_Manager
         //       adding the old + new classes to that, then replacing back to the values in the real tables.
         //       That way would probably take a hell of a lot longer though. Still, at some point there needs to be one additional 
         //       'swap' id row so you can switch from the old class ID to the new ones without accidentally losing class values.
-#        $db->sql_query("TRUNCATE TABLE __classes");
-#        $db->sql_query("TRUNCATE TABLE __races");
-#        $db->sql_query("TRUNCATE TABLE __factions");
         
         // Execute the database entries for the new information
         foreach ($game_sql as $table => $tabledata)

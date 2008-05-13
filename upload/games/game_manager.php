@@ -511,8 +511,6 @@ class Game_Manager
         // If we have a valid parse string, let us begin
         if ($parse_string !== false && strlen($parse_string) > 0)
         {
-#            echo "Parse String: <pre>" . $parse_string . "</pre>\n\n<br />";
-
             // Remove any extraneous question marks so that they don't destroy the regex parsing
             $char_count = count_chars($parse_string, 0);
             // The ASCII character number for question marks is 63
@@ -525,10 +523,6 @@ class Game_Manager
                     $second_half = substr($parse_string, $last_mark+1);
 
                     $parse_string = (($second_half !== false)) ? $first_half . $second_half : $first_half;
-                    
-#                    echo "Cleaned... <br />\n";
-#                    echo $parse_string;
-#                    echo "<br />\n";
                 }
             }
         
@@ -559,10 +553,6 @@ class Game_Manager
              */
             preg_match_all('#[^_]*?__(\w+?)__(?:[^_?])*(?:(?:\?.*?\?)+)?(?:[^_?])*#', $parse_string, $captures);
 
-#            echo "<b>Parse string Components:</b> <pre>";
-#            var_dump($captures);
-#            echo "</pre><br />";            
-            
             $capture_strings = $captures[0];
             $capture_names   = $captures[1];
             
@@ -605,18 +595,6 @@ class Game_Manager
         // Now replace optional components from the parse string with optional regular expression groupings
         $regex_string = preg_replace('#\?(.*?)\?#', '(?:\1)?', $regex_string);
 
-#        echo "<ul>";
-#        echo "<li><b>Datatype:</b> " . $datatype . "</li>\n";
-#        echo "<li><b>Log Entry:</b> " . $log_entry . "</li>\n";
-#        echo "<li><b>Parse:</b> ";
-#             var_dump($parse_string);
-#        echo "</li>\n";
-#        echo "<li><b>Regex:</b> ";
-#             var_dump($regex_string);
-#        echo "</li>\n";
-#        echo "</ul>";
-
-
         // We have to match differently depending on the type of data
         switch ($datatype)
         {
@@ -656,13 +634,6 @@ class Game_Manager
             break;
         }
 
-#        echo "Result: ";
-#        echo "<pre>";        
-#        print_r($results);
-#        echo "</pre>";
-#        echo "<hr />";
-        
-
         if (count($results) > 1)
         {
             // If the match was successful, merge in the data from the match into the parsed log data.
@@ -698,11 +669,6 @@ class Game_Manager
                 $optional_log_entry = substr($log_entry, $matched_length);
                 $optional_parse_string = substr($parse_string, $first_mark+1, $substring_length-1);
     
-#                echo $matched_length;
-#                echo "<br />\n'{$optional_log_entry}'<br />\n";
-#                echo "'{$optional_parse_string}'";
-#                exit;
-
                 $optional_matched_length = $this->_parse_log_entry($optional_log_entry, $optional_parse_string, $log_data);
                 
                 $matched_length += $optional_matched_length;
@@ -725,8 +691,6 @@ class Game_Manager
     {
         global $user, $lang;
     
-#        echo "Entering special method..." . "\n<br />\n<pre>";
-    
         $dataset = array(); // Holds the finite set of possible values for the data type
         $result = '';       // Holds the result of a successful match
         
@@ -741,8 +705,6 @@ class Game_Manager
             break;
         }
 
-#        var_dump($dataset);
-    
         // Now, for each valid data entry, we're going to see if we can make a match.    
         foreach ($dataset as $data_entry)
         {
@@ -750,23 +712,17 @@ class Game_Manager
             $lang_key = strtoupper($datatype . '_' . str_replace(' ', '_', $data_entry['key']));
             $match_value = isset($user->lang[$lang_key]) ? $user->lang[$lang_key] : $data_entry['name'];
             
-#            echo "Value: ";
-#            printf('%-20s', $match_value);
-#            echo " [lang-key = '" . (isset($user->lang[$lang_key]) ? $lang_key : 'false') . "']";
-            
-            // FIXME: If the parse string has mixed case and it's in an exotic language, 
+            // TODO: If the parse string has mixed case and it's in an exotic language, 
             // this will fall down on case-(in)sensitive matches because we're not using UTF-8
             // NOTE: We can't just use an in_array call because of the above consideration, combined with the fact that 
             // the string most likely has trailing crap on it.
-            // FIXME: Should this return the string for the race/class, or its actual ID within the system?
+            // NOTE: Should this return the string for the race/class, or its actual ID within the system?
             
             // Try to find the required data at the beginning of the partial log entry
             // NOTE: stripos is a PHP5 function, so we have to make sure it's present before we use it.
             // If it isn't there, then there's some work for us to do to get this working right.
             if (function_exists('stripos'))
             {
-#                echo ' ...' . ((stripos($log_entry, $match_value) === false) ? 'no match' : 'match @ ' . stripos($log_entry, $match_value)) . "\n";
-
                 // TODO: utf-8 conversions of names to lowercase for comparison instead of using stripos
                 if (stripos($log_entry, $match_value) === 0)
                 {
@@ -784,8 +740,6 @@ class Game_Manager
                 }
             }
         }
-        
-#        echo "</pre>\nreturning... '" . $result . "'\n<br /><br />\n";
         
         return $result;
     }

@@ -201,7 +201,7 @@ class Template {
         }
 
         // If we don't have a file assigned to this handle, die.
-        // FIXME: Give a better error. Define a language string and pass it all the values that would be useful (theme name, file, handle, "using a plugin?", etc.)
+        // TODO: Give a better error. Define a language string and pass it all the values that would be useful (theme name, file, handle, "using a plugin?", etc.)
         if (!isset($this->files[$handle]))
         {
             trigger_error("Template->loadfile(): No file specified for handle \"$handle\"", E_USER_ERROR);

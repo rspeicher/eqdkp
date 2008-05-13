@@ -629,11 +629,8 @@ function meta_refresh($time, $url)
 {
     global $tpl;
 
-    // $url = redirect($url, true);
-
-    // For XHTML compatibility we change back & to &amp;
-    // FIXME: ^ Where?
     $tpl->assign_vars(array(
         'META' => '<meta http-equiv="refresh" content="' . $time . ';url=' . $url . '" />'
     ));
 }
+?>

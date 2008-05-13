@@ -72,8 +72,7 @@ class Game_Installer extends Game_Manager
      * @access   private
      */
     // TODO: Provide an array of mappings from the old game settings to the new ones (eg: WoW class ID -> EQ class ID)
-    // FIXME: Remove the echo_sql parameter when we're ready to release. It's useful for testing rather than doing.
-    function _create_database_tables($echo_sql = false)
+    function _create_database_tables()
     {
         global $db;
         
@@ -92,7 +91,7 @@ class Game_Installer extends Game_Manager
         /** Build the SQL for the new game data
          *
          * NOTE: The order of operations here is fairly important.
-         * FIXME: This method will definitely fall down on account of foreign key constraints for classes and races and such.
+         * FIXME: This method will probably fall down on account of foreign key constraints for classes and races and such.
          *
          * TODO: Use $games[$game_id]['available'] information to only bother working with what we have.
          * TODO: Replace use of $info['name'] with the keys themselves. Then upon retrieval from the db, the 'name' can be replaced with the language string.
@@ -215,14 +214,7 @@ class Game_Installer extends Game_Manager
         // TODO: Being able to rollback a database transaction would be *really* useful about here
 
         // Discard the old table information
-        if ($echo_sql)
-        {
-            echo "TRUNCATE TABLE __class_armor" . "<br />\n";
-        }
-        else 
-        {
-            $db->sql_query("TRUNCATE TABLE __class_armor");
-        }
+        $db->sql_query("TRUNCATE TABLE __class_armor");
 
         // NOTE: TRUNCATE TABLE will not work if there are foreign key dependencies in the table.
         //       In other words, REPLACE INTO statements are required.
@@ -239,25 +231,14 @@ class Game_Installer extends Game_Manager
         {
             foreach ($tabledata as $sqldata)
             {
-                // FIXME: Remove the echos once we're ready to release. Still kind of useful for testing.
-                if ($echo_sql)
-                {
-                    echo("REPLACE INTO __" . $table . $sqldata);
-                    echo "\n";
-                }
-                else
-                {
-                    $sql = "REPLACE INTO __{$table}" . $sqldata;
-                    $db->sql_query($sql);
-                }
+                $sql = "REPLACE INTO __{$table}" . $sqldata;
+                $db->sql_query($sql);
             }
         }
         
-        if ($echo_sql) echo "<br />\n";
-        
-        // FIXME: Method of choice - strip all old class IDs.
-        // FIXME: At this point, user classes and such will start going haywire (foreign key associations and such).
-        // FIXME: I am currently assuming the class IDs are incremental. They have to be checked up above still, so it makes life easier for me down here.
+        // Method of choice - strip all old class IDs.
+        // At this point, user classes and such might start to go haywire (foreign key associations and such).
+        // FIXME: It is currently assumed the class IDs are incremental. They have to be checked up above still, so it makes life easier for me down here.
         $class_count = count($game_sql['classes']);
         $faction_count = count($game_sql['factions']);
         $race_count = count($game_sql['races']);
@@ -266,50 +247,22 @@ class Game_Installer extends Game_Manager
         // Remove old classes
         $sql = "DELETE FROM __classes
                 WHERE class_id > '" . intval($class_count - 1) . "'";
-        if ($echo_sql)
-        {
-            echo $sql . "<br />\n";
-        }
-        else 
-        {
-            $db->sql_query($sql);
-        }
+        $db->sql_query($sql);
 
         // Remove old factions
         $sql = "DELETE FROM __factions
                 WHERE faction_id > '" . intval($faction_count - 1) . "'";
-        if ($echo_sql)
-        {
-            echo $sql . "<br />\n";
-        }
-        else 
-        {
-            $db->sql_query($sql);
-        }
+        $db->sql_query($sql);
 
         // Remove old classes
         $sql = "DELETE FROM __races
                 WHERE race_id > '" . intval($race_count - 1) . "'";
-        if ($echo_sql)
-        {
-            echo $sql . "<br />\n";
-        }
-        else 
-        {
-            $db->sql_query($sql);
-        }
+        $db->sql_query($sql);
         
         // Remove old armor
         $sql = "DELETE FROM __armor_types
                 WHERE armor_type_id > '" . intval($armor_type_count - 1) . "'";
-        if ($echo_sql)
-        {
-            echo $sql . "<br />\n";
-        }
-        else
-        {
-            $db->sql_query($sql);
-        }
+        $db->sql_query($sql);
         
         
         // Class-Armor mappings
@@ -335,44 +288,22 @@ class Game_Installer extends Game_Manager
             
             $sql = $db->sql_build_query('INSERT',$sql_data);
             
-            if ($echo_sql)
-            {
-                echo "INSERT INTO __class_armor" . $sql . "<br />\n";
-            }
-            else
-            {
-                $db->sql_query("INSERT INTO __class_armor" . $sql);
-            }
+            $db->sql_query("INSERT INTO __class_armor" . $sql);
         }
 
 
         
         // Other game-related information updates
-        // FIXME: Remove echo_sql calls when we're ready to release.
         // Max level update
         $sql = "UPDATE __members 
                 SET member_level = {$max_level} 
                 WHERE member_level > {$max_level};";
-        if ($echo_sql)
-        {
-            echo $sql . "<br />\n";
-        }
-        else 
-        {
-            $db->sql_query($sql);
-        }
+        $db->sql_query($sql);
         
         $sql = "ALTER TABLE __members 
                 MODIFY member_level tinyint(2) NOT NULL 
                 default '{$max_level}'";
-        if ($echo_sql)
-        {
-            echo $sql . "<br />\n";
-        }
-        else 
-        {
-            $db->sql_query($sql);
-        }
+        $db->sql_query($sql);
         
         // NOTE: The script which called install_game() should update the config table.
         // TODO: Commit changes if no errors occured up to this point

@@ -317,6 +317,8 @@ $lang = array_merge($lang, array(
     'current_game'              => 'Current Game',
     'game'                      => 'Game',
     'new_game'                  => 'New Game',
+	'no_game_selected'          => 'No game selected. You must choose a game.',
+	'invalid_game'              => 'The selected game is not a valid EQdkp game.',
 
     // Admin Index
     'anonymous'          => 'Anonymous',

@@ -440,6 +440,7 @@ if ( !defined('IN_ADMIN') )
     }
 
     // FIXME: Improve and re-enable version check?
+	//        I think the version check does not belong on a default page. If we bring it back, it should be on its own update page or something. (CD)
     $eqdkp_com_version = EQDKP_VERSION;
 
     $tpl->assign_vars(array(

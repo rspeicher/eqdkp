@@ -19,7 +19,7 @@ $eqdkp_root_path = './';
 require_once($eqdkp_root_path . 'common.php');
 
 // Get some page variables
-// FIXME: These actions are mutually exclusive. Alamgamate them into a single 'mode' variable.
+// TODO: These actions are mutually exclusive. Alamgamate them into a single 'mode' variable.
 $login    = $in->exists('login') ? true : false;
 $logout   = $in->exists('logout') ? true : false;
 $lostpass = $in->exists('lost_password') ? true : false;
@@ -47,10 +47,6 @@ switch ($mode)
             {
                 redirect(preg_replace('/^.*?redirect=(.+?)&(.+?)$/', "\\1?\\2", $redirect));
             }
-        }
-        else
-        {
-            // FIXME: The user already existed. This is a strange case, and I'm not sure about it. It happened to me once, so... more testing required.
         }
     break;
     

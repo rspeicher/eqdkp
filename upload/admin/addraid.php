@@ -508,6 +508,8 @@ class Add_Raid extends EQdkp_Admin
             unset($_SESSION[$member_name]['race']);
         }
 
+		// FIXME: This appears to be an old piece of code required when the class ID was dependent upon the level (ie: a Hunter > lvl 40 is different to a Hunter <= lvl 39)
+		//        I believe this can be safely removed.
         if ( isset($_SESSION[$member_name]['level']) && isset($_SESSION[$member_name]['class']) )
         {
             // Why are we looking it up when it's set?

@@ -145,10 +145,8 @@ class dbal_mysql extends dbal
             }
             
             // Unset records for the query ID
-            // FIXME: Why?
             unset($this->record[$this->query_id]);
             unset($this->record_set[$this->query_id]);
-//            return $this->query_id;
         }
         else
         {
@@ -180,7 +178,6 @@ class dbal_mysql extends dbal
      * @param     bool       $assoc       MYSQL_ASSOC if true, MYSQL_NUM if false
      * @return    mixed                   Record array or false
      */
-    // FIXME: The only place $assoc is set to false is in this class (sql_query_first). Just remove it I reckon.
     function sql_fetchrow($query_id = false, $assoc = true)
     {
         if ($query_id === false)

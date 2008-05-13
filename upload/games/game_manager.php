@@ -747,8 +747,7 @@ class Game_Manager
         foreach ($dataset as $data_entry)
         {
             // Retrieve the correct string representation of the data, using the (english) name in the database as a fallback
-            // FIXME: Language implementation and use of 'name' instead of their key
-            $lang_key = strtoupper($datatype . '_' . str_replace(' ', '_', $data_entry['name']));
+            $lang_key = strtoupper($datatype . '_' . str_replace(' ', '_', $data_entry['key']));
             $match_value = isset($user->lang[$lang_key]) ? $user->lang[$lang_key] : $data_entry['name'];
             
 #            echo "Value: ";

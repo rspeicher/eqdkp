@@ -77,7 +77,7 @@ class Register extends EQdkp_Admin
         
         // Build the server URL
         // ---------------------------------------------------------
-        // FIXME: Why's this done here?
+        // TODO: Remove this and replace with a call to a function, or place this in the class itself.
         $script_name = preg_replace('/^\/?(.*?)\/?$/', '\1', trim($eqdkp->config['server_path']));
         $script_name = ( $script_name != '' ) ? $script_name . '/register.php' : 'register.php';
         $server_name = trim($eqdkp->config['server_name']);

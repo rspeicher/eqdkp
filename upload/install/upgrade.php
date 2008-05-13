@@ -65,29 +65,7 @@ class Upgrade
      */
     function introduction($mode, $sub)
     {
-        global $db, $in, $lang, $eqdkp_root_path, $DEFAULTS;
-        
-        $tpl = new Template_Wrap('install_install.html');
-        
-        $tpl->assign_vars(array(
-            'TITLE'               => $lang['eqdkp_upgrade'],
-            'BODY'                => $lang['eqdkp_upgrade_explain'],
-        ));
-
-        //
-        // Output the page
-        //
-        $tpl->assign_vars(array(
-            'L_SUBMIT'               => $lang['NEXT_STEP'],
-
-            'S_CHECKS'               => false,
-            'U_ACTION'               => $this->install_url . "?mode=$mode&amp;sub=version_check",
-        ));
-
-        $tpl->generate_navigation($mode, $this->submenu_ary, $sub);
-
-        $tpl->page_header();
-        $tpl->page_tail();
+        header('Location: ' . $this->install_url . "?mode=$mode&amp;sub=version_check");
     }
 
     function version_check($mode, $sub)

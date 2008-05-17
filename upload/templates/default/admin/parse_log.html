@@ -12,12 +12,14 @@ function check_form()
 function insert_log()
 {
     opener.document.post.attendees.value = document.post.log.value;
+    /*
     opener.document.post.h.value = document.post.h.value;
     opener.document.post.mi.value = document.post.mi.value;
     opener.document.post.s.value = document.post.s.value;
     opener.document.post.mo.value = document.post.mo.value;
     opener.document.post.d.value = document.post.d.value;
     opener.document.post.y.value = document.post.y.value;
+    */
 
     opener.changed = "True";
     window.close();
@@ -72,6 +74,7 @@ function insert_log()
   <tr>
     <td align="center" class="row1">&nbsp;<br /><textarea name="log" rows="20" cols="20" id="log" class="input">{FOUND_MEMBERS}</textarea><br />&nbsp;</td>
   </tr>
+<!--
   <tr>
     <th align="center">{L_LOG_DATE_TIME}</th>
   </tr>
@@ -85,6 +88,7 @@ function insert_log()
       :<input type="text" name="s" size="3" maxlength="2" value="{S}" id="s" class="input" />
     </td>
   </tr>
+-->
   <tr>
     <th align="center"><input type="button" name="button" value="{L_LOG_ADD_DATA}" class="mainoption" onclick="javascript:insert_log();" /></th>
   </tr>

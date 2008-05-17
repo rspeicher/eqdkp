@@ -644,6 +644,7 @@ class Add_Raid extends EQdkp_Admin
         }
         $db->free_result($result);
         
+        session_start();
         foreach ( $att_array as $attendee )
         {
             // Add each attendee to the attendees table for this raid
@@ -709,7 +710,7 @@ class Add_Raid extends EQdkp_Admin
             return;
         }
         
-        $name = $member['name'];
+        $name = $member['member_name'];
         
         if ( isset($_SESSION['log'][$name]) )
         {

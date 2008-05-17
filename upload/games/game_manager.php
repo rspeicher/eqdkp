@@ -386,7 +386,7 @@ class Game_Manager
         $classes = $this->sql_classes();
         
         // If given an int, return the name
-        $check = ( is_int($race) ) ? 'id' : 'name';
+        $check = ( is_int($class) ) ? 'id' : 'name';
         $return = ( $check == 'id' ) ? 'name' : 'id';
         
         foreach ( $classes as $v )

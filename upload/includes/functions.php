@@ -262,9 +262,7 @@ function create_bar($width, $text = '')
  */
 function hash_password($plaintext, $salt)
 {
-    global $eqdkp;
-    
-    return sha1("{$plaintext}_{$eqdkp->config['auth_salt']}_{$salt}");
+    return sha1("{$plaintext}_{$salt}");
 }
 
 /**

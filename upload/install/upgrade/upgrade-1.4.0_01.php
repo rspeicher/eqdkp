@@ -171,12 +171,6 @@ if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
     game_keys('faction');
     game_keys('race');
     
-    // Generate an installation-specific unique salt value
-    $auth_salt = generate_salt();
-    Upgrade::execute(array(
-        "REPLACE INTO __config (config_name, config_value) VALUES ('auth_salt', '{$auth_salt}')",
-    ));
-    
     // Finalize
     $db->sql_transaction('commit');
     

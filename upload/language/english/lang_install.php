@@ -44,8 +44,6 @@ $lang = array_merge($lang, array(
     'ADMIN_USERNAME'                          => 'Administrator username',
     'ADMIN_USERNAME_EXPLAIN'                  => 'Please enter a username between 3 and 20 characters in length.',
     'ADMINISTRATOR_TITLE'                     => 'Administrator Settings',
-    'AUTH_SALT'                               => 'Password Salt',
-    'AUTH_SALT_EXPLAIN'                       => 'A password salt is a small string used to make passwords more secure. For more information, visit <a href="http://en.wikipedia.org/wiki/Salt_(cryptography)" target="_blank">Salt (Cryptography)</a> [Wikipedia.org].<br />Please enter a string of alpha-numeric characters between 3 and 20 characters in length.',
     'AVAILABLE'                               => 'Available',
     
     'CAT_INSTALL'                             => 'Install',

@@ -27,7 +27,6 @@ INSERT INTO eqdkp_config (config_name, config_value) VALUES ('server_name', '');
 INSERT INTO eqdkp_config (config_name, config_value) VALUES ('server_path', '/eqdkp/');
 INSERT INTO eqdkp_config (config_name, config_value) VALUES ('server_port', '80');
 INSERT INTO eqdkp_config (config_name, config_value) VALUES ('enable_gzip', '0');
-INSERT INTO eqdkp_config (config_name, config_value) VALUES ('auth_salt', '');
 INSERT INTO eqdkp_config (config_name, config_value) VALUES ('admin_email', '');
 INSERT INTO eqdkp_config (config_name, config_value) VALUES ('account_activation', '1');
 INSERT INTO eqdkp_config (config_name, config_value) VALUES ('eqdkp_start', UNIX_TIMESTAMP());

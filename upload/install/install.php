@@ -1259,15 +1259,6 @@ class installer
         config_set('sub_title', $data['site_desc']);
         config_set('dkp_name', $data['dkp_name']);
         config_set('guildtag', $data['guildtag']);
-
-        // Set EQdkp's installation-unique salt
-        $data['auth_salt'] = generate_salt();
-        config_set('auth_salt', $data['auth_salt']);
-        
-		// NOTE: In the normal flow of EQdkp, the $eqdkp object would be populated with - among other things - an array of config values.
-		// Because we don't have such an object right now, we need to "create", then add information to a new $eqdkp object so that the hash_password() function will work correctly.
-		global $eqdkp;
-		$eqdkp->config = array('auth_salt' => $data['auth_salt']);
 		
         //
         // Update admin account

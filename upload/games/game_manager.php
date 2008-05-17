@@ -376,6 +376,31 @@ class Game_Manager
     }
     
     /**
+     * Return a Class' ID given its name, or vice-versa
+     *
+     * @param int|string $class Class to lookup
+     * @return int|string
+     */
+    function lookup_class($class)
+    {
+        $classes = $this->sql_classes();
+        
+        // If given an int, return the name
+        $check = ( is_int($race) ) ? 'id' : 'name';
+        $return = ( $check == 'id' ) ? 'name' : 'id';
+        
+        foreach ( $classes as $v )
+        {
+            if ( $v[$check] == $class )
+            {
+                return $v[$return];
+            }
+        }
+        
+        return ( $return == 'id' ) ? 0 : '';
+    }
+    
+    /**
      * Retrieve the installed game's armor type information from the database
      * 
      * @return    array
@@ -407,6 +432,31 @@ class Game_Manager
         }
         
         return $this->races;
+    }
+    
+    /**
+     * Return a Race's ID given its name, or vice-versa
+     *
+     * @param int|string $race Race to lookup
+     * @return int|string
+     */
+    function lookup_race($race)
+    {
+        $races = $this->sql_races();
+        
+        // If given an int, return the name
+        $check = ( is_int($race) ) ? 'id' : 'name';
+        $return = ( $check == 'id' ) ? 'name' : 'id';
+        
+        foreach ( $races as $v )
+        {
+            if ( $v[$check] == $race )
+            {
+                return $v[$return];
+            }
+        }
+        
+        return ( $return == 'id' ) ? 0 : '';
     }
         
     /**

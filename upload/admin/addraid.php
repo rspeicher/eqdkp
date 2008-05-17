@@ -691,188 +691,6 @@ class Add_Raid extends EQdkp_Admin
                 $db->query("INSERT INTO __members :params", $row);
             }
         }
-        
-        // ---------------------------------------------------------------------
-        // OLD METHOD ----------------------------------------------------------
-        // ---------------------------------------------------------------------
-        // Grab our array of name => class/level/race
-        /*
-        session_start();
-        
-        //
-        // Handle existing members
-        //
-        $update_sql_members = array();
-        $updated_members    = array();
-        $raid_attendees     = array();
-        
-        $sql = "SELECT m.member_name, m.member_firstraid, m.member_lastraid,
-                    m.member_level, r.race_name AS member_race,
-                    c.class_name AS member_class, m.member_raidcount
-                FROM __members AS m, __classes AS c, __races AS r
-                WHERE (r.`race_id` = m.`member_race_id`)
-                AND (c.`class_id` = m.`member_class_id`)";
-        $result = $db->query($sql);
-        while ( $row = $db->fetch_record($result) )
-        {
-            $member_name = trim(str_replace(' ', '', $row['member_name']));
-            
-            // Make sure the member is in the attendees list before proceeding
-            if ( (!in_array($member_name, $att_array)) || (empty($member_name)) )
-            {
-                continue;
-            }
-            
-            $raid_attendees[] = $member_name;
-            
-            // raidcount and/or firstraid is 0 - they exist but we need to set their firstraid to this date [ #705206 ]
-            if ( ($row['member_raidcount'] == '0') || ($row['member_firstraid'] == '0') )
-            {
-                $sql = "UPDATE __members
-                        SET `member_earned` = `member_earned` + {$raid_value},
-                            `member_firstraid` = '{$this->time}',
-                            `member_lastraid` = '{$this->time}',
-                            `member_raidcount` = `member_raidcount` + 1
-                        WHERE `member_name` = '{$member_name}'";
-                $db->query($sql);
-
-                $updated_members[] = $member_name;
-                continue;
-            }
-            else
-            {
-                $updated_members[] = $member_name;
-            }
-            
-            // Check for race/class/level data for this member
-            // TODO: Can't even tell how this works anymore. That's a bad sign.
-            $member_data = $this->_get_member_info($member_name);
-
-            if ( (!(isset($member_data['race']) )) ||  $member_data['race'] == 'Unknown'  )
-            {
-                $member_data['race'] = $row['member_race'];
-            }
-
-            if ( (!(isset($member_data['class']) )) ||  $member_data['class'] == 'Unknown' )
-            {
-                $member_data['class'] = $row['member_class'];
-            }
-
-            $member_level = ( is_numeric($member_data['level']) ) ? trim($member_data['level']) : 'member_level';
-            $member_race  = ( is_string($member_data['race']) )   ? trim($member_data['race'])  : 'member_race';
-            $member_class = ( is_string($member_data['class']) )  ? trim($member_data['class']) : 'member_class';
-            unset($member_data);
-            
-            // Update this member's race/class/level if they changed
-            $time_check  = ( $process == 'process_add' ) ? ($this->time > $row['member_lastraid']) : ($this->time <= $row['member_lastraid']);
-            $level_check = ( ($member_level != $row['member_level']) && ($member_level != 'member_level') ) ? true : false;
-            $race_check  = ( ($member_race  != $row['member_race'])  && ($member_race  != 'member_race') )  ? true : false;
-            $class_check = ( ($member_class != $row['member_class']) && ($member_class != 'member_class') ) ? true : false;
-            
-            if ( ($time_check) && ($level_check || $race_check || $class_check) )
-            {
-                // For comparison, quotes need to be added after the if statement above
-                $member_level = ( $member_level != 'member_level' ) ? "'{$member_level}'" : $member_level;
-                $member_race  = ( $member_race  != 'member_race'  ) ? "'{$member_race}'"  : $member_race;
-                $member_class = ( $member_class != 'member_class' ) ? "'{$member_class}'" : $member_class;
-
-                // Process the update
-                $sql  = "UPDATE __members AS m, __classes AS c, __races AS r
-                         SET m.`member_earned` = m.`member_earned` + {$raid_value},";
-                         
-                // Do not update their lastraid if it's greater than this raid's date [ #749201 ]
-                if ( $row['member_lastraid'] < $this->time )
-                {
-                    $sql .= "m.`member_lastraid` = '{$this->time}', ";
-                }
-                
-                $sql .= "    m.`member_raidcount` = m.`member_raidcount` + 1,
-                             m.`member_level` = '{$member_level}',
-                             m.`member_race_id` = r.`race_id`, 
-                             m.`member_class_id` = c.`class_id`
-                        WHERE r.`race_name` = {$member_race}
-                        AND c.`class_name` = {$member_class}
-                        AND m.`member_name` = '{$member_name}'";
-                $db->query($sql);
-            }
-            // If they didn't, their update is lumped into $update_sql (below)
-            else
-            {
-                $update_sql_members[] = $member_name;
-            }
-        }
-        $db->free_result($result);
-        session_destroy();
-        
-        // Run the lump update if we need to
-        if ( sizeof($update_sql_members) > 0 )
-        {
-            $sql = "UPDATE __members
-                    SET `member_raidcount` = `member_raidcount` + 1,
-                        `member_earned` = `member_earned` + {$raid_value}
-                    WHERE `member_name` IN ('" . implode("','", $update_sql_members) . "')";
-            $db->query($sql);
-        }
-        
-        //
-        // Update firstraid / lastraid [ #749201 ]
-        //
-        $this->update_member_firstraid($raid_attendees, $this->time);
-        $this->update_member_lastraid($raid_attendees,  $this->time);
-               
-        //
-        // Handle new members
-        //
-        $new_members = array_diff($att_array, $updated_members);
-        foreach ( $new_members as $member_name )
-        {
-            $member_name = trim($member_name);
-            if ( $member_name != '' )
-            {
-                $member_data2 = $this->_get_member_info($member_name);
-                
-                // TODO: 1.3 cleanup
-
-                $class = $member_data2['class'];
-                $race = $member_data2['race'];
-    
-                if ( ! ( isset($class) ) || ($class == "") ) {
-                    $class = "Unknown";
-                }
-        
-                $class_id_number = $db->query_first("SELECT class_id FROM __classes WHERE `class_name` = '{$class}'");
-                $race_id_number = $db->query_first("SELECT race_id FROM __races WHERE `race_name` = '{$race}'");
-        
-                if (!isset($race_id_number)) {
-                    $race_id_number = 0;
-                }
-
-                if (!isset($class_id_number)) {
-                    $class_id_number = 0;
-                }
-    
-                $query = $db->build_query('INSERT', array(
-                    'member_name'      => $member_name,
-                    'member_earned'    => $raid_value,
-                    'member_status'    => '1',
-                    'member_firstraid' => $this->time,
-                    'member_lastraid'  => $this->time,
-                    'member_raidcount' => '1',
-                    'member_level'     => $member_data2['level'], // TODO: Huh?
-                    'member_race_id'   => $race_id_number,
-                    'member_class_id'  => $class_id_number,
-                    'member_rank_id'   => '0')
-                );
-                $db->query("INSERT INTO __members {$query}");
-            }
-        }
-        
-        // For any member who has a 0 raidcount, reset their first/last raid to 0
-        $sql = "UPDATE __members
-                SET `member_firstraid` = 0, `member_lastraid` = 0
-                WHERE `member_raidcount` = 0";
-        $db->query($sql);
-        */
     }
     
     /**
@@ -884,6 +702,8 @@ class Add_Raid extends EQdkp_Admin
      */
     function _get_session_data($member)
     {
+        global $gm;
+        
         if ( !is_array($member) )
         {
             return;
@@ -902,20 +722,15 @@ class Add_Raid extends EQdkp_Admin
                 $member['member_level'] = $srow['level'];
             }
             
-            // TODO: __members now stores class and race IDs, whereas log parses give us a string
-            // We need an API to give GameManager a string and get an ID (and vice-versa?)
-            
             // Member races and classes don't (shouldn't) change; only update these if previous values were blank
             if ( $member['member_race_id'] == 0 )
             {
-                // TODO: Implement this method, or something like it
-                //$member['member_race_id'] = $gm->get_race_id($srow['race']);
+                $member['member_race_id'] = intval($gm->lookup_race($srow['race']));
             }
             
             if ( $member['member_class_id'] == 0 )
             {
-                // TODO: Implement this method, or something like it
-                //$member['member_class_id'] = $gm->get_class_id($srow['class']);
+                $member['member_class_id'] = intval($gm->lookup_class($srow['class']));
             }
         }
         

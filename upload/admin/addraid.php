@@ -516,7 +516,6 @@ class Add_Raid extends EQdkp_Admin
         return $retval;
     }
     
-    // TODO: Refactor
     /**
      * For each attendee on a raid, add a record in __raid_attendees and add or 
      * update their __members row

@@ -202,7 +202,7 @@ class dbal_mysql extends dbal
      * @param     int        $query_id     Query ID
      * @return    mixed                    Record set array or false
      */
-    // FIXME: This isn't currently used anywhere. Delete it? There's probably a few places where it may be useful
+    // TODO: This isn't currently used anywhere. Delete it? There's probably a few places where it may be useful
     function sql_fetchrowset($query_id = false)
     {
         if ($query_id === false)

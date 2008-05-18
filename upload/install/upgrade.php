@@ -65,7 +65,7 @@ class Upgrade
      */
     function introduction($mode, $sub)
     {
-        header('Location: ' . $this->install_url . "?mode=$mode&amp;sub=version_check");
+        header('Location: ' . $this->install_url . "?mode=$mode&sub=version_check");
     }
 
     function version_check($mode, $sub)

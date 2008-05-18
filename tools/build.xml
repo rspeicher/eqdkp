@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+
+<project name="eqdkp-1.4.0b1" default="dist" basedir=".">
+    <target name="export">
+        <echo msg="Creating export directory..." />
+        <mkdir dir="./${phing.project.name}" />
+
+        <echo msg="Performing svn export..." />
+        <svnexport
+            svnpath="/usr/bin/svn"
+            username=""
+            password=""
+            force="true"
+            nocache="true"
+            repositoryurl="http://eqdkp.googlecode.com/svn/branches/inputsec/"
+            todir="./${phing.project.name}" />
+    </target>
+
+    <target name="cleanexport" depends="export">
+        <echo msg="Cleaning up exported files..." />
+        <delete dir="./${phing.project.name}/tools" quiet="true" includeemptydirs="true" />
+        <delete dir="./${phing.project.name}/tests" quiet="true" includeemptydirs="true" />
+    </target>
+
+    <target name="archive" depends="cleanexport">
+		<delete file="${phing.project.name}.zip" />
+        <zip destfile="${phing.project.name}.zip" basedir="./${phing.project.name}" />
+
+		<delete file="${phing.project.name}.tar.gz" />
+        <tar destfile="${phing.project.name}.tar.gz" basedir="./${phing.project.name}" compression="gzip" />
+    </target>
+
+    <target name="dist" depends="archive">
+        <echo msg="Performing build..." />
+		
+		<echo msg="Removing export directory..." />
+		<delete dir="./${phing.project.name}" quiet="true" includeemptydirs="true" />
+    </target>
+</project>

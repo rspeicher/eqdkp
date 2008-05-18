@@ -85,8 +85,8 @@ if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )
 
         "ALTER TABLE __members DROP member_class",
         "ALTER TABLE __members DROP member_race",
-		
-		"INSERT INTO __auth_options (auth_id, auth_value, auth_default) VALUES (36, 'a_backup', 'N')",
+
+        "INSERT INTO __auth_options (auth_id, auth_value, auth_default) VALUES (36, 'a_backup', 'N')",
     ));
     Upgrade::set_version($VERSION);
     Upgrade::progress($VERSION);

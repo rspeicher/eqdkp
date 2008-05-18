@@ -290,9 +290,8 @@ class Parse_Log extends EQdkp_Admin
         
         $eqdkp->set_vars(array(
             'page_title'        => page_title($user->lang['parselog_title']),
-            // TODO: Remove after debug
-            // 'gen_simple_header' => true,
-            'template_file'     => 'admin/parse_Everquest.html',
+            'gen_simple_header' => true,
+            'template_file'     => 'admin/parse_log.html',
             'display'           => true
         ));
     }

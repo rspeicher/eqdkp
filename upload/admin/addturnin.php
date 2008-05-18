@@ -26,7 +26,6 @@ class Add_Turnin extends EQdkp_Admin
     function add_turnin()
     {
         global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $SID;
         
         parent::eqdkp_admin();
         
@@ -99,7 +98,6 @@ class Add_Turnin extends EQdkp_Admin
     function process_add()
     {
         global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $SID;
         
         $item_id = $db->escape($in->get('item_id', 0));
         $from    = $db->escape($in->get('from'));
@@ -166,7 +164,6 @@ class Add_Turnin extends EQdkp_Admin
     function display_step2()
     {
         global $db, $eqdkp, $user, $tpl, $pm, $in;
-        global $SID;
         
         $max_length = strlen(strval($db->query_first("SELECT MAX(item_value) FROM __items")));
         
@@ -186,7 +183,7 @@ class Add_Turnin extends EQdkp_Admin
         
         $tpl->assign_vars(array(
             // Form vars
-            'F_ADD_TURNIN' => 'addturnin.php' . $SID,
+            'F_ADD_TURNIN' => path_default('admin/addturnin.php'),
             'S_STEP1'      => false,
                         
             // Form values
@@ -223,7 +220,6 @@ class Add_Turnin extends EQdkp_Admin
     function display_form()
     {
         global $db, $eqdkp, $user, $tpl, $pm;
-        global $SID;
         
         $sql = "SELECT member_name
                 FROM __members
@@ -246,7 +242,7 @@ class Add_Turnin extends EQdkp_Admin
         
         $tpl->assign_vars(array(
             // Form vars
-            'F_ADD_TURNIN' => 'addturnin.php' . $SID,
+            'F_ADD_TURNIN' => path_default('admin/addturnin.php'),
             'S_STEP1'      => true,
             
             // Form values

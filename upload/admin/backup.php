@@ -23,9 +23,6 @@ class Backup extends EQdkp_Admin
 {
     function backup()
     {
-        global $db, $eqdkp, $user, $tpl, $pm;
-        global $SID;
-        
         parent::eqdkp_admin();
         
         $this->assoc_buttons(array(
@@ -52,8 +49,7 @@ class Backup extends EQdkp_Admin
     // ---------------------------------------------------------
     function display_menu()
     {
-        global $db, $eqdkp, $user, $tpl, $pm, $table_prefix;
-        global $SID;
+        global $eqdkp, $user, $tpl, $table_prefix;
         
         // 'Dynamic' offering of backup format types
         $available_methods = array('gzip' => 'zlib');
@@ -86,7 +82,7 @@ class Backup extends EQdkp_Admin
 
         // Assign the rest of the variables.
         $tpl->assign_vars(array(
-            'F_BACKUP'             => 'backup.php' . $SID,
+            'F_BACKUP'             => path_default('admin/backup.php'),
             'L_BACKUP_DATABASE'    => $user->lang['backup_database'],
             'L_BACKUP_TITLE'       => $user->lang['backup_title'],
             'L_BACKUP_TYPE'        => $user->lang['backup_type'],
@@ -111,7 +107,6 @@ class Backup extends EQdkp_Admin
     {
         global $eqdkp, $eqdkp_root_path, $user, $tpl, $pm, $in;
         global $db, $dbhost, $table_prefix;
-        global $SID;
 
         include($eqdkp_root_path . 'includes/functions_install.php');
 
@@ -241,7 +236,7 @@ class Backup extends EQdkp_Admin
         
             // NOTE: Error checking for table or data sql strings here?
                     
-            if ( $_POST['create_table'] == 'Y' )
+            if ( $in->get('create_table') == 'Y' )
             {
                 $data .= "\n" . "-- \n";
                 $data .= "-- Table structure for table `{$tablename}`" . "\n";

@@ -152,11 +152,11 @@ if ( defined('IN_ADMIN') )
 function install_check()
 {
     global $user;
-
+	
     $path = dirname(__FILE__);
 
     // Let the page go through if we're performing an upgrade
-    if ( preg_match('/upgrade|login\.php$/', $_SERVER['PHP_SELF']) )
+    if ( preg_match('/(upgrade|login)\.php$/', $_SERVER['PHP_SELF']) )
     {
         return;
     }

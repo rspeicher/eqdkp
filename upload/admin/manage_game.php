@@ -72,23 +72,25 @@ class EQdkp_Manage_Game extends EQdkp_Admin
             include($eqdkp->root_path . 'games/game_installer.php');
         }
         $gm = new Game_Installer();
-        
-		// Change the game installer's "current game" (the one whos data we're currently working with) to the new game.
+
+        // Change the game installer's "current game" (the one whos data we're currently working with) to the new game.
         $newgame_id = $gm->set_current_game($game_id);
+        unset($game_id);
+        
         if ($newgame_id === false)
         {
             // TODO: Fix the error throwing here so that it conforms to whatever standard error type of message thing we have.
             meta_refresh(3, $redirect_url);
             trigger_error($user->lang['invalid_game'], E_USER_ERROR);
         }
-		
-		// Prevent trying to change the game to itself
-		if(strcasecmp($game_id, $newgame_id) == 0)
-		{
+
+        // Prevent trying to change the game to itself
+        if(strcasecmp($newgame_id, $current_game) == 0)
+        {
             // TODO: Fix the error throwing here so that it conforms to whatever standard error type of message thing we have.
             meta_refresh(3, $redirect_url);
-            trigger_error($user->lang['invalid_game'], E_USER_ERROR);		
-		}
+            trigger_error($user->lang['invalid_game'], E_USER_ERROR);        
+        }
         
         // Grab a copy of the game information, then run the installation for the new game
         $newgame = $gm->get_game_data();
@@ -96,11 +98,11 @@ class EQdkp_Manage_Game extends EQdkp_Admin
         
         // Update EQdkp's configuration
         $eqdkp->config_set(array(
-            'current_game'      => $db->sql_escape($game_id),
-            'current_game_name' => isset($newgame['name']) ? $db->sql_escape($newgame['name']) : $db->sql_escape($game_id),
+            'current_game'      => $db->sql_escape($newgame_id),
+            'current_game_name' => isset($newgame['name']) ? $db->sql_escape($newgame['name']) : $db->sql_escape($newgame_id),
         ));            
         
-		// TODO: Fix the redirect process here.
+        // TODO: Fix the redirect process here.
         // meta_refresh(3, $redirect_url);
         // FIXME: New language string required.
         //trigger_error('Game successfully updated to ' . $newgame['name']);
@@ -119,8 +121,8 @@ class EQdkp_Manage_Game extends EQdkp_Admin
         $games = $gm->list_games();
 
         // TODO: When updating to/looking at info for a new game and more information needs to be displayed, 
-		//       the names for things within the game need to be retrieved for each language.
-		//       Therefore, the game manager will need to be able to retrieve language data for the game info it parses.
+        //       the names for things within the game need to be retrieved for each language.
+        //       Therefore, the game manager will need to be able to retrieve language data for the game info it parses.
         $tpl->assign_vars(array(
             // Form vars
             'F_MANAGE_GAME' => path_default('admin/manage_game.php'),

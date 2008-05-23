@@ -24,7 +24,7 @@ $user->check_auth('a_news_');
 $sort_order = array(
     0 => array('news_date desc', 'news_date'),
     1 => array('news_headline', 'news_headline desc'),
-    2 => array('username', 'username desc')
+    2 => array('user_name', 'user_name desc')
 );
 
 $current_order = switch_order($sort_order);
@@ -32,7 +32,7 @@ $current_order = switch_order($sort_order);
 $total_news = $db->query_first("SELECT COUNT(*) FROM __news");
 $start = $in->get('start', 0);
 
-$sql = "SELECT n.news_id, n.news_date, n.news_headline, n.news_message, u.username
+$sql = "SELECT n.news_id, n.news_date, n.news_headline, n.news_message, u.user_name
         FROM __news AS n, __users AS u
         WHERE (n.`user_id` = u.`user_id`)
         ORDER BY {$current_order['sql']}
@@ -47,7 +47,7 @@ while ( $news = $db->fetch_record($result) )
     $tpl->assign_block_vars('news_row', array(
         'ROW_CLASS'   => $eqdkp->switch_row_class(),
         'DATE'        => date($user->style['date_time'], $news['news_date']),
-        'USERNAME'    => sanitize($news['username']),
+        'USERNAME'    => sanitize($news['user_name']),
         'U_VIEW_NEWS' => edit_news_path($news['news_id']),
         'HEADLINE'    => sanitize($news['news_headline'])
     ));

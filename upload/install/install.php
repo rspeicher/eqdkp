@@ -838,13 +838,13 @@ class installer
         // Write the config file information
         $config_file  = "";
         $config_file .= "<?php\n\n";
-        $config_file .= "\$dbms         = '" . $data['dbms']        . "'; \n";
-        $config_file .= "\$dbhost       = '" . $data['dbhost']        . "'; \n";
-        $config_file .= "\$dbname       = '" . $data['dbname']        . "'; \n";
-        $config_file .= "\$dbuser       = '" . $data['dbuser']        . "'; \n";
-        $config_file .= "\$dbpass       = '" . $data['dbpass']        . "'; \n";
-        $config_file .= "\$ns           = '" . $data['server_name']   . "'; \n";
-        $config_file .= "\$table_prefix = '" . $data['table_prefix']  . "';\n\n";
+        $config_file .= "\$dbms         = '" . $this->parse_for_config($data['dbms'])          . "'; \n";
+        $config_file .= "\$dbhost       = '" . $this->parse_for_config($data['dbhost'])        . "'; \n";
+        $config_file .= "\$dbname       = '" . $this->parse_for_config($data['dbname'])        . "'; \n";
+        $config_file .= "\$dbuser       = '" . $this->parse_for_config($data['dbuser'])        . "'; \n";
+        $config_file .= "\$dbpass       = '" . $this->parse_for_config($data['dbpass'])        . "'; \n";
+        $config_file .= "\$ns           = '" . $this->parse_for_config($data['server_name'])   . "'; \n";
+        $config_file .= "\$table_prefix = '" . $this->parse_for_config($data['table_prefix'])  . "';\n\n";
         $config_file .= "\$debug        = '0'; \n";
         $config_file .= "\n" . 'define(\'EQDKP_INSTALLED\', true);' . "\n";
         $config_file .= "?" . ">";
@@ -1352,6 +1352,15 @@ class installer
     ## ########################################################################
     ## Helper methods
     ## ########################################################################
+
+    /**
+	 * Parse for configuration file
+	 */
+	function parse_for_config($variable)
+	{
+		$variable = addslashes($variable);
+		return $variable;
+	}
 
     /**
      * Get submitted data

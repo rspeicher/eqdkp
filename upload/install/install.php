@@ -568,19 +568,15 @@ class installer
         
         // Create the hidden fields
         $s_hidden_fields = '';
-        $s_hidden_fields .= '<input type="hidden" name="language" value="' . $data['language'] . '" />';
         $s_hidden_fields .= ($connect_test) ? '' : '<input type="hidden" name="testdb" value="true" />';
 
+		// If there has been a successfull connection test, write all the values for the valid variables.
         if ($connect_test)
         {
-            foreach (array_merge($this->default_config_options, $this->db_config_options, $this->server_config_options) as $config_key => $vars)
-            {
-                if (!is_array($vars))
-                {
-                    continue;
-                }
-                $s_hidden_fields .= '<input type="hidden" name="' . $config_key . '" value="' . $data[$config_key] . '" />';
-            }
+			// In this step, we are retrieving the default, database and server config options.
+			// We're not retrieving admin or game options, so we won't generate them.
+			$config_options = array_diff_key($data, $this->admin_config_options, $this->game_config_options);
+            $s_hidden_fields .= build_hidden_fields($config_options, true);
         }
 
         // 
@@ -745,18 +741,7 @@ class installer
                 ));
             }
         }
-        // Otherwise, add the details as hidden fields and move on.
-        else
-        {
-            foreach ($this->admin_config_options as $config_key => $vars)
-            {
-                if (!is_array($vars))
-                {
-                    continue;
-                }
-                $s_hidden_fields .= '<input type="hidden" name="' . $config_key . '" value="' . $data[$config_key] . '" />';
-            }
-        }
+
         
         // Figure out where we're bound for next
         $url     = (!$passed) ? $this->install_url . "?mode=$mode&amp;sub=administrator" : $this->install_url . "?mode=$mode&amp;sub=config_file";
@@ -764,16 +749,13 @@ class installer
 
         $message = (!$passed) ? $lang['INSTALL_NEXT_FAIL'] : '';
 
-        // The rest of the hidden fields
-        $config_options = array_merge($this->default_config_options, $this->db_config_options, $this->server_config_options);
-        foreach ($config_options as $config_key => $vars)
-        {
-            if (!is_array($vars))
-            {
-                continue;
-            }
-            $s_hidden_fields .= '<input type="hidden" name="' . $config_key . '" value="' . $data[$config_key] . '" />';
-        }
+        // Build hidden fields
+		// If we have tested the values entered in this step and they are valid, we will let the hidden fields be generated for them.
+		// Otherwise, we will exclude them from being created as hidden fields. 
+		// In both cases, we don't want to create hidden fields for the game options.
+        $config_options = ($passed) ? array_diff_key($data, $this->game_config_options) : array_diff_key($data, $this->admin_config_options, $this->game_config_options);
+
+		$s_hidden_fields .= build_hidden_fields($config_options, true);
         $s_hidden_fields .= ($passed) ? '' : '<input type="hidden" name="check" value="true" />';
 
         //
@@ -888,18 +870,11 @@ class installer
         }
 
         // Build hidden fields
-        $s_hidden_fields = '';
+		// We're going to include everything except for the game options.
+        $config_options = array_diff_key($data, $this->game_config_options);
 
-        $config_options = array_merge($this->default_config_options, $this->db_config_options, $this->admin_config_options, $this->server_config_options);
-        foreach ($config_options as $config_key => $vars)
-        {
-            if (!is_array($vars))
-            {
-                continue;
-            }
-            $s_hidden_fields .= '<input type="hidden" name="' . $config_key . '" value="' . $data[$config_key] . '" />';
-        }
-        $s_hidden_fields .= '<input type="hidden" name="language" value="' . $data['language'] . '" />';
+        $s_hidden_fields = '';
+		$s_hidden_fields .= build_hidden_fields($config_options, true);
 
         if (!$written)
         {
@@ -1059,29 +1034,13 @@ class installer
                 ));
             }
         }
-        else
-        {
-            foreach ($this->game_config_options as $config_key => $vars)
-            {
-                if (!is_array($vars))
-                {
-                    continue;
-                }
-                $s_hidden_fields .= '<input type="hidden" name="' . $config_key . '" value="' . $data[$config_key] . '" />';
-            }
-        }
         
         // Build hidden fields
-        $config_options = array_merge($this->default_config_options, $this->db_config_options, $this->admin_config_options, $this->server_config_options);
-        foreach ($config_options as $config_key => $vars)
-        {
-            if (!is_array($vars))
-            {
-                continue;
-            }
-            $s_hidden_fields .= '<input type="hidden" name="' . $config_key . '" value="' . $data[$config_key] . '" />';
-        }
-        $s_hidden_fields .= '<input type="hidden" name="language" value="' . $data['language'] . '" />';
+		// If we have valid data for the game options, we want every single data entry.
+		// Otherwise, we're going to avoid building hidden values for the game config options.
+        $config_options = ($passed) ? $data : array_diff_key($data, $this->game_config_options);
+
+        $s_hidden_fields .= build_hidden_fields($config_options, true);
         $s_hidden_fields .= ($passed) ? '' : '<input type="hidden" name="check" value="true" />';
 
 
@@ -1286,8 +1245,10 @@ class installer
         $url    = (count($error)) ? $this->install_url . "?mode=$mode&amp;sub=intro" : $this->install_url . "?mode=$mode&amp;sub=final";
         $submit = (count($error)) ? false : $lang['NEXT_STEP'];
 
+		// Build hidden fields
+		// We're going to generate hidden fields for everything this time.
         $s_hidden_fields = '';
-        $s_hidden_fields = build_hidden_fields($data);
+        $s_hidden_fields .= build_hidden_fields($data, true);
 
         //
         // Output the page

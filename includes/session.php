@@ -91,7 +91,7 @@ class Session
         }
   
         $auto_login = ( @isset($session_data['auto_login_id']) ) ? $session_data['auto_login_id'] : '';
-        $user_id    = ( @isset($session_data['user_id']) )       ? $session_data['user_id']       : ANONYMOUS;
+        $user_id    = ( @isset($session_data['user_id']) )       ? intval($session_data['user_id']) : ANONYMOUS;
         
         return $this->create($user_id, $auto_login);
     }

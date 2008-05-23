@@ -1286,22 +1286,16 @@ class installer
             auto_redirect($this->install_url . "?mode=$mode&sub=intro");
         }
 
-        $tpl = new Template_Wrap('install_final.html');
+        $tpl = new Template_Wrap('install_install.html');
         
         // Remove the lock file
         @unlink($eqdkp_root_path . 'templates/cache/install_lock');
 
-        $message = 'Your administrator account has been created, log in above to be taken to the EQdkp configuration page.';
+		$url = $eqdkp_root_path . "login.php?redirect=" . urlencode('admin/settings.php');
     
         $tpl->assign_vars(array(
             'TITLE'                  => $lang['INSTALL_CONGRATS'],
-            'BODY'                   => sprintf($lang['INSTALL_CONGRATS_EXPLAIN'], $DEFAULTS['version']),
-    
-            'MESSAGE'                => $message,
-
-            'L_SUBMIT'               => $lang['INSTALL_LOGIN'],
-
-            'U_ACTION'               => $eqdkp_root_path . "login.php?redirect=" . urlencode('admin/settings.php'),
+            'BODY'                   => sprintf($lang['INSTALL_CONGRATS_EXPLAIN'], $DEFAULTS['version'], '<a href="' . $url . '">', '</a>'),
         ));
     
         $tpl->generate_navigation($mode, $this->submenu_ary, $sub);

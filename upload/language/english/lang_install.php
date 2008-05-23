@@ -124,7 +124,11 @@ $lang = array_merge($lang, array(
     'INSTALL_CONGRATS'                        => 'Congratulations!',
     'INSTALL_CONGRATS_EXPLAIN'                => '
         <p>You have now successfully installed EQdkp %1$s.</p>
-        <p>Clicking the button below will take you to the Administration section of your EQdkp. For EQdkp support, you can visit the <a href="http://forums.eqdkp.com/">EQdkp forums</a> and request assistance in the appropriate forum sections.</p><p><strong>Please now delete, move or rename the install directory before you use EQdkp.</strong></p>',
+		<p><strong>You must now delete, move or rename the install directory before you are able use EQdkp.</strong></p>
+		<p>Once you have made the install directory unreadable, you can proceed to %2$slog in and configure EQdkp%3$s.</p> 
+        <p>For EQdkp support, you can visit the <a href="http://forums.eqdkp.com/">EQdkp forums</a> and request assistance in the appropriate forum sections.</p>
+		<br />
+		<p>%2$sLog in to the Administration Panel%3$s</p>',
     'INSTALL_INTRO'                           => 'Welcome to EQdkp Installation',
     'INSTALL_INTRO_BODY'                      => 'The following process will install EQdkp onto your server.</p>
     <p>In order to proceed, you will need your database settings. If you do not know your database settings, please contact your host and ask for them. You will not be able to continue without them. You need:</p>

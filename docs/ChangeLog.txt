@@ -1,5 +1,5 @@
-Version 1.4 - MMM DD, YYYY
---------------------------
+Version 1.4.0b1 - May 23, 2008
+------------------------------
 [-] Removed SOAP interfaces. Maybe they'll be released as a plugin at a later date, but they have no place in the default package.
 [-] Removed admin/lua.php and admin/lua_config.php. Again, these belong in a plugin, not the default package.
 [*] Fixed the member_current number formatting.
@@ -27,8 +27,8 @@ Version 1.4 - MMM DD, YYYY
 [+] Added implicit template variables S_FIRST_ROW and S_LAST_ROW for all block variables.
 [ ] Re-named the config variable 'default_game' to 'current_game', and added a variable 'current_game_name'
 
-Version 1.3.2 - March 9, 2007
------------------------------
+Version 1.3.2 - Mar 9, 2007
+---------------------------
 [+] Added game support for the World of Warcraft: The Burning Crusade
 [+] Added game support for Vanguard: Saga of Heroes
 [*] Fixed a security issue in the database backup script
@@ -43,24 +43,24 @@ Version 1.3.2 - March 9, 2007
 [*] Removed admin/mm/mm_addmembers.php.NEW.gz
 [ ] Merged all previous patches for the 1.3 branch
 
-Version 1.3.0p2 - October 19, 2005
-------------------------------------
+Version 1.3.0p2 - Oct 19, 2005
+------------------------------
 [*] [1.3.0p1] Fixed the new (again) addraid 
 [*] [1.3.0p1] Fixed a problem with install.php
 [*] [1.3.0p1] Fixed the parse_Everquest.php file to return all values
 [*] [1.3.0p1] We now correctly pass the class name for stats filtering
 [*] [1.3.0p1] Subversion directories in the plugin directory fixed
 
-Version 1.3.0p1 - September 15, 2005
-------------------------------------
+Version 1.3.0p1 - Sep 15, 2005
+------------------------------
 [*] [1.3] Column wraps around if value is too long
 [*] [1.3] [WoW] Armor types wrong :: "cloth and chain", not "silk and mail"
 [*] [1.3] Edited member name not updated everywhere adjustment table not updated correctly
 [*] [1.3] [Everquest] Problems with Shadow Knights
 [*] [1.3] Item prices getting truncated or corrupted
 
-Version 1.3.0 - August 1, 2005
-------------------------------
+Version 1.3.0 - Aug 1, 2005
+---------------------------
 [+] Moved Race, Class, and Faction data to the database
 [*] Fixed a bug related to files from FrontPage that contain an underscore.
 [*] Fixed sort order of items in listitems.php

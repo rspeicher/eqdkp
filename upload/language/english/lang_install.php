@@ -59,7 +59,6 @@ $lang = array_merge($lang, array(
     'CONFIG_FILE_PERMISSIONS_CREATED_EXPLAIN' => 'The config file has been set to be readable/writeable in order to let this installer write your configuration file automatically.',
     'CONFIG_FILE_UNABLE_WRITE'                => 'It was not possible to write the configuration file. Alternative methods for this file to be created are presented below.',
     'CONFIG_FILE_WRITTEN'                     => 'The configuration file has been written. You may now proceed to the next step of the installation.',
-    'CONFIG_PHPBB_EMPTY'                      => 'The phpBB3 config variable for "%s" is empty.',
     'CONFIG_RETRY'                            => 'Retry',
 
     'DATABASE'                                => 'Database',
@@ -89,7 +88,7 @@ $lang = array_merge($lang, array(
     'DKP_NAME_EXPLAIN'                        => '',
     'DLL_MYSQL'                               => 'MySQL',
     'DL_CONFIG'                               => 'Download config',
-    'DL_CONFIG_EXPLAIN'                       => 'You may download the complete config.php to your own PC. You will then need to upload the file manually, replacing any existing config.php in your phpBB 3.0 root directory. Please remember to upload the file in ASCII format (see your FTP application documentation if you are unsure how to achieve this). When you have uploaded the config.php please click “Done” to move to the next stage.',
+    'DL_CONFIG_EXPLAIN'                       => 'You may download the complete config.php to your own PC. You will then need to upload the file manually, replacing any existing config.php in your EQdkp root directory. Please remember to upload the file in ASCII format (see your FTP application documentation if you are unsure how to achieve this). When you have uploaded the config.php please click “Done” to move to the next stage.',
     'DL_DOWNLOAD'                             => 'Download',
     'DONE'                                    => 'Done',
 
@@ -174,7 +173,6 @@ $lang = array_merge($lang, array(
     'INST_ERR_EMAIL_INVALID'        => 'The e-mail address you entered is invalid.',
     'INST_ERR_EMAIL_MISMATCH'       => 'The e-mails you entered did not match.',
     'INST_ERR_FATAL'                => 'Fatal installation error',
-    'INST_ERR_FATAL_DB'             => 'A fatal and unrecoverable database error has occurred. This may be because the specified user does not have appropriate permissions to <code>CREATE TABLES</code> or <code>INSERT</code> data, etc. Further information may be given below. Please contact your hosting provider in the first instance or the support forums of phpBB for further assistance.',
     'INST_ERR_FTP_PATH'             => 'Could not change to the given directory, please check the path.',
     'INST_ERR_FTP_LOGIN'            => 'Could not login to FTP server, check your username and password.',
     'INST_ERR_MISSING_DATA'         => 'You must fill out all fields in this block.',

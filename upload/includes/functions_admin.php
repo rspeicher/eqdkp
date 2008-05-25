@@ -120,6 +120,38 @@ function generate_permission_boxes()
     return $retval;
 }
 
+function get_default_tables()
+{
+    global $table_prefix;
+    
+    return array(
+        $table_prefix . 'adjustments',
+        $table_prefix . 'auth_options',
+        $table_prefix . 'auth_users',
+        $table_prefix . 'config',
+        $table_prefix . 'events',
+        $table_prefix . 'items',
+        $table_prefix . 'logs',
+        $table_prefix . 'members',
+        $table_prefix . 'member_ranks',
+        $table_prefix . 'member_user',
+        $table_prefix . 'news',
+        $table_prefix . 'plugins',
+        $table_prefix . 'raids',
+        $table_prefix . 'raid_attendees',
+        $table_prefix . 'sessions',
+        $table_prefix . 'styles',
+        $table_prefix . 'style_config',
+        $table_prefix . 'users',
+        // Game-specific tables
+        $table_prefix . 'armor_types',
+        $table_prefix . 'class_armor',
+        $table_prefix . 'classes',
+        $table_prefix . 'races',
+        $table_prefix . 'factions',
+    );
+}
+
 /**
  * Get database size
  * 

@@ -26,6 +26,7 @@ class MySQL_Info extends EQdkp_Admin
     var $index_size    = 0;
     var $num_tables    = 0;
     var $num_rows      = 0;
+    var $tables        = array();
     
     function mysql_info()
     {
@@ -46,6 +47,8 @@ class MySQL_Info extends EQdkp_Admin
         {
             $this->mysql_version = $row['mysql_version'];
         }
+        
+        $this->tables = get_default_tables();
     }
     
     // ---------------------------------------------------------
@@ -162,10 +165,12 @@ class MySQL_Info extends EQdkp_Admin
         
         if ( preg_match('/^' . $table_prefix . '.+/', $row['Name']) )
         {
+            $format = ( in_array($row['Name'], $this->tables) ) ? "<b>%s</b>" : "%s";
+            
             // Current row is an EQdkp table, get info for it
             $tpl->assign_block_vars('table_row', array(
                 'ROW_CLASS'  => $eqdkp->switch_row_class(),
-                'TABLE_NAME' => $row['Name'],
+                'TABLE_NAME' => sprintf($format, $row['Name']),
                 'ROWS'       => number_format($row['Rows'], 0),
                 'TABLE_SIZE' => $this->db_size($row['Data_length']),
                 'INDEX_SIZE' => $this->db_size($row['Index_length'])

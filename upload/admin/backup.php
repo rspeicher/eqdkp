@@ -129,30 +129,7 @@ class Backup extends EQdkp_Admin
         else
         {
             // In this case, plugin tables won't be discovered and backed up.
-            $tables = array(
-                '__adjustments',
-                '__auth_options',
-                '__auth_users',
-                '__config',
-                '__events',
-                '__items',
-                '__logs',
-                '__members',
-                '__member_ranks',
-                '__member_user',
-                '__news',
-                '__plugins',
-                '__raids',
-                '__raid_attendees',
-                '__sessions',
-                '__styles',
-                '__style_config',
-                '__users',
-                // Game-specific tables
-                '__classes',
-                '__races',
-                '__factions',
-            );
+            $tables = get_default_tables();
             
             foreach( $tables as $key => $table )
             {

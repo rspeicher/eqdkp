@@ -351,6 +351,25 @@ function raid_path($id = null)
 }
 
 ## ############################################################################
+## Game Paths
+## ############################################################################
+
+/**
+ * Return the appropriate path to edit the current game
+ *
+ * @param string $id Currently does nothing
+ * @return string
+ */
+function edit_game_path($id = null)
+{
+    if ( !is_null($id) )
+    {
+    }
+    
+    return path_default('admin/manage_game.php');
+}
+
+## ############################################################################
 ## User Paths
 ## ############################################################################
 

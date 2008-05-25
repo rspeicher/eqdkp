@@ -59,11 +59,13 @@ class EQdkp_Manage_Game extends EQdkp_Admin
         $current_game = $eqdkp->config['current_game'];
         $redirect_url = path_default('admin/manage_game.php');
 
+        $link_list = array(
+            $user->lang['game_settings'] => edit_game_path()
+        );
+
         if (empty($game_id))
         {
-            // TODO: Fix the error throwing here so that it conforms to whatever standard error type of message thing we have.
-            meta_refresh(3, $redirect_url);
-            trigger_error($user->lang['no_game_selected'], E_USER_ERROR);
+            $this->admin_die($user->lang['no_game_selected'], $link_list);
         }
 
         // Create the game installer
@@ -79,17 +81,13 @@ class EQdkp_Manage_Game extends EQdkp_Admin
         
         if ($newgame_id === false)
         {
-            // TODO: Fix the error throwing here so that it conforms to whatever standard error type of message thing we have.
-            meta_refresh(3, $redirect_url);
-            trigger_error($user->lang['invalid_game'], E_USER_ERROR);
+            $this->admin_die($user->lang['error_invalid_game'], $link_list);
         }
 
         // Prevent trying to change the game to itself
         if(strcasecmp($newgame_id, $current_game) == 0)
         {
-            // TODO: Fix the error throwing here so that it conforms to whatever standard error type of message thing we have.
-            meta_refresh(3, $redirect_url);
-            trigger_error($user->lang['invalid_game'], E_USER_ERROR);        
+            $this->admin_die($user->lang['error_same_game'], $link_list);        
         }
         
         // Grab a copy of the game information, then run the installation for the new game

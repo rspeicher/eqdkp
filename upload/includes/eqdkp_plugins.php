@@ -514,13 +514,17 @@ class EQdkp_Plugin_Manager
         }
         else
         {
-            $lang_file = $eqdkp_root_path . 'plugins/' . $plugin_code . '/language/' . $user->lang_name . '/lang_main.php';
+            $lang_file = $eqdkp_root_path . 'plugins/' . $plugin_code . '/language/' . $user->data['user_lang'] . '/lang_main.php';
             
             if ( file_exists($lang_file) )
             {
-                include_once($lang_file);
+                require_once($lang_file);
                 
-                $user->lang = ( @is_array($lang) ) ? array_merge($user->lang, $lang) : $user->lang;
+                if ( isset($lang) && is_array($lang) )
+                {
+                    $user->lang = array_merge($user->lang, $lang);
+                    unset($lang);
+                }
             }
         }
        

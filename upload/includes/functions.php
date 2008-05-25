@@ -631,4 +631,36 @@ function meta_refresh($time, $url)
         'META' => '<meta http-equiv="refresh" content="' . $time . ';url=' . $url . '" />'
     ));
 }
+
+/**
+ * PHP5 Compatibility functions
+ */
+
+/**
+ * Takes two or more arrays and removes any entries from the first array whose key values
+ * are present in any of the other arrays.
+ * 
+ * http://au.php.net/manual/en/function.array-diff-key.php#76100
+ *
+ * @return array
+ */
+if (!function_exists(array_diff_key))
+{
+    function array_diff_key()
+    {
+        $arrs = func_get_args();
+        $result = array_shift($arrs);
+        foreach ($arrs as $array)
+        {
+            foreach ($result as $key => $v)
+            {
+                if (array_key_exists($key, $array))
+                {
+                    unset($result[$key]);
+                }
+            }
+        }
+        return $result;
+   }
+}
 ?>

@@ -644,7 +644,7 @@ function meta_refresh($time, $url)
  *
  * @return array
  */
-if (!function_exists(array_diff_key))
+if (!function_exists("array_diff_key"))
 {
     function array_diff_key()
     {
@@ -661,6 +661,6 @@ if (!function_exists(array_diff_key))
             }
         }
         return $result;
-   }
+    }
 }
 ?>

@@ -150,8 +150,8 @@ class Manage_Users extends EQdkp_Admin
             ));
 
             // Make sure any members associated with this account aren't associated with another account
-            $member_ids = $in->getArray('member_id', 'int');
-            if ( count($member_ids) > 0 )
+            $member_ids = $in->getArray('member_users', 'int');
+            if ( sizeof($member_ids) > 0 )
             {
                 // Build array of member_id => member_name
                 $member_names = array();
@@ -181,7 +181,7 @@ class Manage_Users extends EQdkp_Admin
 
                 if ( $fv_member_id != '' )
                 {
-                    $this->fv->errors['member_id'] = $fv_member_id;
+                    $this->fv->errors['member_users'] = $fv_member_id;
                 }
             }
             unset($member_ids);
@@ -269,7 +269,7 @@ class Manage_Users extends EQdkp_Admin
                 WHERE (`user_id` = '" . $db->escape($this->user_data['user_id']) . "')";
         $db->query($sql);
 
-        $member_ids = $in->getArray('member_id', 'int');
+        $member_ids = $in->getArray('member_users', 'int');
         if ( count($member_ids) > 0 )
         {
             $sql = "INSERT INTO __member_user (member_id, user_id) VALUES ";
@@ -637,7 +637,7 @@ class Manage_Users extends EQdkp_Admin
             'FV_USER_ILIMIT'  => $this->fv->generate_error('user_ilimit'),
             'FV_USER_NLIMIT'  => $this->fv->generate_error('user_nlimit'),
             'FV_USER_RLIMIT'  => $this->fv->generate_error('user_rlimit'),
-            'FV_MEMBER_ID'    => $this->fv->generate_error('member_id'))
+            'FV_MEMBER_ID'    => $this->fv->generate_error('member_users'))
         );
 
         $pm->do_hooks('/admin/manage_users.php?action=settings');

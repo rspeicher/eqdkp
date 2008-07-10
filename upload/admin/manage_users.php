@@ -229,7 +229,7 @@ class Manage_Users extends EQdkp_Admin
         );
         if ( $this->change_username )
         {
-            $update['username'] = $in->get('username');
+            $update['user_name'] = $in->get('username');
         }
         if ( $this->change_password )
         {

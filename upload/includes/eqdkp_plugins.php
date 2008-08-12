@@ -115,28 +115,38 @@ class EQdkp_Plugin_Manager
     */
     function check($check, $plugin_code)
     {
-        switch ( $check )
+        $retval = false;
+    
+        if ( is_null($plugin_code) || empty($plugin_code) || !is_string($plugin_code) )
         {
-            case PLUGIN_INITIALIZED:
-                $retval = ( is_null($plugin_code) ) ? false : isset($this->plugins[$plugin_code]);
-                break;
-                
-            case PLUGIN_REGISTERED:
-                $retval = ( is_null($plugin_code) ) ? false : isset($this->registered[$plugin_code]);
-                break;
-                
-            case PLUGIN_INSTALLED:
-                $retval = ( is_null($plugin_code) ) ? false : isset($this->installed[$plugin_code]);
-                break;
-                
-            case PLUGIN_UNINSTALLED:
-                $retval = ( is_null($plugin_code) ) ? false : isset($this->uninstalled[$plugin_code]);
-                break;
-                
-            default:
-                $retval = false;
+            $retval = false;
         }
-
+        else
+        {
+            switch ( $check )
+            {
+                case PLUGIN_INITIALIZED:
+                    $retval = isset($this->plugins[$plugin_code]);
+                    break;
+                    
+                case PLUGIN_REGISTERED:
+                    $retval = isset($this->registered[$plugin_code]);
+                    break;
+                    
+                case PLUGIN_INSTALLED:
+                    $retval = isset($this->installed[$plugin_code]);
+                    break;
+                    
+                case PLUGIN_UNINSTALLED:
+                    $retval = isset($this->uninstalled[$plugin_code]);
+                    break;
+                    
+                default:
+                    $retval = false;
+                    break;
+            }
+        }
+        
         return $retval;
     }
     
@@ -277,7 +287,7 @@ class EQdkp_Plugin_Manager
                             if ( !$this->initialize($d_plugin_code) )
                             {
                                 // Couldn't initialize
-                                $this->error_append('Registeration', 'Plugin "' . $d_plugin_code . '" could not be initialized.', true);
+                                $this->error_append('Registration', 'Plugin "' . $d_plugin_code . '" could not be initialized.', true);
                             }
                             else
                             {
@@ -305,9 +315,10 @@ class EQdkp_Plugin_Manager
                 unset($plugin_object, $d_plugin_code, $cwd);
             } // readdir
         } // opendir
-    else {
-    print "fopen didn't work.<br>";
-    }
+        else 
+        {
+            $this->error_append('Registration', 'Call to fopen() failed. Could not access plugins directory.');
+        }
 
         unset($dir);
         

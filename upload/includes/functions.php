@@ -575,7 +575,7 @@ function redirect($url, $return = false)
 
     $protocol = 'http://';
     $server   = preg_replace('/^\/?(.*?)\/?$/', '\1', trim($eqdkp->config['server_name']));
-    $port     = ($eqdkp->config['server_port'] != 80) ? trim($eqdkp->config['server_port']) : '';
+    $port     = ($eqdkp->config['server_port'] != 80) ? ':' . trim($eqdkp->config['server_port']) : '';
     $script   = preg_replace('/^\/?(.*?)\/?$/', '\1', trim($eqdkp->config['server_path']));
 
     $url      = preg_replace('/^\/?(.*?)\/?$/', '\1', trim($url));

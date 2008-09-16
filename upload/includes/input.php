@@ -91,7 +91,7 @@ class Input
      * </code>
      * 
      * @param string $key Input key
-     * @param mixed $default Default variable to return if $key is not set. This also determines the type data of cleaning performed.
+     * @param mixed $default Default variable to return if $key is not set. This also determines the type of data cleaning performed.
      * @return mixed
      */
     function get($key, $default = '')

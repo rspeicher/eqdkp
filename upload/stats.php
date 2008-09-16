@@ -195,8 +195,6 @@ while ( $row = $db->fetch_record($result) )
 
     $loot_factor = ( $cdata['class_pct'] > 0 && $cdata['drop_pct'] > 0 ) ? round((($cdata['drop_pct'] / $cdata['class_pct']) - 1) * 100) : 0;
 
-	var_dump($cdata);
-
     $tpl->assign_block_vars('class_row', array(
         'ROW_CLASS'      => $row_class,
         'LINK_CLASS'     => ( $row_class == 'rowhead' ) ? 'header' : '',

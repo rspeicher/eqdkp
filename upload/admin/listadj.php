@@ -93,7 +93,7 @@ while ( $adj = $db->fetch_record($adj_result) )
 {
     $tpl->assign_block_vars('adjustments_row', array(
         'ROW_CLASS'        => $eqdkp->switch_row_class(),
-        'U_ADD_ADJUSTMENT' => ( $s_group_adj ) ? adjustment_path($adj['adjustment_id']) : iadjustment_path($adj['adjustment_id']),
+        'U_ADD_ADJUSTMENT' => ( $s_group_adj ) ? edit_adjustment_path($adj['adjustment_id']) : edit_iadjustment_path($adj['adjustment_id']),
         'DATE'             => date($user->style['date_notime_short'], $adj['adjustment_date']),
         'U_VIEW_MEMBER'    => ( isset($adj['member_name']) ) ? member_path($adj['member_name']) : '',
         'MEMBER'           => ( isset($adj['member_name']) ) ? sanitize($adj['member_name']) : '',

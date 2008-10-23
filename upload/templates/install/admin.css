@@ -15,7 +15,7 @@ body, div, p, th, td, li, dd {
 }
 
 html>body, html>div, html>p, html>th, html>td, html>li, html>dd {
-  font-size: small
+  font-size: small;
 }
 
 html {
@@ -103,15 +103,29 @@ a:active {
   Based on: http://www.alistapart.com/articles/slidingdoors2/
 ----------------------------------------*/
 #tabs {
-  line-height: normal;
-  margin: 0 0 -6px 7px;
+  margin: 0;
+  padding: 3px;
   min-width: 600px;
+  background-color: #424563;
+  border: 1px solid #7B819A;
+}
+
+#tabs div {
+  display: block;
+  background-color: #EFEFEF;
+  border: 1px solid #FAFAFA;
+  padding: 2px 1px 0;
+  margin: 0;
+  line-height: 200%;
 }
 
 #tabs ul {
-  margin:0;
+  position: relative;
+  margin: 0;
   padding: 0;
   list-style: none;
+  display: block;
+  cursor: default;
 }
 
 #tabs li {
@@ -123,21 +137,20 @@ a:active {
 }
 
 #tabs a {
-  float: left;
-  background-repeat: no-repeat;
-  background-position: 0% -34px;
   margin: 0 1px 0 0;
-  padding: 0 0 0 7px;
+  padding: 7px 10px;
   text-decoration: none;
-  position: relative;
+  border-top-width: 2px;
+  border-top-style: solid;
+  border-color: #EFEFEF;
 }
 
 #tabs a span {
-  float: left;
-  display: block;
+  position: relative;
+  padding: 0;
+  margin: 0;
   background-repeat: no-repeat;
   background-position: 100% -34px;
-  padding: 7px 10px 4px 4px;
   color: #767676;
   white-space: nowrap;
   font-family: Arial, Helvetica, sans-serif;
@@ -145,9 +158,10 @@ a:active {
   font-weight: bold;
 }
 
-/* Commented Backslash Hack hides rule from IE5-Mac \*/
-#tabs a span { float:none;}
-/* End hack */
+#tabs a:hover {
+  background-color: #FCFCFC;
+  border-color: #D3D2CD;
+}
 
 #tabs a:hover span {
   color: #BC2A4D;
@@ -155,13 +169,13 @@ a:active {
 
 #tabs #activetab a {
   background-position: 0 0;
-  border-bottom: 1px solid #DCDEE2;
+  background-color: #D6D2CD;
+  border-color: #B8B4AB;
 }
 
 #tabs #activetab a span {
   background-position: 100% 0;
-  padding-bottom: 5px;
-  color: #23649F;
+  color: #484640;
 }
 
 #tabs a:hover {
@@ -173,7 +187,7 @@ a:active {
 }
 
 #tabs #activetab a:hover span {
-  color: #115098;
+  color: #673636;
 }
 
 /* Main blocks
@@ -193,7 +207,7 @@ a:active {
 }
 
 #page-header h1 {
-  color: #CECFEF;
+  color: #59597a;
   font-family: Verdana, Tahoma, Arial;
   font-size: 1.65em;
   font-weight: bold;
@@ -252,7 +266,7 @@ a:active {
 ---------------------------------------- */
 #acp {
   margin: 4px 0;
-  padding: 3px 1px;
+  padding: 6px 3px 3px;
   min-width: 550px;
   background-color: #424563;
   border: 1px #7B819A solid;
@@ -261,7 +275,7 @@ a:active {
 .panel {
   color: #000000;
   background-color: #EFEFEF;
-  border: 1px solid #3F3F3F;
+  border: 1px solid #FFFFFF;
   background-repeat: repeat-x;
   background-position: top;
   padding: 0;
@@ -376,12 +390,12 @@ span.corners-top span, span.corners-bottom span {
 ---------------------------------------- */
 
 #page-footer p {
-	font-size: 0.85em;
-	color: #CECFEF;
+  font-size: 0.85em;
+  color: #CECFEF;
 }
 
 #page-footer a {
-	color: #999BEF;
+  color: #999BEF;
 }
 
 /* Table styles
@@ -397,12 +411,12 @@ table {
 th {
   padding: 3px 4px;
   color: #FFFFFF;
-  background: #70AED3 url("images/gradient2b.gif") bottom left repeat-x;
-  border-top: 1px solid #6DACD2;
-  border-bottom: 1px solid #327AA5;
+  background: #5D6280 url("images/gradient2b.gif") repeat-x left top;
   text-align: left;
   font-size: 0.75em;
   text-transform: uppercase;
+  border-top: 1px solid #656989;
+  border-bottom: 1px solid #494D66;
 }
 
 td {

@@ -126,7 +126,7 @@ class Session
         {
             $sql = "SELECT user_id, user_name, user_email, user_alimit, user_elimit,
                         user_ilimit, user_nlimit, user_rlimit,user_style, user_lang,
-                        user_lastpage, user_active
+                        user_lastpage, user_active, user_lastvisit
                     FROM __users
                     WHERE (`user_id` = '{$cookie_user}') 
                     AND (`user_password` = '" . $db->escape($cookie_auth) . "')

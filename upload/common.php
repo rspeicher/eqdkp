@@ -151,8 +151,6 @@ if ( defined('IN_ADMIN') )
  */
 function install_check()
 {
-    global $user;
-	
     $path = dirname(__FILE__);
 
     // Let the page go through if we're performing an upgrade

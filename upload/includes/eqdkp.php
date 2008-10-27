@@ -190,8 +190,7 @@ class EQdkp
     function page_header()
     {
         global $db, $user, $tpl, $pm;
-        global $SID;
-        
+
         // Define a variable so we know the header's been included
         define('HEADER_INC', true);
         
@@ -203,8 +202,6 @@ class EQdkp
                 @ob_start('ob_gzhandler');
             }
         }
-        
-        $SID = ( isset($SID) ) ? $SID : '?' . URI_SESSION . '=';
         
         // Send the HTTP headers
         $now = gmdate('D, d M Y H:i:s', time()) . ' GMT';
@@ -253,7 +250,8 @@ class EQdkp
             'URI_RAID'       => URI_RAID,
             'URI_SESSION'    => URI_SESSION,
         
-            'SID' => $SID,
+            // NOTE: Legacy support to prevent breaking URLs for people who don't update templates
+            'SID' => '?s=',
         
             // Theme Settings
             'T_FONTFACE1'          => $user->style['fontface1'],
@@ -709,17 +707,11 @@ class EQdkp_Admin
     
     function process_delete()
     {
-        global $SID;
-        
-        $this->script_name = ( strpos($this->script_name, '?' . URI_SESSION . '=') ) ? $this->script_name : $this->script_name . $SID;
-        
         $this->_confirmDelete($this->confirm_text, $this->uri_parameter, $this->url_id, $this->script_name);
     }
     
     function process_cancel()
     {
-        global $SID;
-        
         if ( empty($this->script_name) )
         {
             message_die('Cannot redirect to an empty script name.');
@@ -908,8 +900,7 @@ class EQdkp_Admin
     function admin_die($message, $link_list = array())
     {
         global $eqdkp, $user, $tpl, $pm;
-        global $SID;
-        
+
         if ( (is_array($link_list)) && (sizeof($link_list) > 0) )
         {
             $message .= '<br /><br />' . $this->generate_link_list($link_list);

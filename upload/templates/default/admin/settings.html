@@ -4,7 +4,7 @@
 function pop_preview()
 {                   
     selected_style = document.post.default_style.options[document.post.default_style.selectedIndex].value;
-    preview = window.open('{EQDKP_ROOT_PATH}viewnews.php{SID}&style='+selected_style,'preview','resizable=yes,toolbar=no,status=yes,height=500,width=600,screenX=50,screenY=25,left=100,top=75')
+    preview = window.open('{EQDKP_ROOT_PATH}viewnews.php?style='+selected_style,'preview','resizable=yes,toolbar=no,status=yes,height=500,width=600,screenX=50,screenY=25,left=100,top=75')
     preview.focus();
 }
 //-->

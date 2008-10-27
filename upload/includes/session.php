@@ -408,12 +408,7 @@ class Session
             
             // NOTE: This was mostly only an issue during development before the
             // manage_styles panel was developed, but can remain here as a fail-safe
-            $sql = "SELECT s.*, c.*
-                    FROM __styles AS s, __style_config AS c
-                    WHERE s.`style_id` = c.`style_id`
-                    AND s.`style_id` = '{$eqdkp->config['default_style']}'";
-            $result = $db->query($sql);
-            $this->style = $db->fetch_record($result);
+            $this->_setup_style($eqdkp->config['default_style']);
         }
 
         $tpl->set_template($this->style['template_path']);

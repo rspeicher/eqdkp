@@ -20,7 +20,6 @@ if ( !defined('EQDKP_INC') )
     exit;
 }
 
-// FIXME: This needs to change as we decide our beta-testing plan
 $VERSION = '1.4.0 B1';
 
 if ( class_exists('Upgrade') && Upgrade::should_run($VERSION) )

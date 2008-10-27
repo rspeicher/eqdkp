@@ -740,11 +740,11 @@ class EQdkp_Admin
         
         if ( $this->url_id )
         {
-            $redirect = $script_path . $this->script_name . $SID . '&' . $this->uri_parameter . '=' . $this->url_id;
+            $redirect = path_default($script_path . $this->script_name) . path_params($this->uri_parameter, $this->url_id);
         }
         else
         {
-            $redirect = $script_path . $this->script_name . $SID;
+            $redirect = path_default($script_path . $this->script_name);
         }
         
         redirect($redirect);

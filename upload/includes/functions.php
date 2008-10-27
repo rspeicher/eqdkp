@@ -565,54 +565,40 @@ function generate_pagination($base_url, $num_items, $per_page, $start_item, $sta
 /**
  * Redirects the user to another page and exits cleanly
  *
- * @param     string     $url          URL to redirect to
+ * @param     string     $page         Page to redirect to
  * @param     bool       $return       Whether to return the generated redirect url (true) or just redirect to the page (false)
  * @return    mixed                    null, else the parsed redirect url if return is true.
  */
-function redirect($url, $return = false)
+function redirect($page, $return = false)
 {
-    global $db, $eqdkp, $user;
-
-    $protocol = 'http://';
-    $server   = preg_replace('/^\/?(.*?)\/?$/', '\1', trim($eqdkp->config['server_name']));
-    $port     = ($eqdkp->config['server_port'] != 80) ? ':' . trim($eqdkp->config['server_port']) : '';
-    $script   = preg_replace('/^\/?(.*?)\/?$/', '\1', trim($eqdkp->config['server_path']));
-
-    $url      = preg_replace('/^\/?(.*?)\/?$/', '\1', trim($url));
-    $url      = str_replace('&amp;', '&', $url);
-
-    if( $return )
+    if ( $return )
     {
-        return $url;
-    }
-
-    $location = $protocol . $server . $port . '/' . (!empty($script) ? $script . '/' : '') . $url;
-    
-    if ( @preg_match('/Microsoft|WebSTAR|Xitami/', getenv('SERVER_SOFTWARE')) )
-    {
-        header('Refresh: 0; URL=' . $location);
-        
-        echo '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">';
-        echo '<html>';
-        echo '<head>';
-        echo '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">';
-        echo '<meta http-equiv="refresh" content="0; url=' . str_replace('&', '&amp;', $location) .'">';
-        echo '<title>Redirect</title>';
-        echo '</head>';
-        echo '<body>';
-        echo '<div align="center">If your browser does not support meta redirection, please click <a href="' . str_replace('&', '&amp;', $location) . '">here</a> to be redirected</div>';
-        echo '</body>';
-        echo '</html>';
-        
-        exit;
+        trigger_error("Second parameter to redirect() is deprecated.", E_USER_NOTICE);
     }
     
-    if ( isset($db) )
+    $server_name = (!empty($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : getenv('SERVER_NAME');
+    $server_port = (!empty($_SERVER['SERVER_PORT'])) ? (int) $_SERVER['SERVER_PORT'] : (int) getenv('SERVER_PORT');
+    $secure      = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 1 : 0;
+
+    $script_name = (!empty($_SERVER['PHP_SELF'])) ? $_SERVER['PHP_SELF'] : getenv('PHP_SELF');
+    if (!$script_name)
     {
-        $db->close_db();
+        $script_name = (!empty($_SERVER['REQUEST_URI'])) ? $_SERVER['REQUEST_URI'] : getenv('REQUEST_URI');
     }
 
-    header('Location: ' . $location);
+    // Replace backslashes and doubled slashes (could happen on some proxy setups)
+    $script_name = str_replace(array('\\', '//'), '/', $script_name);
+    $script_path = trim(dirname($script_name));
+
+    $url = (($secure) ? 'https://' : 'http://') . $server_name;
+
+    if ($server_port && (($secure && $server_port <> 443) || (!$secure && $server_port <> 80)))
+    {
+        $url .= ':' . $server_port;
+    }
+
+    $url .= $script_path . '/' . str_replace('&amp;', '&', $page);
+    header('Location: ' . $url);
     exit;
 }
 

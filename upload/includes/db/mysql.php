@@ -127,13 +127,8 @@ class dbal_mysql extends dbal
             // If the query didn't work    
             if ( $this->query_id === false )
             {
-                $message = $this->sql_error($query);
-
-                if ( DEBUG )
-                {
-                    echo $message;
-                }
-                // FIXME: I don't think this is a good idea. If there's an error and it's not debugging, then it should be a hard error.
+                $this->sql_error($query);
+                
                 return false;
             }
             
@@ -329,7 +324,6 @@ class dbal_mysql extends dbal
                 'code'    => @mysql_errno()
             );
         }
-
         return array(
             'message' => @mysql_error($this->link_id),
             'code'    => @mysql_errno($this->link_id)

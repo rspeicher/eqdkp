@@ -422,7 +422,7 @@ class Upgrade
      * 
      * // Prepare __auth_users for a user_id-auth_id key
      * // Note that the '__' table name prefix isn't required
-     * Upgrade::prepare_uniquekey('auth_users', array('user_id', auth_id'));
+     * Upgrade::prepare_uniquekey('auth_users', array('user_id', 'auth_id'));
      * </code>
      *
      * @param string $table Table to prepare

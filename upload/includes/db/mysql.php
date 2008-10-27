@@ -250,8 +250,7 @@ class dbal_mysql extends dbal
     /**
      * Find the ID of the last row inserted
      */
-    // NOTE: Removed intval() statement encasing mysql_insert_id
-    function sql_nextid()
+    function sql_lastid()
     {
         return ($this->link_id) ? @mysql_insert_id($this->link_id) : false; 
     }
@@ -403,10 +402,10 @@ class dbal_mysql extends dbal
         return $this->sql_affectedrows();
     }
 
-    // sql_nextid
+    // sql_lastid
     function insert_id()
     {
-        return $this->sql_nextid();
+        return $this->sql_lastid();
     }
 
     // sql_freeresult

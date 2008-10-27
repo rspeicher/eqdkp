@@ -79,6 +79,18 @@ function path_params($param_name, $param_value = '')
     return $retval;
 }
 
+/**
+ * Return the appropriate path to a specific plugin page.
+ *
+ * @param string $plugin_path   Plugin path, usually its code (e.g., 'wishlist')
+ * @param string $path          Script path (e.g., 'index.php')
+ * @return string
+ */
+function plugin_path($plugin_path, $path)
+{
+    return path_default("plugins/${plugin_path}/${path}");
+}
+
 ## ############################################################################
 ## Adjustment Paths
 ## ############################################################################

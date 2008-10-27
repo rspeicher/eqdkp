@@ -571,11 +571,6 @@ function generate_pagination($base_url, $num_items, $per_page, $start_item, $sta
  */
 function redirect($page, $return = false)
 {
-    if ( $return )
-    {
-        trigger_error("Second parameter to redirect() is deprecated.", E_USER_NOTICE);
-    }
-    
     $server_name = (!empty($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : getenv('SERVER_NAME');
     $server_port = (!empty($_SERVER['SERVER_PORT'])) ? (int) $_SERVER['SERVER_PORT'] : (int) getenv('SERVER_PORT');
     $secure      = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 1 : 0;
@@ -598,8 +593,16 @@ function redirect($page, $return = false)
     }
 
     $url .= $script_path . '/' . str_replace('&amp;', '&', $page);
-    header('Location: ' . $url);
-    exit;
+    
+    if ( $return )
+    {
+        return $url;
+    }
+    else
+    {
+        header('Location: ' . $url);
+        exit;
+    }
 }
 
 /**

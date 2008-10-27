@@ -76,13 +76,7 @@ class Register extends EQdkp_Admin
         ));
         
         // Build the server URL
-        // ---------------------------------------------------------
-        // TODO: Remove this and replace with a call to a function, or place this in the class itself.
-        $script_name = preg_replace('/^\/?(.*?)\/?$/', '\1', trim($eqdkp->config['server_path']));
-        $script_name = ( $script_name != '' ) ? $script_name . '/register.php' : 'register.php';
-        $server_name = trim($eqdkp->config['server_name']);
-        $server_port = ( intval($eqdkp->config['server_port']) != 80 ) ? ':' . trim($eqdkp->config['server_port']) . '/' : '/';
-        $this->server_url  = 'http://' . $server_name . $server_port . $script_name;
+        $this->server_url = redirect('register.php', true);
     }
     
     function error_check()
@@ -140,10 +134,6 @@ class Register extends EQdkp_Admin
         if ( $eqdkp->config['account_activation'] == USER_ACTIVATION_SELF || $eqdkp->config['account_activation'] == USER_ACTIVATION_ADMIN )
         {
             $user_key = $this->random_string(true);
-            $key_len = 54 - (strlen($this->server_url));
-            $key_len = ($key_len > 6) ? $key_len : 6;
-
-            $user_key = substr($user_key, 0, $key_len);
             $user_active = '0';
 
             if ( $user->data['user_id'] != ANONYMOUS )
@@ -278,10 +268,6 @@ class Register extends EQdkp_Admin
                 
                 // Create a new activation key
                 $user_key = $this->random_string(true);
-                $key_len = 54 - (strlen($this->server_url));
-                $key_len = ($key_len > 6) ? $key_len : 6;
-    
-                $user_key = substr($user_key, 0, $key_len);
                 $user_password = $this->random_string(false);
                 
                 $sql = "UPDATE __users
@@ -423,10 +409,11 @@ class Register extends EQdkp_Admin
      * @return void
      */
     // TODO: Needs testing for all possibilities:
-    //      No activation
+    //      No activation [WORKS]
     //      User activation (user gets e-mail)
-    //      Admin activation (admin get e-mail)
-    //      Admin performs activation (user gets e-mail)
+    //      Admin activation (admin get e-mail) [WORKS]
+    //      Admin performs activation (user gets e-mail) [WORKS]
+    //      User lost password
     function send_mail($address, $options, $vars)
     {
         global $eqdkp;

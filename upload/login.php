@@ -19,7 +19,7 @@ $eqdkp_root_path = './';
 require_once($eqdkp_root_path . 'common.php');
 
 // Get some page variables
-// TODO: These actions are mutually exclusive. Alamgamate them into a single 'mode' variable.
+// TODO: These actions are mutually exclusive. Amalgamate them into a single 'mode' variable.
 $login    = $in->exists('login') ? true : false;
 $logout   = $in->exists('logout') ? true : false;
 $lostpass = $in->exists('lost_password') ? true : false;

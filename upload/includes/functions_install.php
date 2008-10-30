@@ -285,9 +285,10 @@ function connect_check_db($error_connect, &$error, $dbms, $table_prefix, $dbhost
     }
 
     // Try and connect ...
-    // NOTE: EQdkp's sql_connect function returns false if the connection was invalid.
+    // NOTE: EQdkp's sql_connect function returns a resource (a link ID) if the connection was successful.
     $connect_test = $db->sql_connect($dbhost, $dbname, $dbuser, $dbpasswd, false);
-    if ($connect_test === false || is_array($connect_test))
+	
+    if ($connect_test === false || !is_resource($connect_test))
     {
         $db_error = $db->error();
         $error[] = $lang['INST_ERR_DB_CONNECT'] . '<br />' . (($db_error['message']) ? $db_error['message'] : $lang['INST_ERR_DB_NO_ERROR']);

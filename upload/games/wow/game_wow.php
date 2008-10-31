@@ -98,15 +98,16 @@ if (!isset($get_gameinfo))
                 'name'     => 'Warrior', 
                 'color'    => 'C79C6E',
             ),
-/*           'death_knight'    => array(
+            'death_knight' => array(
                 'id'       => 10, 
                 'name'     => 'Death Knight', 
-                'color'    => '000000',
+                'color'    => 'C41E3B',
             ),
-*/        ),
+        ),
         
         // Class-Armor mappings
         'class_armor'  => array(
+            array('class' => 'death_knight', 'armor' => 'plate'),
             array('class' => 'druid',   'armor' => 'leather'),
             array('class' => 'hunter',  'armor' => 'leather'),
             array('class' => 'hunter',  'armor' => 'chain', 'min' => 40),
@@ -134,61 +135,61 @@ if (!isset($get_gameinfo))
                 'id'       => 10, 
                 'name'     => 'Blood Elf', 
                 'faction'  => 'horde',
-                'classes'  => array('priest','rogue','mage','hunter','warlock','paladin')
+                'classes'  => array('death_knight','priest','rogue','mage','hunter','warlock','paladin')
             ),
             'human'    => array(
                 'id'       => 2, 
                 'name'     => 'Human', 
                 'faction'  => 'alliance',
-                'classes'  => array('priest','rogue','warrior','mage','warlock','paladin')
+                'classes'  => array('death_knight','priest','rogue','warrior','mage','warlock','paladin')
             ),
             'draenei'  => array(
                 'id'       => 9, 
                 'name'     => 'Draenei', 
                 'faction'  => 'alliance',
-                'classes'  => array('priest','warrior','mage','hunter','shaman','paladin')
+                'classes'  => array('death_knight','priest','warrior','mage','hunter','shaman','paladin')
             ),
             'dwarf'    => array(
                 'id'       => 3, 
                 'name'     => 'Dwarf', 
                 'faction'  => 'alliance',
-                'classes'  => array('priest','rogue','warrior','hunter')
+                'classes'  => array('death_knight','priest','rogue','warrior','hunter')
             ),
             'gnome'    => array(
                 'id'       => 1, 
                 'name'     => 'Gnome', 
                 'faction'  => 'alliance',
-                'classes'  => array('rogue','warrior','mage','warlock')
+                'classes'  => array('death_knight','rogue','warrior','mage','warlock')
             ),
             'night_elf'  => array(
                 'id'       => 4, 
                 'name'     => 'Night Elf', 
                 'faction'  => 'alliance',
-                'classes'  => array('priest','rogue','warrior','druid','hunter')
+                'classes'  => array('death_knight','priest','rogue','warrior','druid','hunter')
             ),
             'orc'      => array(
                 'id'       => 7, 
                 'name'     => 'Orc', 
                 'faction'  => 'horde',
-                'classes'  => array('rogue','warrior','hunter','warlock','shaman')
+                'classes'  => array('death_knight','rogue','warrior','hunter','warlock','shaman')
             ),
             'tauren'   => array(
                 'id'       => 8, 
                 'name'     => 'Tauren', 
                 'faction'  => 'horde',
-                'classes'  => array('warrior','druid','hunter','shaman')
+                'classes'  => array('death_knight','warrior','druid','hunter','shaman')
             ),
             'troll'    => array(
                 'id'       => 5, 
                 'name'     => 'Troll', 
                 'faction'  => 'horde',
-                'classes'  => array('priest','rogue','warrior','mage','hunter','shaman')
+                'classes'  => array('death_knight','priest','rogue','warrior','mage','hunter','shaman')
             ),
             'undead'   => array(
                 'id'       => 6, 
                 'name'     => 'Undead', 
                 'faction'  => 'horde',
-                'classes'  => array('priest','rogue','warrior','mage','warlock')
+                'classes'  => array('death_knight','priest','rogue','warrior','mage','warlock')
             ),
         ),
         

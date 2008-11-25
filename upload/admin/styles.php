@@ -225,9 +225,9 @@ class Manage_Styles extends EQdkp_Admin
         ));
         $db->query("INSERT INTO __styles {$query}");
         $style_id = $db->insert_id();
-        
+		
         $query = $db->build_query('INSERT', array(
-            'style_id'          => $in->get('style_id', intval($eqdkp->config['default_style'])),
+            'style_id'          => $style_id,
             'attendees_columns' => $in->get('attendees_columns', 8),
             'date_notime_long'  => $in->get('date_notime_long'),
             'date_notime_short' => $in->get('date_notime_short'),

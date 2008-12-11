@@ -25,7 +25,7 @@ $game_info = array(
     'name'      => 'World of Warcraft',
     'shortname' => 'WoW',
     'version'   => '1.0',
-    'max_level' => 70,
+    'max_level' => 80,
     
     'available' => array(
         'armor_types' => true,

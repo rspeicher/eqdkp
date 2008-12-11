@@ -101,7 +101,7 @@ require($eqdkp_root_path . 'includes/functions_install.php');
 
 // System defaults / available database abstraction layers
 $DEFAULTS = array(
-    'version'       => '1.4.0 B1',
+    'version'       => '1.4.0 B2',
     'default_lang'  => 'English',
     'default_style' => '1',
     'default_game'  => 'wow',

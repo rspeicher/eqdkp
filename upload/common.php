@@ -40,7 +40,7 @@ if ( !defined('EQDKP_INSTALLED') )
 }
 
 // Constants
-define('EQDKP_VERSION', '1.4.0 B1');
+define('EQDKP_VERSION', '1.4.0 B2');
 define('NO_CACHE', true);
 
 define('DEBUG', 2);

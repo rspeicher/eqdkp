@@ -289,7 +289,7 @@ class Register extends EQdkp_Admin
                     array(
                         'USERNAME'   => sanitize($row['user_name']),
                         'DATETIME'   => date('m/d/y h:ia T', time()),
-                        'IPADDRESS'  => sanitize($user->ip_address),
+                        'IPADDRESS'  => sanitize($user->ip),
                         'U_ACTIVATE' => $this->server_url . '?mode=activate&key=' . $user_key,
                         'PASSWORD'   => $user_password
                     )

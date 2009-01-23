@@ -408,12 +408,6 @@ class Register extends EQdkp_Admin
      * @param array $vars Array of key/value template variable pairs to assign
      * @return void
      */
-    // TODO: Needs testing for all possibilities:
-    //      No activation [WORKS]
-    //      User activation (user gets e-mail)
-    //      Admin activation (admin get e-mail) [WORKS]
-    //      Admin performs activation (user gets e-mail) [WORKS]
-    //      User lost password
     function send_mail($address, $options, $vars)
     {
         global $eqdkp;

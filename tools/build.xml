@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="eqdkp-1.4.0b1" default="dist" basedir=".">
+<project name="eqdkp-1.4.0b2" default="dist" basedir=".">
     <target name="export">
         <echo msg="Creating export directory..." />
         <mkdir dir="./${phing.project.name}" />
@@ -12,7 +12,7 @@
             password=""
             force="true"
             nocache="true"
-            repositoryurl="http://eqdkp.googlecode.com/svn/branches/inputsec/"
+            repositoryurl="http://eqdkp.googlecode.com/svn/tags/1.4.0b2/"
             todir="./${phing.project.name}" />
     </target>
 

@@ -1,3 +1,18 @@
+Version 1.4.0b2 - Jan 23, 2009
+------------------------------
+[*] admin/listnews.php on eqdkp-1.4.0b1 [ #17 ]
+[*] Install Failure - missing function array_diff_key [ #18 ]
+[*] Incorrect url when board is not on port 80 [ #23 ]
+[*] eqdkp->process_cancel() forms incorrect URL [ #31 ]
+[*] $SID still lurks in eqdkp.php [ #32 ]
+[*] Duplicate key style_config.style_id on INSERT [ #36 ]
+[*] Lost Password submission results in error message output [ #39 ]
+[*] Fixed an error where a user could not be renamed
+[*] Prevented division by zero in stats.php [ #25 ]
+[*] Session.user_lastvisit wasn't getting updated properly
+[ ] Added a plugin_path() method, see [PluginConversion] wiki page [ #29 ]
+[+] Added Wrath of the Lich King support for World of Warcraft
+
 Version 1.4.0b1 - May 23, 2008
 ------------------------------
 [-] Removed SOAP interfaces. Maybe they'll be released as a plugin at a later date, but they have no place in the default package.

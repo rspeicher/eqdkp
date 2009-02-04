@@ -112,7 +112,7 @@ class dbal_mysql extends dbal
             // Remove pre-existing query resources
             unset($this->query_id);
             
-            $query = preg_replace('#\s__([^\s]+)#', ' ' . $table_prefix . '\1', $query);
+            $query = preg_replace('#[^\w]__([\w]+)`?#', ' ' . $table_prefix . '\1', $query);
             
             if ( is_array($params) && count($params) > 0 )
             {

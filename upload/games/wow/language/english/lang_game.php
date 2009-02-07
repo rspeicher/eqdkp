@@ -41,7 +41,7 @@ $lang = array_merge($lang, array(
 
     'ARMOR_CLOTH'       => 'Cloth',
     'ARMOR_LEATHER'     => 'Leather',
-    'ARMOR_CHAIN'       => 'Chain',
+    'ARMOR_MAIL'        => 'Mail',
     'ARMOR_PLATE'       => 'Plate',
 
 	'CLASS_DEATH_KNIGHT'=> 'Death Knight',

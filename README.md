@@ -1,4 +1,4 @@
-# EQdkp
+# EQdkp ![](http://stillmaintained.com/tsigo/eqdkp.png)
 
 This is a mirror of EQdkp's codebase. The project has been abandoned, so this
 repository is only for historical purposes.
